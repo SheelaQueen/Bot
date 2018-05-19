@@ -1,0 +1,28 @@
+.wikiSidebarItem {
+  width: 100%;
+  cursor: pointer;
+  font-size: 1.3rem;
+  line-height: 1.5;
+}
+
+.wikiSidebarItem .active {
+  margin-left: 10px;
+  color: #2196F3;
+}
+
+.collapsible.wikiCategoryCollapsible {
+  border: 0 !important;
+  margin: 0 !important;
+  box-shadow: 0 0 0 0 !important;
+}
+
+.collapsible.wikiCategoryCollapsible .collapsible-header {
+  background-color: transparent !important;
+  border-bottom: 0 !important;
+  padding: 0 !important;
+}
+
+.collapsible.wikiCategoryCollapsible .collapsible-body {
+  padding: 1rem !important;
+  border-bottom: 0 !important;
+}

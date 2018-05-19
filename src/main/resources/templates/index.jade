@@ -1,0 +1,45 @@
+script(src='/res/js/home.js')
+
+.center-align
+    // Bot Introduction
+    .row
+        .col.s12
+            img(src='/res/GamesROB.png').homeLogoName
+            h1.white-text='GamesROB'
+    .row
+        .col.s12
+            h5.white-text #{gamesROBDescription}
+
+    // Games & their descriptions
+    .row.homeGameExamplesDiv
+        for game in homeGameExamples
+            .col.homeGameExample.s12.m6.l3(data-help-page=game.helpPage)
+                .row.imageRow
+                    .col.s12
+                        img(src=game.resource)
+                        img.blurredImage(src=game.resourceBlur)
+                .row.center-align.gameExampleTitleRow
+                    .col.s12
+                        a.white-text.gameExampleTitle #{game.name}
+                .row.center-align.gameExampleDescriptionRow
+                    .col.s12
+                        a.white-text.gameExampleDescription #{game.description}
+
+    // Buttons
+    .row
+        a.glowingButton(href=inviteURL) #{inviteButtonName}
+        a.glowingButton(href=upvoteURL) #{upvoteButtonName}
+
+    // Features
+    for feature in features
+        .row.feature
+            .col.s12.m3.center-align
+                .featureImgDiv.center-align
+                    img(src=feature.image)
+            .col.s12.m9
+                .row
+                    .col.s12.rightSide
+                        a.white-text.featureTitle #{feature.title}
+                .row
+                    .col.s12.rightSide
+                        a.white-text.featureDescription #{feature.description}

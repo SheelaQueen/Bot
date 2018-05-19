@@ -1,0 +1,49 @@
+script(src='/common/js/vibrant.js')
+script
+    | var guildName = "#{guildName}"
+script(src='/res/js/server.js')
+
+.row
+    .backgroundBannerWrapper
+        .backgroundBanner(style="background-image: url('#{guildIcon}')")
+    .col.s12.center-align
+        img.backgroundBannerIcon(src=guildIcon crossOrigin="Anonymous")
+        h1.white-text #{guildName}
+.row
+    .col.s12.center-align
+        h5.white-text.inlineUL Leaderboard (#{memberCount} members)
+        br
+        if showSettings
+            .inlineUL(onclick="loadPage(window.location.href + 'edit')", style="cursor: pointer")
+                i.material-icons settings
+                a.white-text #{settingsText}
+    
+.topMargin.beforeRankings
+for ranking in rankings
+    .row
+        .col.s12.center-align
+            h5.white-text #{ranking.name}
+    .row.leaderboardEntry(style="background-color: #263238")
+        .col.s6.m4.l3
+            a.white-text #{leaderboardTableName}
+        .col.s2.m2.offset-m2.l1.offset-l6.center-align
+            a.white-text #{leaderboardTableVictories}
+        .col.s2.m2.l1.center-align
+            a.white-text #{leaderboardTableLosses}
+        .col.s2.m2.l1.center-align
+            a.white-text #{leaderboardTableMatches}
+    for entry in ranking.topEntries
+        .row.leaderboardEntry(class=entry.positionRole, onclick="openModalUser('#{entry.id}')")
+            .col.s3.m1
+                a.white-text #{entry.position}
+            .col.s3.m3.l2
+                img.userIcon(src=entry.icon)
+                a.white-text #{entry.name}
+            .col.s2.m2.offset-m2.l1.offset-l6.center-align
+                a.white-text #{entry.stats.victories}
+            .col.s2.m2.l1.center-align
+                a.white-text #{entry.stats.losses}
+            .col.s2.m2.l1.center-align
+                a.white-text #{entry.stats.gamesPlayed}
+.topMargin
+.modalContainer

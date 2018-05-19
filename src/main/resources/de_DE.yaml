@@ -1,0 +1,127 @@
+# To translators: Start on genericMessages
+languageProperties:
+  code: "de_DE"
+  language: "German"
+  country: "Germany"
+  languageName: "🇩🇪 German"  
+  translators: "Niekold#9410"
+  version: "1.4.2"
+
+genericMessages:
+  alreadyPlaying: "Du spielst bereits ein Spiel in %s!\nGebe `%sleave` ein, um das Spiel zu verlassen."
+  noGamesInChannel: "Es läuft kein Spiel in den Channel.\nDu kannst `%shelp` eingeben, um ein Spiel zu starten."
+
+gameFramework:
+  singleplayerMatch: "**%s Einzelspieler Kampf!**\n%s\n\n%s"
+  multilplayerMatch: "**%s Mehrspieler Kampf!**\n%s\n\n"
+  joinToPlay: "🚪 Gebe `%sjoin` ein, um das Spiel zu betreten! (%s/%s)"
+  begin: "**Spiel gestartet!**\n**%s**\n%s\n\n%s"
+  join: "%s hat das Spiel betreten! %s/%s"
+  left: "%s hat das Spiel verlassen!"
+
+  settingOutOfRange: "Die Einstellung `%s` muss zwischen %s und %s liegen!"
+  activeGame: "In diesem Channel läuft bereits ein Spiel."
+  viewPlayers: "Seh dir die Spieler mit `%slistplayers` an und verlasse das Spiel mit `%sleave`."
+  typeToJoin: "Gebe `%sjoin` ein um das Spiel zu betreten."
+  playersOutOfRange: "Du kannst nur zwischen %s und %s Spielern in diesem Spiel haben!"
+
+  gameOver: "**Spiel vorbei!**\n%s\n\n%s"
+  winner: "%s hat gewonnen!"
+  draw: "Unentschieden!"
+  timeout: "Das Spiel ist nach **%s** vorbei."
+  creatorQuit: "Das Spiel %s ist vorbei, da der ersteller geleavt ist."
+  everyoneQuit: "Das Spiel ist vorbei, da jeder die Runde verlassen hat."
+
+  now: " - **Jetz**"
+  next: " - **Danach**"
+
+game:
+  connectFour:
+    name: "4 Gewinnt"
+    shortDescription: "Werfe scheiben, um 4 Ihrer Farbe zu verbinden!"
+    longDescription: "Du musst 4 Kacheln deiner Farbe vertikal, horizontal oder diagonal verbinden! \n Senden Sie im Chat die Nummer der Zeile an, die Sie einfügen möchten (z. B. 3)"
+  hangman:
+    name: "Hangman"
+    shortDescription: "Versuche das vom Ersteller des Spiels übermittelte Wort zu erraten!"
+    longDescription: "Der Ersteller des Matches sendet ein geheimes Wort an den Bot in DM. \n Danach versuchen die anderen Spieler, es Buchstabe für Buchstabe zu erraten!"
+
+    sendWord: "Bevor es beginnt, %s: Sende das Wort, das du wählst per PN."
+    wordSet: "**Wort gesetzt!**\nDu kannst nun zurück zu %s."
+    wordPicked: "Das Wort wurde gesetzt!"
+    invalidGuess: "%s hat %s geraten, und es ist falsch!"
+    validGuess: "%s hat den Buchstaben %s erhalten!"
+  minesweeper:
+    name: "Minensucher"
+    shortDescription: "Der OG Minensucher! Lass dich nicht aufblasen!"
+    longDescription: "Schicke den Ort, an dem du graben möchtest (z. B. c4), die Anzahl der Bomben in der Nähe wird angezeigt. \n Gib nicht in eine Bombe hinein! Viel Glück!"
+
+    bomb: "Du hast eine Bombe geworfen"
+    left: "Der Spieler hat die Runde verlassen."
+  tictactoe:
+    name: "TicTacToe"
+    shortDescription: "Ordne 3 deiner Fliese in einer Linie innerhalb des Brettes an!"
+    longDescription: "Sie wissen, wie TicTacToe funktioniert!\nSenden Sie einfach den Buchstaben ein, in den Sie Ihre Kachel einfügen möchten (z. B. a)."
+
+command:
+  permissionLock: "⛔ Du kannst den Kommand nicht benutzen!"
+
+  join:
+    alreadyOnMatch: "Du bist bereits in der Runde!"
+    full: "Die Runde ist voll!"
+    description: "Betrete das Spiel in diesem Channel"
+  leave:
+    notPlaying: "Du spielst kein Spiel.\n"
+    joinChannelGame: "Betrete das Spiel mit `%sjoin`!"
+    startGame: "Wähle und starte ein Game `%shelp`!"
+    description: "Verlasse das Spiel in diesem Channel"
+  stop:
+    matchStopped: "⏹ Spiel gestoppt von %s"
+    description: "Stoppt sofort das Spiel"
+  listPlayers:
+    header: "**%s Kämpfe**\n%s\n\n"
+    description: "Liste die Spiele in diesem Channel"
+  
+  leaderboard:
+    unknownUser: "*unbekannter User*"
+    playerRatings: " (**%s** Siege)"
+    noWinner: "~Kein Gewinner gefunden~"
+    response: "**Insgesamte**\n%s\n**Spiele:**\n%s"
+    description: "Zeige das Leaderboard an"
+  profile:
+    playerStats: "**%s**'s Statistiken:\n"
+    overall: "%s **Insgesamte Stats**: %s\n\n"
+    statsString: "%s%s Gewinne, %s Verloren (%s W/L Ratio), %s Spiele gespielt"
+    position: "%s**%s%s position** "
+    description: "Zeig dein Profil an"
+  emojiTile:
+    upvoteShamelessPromotion: "Du musst für GameROB Voten um dein Emoji zu ändern.!\nLog dich ein und Vote \"Upvote\" hier: %s"
+    set: "Dein Emoji wurde gesetzt %s"
+    cannotUse: "Du kannst diesen Emoji nicht verwenden"
+    invalid: "Dieser Emoji ist ungültig"
+    description: "Ändere dein Emoji in einem Spiel"
+
+  userLang:
+    set: "Deine Sprache wurde zu %s gesetzt"
+    description: "Ändere deine Sprache"
+  guildLang: 
+    set: "Die Sprache wurde zu %s geändert"
+    description: "Setze die defaultsprache für ein Spiel"
+
+  help:
+    beginning: "**<:GamesROB:391744594863325184> GamesROB**\n**🎲 Spiele:**\n"
+    gameString: "%s `%%PREFIX%%%s` - %s"
+    description: "Bekomme Hilfe"
+  invite:
+    embed:
+      title: "🎮 Klicke um GamesROB einzuladen"
+      description: "⚠ Du benötigst Manage Server Permission um den Bot einzuladen"
+    description: "Lade den Bot ein"
+  perm:
+    invalidPerm: "Falsche Permission"
+    noRole: "Ich finde keine Rolle mit den Namen"
+    set: "🔨 Berechtigung für %s Spiele auf Mitglieder mit der Rolle (oder Rollen höher als) setzen `%s`"
+    reset: "🔨 Die %s Permission wurde resettet"
+    description: "Permissions geändert"
+  prefix:
+    message: "Prefix geändert"
+    description: "Ändere den Prefix für diesen Server"

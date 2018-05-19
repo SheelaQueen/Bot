@@ -1,0 +1,220 @@
+# To translators: Start on genericMessages
+languageProperties:
+  code: "pt_BR"
+  language: "Português"
+  country: "Brasil"
+  languageName: "🇧🇷 Português Brasileiro"  
+  translators: "deprilula28#3609"
+  version: "1.5.2"
+
+genericMessages:
+  alreadyPlaying: "Você já está jogando em %s!\nDigite `%sleave` para sair da partida."
+  noGamesInChannel: "Não há jogos atualmente nesse canal.\nVocê pode digitar `%shelp` para escolher e começar um jogo!"
+  invalidLanguage: "Essa linguagem é inválida."
+  upvoted: "Obrigado por votar pelo GamesROB!\n%s\nVocê pode votar novamente amanhã."
+  notEnoughTokens: "Você não tem tokens suficientes para fazer isso.\nGanhe mais tokens vencendo partidas e votando para o bot em %s."
+  nth1: "º"
+  nth2: "º"
+  nth3: "º"
+  nth4: "º"
+
+gameFramework:
+  singleplayerMatch: "**Partida Solo de %s!**\n%s\n\n%s"
+  multiplayerMatch: "**Partida Multijogador de %s!**\n%s\n\n"
+  joinToPlay: "🚪 Digite `%sjoin` para jogar! (%s/%s)"
+  begin: "**Começou!**\n**%s**\n%s\n\n%s"
+  join: "%s entrou na partida! %s/%s"
+  left: "%s saiu da partida!"
+
+  settingOutOfRange: "A configuração `%s` deve ter um valor entre %s e %s!"
+  activeGame: "Há outro jogo nesse canal."
+  viewPlayers: "Veja os jogadores com `%slistplayers` e saia com `%sleave`."
+  typeToJoin: "Digite `%sjoin` para participar."
+  playersOutOfRange: "Só pode haver entre %s e %s jogadores nesse jogo!"
+
+  gameOver: "**Fim de Jogo!**\n%s\n\n%s"
+  winner: "%s venceu!"
+  draw: "Empate!"
+  timeout: "A partida expirou após de **%s**."
+  creatorQuit: "A partida de %s foi cancelada porque o(a) criador(a) saiu."
+  everyoneQuit: "A partida foi cancelada porque todos sairam."
+
+  now: " - **Agora**"
+  next: " - **Próximo**"
+
+game:
+  connectFour:
+    name: "Lig4"
+    shortDescription: "Derrube botões e ligar 4!"
+    longDescription: "Você deve ligar 4 botões da sua cor verticalmente, horizontalmente ou em diagonal!\nEnvie no chat o número para a linha que você quer derrubar (ex.: 3)"
+  hangman:
+    name: "Forca"
+    shortDescription: "Tente adivinhar a palavra que o(a) criador(a) escolheu!"
+    longDescription: "O(a) criador(a) manda em privado para o bot uma palavra.\nDepois disso, os jogadores devem adivinha-lá, letra por letra!"
+
+    sendWord: "Antes de tudo, %s: Envie a palavra em privado!"
+    wordSet: "**Palavra enviada!**\nVocê pode voltar para %s."
+    wordPicked: "A palavra foi escolhida!"
+    invalidGuess: "%s adivinhou %s, e errou!"
+    validGuess: "%s acertou a letra %s!"
+  minesweeper:
+    name: "Campo Minado"
+    shortDescription: "O famoso campo minado! Não seja explodido!"
+    longDescription: "Envie onde quer cavar (ex. c4), e o número de bombas por perto irá mostrar.\nNão cave uma bomba! Boa sorte!"
+
+    bomb: "Você cavou uma bomba!"
+    left: "O jogador saiu"
+  tictactoe:
+    name: "Jogo da Velha"
+    shortDescription: "Faça uma linha de 3!"
+    longDescription: "Você sabe como funciona!\nEnvie a letra de onde quer colocar seu símbolo (ex. a)."
+
+command:
+  permissionLock: "⛔ Você não tem permissão para usar esse comando!"
+
+  tokens:
+    own: "Você tem 🔸 %s tokens"
+    other: "%s tem 🔸 %s tokens"
+    description: "Veja quantos tokens você e outros têm"
+  join:
+    alreadyOnMatch: "Você já está nesse jogo!"
+    full: "O jogo está cheio!"
+    description: "Entra na partida do canal atual"
+  leave:
+    notPlaying: "Parece que você não está jogando nenhum jogo.\n"
+    joinChannelGame: "Entre no jogo desse canal com `%sjoin`!"
+    startGame: "Escolha e comece um jogo em `%shelp`!"
+    description: "Sai da partida que você está."
+  stop:
+    matchStopped: "⏹ Partida parada por %s"
+    description: "Força uma parada na partida"
+  listplayers:
+    header: "**Partida de %s**\n%s\n\n"
+    description: "Lista os jogadores da partida atual"
+  
+  leaderboard:
+    unknownUser: "*jogador desconhecido*"
+    playerRatings: " (**%s** vitórias)"
+    noWinner: "~nenhum vencedor ainda~"
+    response: "**Todos Jogos**\n%s\n**Jogos Específicos:**\n%s"
+    websiteLink: "\n**Veja mais no website:** %s"
+    description: "Veja a lista de vencedores!"
+  profile:
+    playerStats: "Estatísticas de **%s**:\n"
+    overall: "%s **Estatísticas em geral**: %s\n\n"
+    statsString: "%s%s Vitórias, %s Derrotas (%s W/L Ratio), %s Partidas Jogadas"
+    place: "lugar"
+    description: "Veja seu perfil, ou de outros!"
+    notRanked: "Sem posição"
+  emote:
+    set: "Seu emoji foi escolhido! %s"
+    cannotUse: "Não posso usar esse emoji! Tente colocá-lo nesse servidor."
+    invalid: "Desculpe-me, mas esse não é um emoji válido..."
+    description: "Altere o símbolo emoji que você será em partidas!"
+
+  userlang:
+    set: "Sua línguagem pessoal foi alterada para %s"
+    description: "Altere sua própria linguagem."
+  guildlang: 
+    set: "A linguagem padrão para esse servidor foi alterado para %s"
+    description: "Altere a linguagem padrão para o servidor."
+
+  help:
+    beginning: "**<:GamesROB:391744594863325184> GamesROB**\n**🎲 Jogos:**\n"
+    gameString: "%s `%%PREFIX%%%s` - %s"
+    moreInfo: "\n**📟 Lista de comandos e mais informações disponíveis no site**\n%s"
+    description: "Te dá ajuda!"
+  invite:
+    embed:
+      title: "🎮 Clique para convidar GamesROB!"
+      description: "⚠ Você precisará da permissão \"Gerenciador Servidor\" no servidor que quer convidar."
+    description: "Adicione o bot no seu servidor!"
+  info:
+    embed:
+      description: "**O bot para ter partidas divertidas no seu chat do Discord!**\n[Website](%s)!\n[Adicione-o ao seu servidor](%s)\n[Dê um voto no DBL](%s)\n[Veja o código](%s)\n[Entre no servidor de suporte](%s)"
+      statistics:
+        title: "📟 Estatísticas"
+        description: "**%s** servidores, **%s** membros e **%s** canais de texto!\n**%s** partidas jogadas (**%s** partidas estão ativas nesse momento) e **%s** votos no DBL!"
+      versions:
+        title: "📁 Versões"
+        description: "Versão do GamesROB: **%s**\nVersão do Java: **%s**\nVersão do [JDA](%s): **%s**\nVersão do [DepsJDAFramework](%s): **%s**\nTempo de Atividade da shard: **%s**"
+      system:
+        title: "💻 Sistema"
+        description: "Uso de RAM: **%s**\nSistema Operacional: **%s**"
+      credits:
+        title: "❤ Créditos"
+        description: "Fin#1337#7483: Me ajudar a testar o bot e ter comprado um servidor para hospedá-lo\nShaz#6547: Hospeador do bot faz um tempo <3"
+    description: "Ver estatísticas e informações"
+  raminfo:
+    message: ":computer: Uso de RAM\nEm geral: **%s**\nComandos: **%s**\nShards: **%s**\nCache: **%s**\nJogos: **%s**"
+    description: "🗄 *Debug* Veja um reporte completo de RAM"
+  ping:
+    message: "🏓 Pong!\nBot -> Discord: %s\nVocê -> Bot: %s\nConexão: %s"
+    description: "🗄 *Debug* Ver a latência do bot"
+  shardinfo:
+    title: "**Informação das Shards:**\n```js\n%s\n```"
+    shard: "Shard"
+    guilds: "Servidores"
+    users: "Usuários"
+    channels: "Canais"
+    status: "Estado"
+    ping: "Ping"
+    games: "Jogos"
+    ram: "Uso de RAM"
+    description: "🗄 *Debug* Ver informações do uso de RAM"
+
+  perm:
+    invalidPerm: "Permissão inválida!"
+    noRole: "Não pude achar uma permissão com esse nome!"
+    set: "🔨 Permissão alterada para %s jogos para membros com o cargo (ou cargos acima de) `%s`"
+    reset: "🔨 Permissão para %s foi resetada!"
+    description: "Alterar uma permissão"
+  setprefix:
+    message: "Alterado prefix do bot para esse servidor!"
+    description: "Altere o prefix do bot para seu servidor!"
+    
+website:
+  commonWrapper:
+    githubSource: "Código Fonte no Github"
+    trelloPage: "Página do Trello"
+    dblListing: "Página do DBL"
+    supportServer: "Servidor de Suporte"
+    myServers: "Meus Servidores"
+
+    help: "Ajuda"
+    joinServer: "Entre no Servidor"
+    addBot: "Adicione o Bot"
+    logIn: "Entrar"
+    signOut: "Sair"
+  home:
+    botDescription: "O bot de Discord para jogos de chat direto do seu servidor!"
+    invite: "Eu quero!"
+    upvote: "Dê um like no DBL"
+    haveFunTogether:
+      title: "Divirtam-se juntos!"
+      description: "Temos jogos clássicos de festa, e você pode jogar com práticamente quantas pessoas quiser!"
+    playCompetitively:
+      title: "Sejam competitivos!"
+      description: "Você pode ver a placa de liderança no seu servidor do Discord ou na página dele no site! Quem é o melhor?"
+  server:
+    overall: "Em Geral"
+    user: "Usuário"
+    wins: "Vitórias"
+    lost: "Derrotas"
+    gamesPlayed: "Partidas"
+    settings: "Configurações"
+  serverEdit:
+    language: "Linguagem"
+    permStartGame: "Permissão para iniciar partidas"
+    permStopGame: "Permissão para forçar parada de partidas"
+    default: "Padrão"
+    submit: "Salvar Alterações"
+  help:
+    intro: "Introdução"
+    commands: "Comandos"
+    credits: "Créditos"
+    tictactoe: "Jogo da Velha"
+    connectfour: "Lig4"
+    minesweeper: "Campo Minado"
+    hangman: "Forca"
+    games: "Jogos"

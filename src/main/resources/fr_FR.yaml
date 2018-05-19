@@ -1,0 +1,161 @@
+# To translators: Start on genericMessages
+languageProperties:
+  code: "fr_FR"
+  language: "Français"
+  country: "France"
+  languageName: "🇫🇷 Français"  
+  translators: "Ephysios#1912"
+  version: "1.4.2"
+
+genericMessages:
+  alreadyPlaying: "Vous jouez déjà à un autre jeu, au/à %s!\nTapez `%sleave` pour quitter ce match."
+  noGamesInChannel: "Il n'y a actuellement pas de jeux dans ce salon.\nVous pouvez taper `%shelp` pour choisir et démarrer une partie!"
+  invalidLanguage: "Pas une langue valide."
+
+gameFramework:
+  singleplayerMatch: "**%s - Match solo!**\n%s\n\n%s"
+  multiplayerMatch: "**%s - Match multijoueur!**\n%s\n\n"
+  joinToPlay: "🚪 Tapez `%sjoin` pour jouer! (%s/%s)"
+  begin: "**C'est parti!**\n**%s**\n%s\n\n%s"
+  join: "%s a rejoint le match! %s/%s"
+  left: "%s a quitté le match!"
+
+  settingOutOfRange: "Le réglage `%s` doit être compris entre %s et %s!"
+  activeGame: "Il y a un autre jeu en cours sur ce salon."
+  viewPlayers: "Voir les joueurs avec `%slistplayers` et quitté le match avec `%sleave`."
+  typeToJoin: "Vous pouvez tapez `%sjoin` pour le rejoindre."
+  playersOutOfRange: "Vous ne pouvez être qu'entre %s et %s joueurs dans ce jeu!"
+
+  gameOver: "**Game Over!**\n%s\n\n%s"
+  winner: "%s a gagné!"
+  draw: "Match nul!"
+  timeout: "Le match a expiré après **%s**."
+  creatorQuit: "Le match %s a été annulé parce que son créateur a quitté."
+  everyoneQuit: "Le match a été annulé parce que tout le monde a quitéé."
+
+  now: " - **Maintenant**"
+  next: " - **Prochain**"
+
+game:
+  connectFour:
+    name: "Puissance 4"
+    shortDescription: "Laissez tomber les carreaux pour connecter 4 carreaux de votre couleur!"
+    longDescription: "Vous devez connecter 4 carreaux de votre couleur verticalement, horizontalement ou en diagonale!\nEnvoyez dans le chat le numéro de la ligne que vous voulez déposer (ex: 3)."
+  hangman:
+    name: "Pendu"
+    shortDescription: "Essayez de deviner le mot soumis par le créateur du match!"
+    longDescription: "Le créateur du match envoie un mot secret au bot dans les DM. Après cela, les autres joueurs essaient de le deviner, lettre par lettre!"
+
+    sendWord: "Avant tout, %s: Envoyez le mot que vous voulez en DM!"
+    wordSet: "**Mot choisi!**\nVous pouvez revenir sur le salon %s."
+    wordPicked: "Le mot été choisi!"
+    invalidGuess: "%s a deviné %s, et s'est trompé!"
+    validGuess: "%s a trouvé la lettre %s!"
+  minesweeper:
+    name: "Démineur"
+    shortDescription: "Localiser les mines cachées avec pour seule indication le nombre de mines adjacentes."
+    longDescription: "Envoyez l'endroit que vous voulez creuser (ex: c4), le nombre de bombes à proximité sera affiché.\nNe creusez pas dans une bombe! Vous pouvez marquer par le suffixe F (ex: e1F)."
+
+    bomb: "Vous avez creuser une bombe!"
+    left: "Le joueur est parti"
+  tictactoe:
+    name: "Morpion"
+    shortDescription: "Le premier qui aligne trois de ses symboles gagne!"
+    longDescription: "Vous savez comment fonctionne TicTacToe!\nIl suffit d'envoyer la lettre dans laquelle vous voulez placer votre dalle (ex: a)."
+
+command:
+  permissionLock: "⛔ Vous ne pouvez pas utiliser cette commande!"
+
+  join:
+    alreadyOnMatch: "Vous êtes déjà dans le match!"
+    full: "Le match est plein!"
+    description: "Rejoindre un match sur le salon actuel"
+  leave:
+    notPlaying: "Il semblerait que vous ne jouez pas à des jeux.\n"
+    joinChannelGame: "Rejoignez le jeu de ce salon avec `%sjoin`!"
+    startGame: "Choisissez et lancez une partie sur `%shelp`!"
+    description: "Quitté le match du salon actuel."
+  stop:
+    matchStopped: "⏹ Match arrêté par %s"
+    description: "Force l'arrêt du match en cours"
+  listplayers:
+    header: "**%s Match**\n%s\n\n"
+    description: "Liste des joueurs du match en cours sur le salon actuel"
+  
+  leaderboard:
+    unknownUser: "*utilisateur inconnu*"
+    playerRatings: " (**%s** victoires)"
+    noWinner: "~pas encore de gagnant~"
+    response: "**Classement global**\n%s\n→ **Classement par jeux:**\n%s"
+    description: "Voir le classement!"
+  profile:
+    playerStats: "Statistiques de **%s**:\n"
+    overall: "%s **Statistiques globales**: %s\n\n"
+    statsString: "%s%s victoires, %s défaites (%s V/D Ratio), %s parties jouées"
+    position: "%s**%s%s position!** "
+    description: "Voir votre profil, ou celui de quelqu'un d'autre!"
+  emote:
+    upvoteShamelessPromotion: "Vous devez voter pour GamesROB pour changer votre emoji tile!\nIl suffit de vous connecter et de cliquer \"Upvote\" ici: %s"
+    set: "Votre emoji a été réglé sur %s!"
+    cannotUse: "Je ne peux pas utiliser cet emoji! Essayez de le mettre sur ce serveur."
+    invalid: "Désolé, mais ce n'est pas un emoji valide.."
+    description: "Change the emoji tile you'll be in matches!"
+
+  userlang:
+    set: "Votre langue personnelle a été définie sur %s"
+    description: "Changez votre langue personnelle."
+  guildlang: 
+    set: "La langue par défaut de ce serveur a été définie sur %s"
+    description: "Changez la langue par défaut du serveur."
+
+  help:
+    beginning: "**<:GamesROB:391744594863325184> GamesROB**\n**🎲 JEUX:**\n"
+    gameString: "%s `%%PREFIX%%%s` - %s"
+    moreCustomizability: "🔧 **Plus de personnalisation**\nModifiez les paramètres d'un jeu en ajoutant `<nom du paramètre>=<valeur du paramètre>` à la fin de la commande! ex: `%sminesweeper bombs=10`\nJouez avec plus de personnes en précisant le nombre de joueurs après la commande! ex: `%sconnect4 3`"
+    description: "Vous obtient de l'aide!"
+  invite:
+    embed:
+      title: "🎮 Cliquez pour inviter GamesROB!"
+      description: "⚠ Vous aurez besoin de la permission Gérer le serveur sur le serveur où vous souhaitez l'ajouter."
+    description: "Invitez le bot!"
+  info:
+    embed:
+      description: "**Le bot pour jouer à des jeux de chat amusants sur votre Discord!**\nVoir tous les jeux avec `%shelp`!\n[Ajoutez le bot à votre serveur](%s)\n[Votez pour le bot sur DBO](%s)\n[Voir le code source](%s)\n[Rejoignez notre serveur de support](%s)"
+      statistics:
+        title: "📟 Statistiques"
+        description: "**%s** serveurs, **%s** membres et **%s** salons textuels!\n**%s** parties jouées (**%s** matchs maintenant) et **%s** votes sur DBO!"
+      versions:
+        title: "📁 Versions"
+        description: "GamesROB Version: **%s**\nJava Version: **%s**\n[JDA](%s) Version: **%s**\n[DepsJDAFramework](%s) Version: **%s**\nShard Uptime: **%s**"
+      system:
+        title: "💻 Système"
+        description: "Utilisation de la RAM: **%s**\nOS: **%s**"
+      credits:
+        title: "❤ Crédits"
+        description: "Fin#1337#7483: m'a aidé à tester le bot et m'a acheté un serveur dank pour héberger le bot\nShaz#6547: Hébergeur dank du bot pendant un moment <3"
+    description: "Voir les statistiques et les informations"
+  raminfo:
+    message: ":computer: Information sur l'utilisation de la RAM\nGlobal: **%s**\nCommand Framework: **%s**\nShards: **%s**\nCache: **%s**\nJeux: **%s**"
+    description: "🗄 *Debug* View a full RAM Usage report"
+  ping:
+    message: "🏓 Pong!\nBot -> Discord: %s\nVous -> Bot: %s\nWebsocket: %s"
+    description: "🗄 *Debug* Voir la latence du bot"
+  shardinfo:
+    shard: "Shard"
+    guilds: "Guilds"
+    users: "Utilisateurs"
+    channels: "Salons"
+    status: "Statut"
+    ping: "Ping"
+    games: "Jeux"
+    ram: "Utilisation de la RAM"
+    description: "🗄 *Debug* View a shard information dump"
+
+  perm:
+    invalidPerm: "Permission invalide!"
+    noRole: "Ce rôle n'existe pas!"
+    reset: "🔨 La permission %s a été réinitialisé!"
+    description: "Changer une permission"
+  setprefix:
+    message: "Le prefixe de commande du bot a été changé!"
+    description: "Définir le préfixe de commande du bot!"

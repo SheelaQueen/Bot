@@ -1,0 +1,220 @@
+# To translators: Start on genericMessages
+languageProperties:
+  code: "en_US"
+  language: "English"
+  country: "USA"
+  languageName: "🇺🇸 American English"  
+  translators: "deprilula28#3609"
+  version: "1.5.2"
+
+genericMessages:
+  alreadyPlaying: "You are already playing another game on %s!\nType `%sleave` to leave that match."
+  noGamesInChannel: "There are no games currently in this channel.\nYou can type `%shelp` to pick and start a game!"
+  invalidLanguage: "Not a valid language."
+  upvoted: "Thank you for upvoting GamesROB!\n%s\nYou can upvote again tomorrow."
+  notEnoughTokens: "You don't have enough tokens to do that.\nGet more tokens by winning games and upvoting the bot on %s."
+  nth1: "st"
+  nth2: "nd"
+  nth3: "rd"
+  nth4: "th"
+
+gameFramework:
+  singleplayerMatch: "**%s Singleplayer Match!**\n%s\n\n%s"
+  multiplayerMatch: "**%s Multiplayer Match!**\n%s\n\n"
+  joinToPlay: "🚪 Type `%sjoin` to play! (%s/%s)"
+  begin: "**It's on!**\n**%s**\n%s\n\n%s"
+  join: "%s has joined the match! %s/%s"
+  left: "%s has left the match!"
+
+  settingOutOfRange: "The setting `%s` needs to be between %s and %s!"
+  activeGame: "There's another game going on this channel."
+  viewPlayers: "See the players with `%slistplayers` and leave with `%sleave`."
+  typeToJoin: "You can type `%sjoin` to join it."
+  playersOutOfRange: "You can only have between %s and %s players in this game!"
+
+  gameOver: "**Game Over!**\n%s\n\n%s"
+  winner: "%s has won!"
+  draw: "It's a draw!"
+  timeout: "The match has timed out after **%s**."
+  creatorQuit: "The %s match has been cancelled because its creator quit."
+  everyoneQuit: "The match has been cancelled because everyone quit."
+
+  now: " - **Now**"
+  next: " - **Next**"
+
+game:
+  connectFour:
+    name: "ConnectFour"
+    shortDescription: "Drop tiles in order to connect 4 of your color!"
+    longDescription: "You have to connect 4 tiles of your color vertically, horizontally or diagonally!\nSend in the chat the number for the row you want to drop in (e.g.: 3)"
+  hangman:
+    name: "Hangman"
+    shortDescription: "Try to guess the word submitted by the match's creator!"
+    longDescription: "The match's creator sends a secret word to the bot in DMs.\nAfter that, the other players try to guess it, letter by letter!"
+
+    sendWord: "Before anything, %s: Send the word you want in DMs!"
+    wordSet: "**Word set!**\nYou can go back to %s."
+    wordPicked: "The word was picked!"
+    invalidGuess: "%s guessed %s, and got it wrong!"
+    validGuess: "%s got the letter %s on point!"
+  minesweeper:
+    name: "Minesweeper"
+    shortDescription: "The OG minesweeper! Don't get blown up!"
+    longDescription: "Send the place you want to dig (e.g. c4), the number of nearby bombs will be shown.\nDon't dig into a bomb! You can flag by suffixing F (e.g. e1F)"
+
+    bomb: "You dug a bomb!"
+    left: "The player left"
+  tictactoe:
+    name: "TicTacToe"
+    shortDescription: "Arrange 3 of your tile in a line within the board!"
+    longDescription: "You know how TicTacToe works!\nJust send in the letter you want to put your tile in (e.g. a)."
+
+command:
+  permissionLock: "⛔ You can't use this command!"
+
+  tokens:
+    own: "You have 🔸 %s tokens"
+    other: "%s has 🔸 %s tokens"
+    description: "View how many tokens you or someone else has"
+  join:
+    alreadyOnMatch: "You're already on the match!"
+    full: "The match is full!"
+    description: "Joins a match on the current channel"
+  leave:
+    notPlaying: "Looks like you aren't playing any games.\n"
+    joinChannelGame: "Join this channel's game with `%sjoin`!"
+    startGame: "Pick and start a game on `%shelp`!"
+    description: "Leaves the match on the current channel"
+  stop:
+    matchStopped: "⏹ Match stopped by %s"
+    description: "Forces a stop the current match"
+  listplayers:
+    header: "**%s Match**\n%s\n\n"
+    description: "Lists the players in the current match in the current channel"
+  
+  leaderboard:
+    unknownUser: "*unknown user*"
+    playerRatings: " (**%s** victories)"
+    noWinner: "~no winner yet~"
+    response: "**Overall**\n%s\n**Games:**\n%s"
+    websiteLink: "\n**View in the website:** %s"
+    description: "View the leaderboard!"
+  profile:
+    playerStats: "**%s**'s Statistics:\n"
+    overall: "%s **Overall Stats**: %s\n\n"
+    statsString: "%s%s Wins, %s Losses (%s W/L Ratio), %s Games Played"
+    place: "place"
+    description: "View your profile, or someone else's!"
+    notRanked: "Not ranked"
+  emote:
+    set: "Your emoji has been set! %s"
+    cannotUse: "I can't use that emote! Try putting it on this server."
+    invalid: "Sorry, but that's not a valid emote..."
+    description: "Change the emoji tile you'll be in matches!"
+
+  userlang:
+    set: "Your personal language was set to %s"
+    description: "Change your own language."
+  guildlang: 
+    set: "The default language for this guild was set to %s"
+    description: "Change the default language for the guild."
+
+  help:
+    beginning: "**<:GamesROB:391744594863325184> GamesROB**\n**🎲 Games:**\n"
+    gameString: "%s `%%PREFIX%%%s` - %s"
+    moreInfo: "\n**📟 Command list and more info available in the website**\n%s"
+    description: "Gets you some help!"
+  invite:
+    embed:
+      title: "🎮 Click to invite GamesROB!"
+      description: "⚠ You'll need the Manage Server permission in the server you want to add it on."
+    description: "Invite the bot!"
+  info:
+    embed:
+      description: "**The bot for playing fun chat games in your Discord!**\n[Website](%s)\n[Add the bot to your server](%s)\n[Upvote the bot in DBO](%s)\n[View the source code](%s)\n[Join our support server](%s)"
+      statistics:
+        title: "📟 Statistics"
+        description: "**%s** servers, **%s** members and **%s** text channels!\n**%s** games played (**%s** matches right now) and **%s** upvotes on DBO!"
+      versions:
+        title: "📁 Versions"
+        description: "GamesROB Version: **%s**\nJava Version: **%s**\n[JDA](%s) Version: **%s**\n[DepsJDAFramework](%s) Version: **%s**\nShard Uptime: **%s**"
+      system:
+        title: "💻 System"
+        description: "RAM Usage: **%s**\nOS: **%s**"
+      credits:
+        title: "❤ Credits"
+        description: "Fin#1337: Helping me test the bot and bought me a dank server to host the bot in\nShaz#6547: Dank hoster for the bot for a while <3"
+    description: "View statistics and information"
+  raminfo:
+    message: ":computer: RAM Usage Info\nOverall: **%s**\nCommand Framework: **%s**\nShards: **%s**\nCache: **%s**\nGames: **%s**"
+    description: "🗄 *Debug* View a full RAM Usage report"
+  ping:
+    message: "🏓 Pong!\nBot -> Discord: %s\nYou -> Bot: %s\nWebsocket: %s"
+    description: "🗄 *Debug* View the latency of the bot"
+  shardinfo:
+    title: "**Shard Information:**\n```js\n%s\n```"
+    shard: "Shard"
+    guilds: "Guilds"
+    users: "Users"
+    channels: "Channels"
+    status: "Status"
+    ping: "Ping"
+    games: "Games"
+    ram: "RAM Usage"
+    description: "🗄 *Debug* View a shard information dump"
+
+  perm:
+    invalidPerm: "Invalid permission!"
+    noRole: "I couldn't find a role by that name!"
+    set: "🔨 Set permission to %s games to memebers with the role (or roles higher than) `%s`"
+    reset: "🔨 The %s permission was reset!"
+    description: "Change a permission"
+  setprefix:
+    message: "Changed the bot's prefix for this guild!"
+    description: "Set the command prefix for your guild!"
+
+website:
+  commonWrapper:
+    githubSource: "Github Source"
+    trelloPage: "Trello Page"
+    dblListing: "DBL Listing"
+    supportServer: "Support Server"
+    myServers: "My Servers"
+
+    help: "Help"
+    joinServer: "Join Our Server"
+    addBot: "Add The Bot"
+    logIn: "Log In"
+    signOut: "Sign Out"
+  home:
+    botDescription: "The Discord bot for playing chat games right on your server!"
+    invite: "Oooh! I want that!"
+    upvote: "Give it a vote on DBL"
+    haveFunTogether:
+      title: "Have fun together!"
+      description: "These are classic party games, and you can play them with basically as many people as you'd like!"
+    playCompetitively:
+      title: "Be competitive!"
+      description: "You can see view leaderboards on your Discord server and on it's page in the website! Who's the best?"
+  server:
+    overall: "Overall"
+    user: "User"
+    wins: "Victories"
+    lost: "Loses"
+    gamesPlayed: "Matches"
+    settings: "Settings"
+  serverEdit:
+    language: "Language"
+    permStartGame: "Starting Games Permission"
+    permStopGame: "Stopping Games Permission"
+    default: "Default"
+    submit: "Save Changes"
+  help:
+    intro: "Intro"
+    commands: "Commands"
+    credits: "Credits"
+    tictactoe: "TicTacToe"
+    connectfour: "ConnectFour"
+    minesweeper: "Minesweeper"
+    hangman: "Hangman"
+    games: "Games"

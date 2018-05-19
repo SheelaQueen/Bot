@@ -1,0 +1,50 @@
+script
+    | var pageName = "#{pageName}"
+script(src='/res/js/wiki.js')
+link(rel='stylesheet', href='//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/atom-one-dark.min.css')
+script(src='//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js')
+
+.row
+    .col.hide-on-small-only.m3.l2
+        .row
+            .col.12
+                h5.white-text #{help}
+        .row
+            .col.s12.fillIndexUL
+    .col.s12.m9.l10
+        .row.hide-on-med-and-up
+            .col.s12.center-align
+                a.waves-effect.waves-teal.btn-flat.white-text(onclick="openWikiViewModal()")
+                    | #{pageName}
+                    i.material-icons arrow_drop_down
+
+                #wikiViewModal.modal.bottom-sheet
+                    .modal-content.fillIndexUL.grey.darken-4
+                        
+        .row
+            .col.s12
+                .white-text
+                    | %%MARKDOWN_TEXT%%
+
+ul#indexUL
+    li
+        a.waves-effect.waves-teal.white-text.wikiSidebarItem(onclick="loadPage('/help/')") #{introduction}
+    li
+        a.waves-effect.waves-teal.white-text.wikiSidebarItem(onclick="loadPage('/help/commands')") #{commands}
+    li.no-padding
+        ul.collapsible.wikiCategoryCollapsible
+            li
+                div.collapsible-header
+                    a.waves-effect.waves-teal.white-text.wikiSidebarItem #{games}
+                div.collapsible-body
+                    ul
+                        li
+                            a.white-text.wikiSidebarItem(onclick="loadPage('/help/games/minesweeper')") #{minesweeper}
+                        li
+                            a.white-text.wikiSidebarItem(onclick="loadPage('/help/games/hangman')") #{hangman}
+                        li
+                            a.white-text.wikiSidebarItem(onclick="loadPage('/help/games/connectfour')") #{connectFour}
+                        li
+                            a.white-text.wikiSidebarItem(onclick="loadPage('/help/games/tictactoe')") #{tictactoe}
+    li
+        a.waves-effect.waves-teal.white-text.wikiSidebarItem(onclick="loadPage('/help/credits')") #{credits}

@@ -1,0 +1,21 @@
+// User Modal
+.modal#userProfileModal
+    .modal-content
+        .row
+            .col.s12.center-align
+                img.backgroundBannerIcon.userModalAvatar(src=userAvatar, crossOrigin="Anonymous")
+                h3.black-text.userModalText #{userName}
+                h4.grey-text.userModalText #{userDiscrim}
+        .topMargin            
+        for ranking in rankings
+            .row
+                .col.s3.m3.l2.center-align
+                    a.black-text #{ranking.name}
+                .col.s3.m1.center-align
+                    a.black-text #{ranking.position}
+                .col.s2.m2.offset-m2.l1.offset-l6.center-align
+                    a.black-text #{ranking.stats.victories} #{victories}
+                .col.s2.m2.l1.center-align
+                    a.black-text #{ranking.stats.losses} #{losses}
+                .col.s2.m2.l1.center-align
+                    a.black-text #{ranking.stats.gamesPlayed} #{gamesPlayed}

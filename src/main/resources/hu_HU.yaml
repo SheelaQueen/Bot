@@ -1,0 +1,164 @@
+# To translators: Start on genericMessages
+languageProperties:
+  code: "hu_HU"
+  language: "Hungarian"
+  country: "Hungary"
+  languageName: "🇭🇺 Hungarian"  
+  translators: "diniboy#0998"
+  version: "1.5.0"
+
+genericMessages:
+  alreadyPlaying: "Egy játékban már aktív vagy a %s csatornában!\nHasználd a `%sleave`parancsot az elhagyáshoz."
+  noGamesInChannel: "Jelenleg nincs aktív játék ebben a csatornában.\nHasználd a `%shelp` parancsot, egy új játék kiválasztásához és elindításához!"
+  invalidLanguage: "Nem létező nyelv."
+  insufficientFunds: "Nincs elég tokened a művelet végrehajtásához!\nTokenekhez játékok során, illetve a bot pozitív értékelésével lehet jutni."
+  languageVersionWarning: "Figyelmeztetés: Ez a nyelvi csomag a GamesROB egy régebbi verziójához készült. Néhány fordítás hibás, esetleg hiányos lehet."
+
+gameFramework:
+  singleplayerMatch: "**%s Egyéni mérkőzés**\n%s\n\n%s"
+  multiplayerMatch: "**%s Többjátékos mérkőzés**\n%s\n\n"
+  joinToPlay: "🚪 Használd a `%sjoin` parancsot a csatlakozáshoz! (%s/%s)"
+  begin: "**A mérkőzés elkezdődött!**\n**%s**\n%s\n\n%s"
+  join: "%s csatlakozott a mérkőzéshez. %s/%s"
+  left: "%s elhagyta a mérkőzést."
+
+  settingOutOfRange: "A(z) `%s` beállítás legyen %s és %s között!"
+  activeGame: "Már fut egy játék ebben a csatornában."
+  viewPlayers: "A csatlakozott játékosokat a `%slistplayers` használatával listázhatod ki, a játékot pedig a `%sleave` paranccsal hagyhatod el."
+  typeToJoin: "Használd a `%sjoin` parancsot a csatlakozáshoz!"
+  playersOutOfRange: "Csak %s és %s számú játékos csatlakozhat a játékhoz!"
+
+  gameOver: "**Vége a játéknak!**\n%s\n\n%s"
+  winner: "%s nyert!"
+  draw: "Döntetlen!"
+  timeout: "A mérkőzés időkorlátja lejárt **%s** idő után!"
+  creatorQuit: "A(z) %s mérkőzésnek vége, mivel a mérkőzés indítója kilépett a játékból."
+  everyoneQuit: "A mérkőzésnek vége, mivel mindenki kilépett."
+
+  now: " - **Most**"
+  next: " - **Következik**"
+
+game:
+  connectFour:
+    name: "ConnectFour"
+    shortDescription: "Csatlakoztass 4 korongot a saját színedben!"
+    longDescription: "Csatlakoztatnod kell négy korongot a saját színedben függőlegesen, vízszintesen vagy átlósan!\nÍrd a chatbe annak az oszlopnak a számát, ahova a csempét el szeretnéd helyezni (pl.: 3)"
+  hangman:
+    name: "Akasztófa"
+    shortDescription: "Próbáld meg kitalálni a meccs létrehozója által megadott szót."
+    longDescription: "A meccs létrehozója titkos szót küld a botnak privát üzenetben.\nEzután a többi játékosnak ki kell találnia a megadott szót, betűről betűre haladva!"
+
+    sendWord: "Mindenekelőtt, %s: Küldd el a kívánt szót privát üzenet formájában!"
+    wordSet: "**A szó sikeresen beállítva!**\nMostmár visszatérhetsz a %s csatornába."
+    wordPicked: "A szó ki lett választva!"
+    invalidGuess: "%s tippelte a(z) %s-t, és tévedett."
+    validGuess: "%s eltalálta a(z) %s betűt."
+  minesweeper:
+    name: "Aknakereső"
+    shortDescription: "Az eredeti aknakereső! Nehogy felrobbanj!"
+    longDescription: "Írd be a chatbe a feltárni kívánt mező helyét (pl.: c4), ezt követően meg fog jelenni a közeli aknák száma.\nNe üknözz aknába! A megjelőlés az F karakter hozzátoldásával lehetséges (pl.: e1F)."
+
+    bomb: "Aknába ütköztél!"
+    left: "A játékos kilépett"
+  tictactoe:
+    name: "Amőba"
+    shortDescription: "Gyűjts össze három bábut a táblán egy vonalban!"
+    longDescription: "Normál amőba játék.\nAdd meg a mező betűjelét, ahova lépni szeretnél (pl.: a)."
+
+command:
+  permissionLock: "⛔ A parancs használatához nincs jogod!"
+
+  join:
+    alreadyOnMatch: "Már tagja vagy egy mérkőzésnek!"
+    full: "A mérkőzés férőhelyeinek száma már betelt!"
+    description: "Csatlakozás az aktuális csatornában létrehozott mérkőzéshez."
+  leave:
+    notPlaying: "Úgy tűnik, jelenleg nem vagy tagja egyetlen mérkőzésnek sem.\n"
+    joinChannelGame: "Csatlakozz a csatornában zajló márkőzéshez a `%sjoin` paranccsal!"
+    startGame: "Játék kiválasztásához és az elindításhoz használd a `%shelp` parancsot!"
+    description: "Kilépés a csatornában futó aktuális mérkőzésből"
+  stop:
+    matchStopped: "⏹ %s leállította a mérkőzést"
+    description: "Az aktuális mérkőzés erőszakos leállítása"
+  listplayers:
+    header: "**%s mérkőzés**\n%s\n\n"
+    description: "Összes mérkőzéshez csatlakozott játékos kilistázása az adott csatornában"
+  
+  leaderboard:
+    unknownUser: "*ismeretlen felhasználó*"
+    playerRatings: " (**%s** győzelem)"
+    noWinner: "~jelenleg nincs győztes~"
+    response: "**Áttekintő**\n%s\n**Játékok:**\n%s"
+    description: "Ranglista megtekintése"
+  profile:
+    playerStats: "**%s** statisztikája:\n"
+    overall: "%s **Részletes statisztika**: %s\n\n"
+    statsString: "%s%s győzelem, %s elvesztett mérkőzés (%s GY/V arány), %s lejátszott játék, %s Token"
+    position: "%s**%s%s pozíció!** "
+    description: "Megmutatja a saját profilod, vagy bárki másét!"
+  emote:
+    set: "A hangulatjel beállítva! %s"
+    cannotUse: "Nem tudom használni ezt a hangulatjelet! Kérlek próbáld meg beállítani azt ezen a szerveren."
+    invalid: "Nem megfelelő hangulatjel!"
+    description: "A segítságével megváltoztatható a mérkőzések során megjelenő hangulatjeled!"
+
+  userlang:
+    set: "A személyes nyelved átt lett állítva: %s"
+    description: "Személyes nyelv megváltoztatása"
+  guildlang:
+    set: "A szerver alapértelmezett nyelve mostantól %s."
+    description: "Alapértelmezett nyelv megváltoztatása a szerver számára"
+
+  help:
+    beginning: "**<:GamesROB:391744594863325184> GamesROB**\n**🎲 Játékok:**\n"
+    gameString: "%s `%%PREFIX%%%s` - %s"
+    moreCustomizability: "🔧 **Egyéb testreszabhatóságok**\nA játék beállításai megváltoztathatóak a `<beállítás neve>=<beállításhoz tartozó érték>` parancs végi hozzáadásával! Példa: `%sminesweeper bombs=10`\nA játékosok számának megadása szintén a parancs végén lehetséges! Például: `%sconnect4 3`"
+    description: "Ez a leírás"
+  invite:
+    embed:
+      title: "🎮 A GamesROB meghívható a linkre kattintva."
+      description: "⚠ Szükséged lesz a _Szerver kezelő_ jogosultságra a meghíváshoz!"
+    description: "Bot meghívása saját szerverre"
+  info:
+    embed:
+      description: "**A bot segítségével közvetlenül tudsz szórakoztató játékokkal játszani, mindezt a Discordon belül!**\nLásd az összes elérhető játékot a `%shelp` parancs kiadása után.\n[Bot meghívása saját szerverre](%s)\n[Pozitív értékelés a DBO-n](%s)\n[Forráskód megtekintése](%s)\n[Csatlakozás a támogatói szerverhez](%s)"
+      statistics:
+        title: "📟 Statisztika"
+        description: "**%s** szerver, **%s** tag és **%s** szöveges csatorna!\n**%s** lejátszott játék (**%s** mérkőzés aktív jelenleg) és **%s** pozitív értékelés a DBO-n!"
+      versions:
+        title: "📁 Verziók"
+        description: "GamesROB verzió: **%s**\nJava verzió: **%s**\n[JDA](%s) verzió: **%s**\n[DepsJDAFramework](%s) verzió: **%s**\nShard Uptime: **%s**"
+      system:
+        title: "💻 Rendszer"
+        description: "RAM használat: **%s**\nOS: **%s**"
+      credits:
+        title: "❤ Közreműködők"
+        description: "Fin#1337: Segített a tesztelésben, s kisegített egy botot futtató szervergéppel\nShaz#6547: Köszönet a bot korábbi hosztolásáért <3"
+    description: "Statisztika és információk megtekintése"
+  raminfo:
+    message: "💻 RAM használat\nÖsszesen: **%s**\nParancsok keretrendszere: **%s**\nShardok: **%s**\nGyorsítótár: **%s**\nJátékok: **%s**"
+    description: "🗄 *Debug* Részletes RAM használat listázás"
+  ping:
+    message: "🏓 Pong!\nBot -> Discord: %s\nYou -> Bot: %s\nWebsocket: %s"
+    description: "🗄 *Debug* bot késleltetések listázása"
+  shardinfo:
+    title: "**Shard információk:**\n```js\n%s\n```"
+    shard: "Shard"
+    guilds: "Szerverek"
+    users: "Felhasználók"
+    channels: "Csatornák"
+    status: "Státusz"
+    ping: "Ping"
+    games: "Játékok"
+    ram: "RAM használat"
+    description: "🗄 *Debug* Shard információk"
+
+  perm:
+    invalidPerm: "Érvénytelen jogosultság!"
+    noRole: "Nem található rang ezzel a névvel!"
+    set: "🔨 Jogok beállítva a %s játékhoz a `%s` rang (és magasabb rangok) számára"
+    reset: "🔨 A %s jogosultság vissza lett állítva!"
+    description: "Jogosultságok megváltoztatása"
+  setprefix:
+    message: "Prefix megváltoztatva a szerver számára."
+    description: "Egyedi prefix az aktuális szerver számára"
