@@ -68,7 +68,12 @@ class PageHandlers {
             model.put("authenticated", optionalUser.isPresent());
 
             optionalUser.ifPresent(user -> {
-                model.put("mutualServers", user.getMutualGuilds().stream().map(it -> new MutualServer(
+                List<Guild> mutualGuilds = new ArrayList<>();
+                GamesROB.shards.forEach(cur -> {
+                    User su = cur.getUserById(user.getId());
+                    if (su != null) mutualGuilds.addAll(su.getMutualGuilds());
+                });
+                model.put("mutualServers", mutualGuilds.stream().map(it -> new MutualServer(
                             "/serverLeaderboard/" + it.getId() + "/", it.getIconUrl() == null ?
                         "https://discordapp.com/assets/dd4dbc0016779df1378e7812eabaa04d.png" :
                         it.getIconUrl().replaceAll(".jpg", ".webp"),

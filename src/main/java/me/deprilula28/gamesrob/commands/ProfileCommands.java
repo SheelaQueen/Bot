@@ -69,8 +69,8 @@ public class ProfileCommands {
     }
 
     public static String emojiTile(CommandContext context) {
-        if (!UserProfile.get(context.getAuthor()).transaction(40)) return Language.transl(context,
-                "genericMessages.notEnoughTokens", Constants.getDboURL(context.getJda()) + "/vote");
+        if (!UserProfile.get(context.getAuthor()).transaction(150))
+            return Constants.getNotEnoughTokensMessage(context, 150);
         String emote = context.next();
 
         if (EmojiManager.isEmoji(emote)) {

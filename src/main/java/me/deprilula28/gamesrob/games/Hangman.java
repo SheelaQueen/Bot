@@ -2,6 +2,7 @@ package me.deprilula28.gamesrob.games;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import me.deprilula28.gamesrob.Language;
 import me.deprilula28.gamesrob.baseFramework.*;
 import me.deprilula28.gamesrob.utility.Log;
 import me.deprilula28.jdacmdframework.RequestPromise;
@@ -81,16 +82,19 @@ public class Hangman implements MatchHandler {
             // Invalid guess
             if (theWord.toLowerCase().indexOf(guess) < 0) {
                 PlayerInfo info = playerInfoMap.get(Optional.of(author));
-                lastNotification = author.getAsMention() + " guessed " + guess + ", and got it wrong!";
+                lastNotification = Language.transl(match.getChannelIn().getAsMention(), "game.hangman.invalidGuess",
+                        author.getAsMention(), guess);
 
                 info.tries --;
                 if (info.hasLost()) {
-                    lastNotification = author.getAsMention() + " is out of limbs! Nice try.";
+                    lastNotification = Language.transl(match.getChannelIn().getAsMention(), "game.hangman.outOfLimbs",
+                            author.getAsMention());
                 }
             // Valid guess
             } else {
                 guessedLetters.add(guess);
-                lastNotification = author.getAsMention() + " got the letter " + guess + " on point!";
+                lastNotification = Language.transl(match.getChannelIn().getAsMention(), "game.hangman.validGuess",
+                        author.getAsMention(), guess);
             }
 
             if (!detectVictory(author)) updateMessage();
@@ -102,9 +106,8 @@ public class Hangman implements MatchHandler {
     public void receivedDM(String contents, User from, Message reference) {
         if (!word.isPresent() && from.equals(match.getCreator())) {
             word = Optional.of(contents);
-            reference.getChannel().sendMessage("**Word set!**\nYou can go back to " +
-                    match.getChannelIn().getAsMention()).queue();
-            lastNotification = "The word was picked!";
+            reference.getChannel().sendMessage(Language.transl(match.getChannelIn().getAsMention(), "game.hangman.wordSet")).queue();
+            lastNotification = Language.transl(match.getLanguage(), "game.hangman.wordPicked");
             updateMessage();
         }
     }
@@ -135,11 +138,11 @@ public class Hangman implements MatchHandler {
             StringBuilder builder = new StringBuilder();
             builder.append(lastNotification).append("\n\n");
             if (!over) {
-                List<StringBuilder> lines = new ArrayList<>();
                 for (Optional<User> curPlayer : match.getPlayers()) {
                     if (curPlayer.isPresent() && match.getCreator().equals(curPlayer.get())) continue;
                     PlayerInfo playerInfo = playerInfoMap.get(curPlayer);
 
+                    List<StringBuilder> lines = new ArrayList<>();
                     String[] curLines = {
                             "`" + curPlayer.map(User::getName).orElse("AI") + "`",
                             " \\_\\_\\_\\_",
@@ -174,8 +177,9 @@ public class Hangman implements MatchHandler {
                         lineBuilder.append(line);
                         for (int padding = -2; padding < max - line.length(); padding ++) lineBuilder.append(" ");
                     }
+
+                    builder.append(lines.stream().map(Object::toString).collect(Collectors.joining("\n"))).append("\n");
                 }
-                builder.append(lines.stream().map(Object::toString).collect(Collectors.joining("\n"))).append("\n");
             }
             builder.append("```\n");
             for (char cur : word.get().toCharArray()){
@@ -184,6 +188,6 @@ public class Hangman implements MatchHandler {
 
             builder.append("\n```");
             return builder.toString();
-        } else return "Before anything, " + match.getCreator().getAsMention() + ": Send in the word you want in DMs!";
+        } else return over ? "" : Language.transl(match.getLanguage(), "game.hangman.sendWord", match.getCreator().getAsMention());
     }
 }

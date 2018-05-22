@@ -8,6 +8,7 @@ Argumentos &lt;nesses&gt; são obrigatórios, enquanto argumentos [nesses] são 
 - `g*stop` - Força o jogo a parar (**Apenas para admins**).
 - `g*listplayers` - Veja todos os jogadores da partida no canal que usar.
 
+- `g*slots <amount>` - Aposte seus tokens em uma partida de cassino! 100% não roubado, tá?
 - `g*tokens [user]` - Veja a quantidade de tokens de você ou qualquer outro.
 - `g*profile [user]` - Mostra o seu perfil ou o perfil de outra pessoa do servidor atual. Também está disponível clicando em um nome da página do servidor no website.
 - `g*leaderboard` - Mostra o placar de vencedores do servidor. Também está disponível na página do servidor no website.
@@ -17,6 +18,7 @@ Argumentos &lt;nesses&gt; são obrigatórios, enquanto argumentos [nesses] são 
 - `g*glang [language]` - Altera a língua padrão do seu servidor (**Apenas para admins**).
 - `g*setprefix <prefix>` - Altere o prefixo que o bot terá no seu servidor (O que você usa no começo dos comandos, i.e. `g*` **Apenas para admins**).
 
+- `g*changelog` - Mostra as novidades da última atualização.
 - `g*invite` - Te dá um link rápido para adicionar o bot.
 - `g*ping` - Mostra o ping (ou latência) do bot para o Discord. Esse tempo será em média quanto demora para processarmos o seu comando.
 - `g*help` - A lista de jogos e um link para essa página.

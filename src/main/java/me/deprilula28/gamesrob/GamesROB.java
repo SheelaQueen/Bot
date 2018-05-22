@@ -19,10 +19,7 @@ import me.deprilula28.jdacmdframework.CommandFramework;
 import me.deprilula28.jdacmdframework.discordbotsorgapi.DiscordBotsOrg;
 import net.dv8tion.jda.core.JDA;
 import net.dv8tion.jda.core.OnlineStatus;
-import net.dv8tion.jda.core.entities.Game;
-import net.dv8tion.jda.core.entities.Guild;
-import net.dv8tion.jda.core.entities.SelfUser;
-import net.dv8tion.jda.core.entities.User;
+import net.dv8tion.jda.core.entities.*;
 
 import java.util.*;
 import java.util.function.Supplier;
@@ -36,7 +33,7 @@ public class GamesROB {
     public static final long UP_SINCE = System.currentTimeMillis();
     private static final int MAJOR = 1;
     private static final int MINOR = 5;
-    private static final int PATCH = 3;
+    private static final int PATCH = 5;
     public static final String VERSION = String.format("%s.%s.%s", MAJOR, MINOR, PATCH);
 
     public static Optional<DiscordBotsOrg> dboAPI = Optional.empty();
@@ -78,17 +75,9 @@ public class GamesROB {
         return "@" + self.getName() + "#" + self.getDiscriminator();
     };
 
-    private static final List<Supplier<Game>> PRESENCE_GAMES = Arrays.asList(
-            () -> Game.playing("chat games right from Discord! " + MENTION_BOT_SUPPLIER.get()),
-            () -> Game.watching("a game of " + Utility.random(ALL_GAMES).getName(Constants.DEFAULT_LANGUAGE) + " :^)"),
-            () -> Game.listening("your suggestions at gamesrob.com/server!"),
-            () -> Game.listening("your discussions at gamesrob.com/server!"),
-            () -> Game.watching("the new website! gamesrob.com"),
-            () -> Game.playing("with " + Utility.random(STATISTICS_SUPPLIER).get() + "!"),
-            () -> Game.watching(Utility.addNumberDelimitors(getAllShards().stream().mapToInt(ShardStatus::getActiveGames)
-                    .sum()) + " games!"),
-            () -> Game.playing("stop. Get some help. " + MENTION_BOT_SUPPLIER.get())
-    );
+    public static Optional<TextChannel> getTextChannelById(long id) {
+        return shards.stream().map(it -> it.getTextChannelById(id)).filter(Objects::nonNull).findFirst();
+}
 
     public static Optional<Guild> getGuildById(long id) {
         return shards.stream().map(it -> it.getGuildById(id)).filter(Objects::nonNull).findFirst();
@@ -114,7 +103,6 @@ public class GamesROB {
             BootupProcedure.bootup(args);
             GamesROB.commandFramework.listenEvents();
         });
-
     }
 
     @Data
@@ -141,18 +129,16 @@ public class GamesROB {
                     cur.getPresence().setGame(Game.streaming(title, url));
                 });
                 twitchPresence = true;
-            } else defaultPresence();
-        } else defaultPresence();
+            }
+        }
     }
 
-    private static void defaultPresence() {
-        Log.trace("Updated default status");
-        Game game = Utility.random(PRESENCE_GAMES).get();
+    public static void defaultPresence() {
         shards.forEach(cur -> {
             cur.getPresence().setStatus(OnlineStatus.ONLINE);
-            cur.getPresence().setGame(game);
+            cur.getPresence().setGame(Game.watching("gamesrob.com - @" + cur.getSelfUser().getName() + "#" +
+                cur.getSelfUser().getDiscriminator()));
         });
-        twitchPresence = false;
     }
 
     public static boolean hasUpvoted(String id) {

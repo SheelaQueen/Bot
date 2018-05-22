@@ -14,10 +14,16 @@ import spark.Route;
 import sun.misc.IOUtils;
 
 import java.io.InputStream;
+import java.util.List;
 
 import static spark.Spark.*;
 
 public class Website {
+    private static final String[] FAVICONS = {
+        "android-chrome-192x192.png", "apple-touch-icon.png", "browserconfig.xml", "favicon.ico", "favicon-16x16.png",
+        "favicon-32x32.png", "mstile-150x150.png", "safari-pinned-tab.svg", "site.webmanifest"
+    };
+
     public static void start(int port) {
         Log.info("Starting web server in port " + port);
 
@@ -54,6 +60,10 @@ public class Website {
             post("/userProfileModal", apiRoute(PageHandlers::userProfileModal));
         });
 
+        for (String favicon : FAVICONS) {
+            get("/" + favicon, (res, req) -> getResource("favicon/" + favicon));
+        }
+
         get("/", commonOverlayRoute(PageHandlers::homePage));
 
         redirect.get("/server", "https://discord.gg/8EZ7BEz");
@@ -67,7 +77,7 @@ public class Website {
         return code + " - " + HttpStatus.getMessage(code);
     }
 
-    static byte[] getResource(String path) {
+    public static byte[] getResource(String path) {
         return Cache.get(path, n -> {
             String fixedPath = "/website/" + path;
             InputStream fis = null;

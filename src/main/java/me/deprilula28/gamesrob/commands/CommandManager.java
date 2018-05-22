@@ -8,6 +8,7 @@ import me.deprilula28.gamesrob.baseFramework.GamesInstance;
 import me.deprilula28.gamesrob.baseFramework.MatchHandler;
 import me.deprilula28.gamesrob.baseFramework.Setting;
 import me.deprilula28.gamesrob.data.GuildProfile;
+import me.deprilula28.gamesrob.data.UserProfile;
 import me.deprilula28.gamesrob.utility.Constants;
 import me.deprilula28.gamesrob.utility.Log;
 import me.deprilula28.jdacmdframework.Command;
@@ -33,6 +34,8 @@ public class CommandManager {
     }
 
     public static void registerCommands(CommandFramework f) {
+        f.command("slots gamble gmb casino", Slots::slotsGame).setUsage("slots <amount>");
+
         f.command("join joinmatch play jm joinm jmatch", MatchCommands::join);
         f.command("leave leavematch quit lm lmatch leavem", MatchCommands::leave);
         f.command("stop stopmatch stopgame gamestop matchstop stap stahp",
@@ -50,6 +53,7 @@ public class CommandManager {
         f.command("help ? games what commands cmds", CommandManager::help);
         f.command("invite addbot getbot getgrob", GenericCommands::invite);
         f.command("info information botinfo", GenericCommands::info);
+        f.command("changelog cl chgl version latestversion versioninfo", GenericCommands::changelog);
 
         f.command("ping pingpong pong getping pinger botping botsping", GenericCommands::ping);
         f.command("shardinfo shards servers notspoofing shardinformation",
@@ -115,7 +119,7 @@ public class CommandManager {
         }
 
         help.append("\n").append(Language.transl(language, "command.help.moreInfo",
-                Constants.GAMESROB_DOMAIN + "/help"));
+                Constants.GAMESROB_DOMAIN + "/help/"));
         languageHelpMessages.put(language, help.toString());
     }
 

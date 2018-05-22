@@ -11,17 +11,18 @@ genericMessages:
   alreadyPlaying: "Você já está jogando em %s!\nDigite `%sleave` para sair da partida."
   noGamesInChannel: "Não há jogos atualmente nesse canal.\nVocê pode digitar `%shelp` para escolher e começar um jogo!"
   invalidLanguage: "Essa linguagem é inválida."
-  upvoted: "Obrigado por votar pelo GamesROB!\n%s\nVocê pode votar novamente amanhã."
   notEnoughTokens: "Você não tem tokens suficientes para fazer isso.\nGanhe mais tokens vencendo partidas e votando para o bot em %s."
   nth1: "º"
   nth2: "º"
   nth3: "º"
   nth4: "º"
+  upvoteMessage: "Obrigado por votar para o GamesROB!\nVocê recebeu:\n**%s**\nVotos em seguida: **%s dias**\nContinue votando diáriamente para conseguir mais tokens!"
 
 gameFramework:
   singleplayerMatch: "**Partida Solo de %s!**\n%s\n\n%s"
   multiplayerMatch: "**Partida Multijogador de %s!**\n%s\n\n"
-  joinToPlay: "🚪 Digite `%sjoin` para jogar! (%s/%s)"
+  joinToPlay: "🚪 Digite `%sjoin` ou clique na porta abaixo para jogar! (%s/%s)"
+  joinToPlayNoReaction: "🚪 Digite `%sjoin` para jogar! (%s/%s)"
   begin: "**Começou!**\n**%s**\n%s\n\n%s"
   join: "%s entrou na partida! %s/%s"
   left: "%s saiu da partida!"
@@ -42,6 +43,9 @@ gameFramework:
   now: " - **Agora**"
   next: " - **Próximo**"
 
+  upvoteMessage: "\nSe está gostando do bot, considere dar um voto para ele(a?) para ganhar tokens!"
+  upvoteEmbedTitle: "Votar"
+
 game:
   connectFour:
     name: "Lig4"
@@ -57,6 +61,7 @@ game:
     wordPicked: "A palavra foi escolhida!"
     invalidGuess: "%s adivinhou %s, e errou!"
     validGuess: "%s acertou a letra %s!"
+    outOfLimbs: "%s está sem tentativas! Boa tentativa!"
   minesweeper:
     name: "Campo Minado"
     shortDescription: "O famoso campo minado! Não seja explodido!"
@@ -71,6 +76,15 @@ game:
 
 command:
   permissionLock: "⛔ Você não tem permissão para usar esse comando!"
+
+  slots:
+    matchHeader: "Apostando %s tokens..."
+    matchEnd: "Você %s %s tokens!"
+    earnt: "ganhou"
+    lost: "perdeu"
+
+    invalidTokens: "You can only gamble %s to %s tokens."
+    description: "Gamble your tokens in a slots game! 100% not rigged trust me"
 
   tokens:
     own: "Você tem 🔸 %s tokens"
@@ -143,7 +157,6 @@ command:
         description: "Uso de RAM: **%s**\nSistema Operacional: **%s**"
       credits:
         title: "❤ Créditos"
-        description: "Fin#1337#7483: Me ajudar a testar o bot e ter comprado um servidor para hospedá-lo\nShaz#6547: Hospeador do bot faz um tempo <3"
     description: "Ver estatísticas e informações"
   raminfo:
     message: ":computer: Uso de RAM\nEm geral: **%s**\nComandos: **%s**\nShards: **%s**\nCache: **%s**\nJogos: **%s**"
@@ -162,6 +175,9 @@ command:
     games: "Jogos"
     ram: "Uso de RAM"
     description: "🗄 *Debug* Ver informações do uso de RAM"
+  changelog:
+    text: "**GamesROB v%s**\nDe %s\n\n%s\n\n*Normalmente atualizamos cada duas semanas na sexta-feita, fazendo a próxima %s.*\n*Você pode sugerir funcionalidades e reportar bugs no nosso servidor: %s*"
+    description: "Mostra todas as novidades da última atualização."
 
   perm:
     invalidPerm: "Permissão inválida!"

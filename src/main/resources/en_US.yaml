@@ -11,17 +11,21 @@ genericMessages:
   alreadyPlaying: "You are already playing another game on %s!\nType `%sleave` to leave that match."
   noGamesInChannel: "There are no games currently in this channel.\nYou can type `%shelp` to pick and start a game!"
   invalidLanguage: "Not a valid language."
-  upvoted: "Thank you for upvoting GamesROB!\n%s\nYou can upvote again tomorrow."
-  notEnoughTokens: "You don't have enough tokens to do that.\nGet more tokens by winning games and upvoting the bot on %s."
+  notEnoughTokens: 
+    beggining: "You don't have enough tokens to do that (Need %s more)."
+    upvote: "\nGet more tokens by winning games and upvoting the bot on %s."
+
   nth1: "st"
   nth2: "nd"
   nth3: "rd"
   nth4: "th"
+  upvoteMessage: "Thank you for upvoting GamesROB!\nYou've earnt:\n**%s**\nUpvote streak: **%s days**\nKeep upvoting daily for more rewards!"
 
 gameFramework:
   singleplayerMatch: "**%s Singleplayer Match!**\n%s\n\n%s"
   multiplayerMatch: "**%s Multiplayer Match!**\n%s\n\n"
-  joinToPlay: "🚪 Type `%sjoin` to play! (%s/%s)"
+  joinToPlay: "🚪 Type `%sjoin` or click the door below to play! (%s/%s)"
+  joinToPlayNoReaction: "🚪 Type `%sjoin` to play! (%s/%s)"
   begin: "**It's on!**\n**%s**\n%s\n\n%s"
   join: "%s has joined the match! %s/%s"
   left: "%s has left the match!"
@@ -42,6 +46,9 @@ gameFramework:
   now: " - **Now**"
   next: " - **Next**"
 
+  upvoteMessage: "\nIf you are enjoying the bot, consider upvoting it for tokens!"
+  upvoteEmbedTitle: "Upvote"
+
 game:
   connectFour:
     name: "ConnectFour"
@@ -57,6 +64,7 @@ game:
     wordPicked: "The word was picked!"
     invalidGuess: "%s guessed %s, and got it wrong!"
     validGuess: "%s got the letter %s on point!"
+    outOfLimbs: "%s is out of limbs! Nice try!"
   minesweeper:
     name: "Minesweeper"
     shortDescription: "The OG minesweeper! Don't get blown up!"
@@ -71,6 +79,15 @@ game:
 
 command:
   permissionLock: "⛔ You can't use this command!"
+
+  slots:
+    matchHeader: "Rolling for %s tokens..."
+    matchEnd: "You %s %s tokens!"
+    earnt: "earnt"
+    lost: "lost"
+
+    invalidTokens: "You can only gamble %s to %s tokens."
+    description: "Gamble your tokens in a slots game! 100% not rigged trust me"
 
   tokens:
     own: "You have 🔸 %s tokens"
@@ -143,7 +160,6 @@ command:
         description: "RAM Usage: **%s**\nOS: **%s**"
       credits:
         title: "❤ Credits"
-        description: "Fin#1337: Helping me test the bot and bought me a dank server to host the bot in\nShaz#6547: Dank hoster for the bot for a while <3"
     description: "View statistics and information"
   raminfo:
     message: ":computer: RAM Usage Info\nOverall: **%s**\nCommand Framework: **%s**\nShards: **%s**\nCache: **%s**\nGames: **%s**"
@@ -162,6 +178,9 @@ command:
     games: "Games"
     ram: "RAM Usage"
     description: "🗄 *Debug* View a shard information dump"
+  changelog:
+    text: "**GamesROB v%s**\nFrom %s\n\n%s\n\n*Updates are usually scheduled for every other friday, making the next update %s.*\n*You can suggest features and bug fixes in our server: %s*"
+    description: "Shows all the changes on the latest update."
 
   perm:
     invalidPerm: "Invalid permission!"

@@ -9,6 +9,7 @@ import me.deprilula28.gamesrob.baseFramework.Match;
 import me.deprilula28.gamesrob.commands.CommandManager;
 import me.deprilula28.gamesrob.data.GuildProfile;
 import me.deprilula28.gamesrob.data.SQLDatabaseManager;
+import me.deprilula28.gamesrob.data.Statistics;
 import me.deprilula28.gamesrob.data.UserProfile;
 import me.deprilula28.gamesrob.utility.Cache;
 import me.deprilula28.gamesrob.utility.Constants;
@@ -25,6 +26,7 @@ import net.dv8tion.jda.core.JDABuilder;
 import net.dv8tion.jda.core.OnlineStatus;
 import net.dv8tion.jda.core.entities.Game;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
+import net.dv8tion.jda.core.events.message.guild.react.GuildMessageReactionAddEvent;
 
 import java.io.File;
 import java.io.FileReader;
@@ -38,15 +40,16 @@ public class BootupProcedure {
     public static void bootup(String[] args) {
         long begin = System.currentTimeMillis();
         List<String> argList = Arrays.asList(args);
-        task(argList, "Loading arguments", loadArguments, false);
-        task(argList, "Loading languages", n -> Language.loadLanguages(), false);
-        task(argList, "Connecting to Discord", connectDiscord, false);
-        task(argList, "Loading framework", frameworkLoad, true);
-        task(argList, "Loading data", loadData, true);
-        task(argList, "Loading DiscordBotsOrg", dblLoad, false);
-        task(argList, "Loading website", loadWebsite, false);
-        task(argList, "Loading presence task", presenceTask, false);
-        task(argList, "Transferring data to DB", transferToDb, GamesROB.database.isPresent());
+        task(argList, "Loading arguments", loadArguments);
+        task(argList, "Loading languages", n -> Language.loadLanguages());
+        task(argList, "Connecting to Discord", connectDiscord);
+        task(argList, "Loading framework", frameworkLoad);
+        task(argList, "Loading data", loadData);
+        task(argList, "Loading DiscordBotsOrg", dblLoad);
+        task(argList, "Loading website", loadWebsite);
+        task(argList, "Loading presence task", presenceTask);
+        task(argList, "Transferring data to DB", transferToDb);
+        task(argList, "Sending changelog message", sendChangelog);
         Log.info("Bot fully loaded in " + Utility.formatPeriod(System.currentTimeMillis() - begin) + "!");
     }
 
@@ -60,6 +63,7 @@ public class BootupProcedure {
     private static int shardCount;
     private static int port;
     public static String secret;
+    public static String changelog;
 
     private static final BootupTask loadArguments = args -> {
         List<Optional<String>> pargs = Utility.matchValues(args, "token", "dblToken", "shards", "ownerID",
@@ -123,9 +127,8 @@ public class BootupProcedure {
             String shard = curShard + "/" + (shardCount - 1);
 
             JDA jda = new JDABuilder(AccountType.BOT).setToken(token)
-                    .useSharding(curShard, shardCount)
-                    .setStatus(OnlineStatus.DO_NOT_DISTURB).setGame(Game.watching("it all load... (" + shard + ")"))
-                    .buildBlocking();
+                    .useSharding(curShard, shardCount).setStatus(OnlineStatus.DO_NOT_DISTURB)
+                    .setGame(Game.watching("it all load...")).buildBlocking();
             GamesROB.shards.add(jda);
             Match.ACTIVE_GAMES.put(jda, new ArrayList<>());
 
@@ -154,6 +157,17 @@ public class BootupProcedure {
         Arrays.stream(GamesROB.ALL_GAMES).forEach(cur -> {
             Command command = f.command(cur.getAliases(), Match.createCommand(cur));
             if (cur.getGameType() == GameType.MULTIPLAYER) command.setUsage(command.getName().toLowerCase() + " <Players>");
+        });
+
+        f.handleEvent(GuildMessageReactionAddEvent.class, event -> {
+            try {
+                if (Match.GAMES.containsKey(event.getChannel())) Match.GAMES.get(event.getChannel()).reaction(event);
+                else if (Match.REMATCH_GAMES.containsKey(event.getChannel()))
+                    Match.REMATCH_GAMES.get(event.getChannel())
+                            .reaction(event);
+            } catch (Exception e) {
+                Log.exception("Guild message reaction add had an error", e);
+            }
         });
 
         f.handleEvent(MessageReceivedEvent.class, event -> {
@@ -213,7 +227,7 @@ public class BootupProcedure {
         presenceThread.setDaemon(true);
         presenceThread.setName("Presence updater thread");
         presenceThread.start();
-        GamesROB.setPresence();
+        GamesROB.defaultPresence();
 
         // Twitch integration
         /*
@@ -234,9 +248,21 @@ public class BootupProcedure {
         Website.start(port);
     };
 
-    private static void task(List<String> args, String name, BootupTask task, boolean logTask) {
-        if (logTask) GamesROB.shards.forEach(cur -> cur.getPresence().setGame(Game.watching("it all load... (" + name + ")")));
+    private static final BootupTask sendChangelog = args -> {
+        changelog = new String(Website.getResource("changelog.txt"), "UTF-8");
+        Statistics statistics = Statistics.get();
+        if (!GamesROB.VERSION.equals(statistics.getLastUpdateLogSent()) && Constants.changelogChannel.isPresent()) {
+            statistics.setLastUpdateLogSent(GamesROB.VERSION);
+            statistics.setLastUpdateLogSentTime(System.currentTimeMillis());
+            GamesROB.getTextChannelById(Constants.changelogChannel.get()).ifPresent(channel ->
+                    channel.sendMessage("<@&447849989557714954> **GamesROB v" + GamesROB.VERSION + " is out!**" +
+                        "\n\nChangelog:\n" + changelog + "\n\n*Updates are usually scheduled for every other friday, " +
+                        "making the next update " + Utility.formatTime(Utility.predictNextUpdate()) + ".*")
+                        .queue());
+        }
+    };
 
+    private static void task(List<String> args, String name, BootupTask task) {
         Log.info(name + "...");
         long begin = System.currentTimeMillis();
         Log.wrapException("Failed to bootup on task: " + name, () -> task.execute(args));

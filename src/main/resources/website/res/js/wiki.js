@@ -26,8 +26,16 @@ function getHeaderProperties() {
         breadcrumbs: [
             { name: "GamesROB", path: "/" },
             { name: "Help", path: "/help/" },
-            { name: pageName, path: window.location.href }
+            { name: decodeHTML(pageName), path: window.location.href }
         ], color: "#2962FF",
         title: pageName + " - GamesROB Help"
     }
+}
+
+function decodeHTML(encodedStr) {
+    var parser = new DOMParser, dom = parser.parseFromString(
+        '<!doctype html><body>' + encodedStr,
+        'text/html'), decodedString = dom.body.textContent
+
+    return decodedString
 }

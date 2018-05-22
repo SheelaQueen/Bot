@@ -2,14 +2,17 @@ package me.deprilula28.gamesrob.utility;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import me.deprilula28.gamesrob.Language;
 import me.deprilula28.gamesrob.data.GuildProfile;
 import me.deprilula28.gamesrob.data.UserProfile;
 import me.deprilula28.jdacmdframework.CommandContext;
 import net.dv8tion.jda.core.JDA;
 import net.dv8tion.jda.core.entities.Guild;
+import net.dv8tion.jda.core.entities.User;
 
 import java.io.File;
 import java.util.Optional;
+import java.util.concurrent.TimeUnit;
 
 public class Constants {
     public static final String GAMESROB_DOMAIN = "http://gamesrob.com";
@@ -31,6 +34,7 @@ public class Constants {
 
     public static final long PRESENCE_UPDATE_PERIOD = 40 * 1000L;
     public static final Optional<String> VANITY_DBL_URL = Optional.of("https://discordbots.org/bot/GamesROB");
+    public static final Optional<Long> changelogChannel = Optional.of(397851392016121877L);
 
     public static final String USER_AGENT = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, " +
             "like Gecko) Chrome/66.0.3359.139 Safari/537.36";
@@ -54,10 +58,14 @@ public class Constants {
     }
 
     public static String getLanguage(CommandContext context) {
-        UserProfile up = UserProfile.get(context.getAuthor());
+        return getLanguage(context.getAuthor(), context.getGuild());
+    }
+
+    public static String getLanguage(User user, Guild guild) {
+        UserProfile up = UserProfile.get(user);
         if (up.getLanguage() != null) return up.getLanguage();
 
-        GuildProfile gp = GuildProfile.get(context.getGuild());
+        GuildProfile gp = GuildProfile.get(guild);
         if (gp.getLanguage() != null) return gp.getLanguage();
 
         return DEFAULT_LANGUAGE;
@@ -65,6 +73,14 @@ public class Constants {
 
     public static String getDboURL(JDA jda) {
         return VANITY_DBL_URL.orElse("https://discordbots.org/bot/" + jda.getSelfUser().getId());
+    }
+
+    public static String getNotEnoughTokensMessage(CommandContext context, int amount) {
+        UserProfile profile = UserProfile.get(context.getAuthor());
+        return Language.transl(context, "genericMessages.notEnoughTokens.beggining", amount - profile.getTokens())
+                + (System.currentTimeMillis() - profile.getLastUpvote() > TimeUnit.DAYS.toMillis(1) ?
+                Language.transl(context, "genericMessages.notEnoughTokens.upvote",
+                Constants.getDboURL(context.getJda()) + "/vote") : "");
     }
 
     public static final long EMOTE_GUILD_ID = 361592912095739904L;

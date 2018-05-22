@@ -1,4 +1,5 @@
-var stopBckAnim = false, $document = $(document), breadcrumbsWrapper = undefined, headerColor = undefined, title = undefined, $window = undefined
+var stopBckAnim = false, $document = $(document), breadcrumbsWrapper = undefined, headerColor = undefined, title = undefined, $window = undefined, footer = undefined, loadSpinnerWrapper = undefined
+const spinnerElements = 6
 $document.ready(() => {
     var $nav = $("nav")
     breadcrumbsWrapper = $(".breadcrumbsWrapper")
@@ -22,7 +23,7 @@ $document.ready(() => {
     var top = true
     $document.scroll(() => {
         if ($document.scrollTop() == 0 && !top) {
-            $nav.addClass("hideNav").css({ "background-color": "headerColor" })
+            $nav.addClass("hideNav")
             top = true
         } else if ($document.scrollTop() != 0 && top) {
             $nav.removeClass("hideNav").css({ "background-color": headerColor })
@@ -30,11 +31,12 @@ $document.ready(() => {
         }
     })
     
-    M.Sidenav.init(document.querySelectorAll('.sidenav'))
-    M.Collapsible.init(document.querySelectorAll('.collapsible'))
+    M.Sidenav.init(document.querySelectorAll(".sidenav"))
+    M.Collapsible.init(document.querySelectorAll(".collapsible"))
 
     $window = $("window")
-    console.log($window,window.innerWidth, breadcrumbsWrapper)
+    footer = $("footer")
+    loadSpinnerWrapper = $(".loadSpinnerWrapper")
     if (window.innerWidth < 1200) breadcrumbsWrapper.addClass("invisible")
     $window.on("resize", () => {
         var width = window.innerWidth
@@ -45,6 +47,11 @@ $document.ready(() => {
 
 function loadHeaderProperties() {
     var properties = getHeaderProperties()
+    if (typeof properties.then === "function") properties.then(it => internalLoadHeaderProperties(it))
+    else internalLoadHeaderProperties(properties)
+}
+
+function internalLoadHeaderProperties(properties) {
     headerColor = properties.color
     if ($document.scrollTop() != 0) $document.css({ "background-color": headerColor })
     properties.breadcrumbs.forEach(breadcrumb => {
@@ -75,6 +82,12 @@ function loadPage(path, dontLoadPage) {
     var mainPage = $(".mainPage").clone().appendTo(document.body).removeClass("mainPage").addClass("pageDissapearing")
     setTimeout(() => mainPage.remove(), 400)
     $(".mainPage").empty()
+    footer.animate({ opacity: 0 })
+
+    var loadSpinner = $(document.createElement("div")).addClass("loadSpinner").appendTo(loadSpinnerWrapper)
+    for (i = 0; i < spinnerElements; i ++) loadSpinner.append($(document.createElement("div")))
+    loadSpinner.doLoadSpinner().css({ opacity: 0 }).animate({ opacity: 1 }, 200)
+    console.log(loadSpinner, loadSpinnerWrapper)
 
     $.ajax({
         url: path,
@@ -86,11 +99,16 @@ function loadPage(path, dontLoadPage) {
             loadPage("/")
         }
     }).done((data, jqXHR, status) => {
-        $(".mainPage").html(data).ready(() => {
+        breadcrumbsWrapper.empty()
+        var mainPage = $(".mainPage")
+        mainPage.append(data).ready(() => {
             if (typeof pageReady === "function") pageReady()
             loadHeaderProperties()            
+            
+            new CSSAnimation({ opacity: "0" }, { opacity: "1" }, 400).animate($(".mainPage"), pow5Out)
+            footer.clearQueue().stop().animate({ opacity: 1 })
+            loadSpinner.animate({ opacity: 0 }, 200, "linear", () => loadSpinner.remove())
         })
-        new CSSAnimation({ opacity: "0" }, { opacity: "1" }, 400).animate($(".mainPage"), pow5Out)
 
         if (!dontLoadPage) history.pushState({"page": path}, path, path)
     })
@@ -220,4 +238,78 @@ function apiRequest(path, body) {
             else reject(json.error)
         })
     })
+}
+
+$.fn.doLoadSpinner = function (smallTime, bigTime, wait) {
+    var spanProgress = [], spanArray = this.children(), spanAmount = spanArray.length, updateSmallTime = smallTime || 600, updateBigTime = bigTime || smallTime || 600, waitTime = wait || 50
+
+    for (var i = 0; i < spanAmount; i ++) {
+        spanProgress.push(i / spanAmount) 
+    }
+
+    var curAnimationData = {
+        time: 0,
+        begin: Date.now(),
+        fromProgresses: spanProgress,
+        toProgresses: spanProgress,
+        fromRadius: 36,
+        toRadius: 48
+    }
+
+    function setPositions(radius, animate) {
+        var newCAD = {
+            time: animate,
+            begin: Date.now(),
+            fromProgresses: curAnimationData.toProgresses,
+            toProgresses: spanProgress,
+            fromRadius: curAnimationData.toRadius,
+            toRadius: radius
+        }
+
+        curAnimationData = newCAD
+    }
+
+    function animationFrame() {
+        if (this && this.loadSpinnerTimeout) {
+            var progress = pow5Out(((Date.now() - curAnimationData.begin) / curAnimationData.time)),
+                lerpedRadius = progress.lerp(curAnimationData.fromRadius, curAnimationData.toRadius)
+                i = 0
+            spanArray.each(function() {
+                var element = $(this),
+                    fromProgress = curAnimationData.fromProgresses[i],
+                    toProgress = curAnimationData.toProgresses[i],
+                    lerped = progress.lerp(fromProgress, toProgress)
+
+                var angleDegrees = lerped * 360,
+                    angleRad = angleDegrees / 180 * Math.PI,
+                    x = lerpedRadius * Math.cos(angleRad),
+                    y = lerpedRadius * Math.sin(angleRad)
+                
+                element.css({
+                    left: x - i * 3.5,
+                    top: y
+                })
+                i ++
+            })
+
+            window.requestAnimationFrame(animationFrame)
+        }
+    }
+    window.requestAnimationFrame(animationFrame)
+
+    updateSmall()
+
+    function updateSmall() {
+        spanProgress = spanProgress.map(cur => cur + 0.15)
+        setPositions(36, updateSmallTime)
+        this.loadSpinnerTimeout = setTimeout(updateBig, updateSmallTime)
+    }
+
+    function updateBig() {
+        spanProgress = spanProgress.map(cur => cur + 0.4)
+        setPositions(48, updateBigTime)
+        this.loadSpinnerTimeout = setTimeout(updateSmall, updateBigTime)
+    }
+
+    return this;
 }

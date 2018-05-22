@@ -1,5 +1,6 @@
 package me.deprilula28.gamesrob.commands;
 
+import me.deprilula28.gamesrob.BootupProcedure;
 import me.deprilula28.gamesrob.GamesROB;
 import me.deprilula28.gamesrob.Language;
 import me.deprilula28.gamesrob.baseFramework.Match;
@@ -7,7 +8,9 @@ import me.deprilula28.gamesrob.data.GuildProfile;
 import me.deprilula28.gamesrob.data.Statistics;
 import me.deprilula28.gamesrob.utility.Cache;
 import me.deprilula28.gamesrob.utility.Constants;
+import me.deprilula28.gamesrob.utility.Log;
 import me.deprilula28.gamesrob.utility.Utility;
+import me.deprilula28.gamesrob.website.Website;
 import me.deprilula28.jdacmdframework.CommandContext;
 import me.deprilula28.jdacmdframework.CommandFramework;
 import net.dv8tion.jda.core.EmbedBuilder;
@@ -55,12 +58,12 @@ public class GenericCommands {
 
         return new EmbedBuilder()
             .setAuthor("deprilula28#3609", null, "https://i.imgur.com/PPa4OzQ.png")
-            .setTitle("\uD83C\uDFAE GamesROB")
+            .setTitle("\uD83C\uDFAE GamesROB", Constants.GAMESROB_DOMAIN)
             .setColor(new Color(0x00BFA5))
             .setDescription(Language.transl(context, "command.info.embed.description",
                 Constants.GAMESROB_DOMAIN, Constants.getInviteURL(context.getJda()),
                 Constants.getDboURL(context.getJda()),
-                "https://github.com/deprilula28/GamesROB", "https://discord.gg/xajeDYR"
+                "https://github.com/GamesROB/Bot", Constants.GAMESROB_DOMAIN + "/server?from=info"
             ))
             .addField(Language.transl(context, "command.info.embed.statistics.title"),
                     Language.transl(context, "command.info.embed.statistics.description",
@@ -83,8 +86,14 @@ public class GenericCommands {
                 Utility.getRAM(), System.getProperty("os.name")
             ), true)
             .addField(Language.transl(context, "command.info.embed.credits.title"),
-                    Language.transl(context, "command.info.embed.credits.description"), false)
+                    Constants.GAMESROB_DOMAIN + "/help/credits", false)
             .build();
+    }
+
+    public static String changelog(CommandContext context) {
+        return Language.transl(context, "command.changelog.text", GamesROB.VERSION,
+                Utility.formatTime(Statistics.get().getLastUpdateLogSentTime()), BootupProcedure.changelog,
+                Utility.formatTime(Utility.predictNextUpdate()), Constants.GAMESROB_DOMAIN + "/server?from=changelog");
     }
 
     public static String shardsInfo(CommandContext context) {

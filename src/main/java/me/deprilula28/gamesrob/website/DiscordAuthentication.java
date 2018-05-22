@@ -19,7 +19,7 @@ public class DiscordAuthentication {
     private static final String DISCORD_API_URL = "https://discordapp.com/api/v6";
     private static final String TOKEN_ENDPOINT = "/oauth2/token";
     private static final String ME_ENDPOINT = "/users/@me";
-    private static final String REDIRECT_URI = "http%3A%2F%2Flocalhost%2Fdiscordoauth";
+    private static final String REDIRECT_URI = "http%3A%2F%2Fgamesrob.com%2Fdiscordoauth";
 
     @AllArgsConstructor
     private static class TokenRequest {

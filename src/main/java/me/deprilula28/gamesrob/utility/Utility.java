@@ -2,7 +2,11 @@ package me.deprilula28.gamesrob.utility;
 
 import me.deprilula28.gamesrob.Language;
 import me.deprilula28.gamesrob.commands.ProfileCommands;
+import me.deprilula28.gamesrob.data.Statistics;
 import me.deprilula28.gamesrob.data.UserProfile;
+import net.dv8tion.jda.core.Permission;
+import net.dv8tion.jda.core.entities.Channel;
+import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.User;
 
 import java.io.Closeable;
@@ -10,6 +14,9 @@ import java.io.IOException;
 import java.math.BigDecimal;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
+import java.time.*;
+import java.time.temporal.TemporalAdjuster;
+import java.time.temporal.TemporalAdjusters;
 import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.TimeUnit;
@@ -220,5 +227,22 @@ public class Utility {
         return String.format("%s/%s",
                 formatBytes(allocated - free),
                 formatBytes(allocated));
+    }
+
+    public static boolean hasPermission(Channel channel, Member member, Permission permission) {
+        return (member.hasPermission(permission) &&
+                channel.getRolePermissionOverrides().stream().noneMatch(it -> member.getRoles().contains(it.getRole())
+                        && it.getDenied().contains(permission)) &&
+                channel.getMemberPermissionOverrides().stream().noneMatch(it -> it.getMember().equals(member)
+                        && it.getDenied().contains(permission)))
+            || channel.getRolePermissionOverrides().stream().anyMatch(it -> member.getRoles().contains(it.getRole())
+                    && it.getAllowed().contains(permission)) || channel.getMemberPermissionOverrides().stream()
+                .anyMatch(it -> it.getMember().equals(member) && it.getAllowed().contains(permission));
+    }
+
+    public static long predictNextUpdate() {
+        LocalDateTime time = Instant.ofEpochMilli(Statistics.get().getLastUpdateLogSentTime() + TimeUnit.DAYS.toMillis(14))
+                .atZone(ZoneId.systemDefault()).toLocalDateTime();
+        return time.with(TemporalAdjusters.next(DayOfWeek.FRIDAY)).atZone(ZoneId.systemDefault()).toInstant().toEpochMilli();
     }
 }

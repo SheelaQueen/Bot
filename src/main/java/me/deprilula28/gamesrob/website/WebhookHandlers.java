@@ -16,6 +16,7 @@ import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.TimeUnit;
 
 public class WebhookHandlers {
     public static boolean hasConfirmed = false;
@@ -74,9 +75,16 @@ public class WebhookHandlers {
         GamesROB.getUserById(upvote.user).ifPresent(user -> {
             user.openPrivateChannel().queue(pm -> {
                 UserProfile profile = UserProfile.get(user.getId());
+                if (System.currentTimeMillis() - profile.getLastUpvote() < TimeUnit.DAYS.toMillis(2))
+                    profile.setUpvotedDays(profile.getUpvotedDays() + 1);
+                else profile.setUpvotedDays(0);
+                int days = profile.getUpvotedDays();
+                int amount = 125 + days * 50;
+
                 pm.sendMessage(Language.transl(Optional.ofNullable(profile.getLanguage()).orElse("en_US"),
-                        "genericMessages.upvoted", "+100 \uD83D\uDD38 tokens")).queue();
-                profile.addTokens(100);
+                        "genericMessages.upvoteMessage", "+" + amount + " \uD83D\uDD38 tokens", days)).queue();
+                profile.addTokens(amount);
+                profile.setLastUpvote(System.currentTimeMillis());
             });
         });
         return "";
