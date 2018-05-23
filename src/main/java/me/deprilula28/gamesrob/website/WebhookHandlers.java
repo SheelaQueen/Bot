@@ -4,6 +4,7 @@ import com.google.gson.JsonObject;
 import me.deprilula28.gamesrob.BootupProcedure;
 import me.deprilula28.gamesrob.GamesROB;
 import me.deprilula28.gamesrob.Language;
+import me.deprilula28.gamesrob.data.Statistics;
 import me.deprilula28.gamesrob.data.UserProfile;
 import me.deprilula28.gamesrob.utility.Constants;
 import me.deprilula28.gamesrob.utility.Log;
@@ -70,6 +71,7 @@ public class WebhookHandlers {
             response.status(HttpStatus.UNAUTHORIZED_401);
             return null;
         }
+        Statistics.get().setUpvotes(Statistics.get().getUpvotes() + 1);
 
         DBLUpvote upvote = Constants.GSON.fromJson(request.body(), DBLUpvote.class);
         GamesROB.getUserById(upvote.user).ifPresent(user -> {

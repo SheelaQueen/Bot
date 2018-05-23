@@ -20,6 +20,7 @@ genericMessages:
   nth3: "rd"
   nth4: "th"
   upvoteMessage: "Thank you for upvoting GamesROB!\nYou've earnt:\n**%s**\nUpvote streak: **%s days**\nKeep upvoting daily for more rewards!"
+  ownersOnly: "This command is only accessible for owners."
 
 gameFramework:
   singleplayerMatch: "**%s Singleplayer Match!**\n%s\n\n%s"

@@ -25,7 +25,7 @@ import java.util.function.Function;
 public class CommandManager {
     public static Map<Class<? extends MatchHandler>, List<GameSettingValue>> matchHandlerSettings = new HashMap<>();
     private static Map<String, String> languageHelpMessages = new HashMap<>();
-    private static Map<CommandContext, Long> commandStart = new ConcurrentHashMap<>();
+    private static Map<String, Long> commandStart = new ConcurrentHashMap<>();
     public static long avgCommandDelay = 0L;
 
     @Data
@@ -52,8 +52,7 @@ public class CommandManager {
                 permissionLock(LanguageCommands::setGuildLanguage, ctx -> ctx.getAuthorMember()
                         .hasPermission(Permission.MANAGE_SERVER)));
 
-        f.command("help games what commands cmds ?", CommandManager::help);
-        f.command("help_advanced advanced_help adv_help help_adv ha ah adv_h h_adv h_a a_h av", context -> "What do you want to know about; `Developers`, `DiscordStaff`, `Translators`, `Commands`, `Libraries`, `APIs` `Programs` or `WebApps`? ", cmd -> {
+        f.command("help games what commands cmds ?", CommandManager::help, cmd -> {
             cmd.sub("developers developer dev devs d", context -> "My Developers are deprilula28#3609 and Fin#1337.");
             cmd.sub("discordstaff staff discstaff disc discs s", context -> "The staff in the GamesROB Discord are deprilula28#3609, Fin#1337, dirtify#3776, Not Hamel#5995, diniboy#0998, and Jazzy Spazzy#0691");
             cmd.sub("translators translator t", context -> "My translators are deprilula28#3609 (pt_BR), diniboy#0998 (hu_HU), Niekold#9410 (de_DE), Ephysios#1912 (fr_FR), and 0211#موهاماد هيف (ar_SA).");
@@ -62,6 +61,7 @@ public class CommandManager {
             cmd.sub("api apis", context -> "We use the Discord Developer API, Twitch API, and Discord Bot List's API.");
             cmd.sub("prgm programs prgms progrm progrms software sw softw sware", context -> "The programs we use for the bot's development are; JetBrains' IntelliJ IDEA, Git, and of course, Discord (More specifically; Discord Canary)");
             cmd.sub("webapps wapps wa was webapp services srvcs srvc service", context -> "We use GSuite (Business), Google Domains, and OVH for web apps.");
+
             cmd.sub("i_like_easter_eggs", context -> "Fin was here Fin was here Fin was here Fin was here Fin was here Fin was here Fin was here Fin was here Fin was here Fin was here Fin was here Fin was here Fin was here Fin was here (lol)");
         });
 
@@ -85,19 +85,21 @@ public class CommandManager {
         Log.info("Generated help messages for ", languageHelpMessages.size() + " languages.");
 
         f.command("update", UpdateCommand::update);
+        f.command("eval", EvalCommand::eval);
+
         f.before(it -> {
-            commandStart.put(it, System.currentTimeMillis());
+            commandStart.put(it.getAuthor().getId(), System.currentTimeMillis());
             return null;
         });
         f.after(it -> {
             Statistics stats = Statistics.get();
-
-            long delay = commandStart.get(it);
-            commandStart.remove(it);
-            double singleGameWeight = (1.0 / (double) stats.getGameCount());
-            avgCommandDelay = (int) (avgCommandDelay * (1.0 - singleGameWeight) + delay * singleGameWeight);
-
             stats.setCommandCount(stats.getCommandCount() + 1);
+
+            long delay = System.currentTimeMillis() - commandStart.get(it.getAuthor().getId());
+            commandStart.remove(it.getAuthor().getId());
+            double singleCommandWeight = (1.0 / (double) stats.getCommandCount());
+            avgCommandDelay = (int) (avgCommandDelay * (1.0 - singleCommandWeight) + delay * singleCommandWeight);
+
             return null;
         });
 

@@ -1,6 +1,7 @@
 package me.deprilula28.gamesrob.commands;
 
 import me.deprilula28.gamesrob.GamesROB;
+import me.deprilula28.gamesrob.Language;
 import me.deprilula28.gamesrob.utility.Constants;
 import me.deprilula28.gamesrob.utility.Log;
 import me.deprilula28.gamesrob.utility.TransferUtility;
@@ -17,7 +18,8 @@ import java.util.concurrent.atomic.AtomicLong;
 
 public class UpdateCommand {
     public static Object update(CommandContext context) {
-        if (!GamesROB.owners.contains(context.getAuthor().getIdLong())) return "You're not allowed to do that, sorry :\\";
+        if (!GamesROB.owners.contains(context.getAuthor().getIdLong())) return Language.transl(context,
+                "genericMessages.ownersOnly");
         String updateURL = context.next();
         context.send("Beginning download...");
 
