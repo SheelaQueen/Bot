@@ -53,6 +53,17 @@ public class CommandManager {
                         .hasPermission(Permission.MANAGE_SERVER)));
 
         f.command("help games what commands cmds ?", CommandManager::help);
+        f.command("help_advanced advanced_help adv_help help_adv ha ah adv_h h_adv h_a a_h av", context -> "What do you want to know about; `Developers`, `DiscordStaff`, `Translators`, `Commands`, `Libraries`, `APIs` `Programs` or `WebApps`? ", cmd -> {
+            cmd.sub("developers developer dev devs d", context -> "My Developers are deprilula28#3609 and Fin#1337.");
+            cmd.sub("discordstaff staff discstaff disc discs s", context -> "The staff in the GamesROB Discord are deprilula28#3609, Fin#1337, dirtify#3776, Not Hamel#5995, diniboy#0998, and Jazzy Spazzy#0691");
+            cmd.sub("translators translator t", context -> "My translators are deprilula28#3609 (pt_BR), diniboy#0998 (hu_HU), Niekold#9410 (de_DE), Ephysios#1912 (fr_FR), and 0211#موهاماد هيف (ar_SA).");
+            cmd.sub("commands command cmd cmds c", context -> "GOING TO DO THIS LATER BECAUSE IM LAZY");
+            cmd.sub("libraries lib libs library frameworks fws fw framew rwork fworks framework dependancies dependancy f", context -> "We use the following frameworks/dependancies; Lombok, DepsJDAFramework, SLF4j, emoji-java, sqlite-driver (JDBC), snakeyaml, sparkjava, markdown4j, jade4j, Materialize, and JQuery.");
+            cmd.sub("api apis", context -> "We use the Discord Developer API, Twitch API, and Discord Bot List's API.");
+            cmd.sub("prgm programs prgms progrm progrms software sw softw sware", context -> "The programs we use for the bot's development are; JetBrains' IntelliJ IDEA, Git, and of course, Discord (More specifically; Discord Canary)");
+            cmd.sub("webapps wapps wa was webapp services srvcs srvc service", context -> "We use GSuite (Business), Google Domains, and OVH for web apps.");
+            cmd.sub("i_like_easter_eggs", context -> "Fin was here Fin was here Fin was here Fin was here Fin was here Fin was here Fin was here Fin was here Fin was here Fin was here Fin was here Fin was here Fin was here Fin was here (lol)");
+        });
 
         f.command("invite addbot getbot getgrob add getgamesrob getbot get a", GenericCommands::invite);
         f.command("info information botinfo i", GenericCommands::info);
