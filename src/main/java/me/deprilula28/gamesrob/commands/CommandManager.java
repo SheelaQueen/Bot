@@ -8,7 +8,7 @@ import me.deprilula28.gamesrob.baseFramework.GamesInstance;
 import me.deprilula28.gamesrob.baseFramework.MatchHandler;
 import me.deprilula28.gamesrob.baseFramework.Setting;
 import me.deprilula28.gamesrob.data.GuildProfile;
-import me.deprilula28.gamesrob.data.UserProfile;
+import me.deprilula28.gamesrob.data.Statistics;
 import me.deprilula28.gamesrob.utility.Constants;
 import me.deprilula28.gamesrob.utility.Log;
 import me.deprilula28.jdacmdframework.Command;
@@ -19,12 +19,14 @@ import net.dv8tion.jda.core.events.guild.member.GuildMemberLeaveEvent;
 
 import java.lang.reflect.Field;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
-import java.util.stream.Collectors;
 
 public class CommandManager {
     public static Map<Class<? extends MatchHandler>, List<GameSettingValue>> matchHandlerSettings = new HashMap<>();
     private static Map<String, String> languageHelpMessages = new HashMap<>();
+    private static Map<CommandContext, Long> commandStart = new ConcurrentHashMap<>();
+    public static long avgCommandDelay = 0L;
 
     @Data
     @AllArgsConstructor
@@ -72,6 +74,22 @@ public class CommandManager {
         Log.info("Generated help messages for ", languageHelpMessages.size() + " languages.");
 
         f.command("update", UpdateCommand::update);
+        f.before(it -> {
+            commandStart.put(it, System.currentTimeMillis());
+            return null;
+        });
+        f.after(it -> {
+            Statistics stats = Statistics.get();
+
+            long delay = commandStart.get(it);
+            commandStart.remove(it);
+            double singleGameWeight = (1.0 / (double) stats.getGameCount());
+            avgCommandDelay = (int) (avgCommandDelay * (1.0 - singleGameWeight) + delay * singleGameWeight);
+
+            stats.setCommandCount(stats.getCommandCount() + 1);
+            return null;
+        });
+
         f.getSettings().setMentionedMessageGetter(guild -> {
             String lang = GuildProfile.get(guild).getLanguage();
             return languageHelpMessages.get(lang == null ? Constants.DEFAULT_LANGUAGE : lang)
