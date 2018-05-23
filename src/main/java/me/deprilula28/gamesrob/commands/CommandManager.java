@@ -51,7 +51,7 @@ public class CommandManager {
                         .hasPermission(Permission.MANAGE_SERVER)));
 
         f.command("help games what commands cmds ?", CommandManager::help);
-        
+
         f.command("invite addbot getbot getgrob add getgamesrob getbot get a", GenericCommands::invite);
         f.command("info information botinfo i", GenericCommands::info);
         f.command("changelog cl chgl version latestversion versioninfo ver r", GenericCommands::changelog);
