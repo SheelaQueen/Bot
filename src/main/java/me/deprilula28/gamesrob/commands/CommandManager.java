@@ -34,36 +34,37 @@ public class CommandManager {
     }
 
     public static void registerCommands(CommandFramework f) {
-        f.command("slots gamble gmb casino", Slots::slotsGame).setUsage("slots <amount>");
+        f.command("slots gamble gmb casino c", Slots::slotsGame).setUsage("slots <amount>");
 
-        f.command("join joinmatch play jm joinm jmatch", MatchCommands::join);
-        f.command("leave leavematch quit lm lmatch leavem", MatchCommands::leave);
-        f.command("stop stopmatch stopgame gamestop matchstop stap stahp",
+        f.command("join joinmatch play jm joinm jmatch j", MatchCommands::join);
+        f.command("leave leavematch quit lm lmatch leavem l", MatchCommands::leave);
+        f.command("stop stopmatch stopgame gamestop matchstop stap stahp s",
                 permissionLock(MatchCommands::stop, ctx -> GuildProfile.get(ctx.getGuild()).canStop(ctx)));
-        f.command("listplayers players getplayers viewplayers playerlist", MatchCommands::listPlayers);
-        f.command("leaderboard leaders winners lb leaderboards leaderb lboards lboard winnerlist",
+        f.command("listplayers players getplayers viewplayers playerlist y", MatchCommands::listPlayers);
+        f.command("leaderboard leaders winners board boards lb lbs leaderboards leaderb lboards lboard winnerlist b",
                 LeaderboardCommand::leaderboard);
-        f.command("profile whois getprofile viewprofile", ProfileCommands::profile);
-        f.command("tokens token viewtokens gettokens tokenamount", ProfileCommands::tokens);
-        f.command("userlang ulang lang setlang", LanguageCommands::setUserLanguage);
-        f.command("guildlang glang setglang",
+        f.command("profile whois getprofile viewprofile v", ProfileCommands::profile);
+        f.command("tokens tk tks tok token viewtokens gettokens tokenamount t", ProfileCommands::tokens);
+        f.command("userlang ulang lang setlang language u", LanguageCommands::setUserLanguage);
+        f.command("guildlang glang setglang serverlang setslang setserverlang setguildlang g",
                 permissionLock(LanguageCommands::setGuildLanguage, ctx -> ctx.getAuthorMember()
                         .hasPermission(Permission.MANAGE_SERVER)));
 
-        f.command("help ? games what commands cmds", CommandManager::help);
-        f.command("invite addbot getbot getgrob", GenericCommands::invite);
-        f.command("info information botinfo", GenericCommands::info);
-        f.command("changelog cl chgl version latestversion versioninfo", GenericCommands::changelog);
+        f.command("help games what commands cmds ?", CommandManager::help);
+        
+        f.command("invite addbot getbot getgrob add getgamesrob getbot get a", GenericCommands::invite);
+        f.command("info information botinfo i", GenericCommands::info);
+        f.command("changelog cl chgl version latestversion versioninfo ver r", GenericCommands::changelog);
 
-        f.command("ping pingpong pong getping pinger botping botsping", GenericCommands::ping);
-        f.command("shardinfo shards servers notspoofing shardinformation",
+        f.command("ping pingpong pong getping pinger botping botsping latency connection p", GenericCommands::ping);
+        f.command("shardinfo shards servers notspoofing shardinformation h",
                 GenericCommands::shardsInfo);
 
-        f.command("perm setperm changeperm", permissionLock(PermissionCommands::changePerm,
+        f.command("perm setperm changeperm m", permissionLock(PermissionCommands::changePerm,
                 ctx -> ctx.getAuthorMember().hasPermission(Permission.MANAGE_SERVER))).setUsage("perm <command> [permission]");
-        f.command("setprefix prefix changeprefix", permissionLock(GenericCommands::setPrefix,
+        f.command("setprefix prefix changeprefix f", permissionLock(GenericCommands::setPrefix,
                 ctx -> ctx.getAuthorMember().hasPermission(Permission.MANAGE_SERVER))).setUsage("setprefix <Prefix>");
-        f.command("emote emotetile changeemote setemote setemoji changeemoji tile etile emojit emotet " +
+        f.command("emote emotetile changeemote setemote setemoji changeemoji tile etile emojit emotet e" +
                 "changetile settile et changeemojitile setemojitile emoji emojitile", ProfileCommands::emojiTile)
                 .setUsage("emojitile <Emoji>");
 
