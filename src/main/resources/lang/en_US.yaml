@@ -176,7 +176,7 @@ command:
     ram: "RAM Usage"
     description: "🗄 *Debug* View a shard information dump"
   changelog:
-    text: "**GamesROB v%s**\nFrom %s\n\n%s\n\n*Updates are usually scheduled for every other friday, making the next update %s.*\n*You can suggest features and bug fixes in our server: %s*"
+    text: "**GamesROB v%s**\nFrom %s\n\n%s\n\n*Updates are usually scheduled for every friday, making the next update %s.*\n*You can suggest features and bug fixes in our server: %s*"
     description: "Shows all the changes on the latest update."
 
   perm:

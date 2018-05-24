@@ -17,7 +17,7 @@ import java.util.concurrent.TimeUnit;
 public class Constants {
     public static final String GAMESROB_DOMAIN = "http://gamesrob.com";
 
-    public static final int LEADERBOARD_GAMES_PLAYED_REQUIREMENT = 3;
+    public static final int LEADERBOARD_GAMES_PLAYED_REQUIREMENT = 1;
     public static final File OLD_DATA_FOLDER = new File("gamesrobData");
 
     public static final String DEFAULT_PREFIX = "g*";

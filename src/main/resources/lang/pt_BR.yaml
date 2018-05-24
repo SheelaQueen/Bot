@@ -177,7 +177,7 @@ command:
     ram: "Uso de RAM"
     description: "🗄 *Debug* Ver informações do uso de RAM"
   changelog:
-    text: "**GamesROB v%s**\nDe %s\n\n%s\n\n*Normalmente atualizamos cada duas semanas na sexta-feita, fazendo a próxima %s.*\n*Você pode sugerir funcionalidades e reportar bugs no nosso servidor: %s*"
+    text: "**GamesROB v%s**\nDe %s\n\n%s\n\n*Normalmente atualizamos toda sexta-feita, fazendo a próxima %s.*\n*Você pode sugerir funcionalidades e reportar bugs no nosso servidor: %s*"
     description: "Mostra todas as novidades da última atualização."
 
   perm:

@@ -255,8 +255,8 @@ public class BootupProcedure {
             statistics.setLastUpdateLogSent(GamesROB.VERSION);
             statistics.setLastUpdateLogSentTime(System.currentTimeMillis());
             GamesROB.getTextChannelById(Constants.changelogChannel.get()).ifPresent(channel ->
-                    channel.sendMessage("<@&447849989557714954> **GamesROB v" + GamesROB.VERSION + " is out!**" +
-                        "\n\nChangelog:\n" + changelog + "\n\n*Updates are usually scheduled for every other friday, " +
+                    channel.sendMessage("<@&389918430733664256>\n**GamesROB v" + GamesROB.VERSION + " is out!**" +
+                        "\n\nChangelog:\n" + changelog + "\n\n*Updates are usually scheduled for every friday, " +
                         "making the next update " + Utility.formatTime(Utility.predictNextUpdate()) + ".*")
                         .queue());
         }

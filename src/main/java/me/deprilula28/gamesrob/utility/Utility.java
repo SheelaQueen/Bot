@@ -254,7 +254,7 @@ public class Utility {
     }
 
     public static long predictNextUpdate() {
-        LocalDateTime time = Instant.ofEpochMilli(Statistics.get().getLastUpdateLogSentTime() + TimeUnit.DAYS.toMillis(14))
+        LocalDateTime time = Instant.ofEpochMilli(Statistics.get().getLastUpdateLogSentTime() + TimeUnit.DAYS.toMillis(7))
                 .atZone(ZoneId.systemDefault()).toLocalDateTime();
         return time.with(TemporalAdjusters.next(DayOfWeek.FRIDAY)).atZone(ZoneId.systemDefault()).toInstant().toEpochMilli();
     }
