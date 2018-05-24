@@ -80,7 +80,7 @@ public class Constants {
         return Language.transl(context, "genericMessages.notEnoughTokens.beggining", amount - profile.getTokens())
                 + (System.currentTimeMillis() - profile.getLastUpvote() > TimeUnit.DAYS.toMillis(1) ?
                 Language.transl(context, "genericMessages.notEnoughTokens.upvote",
-                Constants.getDboURL(context.getJda()) + "/vote") : "");
+                        Constants.getDboURL(context.getJda()) + "/vote") : "");
     }
 
     public static final long EMOTE_GUILD_ID = 361592912095739904L;

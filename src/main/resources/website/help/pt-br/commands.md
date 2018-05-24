@@ -4,7 +4,6 @@ Argumentos &lt;nesses&gt; são obrigatórios, enquanto argumentos [nesses] são 
 
 - `g*hm`, `g*ttt`, `g*c4`, e `g*ms` - Usados para começar jogos (atalhos para os comandos reais, você também pode utilizar o nome do jogo em inglês).
 - `g*jm` e `g*join` - Entra numa partida começada por outro pessoa no canal atual.
-- `g*lm` e `g*leave` - Sai da partida que você está.
 - `g*stop` - Força o jogo a parar (**Apenas para admins**).
 - `g*listplayers` - Veja todos os jogadores da partida no canal que usar.
 

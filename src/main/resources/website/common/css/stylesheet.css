@@ -1841,16 +1841,16 @@ h4 {
   }
 }
 
-.wikiSidebarItem {
+.wikiSidebarItem, .wikiSidebarItemActive {
   width: 100%;
   cursor: pointer;
   font-size: 1.3rem;
   line-height: 1.5;
 }
 
-.wikiSidebarItem .active {
+.wikiSidebarItemActive {
   margin-left: 10px;
-  color: #2196F3;
+  color: #2196F3 !important;
 }
 
 .collapsible.wikiCategoryCollapsible {

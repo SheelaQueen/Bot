@@ -33,6 +33,7 @@ $document.ready(() => {
     
     M.Sidenav.init(document.querySelectorAll(".sidenav"))
     M.Collapsible.init(document.querySelectorAll(".collapsible"))
+    M.Dropdown.init(document.querySelectorAll(".dropdown-trigger"))
 
     $window = $("window")
     footer = $("footer")
@@ -312,4 +313,8 @@ $.fn.doLoadSpinner = function (smallTime, bigTime, wait) {
     }
 
     return this;
+}
+
+function setLang(lang) {
+    apiRequest("/setlang", lang).then(nothing => location.reload())
 }

@@ -2,9 +2,11 @@ package me.deprilula28.gamesrob.website;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import me.deprilula28.gamesrob.BootupProcedure;
 import me.deprilula28.gamesrob.GamesROB;
 import me.deprilula28.gamesrob.Language;
 import me.deprilula28.gamesrob.data.GuildProfile;
+import me.deprilula28.gamesrob.data.Statistics;
 import me.deprilula28.gamesrob.data.UserProfile;
 import me.deprilula28.gamesrob.utility.Cache;
 import me.deprilula28.gamesrob.utility.Constants;
@@ -46,7 +48,9 @@ class PageHandlers {
         String language = Constants.DEFAULT_LANGUAGE;
         if (request.headers("Accept-Language") != null)
             for (String langCur : request.headers("Accept-Language").split(",")){
-                String filteredLangCur = langCur.replaceAll("-", "_");
+                String[] sep = langCur.replaceAll("-", "_").split("_");
+                if (sep.length != 2) continue;
+                String filteredLangCur = sep[0].toLowerCase() + "_" + sep[1].toUpperCase();
                 if (Language.getLanguageList().contains(filteredLangCur)) language = filteredLangCur;
             }
         return language;
@@ -99,6 +103,11 @@ class PageHandlers {
                 model.put("logIn", Language.transl(language, "website.commonWrapper.logIn"));
             }
 
+            model.put("languages", Language.getLanguageList().stream().map(it ->
+                    new LanguageOption(false,
+                            Language.transl(it, "languageProperties.languageName"),
+                            Language.transl(it, "languageProperties.code"))).collect(Collectors.toList()));
+
             model.put("addBot", Language.transl(language, "website.commonWrapper.addBot"));
             model.put("gamesROBDescription", Language.transl(language, "website.home.botDescription"));
             model.put("githubSource", Language.transl(language, "website.commonWrapper.githubSource"));
@@ -106,6 +115,7 @@ class PageHandlers {
             model.put("dblListing", Language.transl(language, "website.commonWrapper.dblListing"));
             model.put("supportServer", Language.transl(language, "website.commonWrapper.supportServer"));
             model.put("signOut", Language.transl(language, "website.commonWrapper.signOut"));
+            model.put("languageDropdownButtonName", Language.transl(language, "website.commonWrapper.language"));
         });
     }
 
@@ -155,6 +165,22 @@ class PageHandlers {
                         Language.transl(language, "website.home." + it + ".description"),
                         "/res/" + it + ".png", side.get());
             }).collect(Collectors.toList()));
+
+            boolean showChangelog = false;
+            String lastVisitedVersion = request.cookie("lastVisitedVersion");
+            if (lastVisitedVersion == null) response.cookie("lastVisitedVersion", GamesROB.VERSION);
+            else if (!lastVisitedVersion.equals(GamesROB.VERSION)) {
+                showChangelog = true;
+                model.put("changelogTitle", Language.transl(language, "website.home.changelog.title",
+                        GamesROB.VERSION));
+                model.put("changelogSubtitle", Language.transl(language, "website.home.changelog.subtitle",
+                        Utility.formatTime(Statistics.get().getLastUpdateLogSentTime())));
+                model.put("changelog", BootupProcedure.changelog.split("\n"));
+
+                response.cookie("lastVisitedVersion", GamesROB.VERSION);
+            }
+
+            model.put("showChangelog", showChangelog);
         });
     }
 
@@ -299,6 +325,7 @@ class PageHandlers {
             String language = getLanguage(req);
             return jadePage("wiki.jade", model -> {
                 model.put("pageName", Language.transl(language, "website.help." + wikiPage));
+                model.put("wikiPage", Language.transl(language, wikiPage));
 
                 model.put("help", Language.transl(language, "website.commonWrapper.help"));
                 model.put("introduction", Language.transl(language, "website.help.intro"));

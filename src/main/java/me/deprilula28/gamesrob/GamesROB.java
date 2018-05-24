@@ -121,7 +121,7 @@ public class GamesROB {
             else if (!data.getStream().isJsonNull()) {
                 Log.trace("Updated streaming status");
                 JsonObject obj = data.getStream().getAsJsonObject();
-                String title = obj.get("game").getAsString() + " with " + obj.get("viewers").getAsInt() + " viewers";
+                String title = obj.get("title").getAsString() + " to " + obj.get("viewers").getAsInt() + " viewers";
                 String url = obj.get("channel").getAsJsonObject().get("url").getAsString();
 
                 shards.forEach(cur -> {

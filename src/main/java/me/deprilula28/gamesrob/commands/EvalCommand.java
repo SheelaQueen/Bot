@@ -15,8 +15,15 @@ public class EvalCommand {
         if (!GamesROB.owners.contains(context.getAuthor().getIdLong())) return Language.transl(context,
                 "genericMessages.ownersOnly");
 
+        scriptEngine.put("guild", context.getGuild());
+        scriptEngine.put("channel", context.getChannel());
+        scriptEngine.put("jda", context.getJda());
+        scriptEngine.put("me", context.getAuthor());
+        scriptEngine.put("member", context.getAuthorMember());
+        scriptEngine.put("shards", GamesROB.shards);
+
         try {
-            return Optional.ofNullable(scriptEngine.eval(String.format(" ", context.remaining()))).map(Object::toString)
+            return Optional.ofNullable(scriptEngine.eval(String.join(" ", context.remaining()))).map(Object::toString)
                     .orElse("null");
         } catch (Exception e) {
             return e.getClass().getName() + ": " + e.getMessage();

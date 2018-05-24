@@ -44,4 +44,11 @@ public class APIRoutes {
 
         return null;
     }
+
+    static Object changeLangRequest(Request request, Response response) throws Exception {
+        String code = Constants.GSON.fromJson(request.body(), String.class);
+        response.cookie("Language", code);
+
+        return null;
+    }
 }

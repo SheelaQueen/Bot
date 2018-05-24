@@ -15,22 +15,10 @@ public class Language {
     @Getter
     private static List<String> languageList = new ArrayList<>();
 
-    private static String read(String path) {
-        Scanner scann = new Scanner(Language.class.getResourceAsStream(path));
-        StringBuilder builder = new StringBuilder();
-
-        while (scann.hasNextLine()) {
-            if (builder.length() > 0) builder.append("\n");
-            builder.append(scann.nextLine());
-        }
-
-        return builder.toString();
-    }
-
     public static void loadLanguages() {
         Yaml yaml = new Yaml();
-        Constants.GSON.fromJson(read("/langFiles.json"), JsonArray.class).forEach(el ->
-                readLanguage(el.getAsString(), read("/" + el.getAsString() + ".yaml"), yaml));
+        Constants.GSON.fromJson(Utility.readResource("/lang/files.json"), JsonArray.class).forEach(el ->
+                readLanguage(el.getAsString(), Utility.readResource("/lang/" + el.getAsString() + ".yaml"), yaml));
     }
 
     private static void recReadTree(Map<String, Object> curMap, String prefix, Map<String, String> output) {

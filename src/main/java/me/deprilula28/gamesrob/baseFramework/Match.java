@@ -49,6 +49,7 @@ public class Match extends Thread {
     private List<String> options;
     public int matchesPlayed = 0;
     private boolean canReact;
+    private Optional<Integer> betting = Optional.empty();
 
     public Match(GamesInstance game, User creator, TextChannel channel, int targetPlayerCount, List<Optional<User>> players,
                  List<String> options, int matchesPlayed) {
@@ -56,11 +57,13 @@ public class Match extends Thread {
         language = guildLang == null ? Constants.DEFAULT_LANGUAGE : guildLang;
         channelIn = channel;
         canReact = canReact();
+
         this.creator = creator;
         this.players = players;
         this.game = game;
         this.options = options;
         this.targetPlayerCount = targetPlayerCount;
+
         matchHandler = game.getMatchHandlerSupplier().get();
         updateSettings(options);
 
@@ -81,13 +84,15 @@ public class Match extends Thread {
                 ))).then(no -> gameState = GameState.MATCH));
     }
 
-    public Match(GamesInstance game, User creator, TextChannel channel, int targetPlayerCount, List<String> options) {
+    public Match(GamesInstance game, User creator, TextChannel channel, int targetPlayerCount, List<String> options,
+                 Optional<Integer> betting) {
         String guildLang = GuildProfile.get(channel.getGuild()).getLanguage();
         language = guildLang == null ? Constants.DEFAULT_LANGUAGE : guildLang;
         channelIn = channel;
         canReact = canReact();
         players.add(Optional.of(creator));
 
+        this.betting = betting;
         this.creator = creator;
         this.game = game;
         this.options = options;
@@ -187,8 +192,9 @@ public class Match extends Thread {
                 game.getName(language), game.getShortDescription(language)
         ));
         players.forEach(cur -> builder.append(cur.map(it -> "☑ **" + it.getName() + "**").orElse("AI")).append("\n"));
-        for (int i = players.size(); i <= targetPlayerCount; i ++) builder.append("⏰ Waiting\n");
+        for (int i = players.size(); i <= targetPlayerCount; i ++) builder.append("⏰ Waiting\n\n");
 
+        betting.ifPresent(amount -> builder.append(Language.transl(language, "gameFramework.betting", amount)));
         builder.append(Language.transl(language, canReact ? "gameFramework.joinToPlay" : "gameFramework.joinToPlayNoReaction",
                 Constants.getPrefix(channelIn.getGuild()), players.size(), targetPlayerCount + 1
         ));
@@ -200,26 +206,6 @@ public class Match extends Thread {
         if (preMatchMessage != null) preMatchMessage.then(it -> it.delete().queue());
         preMatchMessage = RequestPromise.forAction(channelIn.sendMessage(getPregameText()));
         if (canReact) preMatchMessage.then(msg -> msg.addReaction("\uD83D\uDEAA").queue());
-    }
-
-    public void left(User user) {
-        interrupt(); // Keep the match alive
-        if (gameState == GameState.PRE_GAME) {
-            if (user == creator) {
-                preMatchMessage.then(it -> it.delete().queue());
-                onEnd(Language.transl(language, "gameFramework.timeout", game.getName(language)), false);
-            } else updatePreMessage();
-        } else {
-            if (players.stream().filter(Optional::isPresent).count() - 1 < game.getMinTargetPlayers()) {
-                onEnd(Language.transl(language, "gameFramework.everyoneQuit"), true);
-            } else {
-                players.add(players.indexOf(Optional.of(user)), Optional.empty()); // Replace user with bot
-                matchHandler.onQuit(user);
-                channelIn.sendMessage(Language.transl(language, "gameFramework.left", user.getName())).queue();
-            }
-        }
-        PLAYING.remove(user);
-        players.remove(Optional.of(user));
     }
 
     public void joined(User user) {
@@ -249,7 +235,8 @@ public class Match extends Thread {
         if (name.equals("\uD83D\uDEAA")) {
             // Trying to join
             if (Match.PLAYING.containsKey(event.getUser()) || getPlayers().contains(Optional.of(event.getUser()))
-                    || getPlayers().size() == getTargetPlayerCount() + 1) {
+                    || getPlayers().size() == getTargetPlayerCount() + 1 || (betting.isPresent() &&
+                    !UserProfile.get(event.getUser()).transaction(betting.get()))) {
                 if (Utility.hasPermission(channelIn, channelIn.getGuild().getMember(channelIn.getJDA().getSelfUser()),
                     Permission.MESSAGE_MANAGE)) event.getReaction().removeReaction(event.getUser()).queue();
                 return;
@@ -275,6 +262,7 @@ public class Match extends Thread {
             cur.ifPresent(user -> {
                 boolean victory = winner.equals(Optional.of(user));
                 UserProfile.get(user).registerGameResult(channelIn.getGuild(), user, victory, !victory, game);
+                if (winner.equals(cur)) betting.ifPresent(amount -> UserProfile.get(user).addTokens(amount * players.size()));
             })
         );
 
@@ -285,10 +273,14 @@ public class Match extends Thread {
     public void onEnd(String reason, boolean registerPoints) {
         players.forEach(cur ->
             cur.ifPresent(user -> {
-                if (registerPoints) UserProfile.get(user).registerGameResult(channelIn.getGuild(), user, false, false, game);
+                if (registerPoints) {
+                    UserProfile.get(user).registerGameResult(channelIn.getGuild(), user, false, false, game);
+                    betting.ifPresent(amount -> UserProfile.get(user).addTokens(amount));
+                }
                 PLAYING.remove(user);
             })
         );
+
         boolean sendUpvote = matchesPlayed % 10 == 2 && players.stream().filter(Optional::isPresent).anyMatch(it ->
                 System.currentTimeMillis() - UserProfile.get(it.get().getId()).getLastUpvote() > TimeUnit.DAYS.toMillis(2));
         String gameOver = Language.transl(language, "gameFramework.gameOver",
@@ -298,6 +290,7 @@ public class Match extends Thread {
 
         ACTIVE_GAMES.get(channelIn.getJDA()).remove(this);
         GAMES.remove(channelIn);
+
         preMatchMessage = RequestPromise.forAction(channelIn.sendMessage(sendUpvote ?
                 new MessageBuilder().append(gameOver).append(Language.transl(language, "gameFramework.upvoteMessage"))
                 .setEmbed(new EmbedBuilder().setTitle(Language.transl(language, "gameFramework.upvoteEmbedTitle"),
@@ -334,7 +327,8 @@ public class Match extends Thread {
                             game.getMinTargetPlayers() + 1, game.getMaxTargetPlayers() + 1
                     );
                 }
-                new Match(game, context.getAuthor(), context.getChannel(), targetPlayers, context.remaining());
+                new Match(game, context.getAuthor(), context.getChannel(), targetPlayers, context.remaining(),
+                        context.opt(context::nextInt));
             } else new Match(game, context.getAuthor(), context.getChannel(), context.remaining());
 
             return null;

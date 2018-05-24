@@ -249,7 +249,7 @@ public class BootupProcedure {
     };
 
     private static final BootupTask sendChangelog = args -> {
-        changelog = new String(Website.getResource("changelog.txt"), "UTF-8");
+        changelog = Utility.readResource("/changelog.txt");
         Statistics statistics = Statistics.get();
         if (!GamesROB.VERSION.equals(statistics.getLastUpdateLogSent()) && Constants.changelogChannel.isPresent()) {
             statistics.setLastUpdateLogSent(GamesROB.VERSION);

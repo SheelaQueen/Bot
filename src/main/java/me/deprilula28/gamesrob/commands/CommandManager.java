@@ -39,7 +39,6 @@ public class CommandManager {
         f.command("slots gamble gmb casino c", Slots::slotsGame).setUsage("slots <amount>");
 
         f.command("join joinmatch play jm joinm jmatch j", MatchCommands::join);
-        f.command("leave leavematch quit lm lmatch leavem l", MatchCommands::leave);
         f.command("stop stopmatch stopgame gamestop matchstop stap stahp s",
                 permissionLock(MatchCommands::stop, ctx -> GuildProfile.get(ctx.getGuild()).canStop(ctx)));
         f.command("listplayers players getplayers viewplayers playerlist y", MatchCommands::listPlayers);
@@ -52,7 +51,7 @@ public class CommandManager {
                 permissionLock(LanguageCommands::setGuildLanguage, ctx -> ctx.getAuthorMember()
                         .hasPermission(Permission.MANAGE_SERVER)));
 
-        f.command("help games what commands cmds ?", CommandManager::help, cmd -> {
+        f.command("help games what ivefallenandicantgetup whatisgoingon commands cmds ?", CommandManager::help, cmd -> {
             cmd.sub("developers developer dev devs d", context -> "My Developers are deprilula28#3609 and Fin#1337.");
             cmd.sub("discordstaff staff discstaff disc discs s", context -> "The staff in the GamesROB Discord are deprilula28#3609, Fin#1337, dirtify#3776, Not Hamel#5995, diniboy#0998, and Jazzy Spazzy#0691");
             cmd.sub("translators translator t", context -> "My translators are deprilula28#3609 (pt_BR), diniboy#0998 (hu_HU), Niekold#9410 (de_DE), Ephysios#1912 (fr_FR), and 0211#موهاماد هيف (ar_SA).");

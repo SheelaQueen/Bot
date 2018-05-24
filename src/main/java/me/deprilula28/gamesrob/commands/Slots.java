@@ -34,7 +34,6 @@ public class Slots {
         List<String> validItems = betting == MAX_TOKENS ? Arrays.asList(ITEMS) :
                 Arrays.stream(ITEMS).sorted(Comparator.comparingInt(it -> random.nextInt(ITEMS.length)))
                     .limit(validItemCount).collect(Collectors.toList());
-        Log.info(percentBet, validItemCount, validItemCount);
 
         List<List<String>> items = new ArrayList<>();
         for (int x = 0; x < 3; x ++) items.add(generateRow(random, validItems));

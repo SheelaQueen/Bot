@@ -2,6 +2,7 @@ package me.deprilula28.gamesrob.commands;
 
 import me.deprilula28.gamesrob.Language;
 import me.deprilula28.gamesrob.baseFramework.Match;
+import me.deprilula28.gamesrob.data.UserProfile;
 import me.deprilula28.gamesrob.utility.Constants;
 import me.deprilula28.jdacmdframework.CommandContext;
 import me.deprilula28.jdacmdframework.exceptions.CommandArgsException;
@@ -28,19 +29,10 @@ public class MatchCommands {
         Match game = getGame(context);
         if (game.getPlayers().contains(Optional.of(context.getAuthor()))) return "You're already on the match!";
         if (game.getPlayers().size() == game.getTargetPlayerCount() + 1) return "The match is full!";
+        if (game.getBetting().isPresent() && !UserProfile.get(context.getAuthor()).transaction(game.getBetting().get()))
+            return Constants.getNotEnoughTokensMessage(context, game.getBetting().get());
 
         game.joined(context.getAuthor());
-        return null;
-    }
-
-    public static String leave(CommandContext context) {
-        if (!Match.PLAYING.containsKey(context.getAuthor()))
-            throw new CommandArgsException(Language.transl(context, "command.leave.notPlaying",
-                (Match.GAMES.containsKey(context.getChannel())
-                    ? Language.transl(context, "command.leave.joinChannelGame", Constants.getPrefix(context.getGuild()))
-                    : Language.transl(context, "command.leave.startGame", Constants.getPrefix(context.getGuild()))
-            )));
-        Match.PLAYING.get(context.getAuthor()).left(context.getAuthor());
         return null;
     }
 

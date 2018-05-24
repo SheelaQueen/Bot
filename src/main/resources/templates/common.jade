@@ -55,7 +55,7 @@ html
                             li
                                 a.waves-effect.waves-light(href='https://discord.gg/xajeDYR') #{joinServer}
                         li
-                            div.chip.waves-effect.waves-red
+                            div.chip.waves-effect.waves-red.userProfileChip
                                 img(src=userImageURL)
                                 a.black-text #{userName}
                                 a.grey-text.text-darken-4 ##{userDiscrim}
@@ -107,6 +107,12 @@ html
                     .col.l4.s12
                         h5.white-text GamesROB
                         p.grey-text.text-lighten-4 #{gamesROBDescription}
+                        br
+                        a.dropdown-trigger.btn(href='#', data-target='languageDropdown') #{languageDropdownButtonName}
+                        ul#languageDropdown.dropdown-content
+                            for language in languages
+                                li
+                                    a(onclick="setLang('#{language.code}')") #{language.name}
                     .col.l4.offset-l2.s12
                         h5.white-text Links
                         ul

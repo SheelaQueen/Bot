@@ -116,6 +116,19 @@ public class Utility {
         } catch (IOException e) {}
     }
 
+    public static String readResource(String path) {
+        Scanner scann = new Scanner(Language.class.getResourceAsStream(path));
+        StringBuilder builder = new StringBuilder();
+
+        while (scann.hasNextLine()) {
+            if (builder.length() > 0) builder.append("\n");
+            builder.append(scann.nextLine());
+        }
+
+        return builder.toString();
+    }
+
+
     public static String formatTime(long time) {
         long now = System.currentTimeMillis();
         boolean future = time > now;

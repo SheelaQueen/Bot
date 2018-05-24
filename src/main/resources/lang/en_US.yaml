@@ -27,6 +27,7 @@ gameFramework:
   multiplayerMatch: "**%s Multiplayer Match!**\n%s\n\n"
   joinToPlay: "🚪 Type `%sjoin` or click the door below to play! (%s/%s)"
   joinToPlayNoReaction: "🚪 Type `%sjoin` to play! (%s/%s)"
+  betting: "💰 Betting %s 🔸 tokens!"
   begin: "**It's on!**\n**%s**\n%s\n\n%s"
   join: "%s has joined the match! %s/%s"
   left: "%s has left the match!"
@@ -98,11 +99,6 @@ command:
     alreadyOnMatch: "You're already on the match!"
     full: "The match is full!"
     description: "Joins a match on the current channel"
-  leave:
-    notPlaying: "Looks like you aren't playing any games.\n"
-    joinChannelGame: "Join this channel's game with `%sjoin`!"
-    startGame: "Pick and start a game on `%shelp`!"
-    description: "Leaves the match on the current channel"
   stop:
     matchStopped: "⏹ Match stopped by %s"
     description: "Forces a stop the current match"
@@ -140,7 +136,7 @@ command:
   help:
     beginning: "**<:GamesROB:391744594863325184> GamesROB**\n**🎲 Games:**\n"
     gameString: "%s `%%PREFIX%%%s` - %s"
-    moreInfo: "\n**📟 Command list and more info available in the website**\n%s"
+    moreInfo: "\n**📟 View more detailed descriptions on the website**\n%s"
     description: "Gets you some help!"
   invite:
     embed:
@@ -206,7 +202,11 @@ website:
     addBot: "Add The Bot"
     logIn: "Log In"
     signOut: "Sign Out"
+    language: "Language"
   home:
+    changelog: 
+      title: "What's new with GamesROB v%s"
+      subtitle: "From %s"
     botDescription: "The Discord bot for playing chat games right on your server!"
     invite: "Oooh! I want that!"
     upvote: "Give it a vote on DBL"

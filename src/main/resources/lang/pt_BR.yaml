@@ -23,6 +23,7 @@ gameFramework:
   multiplayerMatch: "**Partida Multijogador de %s!**\n%s\n\n"
   joinToPlay: "🚪 Digite `%sjoin` ou clique na porta abaixo para jogar! (%s/%s)"
   joinToPlayNoReaction: "🚪 Digite `%sjoin` para jogar! (%s/%s)"
+  betting: "💰 Apostando %s 🔸 tokens!"
   begin: "**Começou!**\n**%s**\n%s\n\n%s"
   join: "%s entrou na partida! %s/%s"
   left: "%s saiu da partida!"
@@ -136,7 +137,7 @@ command:
   help:
     beginning: "**<:GamesROB:391744594863325184> GamesROB**\n**🎲 Jogos:**\n"
     gameString: "%s `%%PREFIX%%%s` - %s"
-    moreInfo: "\n**📟 Lista de comandos e mais informações disponíveis no site**\n%s"
+    moreInfo: "\n**📟 Veja descrições mais detalhadas com mais facilidade no nosso site**\n%s"
     description: "Te dá ajuda!"
   invite:
     embed:
@@ -203,6 +204,9 @@ website:
     logIn: "Entrar"
     signOut: "Sair"
   home:
+    changelog: 
+      title: "O que há de novo com GamesROB v%s"
+      description: "De %s"
     botDescription: "O bot de Discord para jogos de chat direto do seu servidor!"
     invite: "Eu quero!"
     upvote: "Dê um like no DBL"
@@ -219,6 +223,7 @@ website:
     lost: "Derrotas"
     gamesPlayed: "Partidas"
     settings: "Configurações"
+    language: "Linguagem"
   serverEdit:
     language: "Linguagem"
     permStartGame: "Permissão para iniciar partidas"

@@ -1,6 +1,20 @@
 script(src='/res/js/home.js')
 
 .center-align
+    // Changelog
+    if showChangelog
+        .row
+            .col.s12
+                h3.white-text #{changelogTitle}
+        .row
+            .col.s12
+                h5.white-text #{changelogSubtitle}
+        .row
+            .col.s12.left-align
+                for line in changelog
+                    a.white-text #{line}
+                    br
+
     // Bot Introduction
     .row
         .col.s12

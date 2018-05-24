@@ -14,7 +14,9 @@ import spark.Route;
 import sun.misc.IOUtils;
 
 import java.io.InputStream;
+import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.ThreadLocalRandom;
 
 import static spark.Spark.*;
 
@@ -22,6 +24,13 @@ public class Website {
     private static final String[] FAVICONS = {
         "android-chrome-192x192.png", "apple-touch-icon.png", "browserconfig.xml", "favicon.ico", "favicon-16x16.png",
         "favicon-32x32.png", "mstile-150x150.png", "safari-pinned-tab.svg", "site.webmanifest"
+    };
+    private static final String[] ERROR_GIFS = {
+            "https://media2.giphy.com/media/dRgcwKJaGgWgo/giphy.gif",
+            "https://media1.giphy.com/media/ucqzuPUJSrTvW/giphy.gif",
+            "https://media2.giphy.com/media/3ztfAWk2M2msM/giphy.gif",
+            "https://media.giphy.com/media/sXICOpe3B2cc8/giphy.gif",
+            "https://media.giphy.com/media/11H1vD2IrZxg9G/giphy.gif"
     };
 
     public static void start(int port) {
@@ -39,6 +48,8 @@ public class Website {
 
         get("/common/*", directoryRoute("common", "/common/".length()));
         get("/res/*", directoryRoute("res", "/res/".length()));
+
+        post("/setlang", apiRoute(APIRoutes::changeLangRequest));
 
         path("/help", () -> {
             path("/games", () -> {
@@ -68,13 +79,19 @@ public class Website {
 
         redirect.get("/server", "https://discord.gg/8EZ7BEz");
 
-        notFound("404 - Not Found");
+        notFound((req, res) -> errorPage(res, HttpStatus.NOT_FOUND_404));
         init();
     }
 
     public static String errorPage(Response response, int code) {
         response.status(code);
-        return code + " - " + HttpStatus.getMessage(code);
+        try {
+            return new String(getResource("error.html"), "UTF-8")
+                    .replaceAll("%%ERROR_MESSAGE%%", code + " - " + HttpStatus.getMessage(code))
+                    .replaceAll("%%GIF_URL%%", ERROR_GIFS[ThreadLocalRandom.current().nextInt(ERROR_GIFS.length)]);
+        } catch (Exception e) {
+            return code + "";
+        }
     }
 
     public static byte[] getResource(String path) {

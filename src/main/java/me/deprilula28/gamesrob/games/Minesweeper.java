@@ -2,6 +2,7 @@ package me.deprilula28.gamesrob.games;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import me.deprilula28.gamesrob.Language;
 import me.deprilula28.gamesrob.baseFramework.*;
 import me.deprilula28.gamesrob.utility.Log;
 import me.deprilula28.gamesrob.utility.Utility;
@@ -86,7 +87,7 @@ public class Minesweeper implements MatchHandler {
         MinesweeperTileType type = tile.getType();
         if (type == MinesweeperTileType.DUG) return;
         if (type == MinesweeperTileType.BOMB && length != 3) {
-            match.onEnd("You dug a bomb!", true);
+            match.onEnd(Language.transl(match.getLanguage(), "game.minesweeper.bomb"), true);
             return;
         }
         board.get(x).set(y, length == 3
@@ -126,7 +127,7 @@ public class Minesweeper implements MatchHandler {
 
     @Override
     public void onQuit(User user) {
-        match.onEnd("The player left", true);
+        match.onEnd(Language.transl(match.getLanguage(), "game.minesweeper.left"), true);
     }
 
     @Override

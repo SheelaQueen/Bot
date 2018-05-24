@@ -28,23 +28,23 @@ script(src='//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.j
 
 ul#indexUL
     li
-        a.waves-effect.waves-teal.white-text.wikiSidebarItem(onclick="loadPage('/help/')") #{introduction}
+        a.waves-effect.waves-teal.white-text.wikiSidebarItem(onclick="loadPage('/help/')", class=(wikiPage == "intro") ? "wikiSidebarItemActive" : "") #{introduction}
     li
-        a.waves-effect.waves-teal.white-text.wikiSidebarItem(onclick="loadPage('/help/commands')") #{commands}
+        a.waves-effect.waves-teal.white-text.wikiSidebarItem(onclick="loadPage('/help/commands')", class=(wikiPage == "commands") ? "wikiSidebarItemActive" : "") #{commands}
     li.no-padding
         ul.collapsible.wikiCategoryCollapsible
-            li
+            li(class=(wikiPage == "minesweeper" || wikiPage == "hangman" || wikiPage == "connectfour" || wikiPage == "tictactoe") ? "active" : "")
                 div.collapsible-header
                     a.waves-effect.waves-teal.white-text.wikiSidebarItem #{games}
                 div.collapsible-body
                     ul
                         li
-                            a.white-text.wikiSidebarItem(onclick="loadPage('/help/games/minesweeper')") #{minesweeper}
+                            a.white-text.wikiSidebarItem(onclick="loadPage('/help/games/minesweeper')", class=(wikiPage == "minesweeper") ? "wikiSidebarItemActive" : "") #{minesweeper}
                         li
-                            a.white-text.wikiSidebarItem(onclick="loadPage('/help/games/hangman')") #{hangman}
+                            a.white-text.wikiSidebarItem(onclick="loadPage('/help/games/hangman')", class=(wikiPage == "hangman") ? "wikiSidebarItemActive" : "") #{hangman}
                         li
-                            a.white-text.wikiSidebarItem(onclick="loadPage('/help/games/connectfour')") #{connectFour}
+                            a.white-text.wikiSidebarItem(onclick="loadPage('/help/games/connectfour')", class=(wikiPage == "connectfour") ? "wikiSidebarItemActive" : "") #{connectFour}
                         li
-                            a.white-text.wikiSidebarItem(onclick="loadPage('/help/games/tictactoe')") #{tictactoe}
+                            a.white-text.wikiSidebarItem(onclick="loadPage('/help/games/tictactoe')", class=(wikiPage == "tictactoe") ? "wikiSidebarItemActive" : "") #{tictactoe}
     li
-        a.waves-effect.waves-teal.white-text.wikiSidebarItem(onclick="loadPage('/help/credits')") #{credits}
+        a.waves-effect.waves-teal.white-text.wikiSidebarItem(onclick="loadPage('/help/credits')", class=(wikiPage == "credits") ? "wikiSidebarItemActive" : "") #{credits}

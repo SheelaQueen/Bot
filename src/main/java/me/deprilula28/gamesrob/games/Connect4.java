@@ -84,7 +84,6 @@ public class Connect4 extends TurnMatchHandler {
                 board.add(row);
             }
         }
-        Log.info(board);
 
         StringBuilder builder = new StringBuilder();
         if (!over) builder.append(getTurn().map(User::getAsMention).orElseThrow(() -> new RuntimeException("Asked update" +

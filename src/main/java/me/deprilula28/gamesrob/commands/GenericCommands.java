@@ -52,7 +52,6 @@ public class GenericCommands {
     }
 
     public static MessageEmbed info(CommandContext context) {
-        Optional<Integer> upvotes = GamesROB.dboAPI.map(it -> it.getBot().getUpvotes());
         List<GamesROB.ShardStatus> allShards = GamesROB.getAllShards();
         Statistics stats = Statistics.get();
 
@@ -72,7 +71,7 @@ public class GenericCommands {
                 Utility.addNumberDelimitors(allShards.stream().mapToInt(GamesROB.ShardStatus::getTextChannels).sum()),
                 Utility.addNumberDelimitors(stats.getGameCount()),
                 Utility.addNumberDelimitors(allShards.stream().mapToInt(GamesROB.ShardStatus::getActiveGames).sum()),
-                Utility.addNumberDelimitors(upvotes.orElse(0))
+                Utility.addNumberDelimitors(stats.getUpvotes())
             ), false)
             .addField(Language.transl(context, "command.info.embed.versions.title"),
                     Language.transl(context, "command.info.embed.versions.description",

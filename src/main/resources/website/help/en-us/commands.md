@@ -4,7 +4,6 @@ Arguments in &lt;these&gt; are required, while arguments in [these] are optional
 
 - `g*hm`, `g*ttt`, `g*c4`, and `g*ms` - Used to start games (those are shortcut commands, the full game names also work).
 - `g*jm` and `g*join` - Joins a match started by someone else in the current channel.
-- `g*lm` and `g*leave` - Leaves the match you are currently in.
 - `g*stop` - Force stops the game going on in the current channel (**Admin only**).
 - `g*listplayers` - View all the players on the match for the channel you run the command in.
 
