@@ -114,7 +114,6 @@ public class Match extends Thread {
     }
 
     public Match(GamesInstance game, User creator, TextChannel channel, List<String> options) {
-        updateSettings(options);
 
         String guildLang = GuildProfile.get(channel.getGuild()).getLanguage();
         String userLang = UserProfile.get(creator).getLanguage();
@@ -127,6 +126,7 @@ public class Match extends Thread {
         this.game = game;
         matchHandler = game.getMatchHandlerSupplier().get();
         gameState = GameState.MATCH;
+        updateSettings(options);
 
         GAMES.put(channel, this);
         PLAYING.put(creator, this);

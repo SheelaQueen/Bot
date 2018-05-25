@@ -2,8 +2,8 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/.idea/GamesROB.iml" filepath="$PROJECT_DIR$/.idea/GamesROB.iml" />
       <module fileurl="file://$PROJECT_DIR$/gamesrob.iml" filepath="$PROJECT_DIR$/gamesrob.iml" />
+      <module fileurl="file://$PROJECT_DIR$/gamesrob (1).iml" filepath="$PROJECT_DIR$/gamesrob (1).iml" />
     </modules>
   </component>
 </project>

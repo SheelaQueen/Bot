@@ -147,6 +147,7 @@ public class BootupProcedure {
                     context.send("⛔ An error has occured! It has been reported to devs. My bad...");
                     Log.exception("Command: " + context.getMessage().getRawContent(), exception, context);
                 }).genericExceptionFunction((message, exception) -> Log.exception(message, exception))
+                .caseIndependent(true)
                 .build());
         GamesROB.commandFramework = f;
 
