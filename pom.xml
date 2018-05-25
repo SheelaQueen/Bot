@@ -31,9 +31,17 @@
         <sparkjava-jade.version>2.7.1</sparkjava-jade.version>
         <sparkjava.version>2.7.2</sparkjava.version>
         <markdown4j.version>2.2-cj-1.0</markdown4j.version>
+        <jedis.version>2.9.0</jedis.version>
     </properties>
 
     <dependencies>
+        <!-- Jedis (Redis for Java) -->
+        <dependency>
+            <groupId>redis.clients</groupId>
+            <artifactId>jedis</artifactId>
+            <version>${jedis.version}</version>
+        </dependency>
+
         <!-- Markdown4j -->
         <dependency>
             <groupId>org.commonjava.googlecode.markdown4j</groupId>
