@@ -84,39 +84,41 @@ public class BootupProcedure {
     private static final BootupTask transferToDb = args -> {
         GamesROB.database.ifPresent(db -> {
             int transfered = 0;
-            for (File file : Constants.GUILDS_FOLDER.listFiles()) {
-                FileReader reader = null;
-                try {
-                    reader = new FileReader(new File(file, "leaderboard.json"));
-                    GuildProfile guildProfile = Constants.GSON.fromJson(reader, GuildProfile.class);
-                    GuildProfile.manager.saveToSQL(db, guildProfile);
-                    transfered ++;
-                    Log.info("Transferred " + file.getName() + ". (" + transfered + ")");
-                    reader.close();
-                } catch (Exception e) {
-                    if (reader != null) Utility.quietlyClose(reader);
-                    Log.info("Failed to save " + file.getAbsolutePath() + ": " + e.getClass().getName() +  ": "
-                            + e.getMessage());
+            File[] GUILD_FILES = Constants.GUILDS_FOLDER.listFiles();
+            if (GUILD_FILES != null) for (File file : GUILD_FILES) {
+                    FileReader reader = null;
+                    try {
+                        reader = new FileReader(new File(file, "leaderboard.json"));
+                        GuildProfile guildProfile = Constants.GSON.fromJson(reader, GuildProfile.class);
+                        GuildProfile.manager.saveToSQL(db, guildProfile);
+                        transfered ++;
+                        Log.info("Transferred " + file.getName() + ". (" + transfered + ")");
+                        reader.close();
+                    } catch (Exception e) {
+                        if (reader != null) Utility.quietlyClose(reader);
+                        Log.info("Failed to save " + file.getAbsolutePath() + ": " + e.getClass().getName() +  ": "
+                                + e.getMessage());
+                    }
                 }
-            }
             Log.info(transfered + " guilds transferred");
             transfered = 0;
 
-            for (File file : Constants.USER_PROFILES_FOLDER.listFiles()) {
-                FileReader reader = null;
-                try {
-                    reader = new FileReader(file);
-                    UserProfile userProfile = Constants.GSON.fromJson(reader, UserProfile.class);
-                    UserProfile.manager.saveToSQL(db, userProfile);
-                    transfered ++;
-                    Log.info("Transferred " + file.getName() + ". (" + transfered + ")");
-                    reader.close();
-                } catch (Exception e) {
-                    if (reader != null) Utility.quietlyClose(reader);
-                    Log.info("Failed to save " + file.getAbsolutePath() + ": " + e.getClass().getName() +  ": "
-                            + e.getMessage());
+            File[] USER_PROFILES = Constants.USER_PROFILES_FOLDER.listFiles();
+            if (USER_PROFILES != null) for (File file : USER_PROFILES) {
+                    FileReader reader = null;
+                    try {
+                        reader = new FileReader(file);
+                        UserProfile userProfile = Constants.GSON.fromJson(reader, UserProfile.class);
+                        UserProfile.manager.saveToSQL(db, userProfile);
+                        transfered ++;
+                        Log.info("Transferred " + file.getName() + ". (" + transfered + ")");
+                        reader.close();
+                    } catch (Exception e) {
+                        if (reader != null) Utility.quietlyClose(reader);
+                        Log.info("Failed to save " + file.getAbsolutePath() + ": " + e.getClass().getName() +  ": "
+                                + e.getMessage());
+                    }
                 }
-            }
             Log.info(transfered + " users transferred");
         });
     };

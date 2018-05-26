@@ -155,6 +155,7 @@ public class CommandManager {
     }
 
     public static String help(CommandContext context) {
+        Log.trace("Help command handler");
         return languageHelpMessages.get(Constants.getLanguage(context))
                 .replaceAll("%PREFIX%", Constants.getPrefix(context.getGuild()));
     }

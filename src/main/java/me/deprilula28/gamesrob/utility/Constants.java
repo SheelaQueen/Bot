@@ -44,9 +44,7 @@ public class Constants {
             .create();
 
     public static String getPrefix(Guild guild) {
-        String value = GuildProfile
-                .get(guild)
-                .getGuildPrefix();
+        String value = GuildProfile.get(guild).getGuildPrefix();
         return value == null ? DEFAULT_PREFIX : value;
     }
 
