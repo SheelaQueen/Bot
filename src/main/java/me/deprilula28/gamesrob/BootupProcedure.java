@@ -206,8 +206,6 @@ public class BootupProcedure {
             Cache.onClose();
                     */
         }));
-
-        GamesROB.database.ifPresent(SQLDatabaseManager::registerTables);
     };
 
     private static final BootupTask dblLoad = args ->

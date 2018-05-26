@@ -6,7 +6,7 @@
 
     <groupId>me.deprilula28</groupId>
     <artifactId>gamesrob</artifactId>
-    <version>1.5.6</version>
+    <version>1.6.0</version>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -26,15 +26,22 @@
         <jdaframework.version>1.1.7</jdaframework.version>
         <slf4j.version>1.7.13</slf4j.version>
         <emoji-java.version>4.0.0</emoji-java.version>
-        <sqlite-driver.version>3.21.0.1</sqlite-driver.version>
         <snakeyaml.version>1.19</snakeyaml.version>
         <sparkjava-jade.version>2.7.1</sparkjava-jade.version>
         <sparkjava.version>2.7.2</sparkjava.version>
         <markdown4j.version>2.2-cj-1.0</markdown4j.version>
         <jedis.version>2.9.0</jedis.version>
+        <postgresql.version>9.1-901-1.jdbc4</postgresql.version>
     </properties>
 
     <dependencies>
+        <!-- PostgreSQL -->
+        <dependency>
+            <groupId>postgresql</groupId>
+            <artifactId>postgresql</artifactId>
+            <version>${postgresql.version}</version>
+        </dependency>
+
         <!-- Jedis (Redis for Java) -->
         <dependency>
             <groupId>redis.clients</groupId>
@@ -62,14 +69,6 @@
             <artifactId>spark-core</artifactId>
             <version>${sparkjava.version}</version>
         </dependency>
-
-        <!-- https://mvnrepository.com/artifact/org.xerial/sqlite-jdbc -->
-        <dependency>
-            <groupId>org.xerial</groupId>
-            <artifactId>sqlite-jdbc</artifactId>
-            <version>${sqlite-driver.version}</version>
-        </dependency>
-
 
         <!-- SnakeYAML -->
         <dependency>
