@@ -169,7 +169,7 @@ public class Utility {
     }
 
     public static String formatNth(String language, int i) {
-        int mod = Math.min(i % 10, 4);
+        int mod = Math.max(Math.min(i % 10, 4), 1);
         return Language.transl(language, "genericMessages.nth" + mod);
     }
 

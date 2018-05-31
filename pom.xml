@@ -32,9 +32,17 @@
         <markdown4j.version>2.2-cj-1.0</markdown4j.version>
         <jedis.version>2.9.0</jedis.version>
         <postgresql.version>9.1-901-1.jdbc4</postgresql.version>
+        <java-websocket.version>1.3.8</java-websocket.version>
     </properties>
 
     <dependencies>
+        <!-- Java Websocket -->
+        <dependency>
+            <groupId>org.java-websocket</groupId>
+            <artifactId>Java-WebSocket</artifactId>
+            <version>${java-websocket.version}</version>
+        </dependency>
+
         <!-- PostgreSQL -->
         <dependency>
             <groupId>postgresql</groupId>

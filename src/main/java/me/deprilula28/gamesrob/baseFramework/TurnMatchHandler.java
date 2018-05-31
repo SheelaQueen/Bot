@@ -1,6 +1,7 @@
 package me.deprilula28.gamesrob.baseFramework;
 
 import lombok.Getter;
+import me.deprilula28.gamesrob.Language;
 import me.deprilula28.gamesrob.utility.Constants;
 import me.deprilula28.gamesrob.utility.Utility;
 import me.deprilula28.jdacmdframework.RequestPromise;
@@ -52,9 +53,9 @@ public abstract class TurnMatchHandler implements MatchHandler {
             int pos = match.getPlayers().indexOf(cur) - turn;
             if (pos < 0) pos += match.getPlayers().size();
 
-            if (pos == 0) builder.append(" - **Now**\n");
-            else if (pos == 1) builder.append(" - **Next**\n");
-            else builder.append(String.format(" - %s%s\n", pos, Utility.formatNth(Constants.DEFAULT_LANGUAGE, pos)));
+            if (pos == 0) builder.append(Language.transl(match.getLanguage(), "gameFramework.now")).append("\n");
+            else if (pos == 1) builder.append(Language.transl(match.getLanguage(), "gameFramework.next")).append("\n");
+            else builder.append(String.format(" - %s%s\n", pos, Utility.formatNth(match.getLanguage(), pos)));
         });
     }
 

@@ -8,7 +8,7 @@ languageProperties:
   version: "1.5.2"
 
 genericMessages:
-  alreadyPlaying: "You are already playing another game on %s!\nType `%sleave` to leave that match."
+  alreadyPlaying: "You are already playing another game on %s!\nType `%sstop` to stop that match."
   noGamesInChannel: "There are no games currently in this channel.\nYou can type `%shelp` to pick and start a game!"
   invalidLanguage: "Not a valid language."
   notEnoughTokens: 
@@ -34,7 +34,8 @@ gameFramework:
 
   settingOutOfRange: "The setting `%s` needs to be between %s and %s!"
   activeGame: "There's another game going on this channel."
-  viewPlayers: "See the players with `%slistplayers` and leave with `%sleave`."
+  viewPlayers: "See the players with `%slistplayers`."
+  viewPlayersStop: "See the players with `%slistplayers` and stop with `%sstop`."
   typeToJoin: "You can type `%sjoin` to join it."
   playersOutOfRange: "You can only have between %s and %s players in this game!"
 
@@ -47,9 +48,9 @@ gameFramework:
 
   now: " - **Now**"
   next: " - **Next**"
+  turn: "%s's turn"
 
-  upvoteMessage: "\nIf you are enjoying the bot, consider upvoting it for tokens!"
-  upvoteEmbedTitle: "Upvote"
+  rematch: "Click in :arrows_counterclockwise: for a rematch!"
 
 game:
   connectFour:

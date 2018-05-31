@@ -1,1 +1,11 @@
+- Restructured a lot of how the bot works:
+> The website now runs on a different process, coded in node.js (Source: https://github.com/GamesROB/Website).
+> Now using Redis for caching on the bot and the website end.
+> Now using a PostgreSQL database for storing user and guild information.
+These should mean a more stable, reliable and fast experience with the bot. In the beggining, these might be buggy, so expect a bunch of bug fixes before it's perfected.
+
+- Fixed in a match message giving the leave command.
+- Fixed translations on the turn match handler.
+- Fixed formatting on nth messages multiples of 10.
+
 Enjoy! ~ deprilula28

@@ -114,7 +114,6 @@ public class Match extends Thread {
     }
 
     public Match(GamesInstance game, User creator, TextChannel channel, List<String> options) {
-
         String guildLang = GuildProfile.get(channel.getGuild()).getLanguage();
         String userLang = UserProfile.get(creator).getLanguage();
         language = userLang == null ?  guildLang == null ? Constants.DEFAULT_LANGUAGE : guildLang : userLang;
@@ -281,22 +280,17 @@ public class Match extends Thread {
             })
         );
 
-        boolean sendUpvote = matchesPlayed % 10 == 2 && players.stream().filter(Optional::isPresent).anyMatch(it ->
-                System.currentTimeMillis() - UserProfile.get(it.get().getId()).getLastUpvote() > TimeUnit.DAYS.toMillis(2));
         String gameOver = Language.transl(language, "gameFramework.gameOver",
                 reason,
                 gameState == GameState.PRE_GAME ? "" : matchHandler.updatedMessage(true)
         );
+        if (Utility.hasPermission(channelIn, channelIn.getGuild().getMember(channelIn.getJDA().getSelfUser()),
+                Permission.MESSAGE_ADD_REACTION)) gameOver += "\n" + Language.transl(language, "gameFramework.rematch");
 
         ACTIVE_GAMES.get(channelIn.getJDA()).remove(this);
         GAMES.remove(channelIn);
 
-        preMatchMessage = RequestPromise.forAction(channelIn.sendMessage(sendUpvote ?
-                new MessageBuilder().append(gameOver).append(Language.transl(language, "gameFramework.upvoteMessage"))
-                .setEmbed(new EmbedBuilder().setTitle(Language.transl(language, "gameFramework.upvoteEmbedTitle"),
-                        Constants.getDboURL(channelIn.getJDA()) + "/vote").setColor(new Color(54, 57, 62))
-                        .setDescription("").build()).build()
-                : new MessageBuilder().append(gameOver).build()));
+        preMatchMessage = RequestPromise.forAction(channelIn.sendMessage(gameOver));
         preMatchMessage.then(msg -> msg.addReaction("\uD83D\uDD04").queue());
 
         gameState = GameState.POST_MATCH;
@@ -311,7 +305,9 @@ public class Match extends Thread {
                 Match match = GAMES.get(context.getChannel());
                 return Language.transl(context, "gameFramework.activeGame") + (match.getPlayers()
                             .contains(Optional.of(context.getAuthor()))
-                        ? Language.transl(context, "gameFramework.viewPlayers", prefix, prefix)
+                        ? GuildProfile.get(context.getGuild()).canStop(context)
+                            ? Language.transl(context, "gameFramework.viewPlayersStop", prefix, prefix)
+                            : Language.transl(context, "gameFramework.viewPlayers", prefix)
                         : Language.transl(context, "gameFramework.typeToJoin", prefix));
             }
             if (PLAYING.containsKey(context.getAuthor())) {

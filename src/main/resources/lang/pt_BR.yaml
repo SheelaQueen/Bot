@@ -11,7 +11,10 @@ genericMessages:
   alreadyPlaying: "Você já está jogando em %s!\nDigite `%sleave` para sair da partida."
   noGamesInChannel: "Não há jogos atualmente nesse canal.\nVocê pode digitar `%shelp` para escolher e começar um jogo!"
   invalidLanguage: "Essa linguagem é inválida."
-  notEnoughTokens: "Você não tem tokens suficientes para fazer isso.\nGanhe mais tokens vencendo partidas e votando para o bot em %s."
+  notEnoughTokens:
+    beggining: "Você não tem tokens suficientes para fazer isso (Precisa de mais %s)."
+    upvote: "\nGanhe mais tokens vencendo partidas e votando para o bot em %s."
+
   nth1: "º"
   nth2: "º"
   nth3: "º"
@@ -30,7 +33,8 @@ gameFramework:
 
   settingOutOfRange: "A configuração `%s` deve ter um valor entre %s e %s!"
   activeGame: "Há outro jogo nesse canal."
-  viewPlayers: "Veja os jogadores com `%slistplayers` e saia com `%sleave`."
+  viewPlayers: "Veja os jogadores com `%slistplayers`."
+  viewPlayersStop: "Veja os jogadores com `%slistplayers` e saia com `%sleave`."
   typeToJoin: "Digite `%sjoin` para participar."
   playersOutOfRange: "Só pode haver entre %s e %s jogadores nesse jogo!"
 
@@ -43,9 +47,12 @@ gameFramework:
 
   now: " - **Agora**"
   next: " - **Próximo**"
+  turn: "Vez de %s"
 
   upvoteMessage: "\nSe está gostando do bot, considere dar um voto para ele(a?) para ganhar tokens!"
   upvoteEmbedTitle: "Votar"
+
+  rematch: "Clique no :arrows_counterclockwise: para jogar novamente!"
 
 game:
   connectFour:
@@ -84,8 +91,8 @@ command:
     earnt: "ganhou"
     lost: "perdeu"
 
-    invalidTokens: "You can only gamble %s to %s tokens."
-    description: "Gamble your tokens in a slots game! 100% not rigged trust me"
+    invalidTokens: "Você só pode apostar de %s á %s tokens."
+    description: "Aposte seus tokens em um jogo de cassino! 100% não roubado, confie em mim"
 
   tokens:
     own: "Você tem 🔸 %s tokens"
@@ -93,13 +100,8 @@ command:
     description: "Veja quantos tokens você e outros têm"
   join:
     alreadyOnMatch: "Você já está nesse jogo!"
-    full: "O jogo está cheio!"
+    full: "O jogo já começou!"
     description: "Entra na partida do canal atual"
-  leave:
-    notPlaying: "Parece que você não está jogando nenhum jogo.\n"
-    joinChannelGame: "Entre no jogo desse canal com `%sjoin`!"
-    startGame: "Escolha e comece um jogo em `%shelp`!"
-    description: "Sai da partida que você está."
   stop:
     matchStopped: "⏹ Partida parada por %s"
     description: "Força uma parada na partida"

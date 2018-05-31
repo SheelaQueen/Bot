@@ -7,6 +7,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import me.deprilula28.gamesrob.baseFramework.GamesInstance;
 import me.deprilula28.gamesrob.baseFramework.Match;
+import me.deprilula28.gamesrob.data.RPCManager;
 import me.deprilula28.gamesrob.data.SQLDatabaseManager;
 import me.deprilula28.gamesrob.games.Connect4;
 import me.deprilula28.gamesrob.games.Hangman;
@@ -45,6 +46,7 @@ public class GamesROB {
     static Optional<String> twitchClientID = Optional.empty();
     static long twitchUserIDListen = -1L;
     private static boolean twitchPresence = false;
+    public static Optional<RPCManager> rpc = Optional.empty();
 
     @Data
     @AllArgsConstructor
