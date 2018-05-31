@@ -52,41 +52,43 @@ public class GenericCommands {
     }
 
     public static MessageEmbed info(CommandContext context) {
-        List<GamesROB.ShardStatus> allShards = GamesROB.getAllShards();
-        Statistics stats = Statistics.get();
+        GamesROB.getAllShards().then(shards -> {
+            Statistics stats = Statistics.get();
 
-        return new EmbedBuilder()
-            .setAuthor("deprilula28#3609", null, "https://i.imgur.com/PPa4OzQ.png")
-            .setTitle("\uD83C\uDFAE GamesROB", Constants.GAMESROB_DOMAIN)
-            .setColor(new Color(0x00BFA5))
-            .setDescription(Language.transl(context, "command.info.embed.description",
-                Constants.GAMESROB_DOMAIN, Constants.getInviteURL(context.getJda()),
-                Constants.getDboURL(context.getJda()),
-                "https://github.com/GamesROB/Bot", Constants.GAMESROB_DOMAIN + "/server?from=info"
-            ))
-            .addField(Language.transl(context, "command.info.embed.statistics.title"),
-                    Language.transl(context, "command.info.embed.statistics.description",
-                Utility.addNumberDelimitors(allShards.stream().mapToInt(GamesROB.ShardStatus::getGuilds).sum()),
-                Utility.addNumberDelimitors(allShards.stream().mapToInt(GamesROB.ShardStatus::getUsers).sum()),
-                Utility.addNumberDelimitors(allShards.stream().mapToInt(GamesROB.ShardStatus::getTextChannels).sum()),
-                Utility.addNumberDelimitors(stats.getGameCount()),
-                Utility.addNumberDelimitors(allShards.stream().mapToInt(GamesROB.ShardStatus::getActiveGames).sum()),
-                Utility.addNumberDelimitors(stats.getUpvotes())
-            ), false)
-            .addField(Language.transl(context, "command.info.embed.versions.title"),
-                    Language.transl(context, "command.info.embed.versions.description",
-                GamesROB.VERSION, System.getProperty("java.version"),
-                "https://github.com/DV8FromTheWorld/JDA", JDAInfo.VERSION,
-                "https://github.com/deprilula28/DepsJDAFramework", CommandFramework.FRAMEWORK_VERSION,
-                Utility.formatPeriod(System.currentTimeMillis() - GamesROB.UP_SINCE)
-            ), true)
-            .addField(Language.transl(context, "command.info.embed.system.title"),
-                    Language.transl(context, "command.info.embed.system.description",
-                Utility.getRAM(), System.getProperty("os.name")
-            ), true)
-            .addField(Language.transl(context, "command.info.embed.credits.title"),
-                    Constants.GAMESROB_DOMAIN + "/help/credits", false)
-            .build();
+            context.send(new EmbedBuilder()
+                    .setAuthor("deprilula28#3609", null, "https://i.imgur.com/PPa4OzQ.png")
+                    .setTitle("\uD83C\uDFAE GamesROB", Constants.GAMESROB_DOMAIN)
+                    .setColor(new Color(0x00BFA5))
+                    .setDescription(Language.transl(context, "command.info.embed.description",
+                            Constants.GAMESROB_DOMAIN, Constants.getInviteURL(context.getJda()),
+                            Constants.getDboURL(context.getJda()),
+                            "https://github.com/GamesROB/Bot", Constants.GAMESROB_DOMAIN + "/server?from=info"
+                    ))
+                    .addField(Language.transl(context, "command.info.embed.statistics.title"),
+                            Language.transl(context, "command.info.embed.statistics.description",
+                                    Utility.addNumberDelimitors(shards.stream().mapToInt(GamesROB.ShardStatus::getGuilds).sum()),
+                                    Utility.addNumberDelimitors(shards.stream().mapToInt(GamesROB.ShardStatus::getUsers).sum()),
+                                    Utility.addNumberDelimitors(shards.stream().mapToInt(GamesROB.ShardStatus::getTextChannels).sum()),
+                                    Utility.addNumberDelimitors(stats.getGameCount()),
+                                    Utility.addNumberDelimitors(shards.stream().mapToInt(GamesROB.ShardStatus::getActiveGames).sum()),
+                                    Utility.addNumberDelimitors(stats.getUpvotes())
+                            ), false)
+                    .addField(Language.transl(context, "command.info.embed.versions.title"),
+                            Language.transl(context, "command.info.embed.versions.description",
+                                    GamesROB.VERSION, System.getProperty("java.version"),
+                                    "https://github.com/DV8FromTheWorld/JDA", JDAInfo.VERSION,
+                                    "https://github.com/deprilula28/DepsJDAFramework", CommandFramework.FRAMEWORK_VERSION,
+                                    Utility.formatPeriod(System.currentTimeMillis() - GamesROB.UP_SINCE)
+                            ), true)
+                    .addField(Language.transl(context, "command.info.embed.system.title"),
+                            Language.transl(context, "command.info.embed.system.description",
+                                    Utility.getRAM(), System.getProperty("os.name")
+                            ), true)
+                    .addField(Language.transl(context, "command.info.embed.credits.title"),
+                            Constants.GAMESROB_DOMAIN + "/help/credits", false)
+                    .build());
+        });
+        return null;
     }
 
     public static String changelog(CommandContext context) {
@@ -96,38 +98,40 @@ public class GenericCommands {
     }
 
     public static String shardsInfo(CommandContext context) {
-        List<GamesROB.ShardStatus> shards = GamesROB.getAllShards();
-        shards.add(new GamesROB.ShardStatus("TOTAL", shards.stream().mapToInt(GamesROB.ShardStatus::getGuilds).sum(),
-                shards.stream().mapToInt(GamesROB.ShardStatus::getUsers).sum(),
-                shards.stream().mapToInt(GamesROB.ShardStatus::getTextChannels).sum(),
-            // Status
-            Arrays.stream(JDA.Status.values()).filter(a -> shards.stream().anyMatch(it -> it.getStatus().equals(a.toString())))
-                .map(a -> Utility.addNumberDelimitors(shards.stream().filter(it -> it.getStatus().equals(a.toString())).count())
-                + " " + a.toString()).collect(Collectors.joining(", ")),
-            // Latency avarage
-            new BigDecimal(shards.stream().mapToLong(GamesROB.ShardStatus::getPing).average().orElse(0.0))
-                    .setScale(0, BigDecimal.ROUND_HALF_UP).longValue(),
-            // Games total
-            shards.stream().mapToInt(GamesROB.ShardStatus::getActiveGames).sum()));
+        GamesROB.getAllShards().then(shards -> {
+            shards.add(new GamesROB.ShardStatus("TOTAL", shards.stream().mapToInt(GamesROB.ShardStatus::getGuilds).sum(),
+                    shards.stream().mapToInt(GamesROB.ShardStatus::getUsers).sum(),
+                    shards.stream().mapToInt(GamesROB.ShardStatus::getTextChannels).sum(),
+                    // Status
+                    Arrays.stream(JDA.Status.values()).filter(a -> shards.stream().anyMatch(it -> it.getStatus().equals(a.toString())))
+                            .map(a -> Utility.addNumberDelimitors(shards.stream().filter(it -> it.getStatus().equals(a.toString())).count())
+                                    + " " + a.toString()).collect(Collectors.joining(", ")),
+                    // Latency avarage
+                    new BigDecimal(shards.stream().mapToLong(GamesROB.ShardStatus::getPing).average().orElse(0.0))
+                            .setScale(0, BigDecimal.ROUND_HALF_UP).longValue(),
+                    // Games total
+                    shards.stream().mapToInt(GamesROB.ShardStatus::getActiveGames).sum()));
 
-        List<List<String>> texts = new ArrayList<>();
-        texts.add(shards.stream().map(GamesROB.ShardStatus::getId).collect(Collectors.toList()));
-        texts.add(shards.stream().map(it -> Utility.addNumberDelimitors(it.getGuilds()))
-                .collect(Collectors.toList()));
-        texts.add(shards.stream().map(it -> Utility.addNumberDelimitors(it.getUsers()))
-                .collect(Collectors.toList()));
-        texts.add(shards.stream().map(it -> Utility.addNumberDelimitors(it.getTextChannels()))
-                .collect(Collectors.toList()));
-        texts.add(shards.stream().map(GamesROB.ShardStatus::getStatus).collect(Collectors.toList()));
-        texts.add(shards.stream().map(it -> Utility.formatPeriod(it.getPing())).collect(Collectors.toList()));
-        texts.add(shards.stream().map(it -> Utility.addNumberDelimitors(it.getActiveGames()))
-                .collect(Collectors.toList()));
+            List<List<String>> texts = new ArrayList<>();
+            texts.add(shards.stream().map(GamesROB.ShardStatus::getId).collect(Collectors.toList()));
+            texts.add(shards.stream().map(it -> Utility.addNumberDelimitors(it.getGuilds()))
+                    .collect(Collectors.toList()));
+            texts.add(shards.stream().map(it -> Utility.addNumberDelimitors(it.getUsers()))
+                    .collect(Collectors.toList()));
+            texts.add(shards.stream().map(it -> Utility.addNumberDelimitors(it.getTextChannels()))
+                    .collect(Collectors.toList()));
+            texts.add(shards.stream().map(GamesROB.ShardStatus::getStatus).collect(Collectors.toList()));
+            texts.add(shards.stream().map(it -> Utility.formatPeriod(it.getPing())).collect(Collectors.toList()));
+            texts.add(shards.stream().map(it -> Utility.addNumberDelimitors(it.getActiveGames()))
+                    .collect(Collectors.toList()));
 
-        return Language.transl(context, "command.shardinfo.title",
-            Utility.generateTable(
-                Stream.of("shard", "guilds", "users", "channels", "status", "ping", "games")
-                .map(item -> Language.transl(context, "command.shardinfo." + item)).collect(Collectors.toList()),
-            shards.size(), texts));
+            context.send(Language.transl(context, "command.shardinfo.title",
+                    Utility.generateTable(
+                            Stream.of("shard", "guilds", "users", "channels", "status", "ping", "games")
+                                    .map(item -> Language.transl(context, "command.shardinfo." + item)).collect(Collectors.toList()),
+                            shards.size(), texts)));
+        });
+        return null;
     }
 
     public static String setPrefix(CommandContext context) {

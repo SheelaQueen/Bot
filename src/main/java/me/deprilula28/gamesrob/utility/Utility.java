@@ -20,6 +20,8 @@ import java.time.temporal.TemporalAdjusters;
 import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 public class Utility {
@@ -36,6 +38,39 @@ public class Utility {
     private static final String[] BYTE_UNIT_NAMES = {
             "GB", "MB", "KB", "B"
     };
+
+    public static class Promise<R> {
+        private List<Consumer<R>> consumers = new ArrayList<>();
+        private List<Thread> awaiting = new ArrayList<>();
+        private Optional<R> result = Optional.empty();
+
+        public static <R> Promise<R> result(R resulting) {
+            Promise<R> promise = new Promise<>();
+            promise.done(resulting);
+
+            return promise;
+        }
+
+        public void done(R result) {
+            this.result = Optional.of(result);
+            consumers.forEach(cur -> cur.accept(result));
+            consumers.clear();
+            awaiting.forEach(Thread::interrupt);
+            awaiting.clear();
+        }
+
+        public void then(Consumer<R> consumer) {
+            if (result.isPresent()) consumer.accept(result.get());
+            else consumers.add(consumer);
+        }
+
+        public <V> Promise<V> map(Function<R, V> mapper) {
+            Promise<V> promiseSecond = new Promise<>();
+            then(it -> promiseSecond.done(mapper.apply(it)));
+
+            return promiseSecond;
+        }
+    }
 
     private static final SimpleDateFormat WEEK_DATE_FORMAT = new SimpleDateFormat("EEE, HH:mm");
     private static final SimpleDateFormat REGULAR_DATE_FORMAT = new SimpleDateFormat("EEE, d/M/yyyy hh:mm a");

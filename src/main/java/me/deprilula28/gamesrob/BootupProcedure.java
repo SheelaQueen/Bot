@@ -52,7 +52,7 @@ public class BootupProcedure {
     private static String token;
     public static Optional<String> optDblToken;
     private static int shardTo;
-    private static int shardFrom;
+    public static int shardFrom;
     private static int totalShards;
     private static int port;
     public static String secret;

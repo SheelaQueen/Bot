@@ -60,22 +60,22 @@ public class GamesROB {
         private int activeGames;
     }
 
-    public static List<ShardStatus> getAllShards() {
+    public static List<ShardStatus> getShardsInfo() {
         return shards.stream().map(it ->
-                new ShardStatus(String.valueOf(shards.indexOf(it)),
+                new ShardStatus(String.valueOf(BootupProcedure.shardFrom + shards.indexOf(it)),
                         it.getGuilds().size(), it.getUsers().size(), it.getTextChannels().size(), it.getStatus().toString(),
                         it.getPing(), Match.ACTIVE_GAMES.get(it).size())).collect(Collectors.toList());
     }
 
-    private static final List<Supplier<String>> STATISTICS_SUPPLIER = Arrays.asList(
-            () -> Utility.addNumberDelimitors(getAllShards().stream().mapToInt(GamesROB.ShardStatus::getGuilds).sum()) + " servers",
-            () -> Utility.addNumberDelimitors(getAllShards().stream().mapToInt(GamesROB.ShardStatus::getUsers).sum()) + " users",
-            () -> Utility.addNumberDelimitors(getAllShards().stream().mapToInt(GamesROB.ShardStatus::getTextChannels).sum()) + " channels"
-    );
-    private static final Supplier<String> MENTION_BOT_SUPPLIER = () -> {
-        SelfUser self = shards.get(0).getSelfUser();
-        return "@" + self.getName() + "#" + self.getDiscriminator();
-    };
+    public static Utility.Promise<List<ShardStatus>> getAllShards() {
+        return rpc.map(it -> it.request(RPCManager.RequestType.GET_ALL_SHARDS_INFO, null)
+                .map(list -> {
+            List<ShardStatus> statuses = new ArrayList<>();
+            list.getAsJsonArray().forEach(el -> statuses.add(Constants.GSON.fromJson(el, ShardStatus.class)));
+
+            return statuses;
+        })).orElse(Utility.Promise.result(getShardsInfo()));
+    }
 
     public static Optional<TextChannel> getTextChannelById(long id) {
         return shards.stream().map(it -> it.getTextChannelById(id)).filter(Objects::nonNull).findFirst();
