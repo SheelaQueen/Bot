@@ -1,5 +1,6 @@
 package me.deprilula28.gamesrob.games;
 
+import me.deprilula28.gamesrob.Language;
 import me.deprilula28.gamesrob.baseFramework.*;
 import me.deprilula28.gamesrob.utility.Log;
 import me.deprilula28.gamesrob.utility.Utility;
@@ -94,8 +95,8 @@ public class TicTacToe extends TurnMatchHandler {
     @Override
     public String updatedMessage(boolean over) {
         StringBuilder builder = new StringBuilder();
-        if (!over) builder.append(getTurn().map(User::getAsMention).orElseThrow(() -> new RuntimeException("Asked update" +
-                " message on AI turn."))).append("'s turn!\n");
+        if (!over) builder.append(Language.transl(match.getLanguage(), "gameFramework.turn", getTurn()
+                .map(User::getAsMention).orElseThrow(() -> new RuntimeException("Asked update message on AI turn."))));
 
         for (int i = 0; i < tiles; i++) {
             if (i % boardSize == 0) builder.append("\n");

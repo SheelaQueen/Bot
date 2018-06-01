@@ -11,7 +11,10 @@ genericMessages:
   alreadyPlaying: "Você já está jogando em %s!\nDigite `%sleave` para sair da partida."
   noGamesInChannel: "Não há jogos atualmente nesse canal.\nVocê pode digitar `%shelp` para escolher e começar um jogo!"
   invalidLanguage: "Essa linguagem é inválida."
-  notEnoughTokens: "Você não tem tokens suficientes para fazer isso.\nGanhe mais tokens vencendo partidas e votando para o bot em %s."
+  notEnoughTokens:
+    beggining: "Você não tem tokens suficientes para fazer isso (Precisa de mais %s)."
+    upvote: "\nGanhe mais tokens vencendo partidas e votando para o bot em %s."
+
   nth1: "º"
   nth2: "º"
   nth3: "º"
@@ -30,7 +33,8 @@ gameFramework:
 
   settingOutOfRange: "A configuração `%s` deve ter um valor entre %s e %s!"
   activeGame: "Há outro jogo nesse canal."
-  viewPlayers: "Veja os jogadores com `%slistplayers` e saia com `%sleave`."
+  viewPlayers: "Veja os jogadores com `%slistplayers`."
+  viewPlayersStop: "Veja os jogadores com `%slistplayers` e saia com `%sleave`."
   typeToJoin: "Digite `%sjoin` para participar."
   playersOutOfRange: "Só pode haver entre %s e %s jogadores nesse jogo!"
 
@@ -43,9 +47,12 @@ gameFramework:
 
   now: " - **Agora**"
   next: " - **Próximo**"
+  turn: "Vez de %s"
 
   upvoteMessage: "\nSe está gostando do bot, considere dar um voto para ele(a?) para ganhar tokens!"
   upvoteEmbedTitle: "Votar"
+
+  rematch: "Clique no :arrows_counterclockwise: para jogar novamente!"
 
 game:
   connectFour:
@@ -79,27 +86,24 @@ command:
   permissionLock: "⛔ Você não tem permissão para usar esse comando!"
 
   slots:
-    matchHeader: "Apostando %s tokens..."
-    matchEnd: "Você %s %s tokens!"
+    matchHeader: "Apostando 🔸 %s tokens..."
+    matchEnd: "Você %s 🔸 %s tokens!"
     earnt: "ganhou"
     lost: "perdeu"
 
-    invalidTokens: "You can only gamble %s to %s tokens."
-    description: "Gamble your tokens in a slots game! 100% not rigged trust me"
+    invalidTokens: "Você só pode apostar de %s á %s tokens."
+    description: "Aposte seus tokens em um jogo de cassino! Totalmente não roubado, confie em mim"
 
   tokens:
     own: "Você tem 🔸 %s tokens"
+    earnUpvote: "Ganhe mais tokens vencendo partidas, completando conquistas, votando para o bot em %s ou apostando com `%sslots`."
+    earn: "Ganhe mais tokens vencendo partidas, completando conquistas ou apostando com `%sslots`.\n*Você poderá votar novamente em %s`"
     other: "%s tem 🔸 %s tokens"
     description: "Veja quantos tokens você e outros têm"
   join:
     alreadyOnMatch: "Você já está nesse jogo!"
-    full: "O jogo está cheio!"
+    full: "O jogo já começou!"
     description: "Entra na partida do canal atual"
-  leave:
-    notPlaying: "Parece que você não está jogando nenhum jogo.\n"
-    joinChannelGame: "Entre no jogo desse canal com `%sjoin`!"
-    startGame: "Escolha e comece um jogo em `%shelp`!"
-    description: "Sai da partida que você está."
   stop:
     matchStopped: "⏹ Partida parada por %s"
     description: "Força uma parada na partida"
@@ -123,6 +127,7 @@ command:
     notRanked: "Sem posição"
   emote:
     set: "Seu emoji foi escolhido! %s"
+    reset: "Seu emoji foi resetado!"
     cannotUse: "Não posso usar esse emoji! Tente colocá-lo nesse servidor."
     invalid: "Desculpe-me, mas esse não é um emoji válido..."
     description: "Altere o símbolo emoji que você será em partidas!"
@@ -135,9 +140,20 @@ command:
     description: "Altere a linguagem padrão para o servidor."
 
   help:
-    beginning: "**<:GamesROB:391744594863325184> GamesROB**\n**🎲 Jogos:**\n"
+    beginning: "**<:GamesROB:391744594863325184> GamesROB v%s** *por deprilula28*\n\n"
+    subCategory: "Use `%%PREFIX%%help categoria/comando` para receber informações sobre um comando ou categoria (ex. `%%PREFIX%%help profile` ou `%%PREFIX%%help slots`)"
     gameString: "%s `%%PREFIX%%%s` - %s"
-    moreInfo: "\n**📟 Veja descrições mais detalhadas com mais facilidade no nosso site**\n%s"
+    commandInfo: "`%s%s`: %s\nAliases: %s\nCategoria: %s"
+    gameInfo: "`%s%s`: %s\n\n**Descrição Longa**\n%s\n\nAliases: %s\nMais informações: %s"
+    categories:
+      games: ":game_die: Jogos"
+      profilecommands: ":busts_in_silhouette: Perfil"
+      servercommands: ":pager: Servidor"
+      matchcommands: ":video_game: Partida"
+      infocommands: ":clipboard: Informações"
+    other: "%s outros"
+
+    websiteTitle: "Nosso site"
     description: "Te dá ajuda!"
   invite:
     embed:

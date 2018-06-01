@@ -1,21 +1,13 @@
 package me.deprilula28.gamesrob;
 
-import com.github.kevinsawicki.http.HttpRequest;
-import com.google.gson.annotations.SerializedName;
-import lombok.AllArgsConstructor;
 import me.deprilula28.gamesrob.baseFramework.GameState;
 import me.deprilula28.gamesrob.baseFramework.GameType;
 import me.deprilula28.gamesrob.baseFramework.Match;
 import me.deprilula28.gamesrob.commands.CommandManager;
-import me.deprilula28.gamesrob.data.GuildProfile;
-import me.deprilula28.gamesrob.data.SQLDatabaseManager;
-import me.deprilula28.gamesrob.data.Statistics;
-import me.deprilula28.gamesrob.data.UserProfile;
-import me.deprilula28.gamesrob.utility.Cache;
+import me.deprilula28.gamesrob.data.*;
 import me.deprilula28.gamesrob.utility.Constants;
 import me.deprilula28.gamesrob.utility.Log;
 import me.deprilula28.gamesrob.utility.Utility;
-import me.deprilula28.gamesrob.website.WebhookHandlers;
 import me.deprilula28.gamesrob.website.Website;
 import me.deprilula28.jdacmdframework.Command;
 import me.deprilula28.jdacmdframework.CommandFramework;
@@ -27,6 +19,7 @@ import net.dv8tion.jda.core.OnlineStatus;
 import net.dv8tion.jda.core.entities.Game;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.core.events.message.guild.react.GuildMessageReactionAddEvent;
+import redis.clients.jedis.Jedis;
 
 import java.io.File;
 import java.io.FileReader;
@@ -60,17 +53,20 @@ public class BootupProcedure {
 
     private static String token;
     public static Optional<String> optDblToken;
-    private static int shardCount;
+    private static int shardTo;
+    public static int shardFrom;
+    private static int totalShards;
     private static int port;
     public static String secret;
     public static String changelog;
+    public static boolean useRedis;
 
     private static final BootupTask loadArguments = args -> {
         List<Optional<String>> pargs = Utility.matchValues(args, "token", "dblToken", "shards", "ownerID",
-                "sqlDatabase", "debug", "twitchUserID", "port", "clientSecret", "twitchClientID");
+                "sqlDatabase", "debug", "twitchUserID", "port", "clientSecret", "twitchClientID", "rpcServerIP", "shardId", "totalShards", "useRedis");
         token = pargs.get(0).orElseThrow(() -> new RuntimeException("You need to provide a token!"));
         optDblToken = pargs.get(1);
-        shardCount = pargs.get(2).map(Integer::parseInt).orElse(1);
+        shardTo = pargs.get(2).map(Integer::parseInt).orElse(1);
         GamesROB.owners = pargs.get(3).map(it -> Arrays.stream(it.split(",")).map(Long::parseLong).collect(Collectors.toList()))
                 .orElse(Collections.singletonList(197448151064379393L));
         GamesROB.database = pargs.get(4).map(SQLDatabaseManager::new);
@@ -79,62 +75,77 @@ public class BootupProcedure {
         port = pargs.get(7).map(Integer::parseInt).orElse(80);
         secret = pargs.get(8).orElse("");
         GamesROB.twitchClientID = pargs.get(9);
+        shardFrom = pargs.get(11).map(Integer::parseInt).orElse(0);
+        totalShards = pargs.get(12).map(Integer::parseInt).orElse(shardTo);
+
+        GamesROB.rpc = pargs.get(10).map(it -> {
+            try {
+                return new RPCManager(it.substring(0, it.indexOf(":")),
+                        Integer.parseInt(it.substring(it.indexOf(":") + 1, it.length())), shardFrom, shardTo, totalShards);
+            } catch (Exception e) {
+                Log.exception("Connecting to RPC/JSON", e);
+                return null;
+            }
+        });
+        DataManager.jedisOpt = pargs.get(11).flatMap(it -> (Boolean.valueOf(it) ? Optional.of(new Jedis("localhost")) : Optional.empty()));
     };
 
     private static final BootupTask transferToDb = args -> {
         GamesROB.database.ifPresent(db -> {
             int transfered = 0;
-            for (File file : Constants.GUILDS_FOLDER.listFiles()) {
-                FileReader reader = null;
-                try {
-                    reader = new FileReader(new File(file, "leaderboard.json"));
-                    GuildProfile guildProfile = Constants.GSON.fromJson(reader, GuildProfile.class);
-                    GuildProfile.manager.saveToSQL(db, guildProfile);
-                    transfered ++;
-                    Log.info("Transferred " + file.getName() + ". (" + transfered + ")");
-                    reader.close();
-                } catch (Exception e) {
-                    if (reader != null) Utility.quietlyClose(reader);
-                    Log.info("Failed to save " + file.getAbsolutePath() + ": " + e.getClass().getName() +  ": "
-                            + e.getMessage());
+            File[] GUILD_FILES = Constants.GUILDS_FOLDER.listFiles();
+            if (GUILD_FILES != null) for (File file : GUILD_FILES) {
+                    FileReader reader = null;
+                    try {
+                        reader = new FileReader(new File(file, "leaderboard.json"));
+                        GuildProfile guildProfile = Constants.GSON.fromJson(reader, GuildProfile.class);
+                        GuildProfile.manager.saveToSQL(db, guildProfile);
+                        transfered ++;
+                        Log.info("Transferred " + file.getName() + ". (" + transfered + ")");
+                        reader.close();
+                    } catch (Exception e) {
+                        if (reader != null) Utility.quietlyClose(reader);
+                        Log.info("Failed to save " + file.getAbsolutePath() + ": " + e.getClass().getName() +  ": "
+                                + e.getMessage());
+                    }
                 }
-            }
             Log.info(transfered + " guilds transferred");
             transfered = 0;
 
-            for (File file : Constants.USER_PROFILES_FOLDER.listFiles()) {
-                FileReader reader = null;
-                try {
-                    reader = new FileReader(file);
-                    UserProfile userProfile = Constants.GSON.fromJson(reader, UserProfile.class);
-                    UserProfile.manager.saveToSQL(db, userProfile);
-                    transfered ++;
-                    Log.info("Transferred " + file.getName() + ". (" + transfered + ")");
-                    reader.close();
-                } catch (Exception e) {
-                    if (reader != null) Utility.quietlyClose(reader);
-                    Log.info("Failed to save " + file.getAbsolutePath() + ": " + e.getClass().getName() +  ": "
-                            + e.getMessage());
+            File[] USER_PROFILES = Constants.USER_PROFILES_FOLDER.listFiles();
+            if (USER_PROFILES != null) for (File file : USER_PROFILES) {
+                    FileReader reader = null;
+                    try {
+                        reader = new FileReader(file);
+                        UserProfile userProfile = Constants.GSON.fromJson(reader, UserProfile.class);
+                        UserProfile.manager.saveToSQL(db, userProfile);
+                        transfered ++;
+                        Log.info("Transferred " + file.getName() + ". (" + transfered + ")");
+                        reader.close();
+                    } catch (Exception e) {
+                        if (reader != null) Utility.quietlyClose(reader);
+                        Log.info("Failed to save " + file.getAbsolutePath() + ": " + e.getClass().getName() +  ": "
+                                + e.getMessage());
+                    }
                 }
-            }
             Log.info(transfered + " users transferred");
         });
     };
 
     private static final BootupTask connectDiscord = args -> {
-        int curShard = 0;
-        while (curShard < shardCount) {
-            String shard = curShard + "/" + (shardCount - 1);
+        int curShard = shardFrom;
+        while (curShard < shardTo) {
+            String shard = curShard + "/" + (shardTo - 1);
 
             JDA jda = new JDABuilder(AccountType.BOT).setToken(token)
-                    .useSharding(curShard, shardCount).setStatus(OnlineStatus.DO_NOT_DISTURB)
+                    .useSharding(curShard, totalShards).setStatus(OnlineStatus.DO_NOT_DISTURB)
                     .setGame(Game.watching("it all load...")).buildBlocking();
             GamesROB.shards.add(jda);
             Match.ACTIVE_GAMES.put(jda, new ArrayList<>());
 
             Log.info("Shard loaded: " + shard);
             curShard ++;
-            if (curShard < shardCount) Thread.sleep(5000L);
+            if (curShard < shardTo) Thread.sleep(5000L);
         }
     };
 
@@ -147,17 +158,12 @@ public class BootupProcedure {
                     context.send("⛔ An error has occured! It has been reported to devs. My bad...");
                     Log.exception("Command: " + context.getMessage().getRawContent(), exception, context);
                 }).genericExceptionFunction((message, exception) -> Log.exception(message, exception))
+                .caseIndependent(true)
                 .build());
         GamesROB.commandFramework = f;
 
         // Commands
         CommandManager.registerCommands(f);
-
-        // Games
-        Arrays.stream(GamesROB.ALL_GAMES).forEach(cur -> {
-            Command command = f.command(cur.getAliases(), Match.createCommand(cur));
-            if (cur.getGameType() == GameType.MULTIPLAYER) command.setUsage(command.getName().toLowerCase() + " <Players>");
-        });
 
         f.handleEvent(GuildMessageReactionAddEvent.class, event -> {
             try {
@@ -205,8 +211,6 @@ public class BootupProcedure {
             Cache.onClose();
                     */
         }));
-
-        GamesROB.database.ifPresent(SQLDatabaseManager::registerTables);
     };
 
     private static final BootupTask dblLoad = args ->

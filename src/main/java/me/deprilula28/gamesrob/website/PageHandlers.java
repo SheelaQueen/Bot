@@ -250,7 +250,7 @@ class PageHandlers {
             Optional<User> user = GamesROB.getUserById(it.getId());
             int pos = profile.getIndex(profile.getOverall(), it.getId());
             return new LeaderboardUserEntry(
-                    (pos < 3 ? MEDALS[pos] : "") + (pos + 1) + Utility.formatNth(language, pos + 1),
+                    ((pos < 3 && pos >= 0) ? MEDALS[pos] : "") + (pos + 1) + Utility.formatNth(language, pos + 1),
                     user.map(User::getId).orElse(null), user.map(User::getName).orElse(null),
                     user.map(User::getAvatarUrl).orElse(null), user.map(User::getDiscriminator).orElse(null),
                     pos < 3 ? COLORS[pos] : COLORS[3], "/userProfile/"  + it.getId() + "/", it.getStats()

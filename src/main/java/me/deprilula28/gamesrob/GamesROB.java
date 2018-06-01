@@ -7,6 +7,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import me.deprilula28.gamesrob.baseFramework.GamesInstance;
 import me.deprilula28.gamesrob.baseFramework.Match;
+import me.deprilula28.gamesrob.data.RPCManager;
 import me.deprilula28.gamesrob.data.SQLDatabaseManager;
 import me.deprilula28.gamesrob.games.Connect4;
 import me.deprilula28.gamesrob.games.Hangman;
@@ -32,8 +33,8 @@ public class GamesROB {
 
     public static final long UP_SINCE = System.currentTimeMillis();
     private static final int MAJOR = 1;
-    private static final int MINOR = 5;
-    private static final int PATCH = 5;
+    private static final int MINOR = 6;
+    private static final int PATCH = 0;
     public static final String VERSION = String.format("%s.%s.%s", MAJOR, MINOR, PATCH);
 
     public static Optional<DiscordBotsOrg> dboAPI = Optional.empty();
@@ -45,6 +46,7 @@ public class GamesROB {
     static Optional<String> twitchClientID = Optional.empty();
     static long twitchUserIDListen = -1L;
     private static boolean twitchPresence = false;
+    public static Optional<RPCManager> rpc = Optional.empty();
 
     @Data
     @AllArgsConstructor
@@ -58,22 +60,22 @@ public class GamesROB {
         private int activeGames;
     }
 
-    public static List<ShardStatus> getAllShards() {
+    public static List<ShardStatus> getShardsInfo() {
         return shards.stream().map(it ->
-                new ShardStatus(String.valueOf(shards.indexOf(it)),
+                new ShardStatus(String.valueOf(BootupProcedure.shardFrom + shards.indexOf(it)),
                         it.getGuilds().size(), it.getUsers().size(), it.getTextChannels().size(), it.getStatus().toString(),
                         it.getPing(), Match.ACTIVE_GAMES.get(it).size())).collect(Collectors.toList());
     }
 
-    private static final List<Supplier<String>> STATISTICS_SUPPLIER = Arrays.asList(
-            () -> Utility.addNumberDelimitors(getAllShards().stream().mapToInt(GamesROB.ShardStatus::getGuilds).sum()) + " servers",
-            () -> Utility.addNumberDelimitors(getAllShards().stream().mapToInt(GamesROB.ShardStatus::getUsers).sum()) + " users",
-            () -> Utility.addNumberDelimitors(getAllShards().stream().mapToInt(GamesROB.ShardStatus::getTextChannels).sum()) + " channels"
-    );
-    private static final Supplier<String> MENTION_BOT_SUPPLIER = () -> {
-        SelfUser self = shards.get(0).getSelfUser();
-        return "@" + self.getName() + "#" + self.getDiscriminator();
-    };
+    public static Utility.Promise<List<ShardStatus>> getAllShards() {
+        return rpc.map(it -> it.request(RPCManager.RequestType.GET_ALL_SHARDS_INFO, null)
+                .map(list -> {
+            List<ShardStatus> statuses = new ArrayList<>();
+            list.getAsJsonArray().forEach(el -> statuses.add(Constants.GSON.fromJson(el, ShardStatus.class)));
+
+            return statuses;
+        })).orElse(Utility.Promise.result(getShardsInfo()));
+    }
 
     public static Optional<TextChannel> getTextChannelById(long id) {
         return shards.stream().map(it -> it.getTextChannelById(id)).filter(Objects::nonNull).findFirst();

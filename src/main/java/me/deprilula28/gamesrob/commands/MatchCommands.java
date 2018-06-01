@@ -27,8 +27,10 @@ public class MatchCommands {
             );
 
         Match game = getGame(context);
-        if (game.getPlayers().contains(Optional.of(context.getAuthor()))) return "You're already on the match!";
-        if (game.getPlayers().size() == game.getTargetPlayerCount() + 1) return "The match is full!";
+        if (game.getPlayers().contains(Optional.of(context.getAuthor())))
+            return Language.transl(context, "command.join.alreadyOnMatch");
+        if (game.getPlayers().size() == game.getTargetPlayerCount() + 1)
+            return Language.transl(context, "command.join.full");
         if (game.getBetting().isPresent() && !UserProfile.get(context.getAuthor()).transaction(game.getBetting().get()))
             return Constants.getNotEnoughTokensMessage(context, game.getBetting().get());
 

@@ -82,18 +82,18 @@ public class Hangman implements MatchHandler {
             // Invalid guess
             if (theWord.toLowerCase().indexOf(guess) < 0) {
                 PlayerInfo info = playerInfoMap.get(Optional.of(author));
-                lastNotification = Language.transl(match.getChannelIn().getAsMention(), "game.hangman.invalidGuess",
+                lastNotification = Language.transl(match.getLanguage(), "game.hangman.invalidGuess",
                         author.getAsMention(), guess);
 
                 info.tries --;
                 if (info.hasLost()) {
-                    lastNotification = Language.transl(match.getChannelIn().getAsMention(), "game.hangman.outOfLimbs",
+                    lastNotification = Language.transl(match.getLanguage(), "game.hangman.outOfLimbs",
                             author.getAsMention());
                 }
             // Valid guess
             } else {
                 guessedLetters.add(guess);
-                lastNotification = Language.transl(match.getChannelIn().getAsMention(), "game.hangman.validGuess",
+                lastNotification = Language.transl(match.getLanguage(), "game.hangman.validGuess",
                         author.getAsMention(), guess);
             }
 
@@ -106,7 +106,8 @@ public class Hangman implements MatchHandler {
     public void receivedDM(String contents, User from, Message reference) {
         if (!word.isPresent() && from.equals(match.getCreator())) {
             word = Optional.of(contents);
-            reference.getChannel().sendMessage(Language.transl(match.getChannelIn().getAsMention(), "game.hangman.wordSet")).queue();
+            reference.getChannel().sendMessage(Language.transl(match.getLanguage(), "game.hangman.wordSet",
+                    match.getChannelIn().getAsMention())).queue();
             lastNotification = Language.transl(match.getLanguage(), "game.hangman.wordPicked");
             updateMessage();
         }

@@ -1,5 +1,6 @@
 package me.deprilula28.gamesrob.games;
 
+import me.deprilula28.gamesrob.Language;
 import me.deprilula28.gamesrob.baseFramework.*;
 import me.deprilula28.gamesrob.utility.Log;
 import me.deprilula28.gamesrob.utility.Utility;
@@ -86,8 +87,8 @@ public class Connect4 extends TurnMatchHandler {
         }
 
         StringBuilder builder = new StringBuilder();
-        if (!over) builder.append(getTurn().map(User::getAsMention).orElseThrow(() -> new RuntimeException("Asked update" +
-                " message on AI turn."))).append("'s turn!\n");
+        if (!over) builder.append(Language.transl(match.getLanguage(), "gameFramework.turn", getTurn()
+                .map(User::getAsMention).orElseThrow(() -> new RuntimeException("Asked update message on AI turn."))));
 
         for (int i = 0; i < columns; i ++) builder.append(Utility.getNumberEmote(i));
         builder.append("\n");

@@ -13,6 +13,8 @@ import net.dv8tion.jda.core.JDA;
 import net.dv8tion.jda.core.entities.User;
 
 import java.math.BigDecimal;
+import java.util.Optional;
+import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
 
 public class ProfileCommands {
@@ -63,24 +65,38 @@ public class ProfileCommands {
 
     public static String tokens(CommandContext context) {
         User target = context.opt(context::nextUser).orElse(context.getAuthor());
-        int tokens = UserProfile.get(target).getTokens();
-        return target.equals(context.getAuthor()) ? Language.transl(context, "command.tokens.own", tokens)
-                : Language.transl(context, "command.tokens.other", target.getName(), tokens);
+        UserProfile profile = UserProfile.get(target);
+        int tokens = profile.getTokens();
+        String prefix = Constants.getPrefix(context.getGuild());
+        return target.equals(context.getAuthor()) ? Language.transl(context, "command.tokens.own", tokens) + "\n" +
+                (System.currentTimeMillis() - profile.getLastUpvote() > TimeUnit.DAYS.toMillis(1)
+                    ? Language.transl(context, "command.tokens.earnUpvote",
+                        Constants.getDboURL(context.getJda()) + "/vote", prefix)
+                    : Language.transl(context, "command.tokens.earn", prefix,
+                        Utility.formatPeriod((profile.getLastUpvote() + TimeUnit.DAYS.toMillis(1))
+                        - System.currentTimeMillis())))
+            : Language.transl(context, "command.tokens.other", target.getName(), tokens);
     }
 
     public static String emojiTile(CommandContext context) {
-        if (!UserProfile.get(context.getAuthor()).transaction(150))
-            return Constants.getNotEnoughTokensMessage(context, 150);
-        String emote = context.next();
+        Optional<String> emoteOpt = context.opt(context::next);
+        if (emoteOpt.isPresent()) {
+            String emote = emoteOpt.get();
+            if (!UserProfile.get(context.getAuthor()).transaction(150))
+                return Constants.getNotEnoughTokensMessage(context, 150);
 
-        if (EmojiManager.isEmoji(emote)) {
-            UserProfile.get(context.getAuthor()).setEmote(emote);
-            return Language.transl(context, "command.emote.set", emote);
-        } else if (emotePattern.matcher(emote).matches()) {
-            if (!validateEmote(context.getJda(), emote)) return Language.transl(context, "command.emote.cannotUse");
-            UserProfile.get(context.getAuthor()).setEmote(emote);
-            return Language.transl(context, "command.emote.set", emote);
-        } else return Language.transl(context, "command.emote.invalid");
+            if (EmojiManager.isEmoji(emote)) {
+                UserProfile.get(context.getAuthor()).setEmote(emote);
+                return Language.transl(context, "command.emote.set", emote);
+            } else if (emotePattern.matcher(emote).matches()) {
+                if (!validateEmote(context.getJda(), emote)) return Language.transl(context, "command.emote.cannotUse");
+                UserProfile.get(context.getAuthor()).setEmote(emote);
+                return Language.transl(context, "command.emote.set", emote);
+            } else return Language.transl(context, "command.emote.invalid");
+        } else {
+            UserProfile.get(context.getAuthor()).setEmote(null);
+            return Language.transl(context, "command.emote.reset");
+        }
     }
 
     public static boolean validateEmote(JDA jda, String text) {

@@ -8,7 +8,7 @@ languageProperties:
   version: "1.5.2"
 
 genericMessages:
-  alreadyPlaying: "You are already playing another game on %s!\nType `%sleave` to leave that match."
+  alreadyPlaying: "You are already playing another game on %s!\nType `%sstop` to stop that match."
   noGamesInChannel: "There are no games currently in this channel.\nYou can type `%shelp` to pick and start a game!"
   invalidLanguage: "Not a valid language."
   notEnoughTokens: 
@@ -34,7 +34,8 @@ gameFramework:
 
   settingOutOfRange: "The setting `%s` needs to be between %s and %s!"
   activeGame: "There's another game going on this channel."
-  viewPlayers: "See the players with `%slistplayers` and leave with `%sleave`."
+  viewPlayers: "See the players with `%slistplayers`."
+  viewPlayersStop: "See the players with `%slistplayers` and stop with `%sstop`."
   typeToJoin: "You can type `%sjoin` to join it."
   playersOutOfRange: "You can only have between %s and %s players in this game!"
 
@@ -47,9 +48,9 @@ gameFramework:
 
   now: " - **Now**"
   next: " - **Next**"
+  turn: "%s's turn"
 
-  upvoteMessage: "\nIf you are enjoying the bot, consider upvoting it for tokens!"
-  upvoteEmbedTitle: "Upvote"
+  rematch: "Click in :arrows_counterclockwise: for a rematch!"
 
 game:
   connectFour:
@@ -83,16 +84,18 @@ command:
   permissionLock: "⛔ You can't use this command!"
 
   slots:
-    matchHeader: "Rolling for %s tokens..."
-    matchEnd: "You %s %s tokens!"
+    matchHeader: "Rolling for 🔸 %s tokens..."
+    matchEnd: "You %s 🔸 %s tokens!"
     earnt: "earnt"
     lost: "lost"
 
     invalidTokens: "You can only gamble %s to %s tokens."
-    description: "Gamble your tokens in a slots game! 100% not rigged trust me"
+    description: "Gamble your tokens in a slots game! Totally not rigged trust me"
 
   tokens:
     own: "You have 🔸 %s tokens"
+    earnUpvote: "Get more tokens winning matches, completing achievements, voting in %s or gambling with `%sslots`."
+    earn: "Get more tokens winning matches, completing achievements or gambling with `%sslots`.\n*You can upvote again in %s*"
     other: "%s has 🔸 %s tokens"
     description: "View how many tokens you or someone else has"
   join:
@@ -122,6 +125,7 @@ command:
     notRanked: "Not ranked"
   emote:
     set: "Your emoji has been set! %s"
+    reset: "Your emoji has been reset!"
     cannotUse: "I can't use that emote! Try putting it on this server."
     invalid: "Sorry, but that's not a valid emote..."
     description: "Change the emoji tile you'll be in matches!"
@@ -134,9 +138,20 @@ command:
     description: "Change the default language for the guild."
 
   help:
-    beginning: "**<:GamesROB:391744594863325184> GamesROB**\n**🎲 Games:**\n"
+    beginning: "**<:GamesROB:391744594863325184> GamesROB v%s** *by deprilula28*\n\n"
+    subCategory: "Use `%%PREFIX%%help category/command` to get information about a command or a category (e.g. `%%PREFIX%%help profile` or `%%PREFIX%%help slots`)"
     gameString: "%s `%%PREFIX%%%s` - %s"
-    moreInfo: "\n**📟 View more detailed descriptions on the website**\n%s"
+    commandInfo: "`%s%s`: %s\nAliases: %s\nCategory: %s"
+    gameInfo: "`%s%s`: %s\n\n**Long Description**\n%s\n\nAliases: %s\nMore information: %s"
+    categories:
+      games: ":game_die: Games"
+      profilecommands: ":busts_in_silhouette: Profile"
+      servercommands: ":pager: Server"
+      matchcommands: ":video_game: Match"
+      infocommands: ":clipboard: Information"
+    other: "%s others"
+
+    websiteTitle: "Our website"
     description: "Gets you some help!"
   invite:
     embed:

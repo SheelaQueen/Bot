@@ -1,20 +1,16 @@
-- I shall now send changelogs. Robots shall continue overpowering human's jobs. Oh sorry I'm not supposed to say that
-You can also use `g*changelog` to see the latest changelog.
-- Added a message about upvoting after playing a couple games. I know this will be a controversial change, but currently in DBL pretty much the only bots that grow are the ones with lots of upvotes.
-- You can now use an uppercase prefix! `G*` all the way!
-- The website will now show changelogs for recurring users! Handy!
-- The sidebar on the wiki page will now show the selected page.
-- Added a change language dropdown in the footer of the website.
+- Restructured storage on the bot:
+> Now using a PostgreSQL database for storing user and guild information.
+> Now using Redis for caching.
 
-- Removed changing status because aparently that's against TOS...
-- Removed the leave command. It wasn't really useful and kinda broken. Sad to see you go, though...
-- Hangman will now be properly translatable.
-- Minesweeper will now be properly translatable.
-- Fixed favicons in the website.
-- Fixed rematch reaction not working on some games and only needing one player's input.
-- Fixed bugs with multiple person hangman.
-- Fixed stopped hangman matches before a word has selected being confusing.
-- Fixed breadcrumb formatting in wiki pages on the website.
-- Fixed tagging the bot for help when the bot is nicknamed.
-- Fixed upvotes message in the info command
+- Revamped help command, with categories and specific command info :^)
+- You can now reset your emoji when using `g*emote`! (note: you won't regain your tokens :c)
+- Matches will now say how many tokens you've won. Just so you know, you know?
+
+- (Hopefully) Fixed the "playing" when not really playing bug.
+- Fixed time formatting. The predicted time should now look right below.
+- Fixed dollar sign and backslash not being usable in prefixes.
+- Fixed in a match message giving the leave command.
+- Fixed translations on the turn match handler.
+- Fixed formatting on nth messages multiples of 10.
+
 Enjoy! ~ deprilula28
