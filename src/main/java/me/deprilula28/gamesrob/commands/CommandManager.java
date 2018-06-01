@@ -49,6 +49,11 @@ public class CommandManager {
         Arrays.stream(GamesROB.ALL_GAMES).forEach(cur -> {
             Command command = f.command(cur.getAliases(), Match.createCommand(cur)).attr("category", "games").attr("gameCode", cur.getLanguageCode());
             if (cur.getGameType() == GameType.MULTIPLAYER) command.setUsage(command.getName().toLowerCase() + " [Players] [Betting] [Settings]");
+
+            List<GameSettingValue> settings = new ArrayList<>();
+            Arrays.stream(cur.getMatchHandlerClass().getDeclaredFields()).filter(it -> it.isAnnotationPresent(Setting.class))
+                .forEach(field -> settings.add(new GameSettingValue(field, field.getAnnotation(Setting.class))));
+            matchHandlerSettings.put(cur.getMatchHandlerClass(), settings);
         });
 
         // Profile
