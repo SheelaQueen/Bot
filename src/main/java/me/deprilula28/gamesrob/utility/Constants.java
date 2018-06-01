@@ -10,12 +10,13 @@ import net.dv8tion.jda.core.JDA;
 import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.User;
 
+import java.awt.*;
 import java.io.File;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
 public class Constants {
-    public static final String GAMESROB_DOMAIN = "http://gamesrob.com";
+    public static final String GAMESROB_DOMAIN = "https://gamesrob.com";
 
     public static final int LEADERBOARD_GAMES_PLAYED_REQUIREMENT = 1;
     public static final File OLD_DATA_FOLDER = new File("gamesrobData");
@@ -32,9 +33,17 @@ public class Constants {
     public static final File STATS_FILE = new File(DATA_FOLDER, "statistics.json");
     public static final File GUILDS_FOLDER = new File(DATA_FOLDER, "guildData");
 
-    public static final long PRESENCE_UPDATE_PERIOD = 40 * 1000L;
+    public static final long PRESENCE_UPDATE_PERIOD = TimeUnit.SECONDS.toMillis(60);
+    public static final long RAM_CACHE_TIME = TimeUnit.SECONDS.toMillis(15);
+
     public static final Optional<String> VANITY_DBL_URL = Optional.of("https://discordbots.org/bot/GamesROB");
     public static final Optional<Long> changelogChannel = Optional.of(397851392016121877L);
+
+    public static final int MATCH_WIN_TOKENS = 40;
+
+    public static final Color[] BOT_COLORS = {
+            new Color(0xf8bb37), new Color(0x02aff4), new Color(0xf7413b), new Color(0x05b996)
+    };
 
     public static final String USER_AGENT = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, " +
             "like Gecko) Chrome/66.0.3359.139 Safari/537.36";
@@ -46,6 +55,12 @@ public class Constants {
     public static String getPrefix(Guild guild) {
         String value = GuildProfile.get(guild).getGuildPrefix();
         return value == null ? DEFAULT_PREFIX : value;
+    }
+
+    public static String getPrefixHelp(Guild guild) {
+        String result = getPrefix(guild).replaceAll("\\$", "\uFF04").replaceAll("\\\\", "\\\\\\\\");
+        Log.trace(result);
+        return result;
     }
 
     public static String getInviteURL(JDA jda) {

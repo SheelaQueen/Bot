@@ -108,7 +108,7 @@ command:
     description: "Setze die defaultsprache für ein Spiel"
 
   help:
-    beginning: "**<:GamesROB:391744594863325184> GamesROB**\n**🎲 Spiele:**\n"
+    beginning: "**<:GamesROB:391744594863325184> GamesROB v%s** *by deprilula28*\n\n"
     gameString: "%s `%%PREFIX%%%s` - %s"
     description: "Bekomme Hilfe"
   invite:

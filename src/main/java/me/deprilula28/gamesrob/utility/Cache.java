@@ -10,12 +10,12 @@ import java.util.function.Consumer;
 
 public class Cache {
     private static Map<Object, CachedObjectData> cachedMap = new ConcurrentHashMap<>();
+    private static long allCleaned = 0;
 
     @AllArgsConstructor
     private static class CachedObjectData {
         Object result;
-        long lastViewed;
-        int viewedAmounts;
+        long added;
         Consumer<Object> onRemove;
     }
 
@@ -34,7 +34,7 @@ public class Cache {
                     long before = getRAMUsage();
                     for (Map.Entry<Object, CachedObjectData> cur : cachedMap.entrySet()) {
                         CachedObjectData object = cur.getValue();
-                        if (time > object.viewedAmounts * 4000 + object.lastViewed) {
+                        if (time > object.added + Constants.RAM_CACHE_TIME) {
                             cachedMap.remove(cur.getKey());
                             removed ++;
                             if (object.onRemove != null) object.onRemove.accept(object.result);
@@ -42,8 +42,10 @@ public class Cache {
                     }
                     long after = getRAMUsage();
 
-                    if (removed > 0) Log.info("GC has cleaned " + removed + " objects, and " +
-                        Utility.formatBytes(before - after) + ".");
+                    if (removed > 0) {
+                        allCleaned += removed;
+                        Log.info("(GC) Cleaned " + removed + ", " + Utility.addNumberDelimitors(allCleaned) + "total.");
+                    }
                 } catch (Exception ex) {
                     Log.exception("Running cache GC task", ex);
                 }
@@ -76,12 +78,10 @@ public class Cache {
     public static <K extends Object, V extends Object> V get(K key, Provider<V> backup, Consumer<Object> onRemove) {
         if (cachedMap.containsKey(key)) {
             CachedObjectData data = cachedMap.get(key);
-            data.lastViewed = System.currentTimeMillis();
-            data.viewedAmounts ++;
             return (V) data.result;
         } else {
             V result = backup.invoke(null);
-            cachedMap.put(key, new CachedObjectData(result, System.currentTimeMillis(), 1, onRemove));
+            cachedMap.put(key, new CachedObjectData(result, System.currentTimeMillis(), onRemove));
 
             return result;
         }

@@ -47,7 +47,7 @@ public class GenericCommands {
         return new EmbedBuilder()
                 .setTitle(Language.transl(context, "command.invite.embed.title"), Constants.getInviteURL(context.getJda()))
                 .setDescription(Language.transl(context, "command.invite.embed.description"))
-                .setColor(new Color(0x304FFE))
+                .setColor(Utility.randomBotColor())
                 .build();
     }
 
@@ -58,7 +58,7 @@ public class GenericCommands {
             context.send(new EmbedBuilder()
                     .setAuthor("deprilula28#3609", null, "https://i.imgur.com/PPa4OzQ.png")
                     .setTitle("\uD83C\uDFAE GamesROB", Constants.GAMESROB_DOMAIN)
-                    .setColor(new Color(0x00BFA5))
+                    .setColor(Utility.randomBotColor())
                     .setDescription(Language.transl(context, "command.info.embed.description",
                             Constants.GAMESROB_DOMAIN, Constants.getInviteURL(context.getJda()),
                             Constants.getDboURL(context.getJda()),

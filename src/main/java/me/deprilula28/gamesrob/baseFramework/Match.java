@@ -70,7 +70,6 @@ public class Match extends Thread {
         gameState = GameState.MATCH;
 
         GAMES.put(channel, this);
-        players.stream().filter(Optional::isPresent).forEach(it -> PLAYING.put(it.get(), this));
         ACTIVE_GAMES.get(channel.getJDA()).add(this);
         this.matchesPlayed = matchesPlayed;
 
@@ -82,6 +81,7 @@ public class Match extends Thread {
                 channelIn.sendMessage(Language.transl(language, "gameFramework.begin",
                         game.getName(language), game.getLongDescription(language), matchHandler.updatedMessage(false)
                 ))).then(no -> gameState = GameState.MATCH));
+        players.stream().filter(Optional::isPresent).forEach(it -> PLAYING.put(it.get(), this));
     }
 
     public Match(GamesInstance game, User creator, TextChannel channel, int targetPlayerCount, List<String> options,
@@ -259,14 +259,18 @@ public class Match extends Thread {
     public void onEnd(Optional<User> winner) {
         players.forEach(cur ->
             cur.ifPresent(user -> {
+                UserProfile userProfile = UserProfile.get(user);
                 boolean victory = winner.equals(Optional.of(user));
-                UserProfile.get(user).registerGameResult(channelIn.getGuild(), user, victory, !victory, game);
-                if (winner.equals(cur)) betting.ifPresent(amount -> UserProfile.get(user).addTokens(amount * players.size()));
+                userProfile.registerGameResult(channelIn.getGuild(), user, victory, !victory, game);
+
+                if (winner.equals(cur)) userProfile.addTokens(betting.map(it -> it * players.size())
+                        .orElse(Constants.MATCH_WIN_TOKENS));
             })
         );
 
         onEnd(Language.transl(language, "gameFramework.winner",
-                winner.map(User::getAsMention).orElse("**AI**")), false);
+                winner.map(User::getAsMention).orElse("**AI**") + " + \uD83D\uDD38 " +
+                betting.map(it -> it * players.size()).orElse(Constants.MATCH_WIN_TOKENS) + " tokens"), false);
     }
 
     public void onEnd(String reason, boolean registerPoints) {

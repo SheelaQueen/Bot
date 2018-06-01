@@ -109,7 +109,7 @@ command:
     description: "Changez la langue par défaut du serveur."
 
   help:
-    beginning: "**<:GamesROB:391744594863325184> GamesROB**\n**🎲 JEUX:**\n"
+    beginning: "**<:GamesROB:391744594863325184> GamesROB v%s** *by deprilula28*\n\n"
     gameString: "%s `%%PREFIX%%%s` - %s"
     moreCustomizability: "🔧 **Plus de personnalisation**\nModifiez les paramètres d'un jeu en ajoutant `<nom du paramètre>=<valeur du paramètre>` à la fin de la commande! ex: `%sminesweeper bombs=10`\nJouez avec plus de personnes en précisant le nombre de joueurs après la commande! ex: `%sconnect4 3`"
     description: "Vous obtient de l'aide!"

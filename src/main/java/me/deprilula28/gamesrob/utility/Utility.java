@@ -9,6 +9,7 @@ import net.dv8tion.jda.core.entities.Channel;
 import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.User;
 
+import java.awt.*;
 import java.io.Closeable;
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -18,6 +19,7 @@ import java.time.*;
 import java.time.temporal.TemporalAdjuster;
 import java.time.temporal.TemporalAdjusters;
 import java.util.*;
+import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
@@ -38,6 +40,10 @@ public class Utility {
     private static final String[] BYTE_UNIT_NAMES = {
             "GB", "MB", "KB", "B"
     };
+
+    public static Color randomBotColor() {
+        return Constants.BOT_COLORS[ThreadLocalRandom.current().nextInt(Constants.BOT_COLORS.length)];
+    }
 
     public static class Promise<R> {
         private List<Consumer<R>> consumers = new ArrayList<>();
@@ -136,7 +142,7 @@ public class Utility {
         for (int i = minIndex; i < minIndex + 2 && i < TIME_MEASURE_UNITS.length; i ++) {
             long number = timePeriod;
 
-            if (i - 1 > 0) number %= TIME_MEASURE_UNITS[i - 1];
+            if (i - 1 >= 0) number %= TIME_MEASURE_UNITS[i - 1];
             number /= TIME_MEASURE_UNITS[i];
 
             builder.append(number).append(TIME_UNIT_NAMES[i]);
@@ -289,7 +295,7 @@ public class Utility {
     }
 
     public static long predictNextUpdate() {
-        LocalDateTime time = Instant.ofEpochMilli(Statistics.get().getLastUpdateLogSentTime() + TimeUnit.DAYS.toMillis(7))
+        LocalDateTime time = Instant.ofEpochMilli(Statistics.get().getLastUpdateLogSentTime())
                 .atZone(ZoneId.systemDefault()).toLocalDateTime();
         return time.with(TemporalAdjusters.next(DayOfWeek.FRIDAY)).atZone(ZoneId.systemDefault()).toInstant().toEpochMilli();
     }

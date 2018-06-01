@@ -8,6 +8,7 @@ import me.deprilula28.gamesrob.data.*;
 import me.deprilula28.gamesrob.utility.Constants;
 import me.deprilula28.gamesrob.utility.Log;
 import me.deprilula28.gamesrob.utility.Utility;
+import me.deprilula28.gamesrob.website.Website;
 import me.deprilula28.jdacmdframework.Command;
 import me.deprilula28.jdacmdframework.CommandFramework;
 import me.deprilula28.jdacmdframework.Settings;
@@ -18,6 +19,7 @@ import net.dv8tion.jda.core.OnlineStatus;
 import net.dv8tion.jda.core.entities.Game;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.core.events.message.guild.react.GuildMessageReactionAddEvent;
+import redis.clients.jedis.Jedis;
 
 import java.io.File;
 import java.io.FileReader;
@@ -57,10 +59,11 @@ public class BootupProcedure {
     private static int port;
     public static String secret;
     public static String changelog;
+    public static boolean useRedis;
 
     private static final BootupTask loadArguments = args -> {
         List<Optional<String>> pargs = Utility.matchValues(args, "token", "dblToken", "shards", "ownerID",
-                "sqlDatabase", "debug", "twitchUserID", "port", "clientSecret", "twitchClientID", "rpcServerIP", "shardId", "totalShards");
+                "sqlDatabase", "debug", "twitchUserID", "port", "clientSecret", "twitchClientID", "rpcServerIP", "shardId", "totalShards", "useRedis");
         token = pargs.get(0).orElseThrow(() -> new RuntimeException("You need to provide a token!"));
         optDblToken = pargs.get(1);
         shardTo = pargs.get(2).map(Integer::parseInt).orElse(1);
@@ -84,6 +87,7 @@ public class BootupProcedure {
                 return null;
             }
         });
+        DataManager.jedisOpt = pargs.get(11).flatMap(it -> (Boolean.valueOf(it) ? Optional.of(new Jedis("localhost")) : Optional.empty()));
     };
 
     private static final BootupTask transferToDb = args -> {
@@ -160,12 +164,6 @@ public class BootupProcedure {
 
         // Commands
         CommandManager.registerCommands(f);
-
-        // Games
-        Arrays.stream(GamesROB.ALL_GAMES).forEach(cur -> {
-            Command command = f.command(cur.getAliases(), Match.createCommand(cur));
-            if (cur.getGameType() == GameType.MULTIPLAYER) command.setUsage(command.getName().toLowerCase() + " <Players>");
-        });
 
         f.handleEvent(GuildMessageReactionAddEvent.class, event -> {
             try {
@@ -251,7 +249,7 @@ public class BootupProcedure {
     };
 
     private static final BootupTask loadWebsite = args -> {
-        //Website.start(port);
+        Website.start(port);
     };
 
     private static final BootupTask sendChangelog = args -> {
