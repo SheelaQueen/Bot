@@ -15,7 +15,7 @@ gameFramework:
   singleplayerMatch: "**%s Einzelspieler Kampf!**\n%s\n\n%s"
   multilplayerMatch: "**%s Mehrspieler Kampf!**\n%s\n\n"
   joinToPlay: "🚪 Gebe `%sjoin` ein, um das Spiel zu betreten! (%s/%s)"
-  begin: "**Spiel gestartet!**\n**%s**\n%s\n\n%s"
+  begin: "**Spiel gestartet!**\n**%s**\n%s\n\n"
   join: "%s hat das Spiel betreten! %s/%s"
   left: "%s hat das Spiel verlassen!"
 

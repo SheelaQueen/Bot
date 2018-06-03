@@ -249,7 +249,7 @@ public class BootupProcedure {
     };
 
     private static final BootupTask loadWebsite = args -> {
-        Website.start(port);
+        //Website.start(port);
     };
 
     private static final BootupTask sendChangelog = args -> {

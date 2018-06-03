@@ -15,10 +15,10 @@ genericMessages:
   languageVersionWarning: "Figyelmeztetés: Ez a nyelvi csomag a GamesROB egy régebbi verziójához készült. Néhány fordítás hibás, esetleg hiányos lehet."
 
 gameFramework:
-  singleplayerMatch: "**%s Egyéni mérkőzés**\n%s\n\n%s"
+  singleplayerMatch: "**%s Egyéni mérkőzés**\n%s\n\n"
   multiplayerMatch: "**%s Többjátékos mérkőzés**\n%s\n\n"
   joinToPlay: "🚪 Használd a `%sjoin` parancsot a csatlakozáshoz! (%s/%s)"
-  begin: "**A mérkőzés elkezdődött!**\n**%s**\n%s\n\n%s"
+  begin: "**A mérkőzés elkezdődött!**\n**%s**\n%s\n\n"
   join: "%s csatlakozott a mérkőzéshez. %s/%s"
   left: "%s elhagyta a mérkőzést."
 
@@ -28,7 +28,7 @@ gameFramework:
   typeToJoin: "Használd a `%sjoin` parancsot a csatlakozáshoz!"
   playersOutOfRange: "Csak %s és %s számú játékos csatlakozhat a játékhoz!"
 
-  gameOver: "**Vége a játéknak!**\n%s\n\n%s"
+  gameOver: "**Vége a játéknak!**\n%s\n\n"
   winner: "%s nyert!"
   draw: "Döntetlen!"
   timeout: "A mérkőzés időkorlátja lejárt **%s** idő után!"

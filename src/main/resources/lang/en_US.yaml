@@ -23,15 +23,16 @@ genericMessages:
   ownersOnly: "This command is only accessible for owners."
 
 gameFramework:
-  singleplayerMatch: "**%s Singleplayer Match!**\n%s\n\n%s"
+  singleplayerMatch: "**%s Singleplayer Match!**\n%s\n\n"
   multiplayerMatch: "**%s Multiplayer Match!**\n%s\n\n"
   joinToPlay: "🚪 Type `%sjoin` or click the door below to play! (%s/%s)"
   joinToPlayNoReaction: "🚪 Type `%sjoin` to play! (%s/%s)"
   betting: "💰 Betting %s 🔸 tokens!"
-  begin: "**It's on!**\n**%s**\n%s\n\n%s"
+  begin: "**It's on!**\n**%s**\n%s\n\n"
   join: "%s has joined the match! %s/%s"
   left: "%s has left the match!"
 
+  requireBetting: "This game requires betting!\nAdd `bet=amount` in the end of the command to choose how many tokens should be gambled."
   settingOutOfRange: "The setting `%s` needs to be between %s and %s!"
   activeGame: "There's another game going on this channel."
   viewPlayers: "See the players with `%slistplayers`."
@@ -39,7 +40,7 @@ gameFramework:
   typeToJoin: "You can type `%sjoin` to join it."
   playersOutOfRange: "You can only have between %s and %s players in this game!"
 
-  gameOver: "**Game Over!**\n%s\n\n%s"
+  gameOver: "**Game Over!**\n%s\n\n"
   winner: "%s has won!"
   draw: "It's a draw!"
   timeout: "The match has timed out after **%s**."
@@ -53,6 +54,14 @@ gameFramework:
   rematch: "Click in :arrows_counterclockwise: for a rematch!"
 
 game:
+  roulette:
+    name: "Russian Roulette"
+    shortDescription: "Flip the barrel, don't get hit!"
+    longDescription: "One bullet, 8 barrel holes.\nFlip the barrel at whichever strength you want, and hope for the best when you pull the trigger!"
+
+    chooseStrength: "🔫 How strongly will you flip the barrel?\nSend a number from %s to %s."
+    shot: "%s pulls the trigger and gets hit! How unlucky of them."
+    survive: "%s pulls the trigger, and is relieved by the lack of sound."
   connectFour:
     name: "ConnectFour"
     shortDescription: "Drop tiles in order to connect 4 of your color!"
@@ -79,6 +88,29 @@ game:
     name: "TicTacToe"
     shortDescription: "Arrange 3 of your tile in a line within the board!"
     longDescription: "You know how TicTacToe works!\nJust send in the letter you want to put your tile in (e.g. a)."
+  detective:
+    name: "Detective"
+    shortDescription: "One of you is an assassin. Kick them out before it's too late."
+    longDescription: "The assassin will kill someone every night.\nCitizens will kick someone out every day.\nTry kicking the killer before it's too late."
+
+    invalidUser: "That user isn't playing or has already died/been kicked."
+    assassinKicked: "The assassin has been kicked! Finally, the city may sleep in peace."
+    murderReveal: "%s was the assassin!"
+
+    sleep: "🌇 The city goes to sleep."
+    sleepIndecisive: "🌇 The city goes to sleep, indecisively kicking no one. How will that turn out?"
+    sleepKicked: "🌇 The city goes to sleep, confidently kicking %s out of town for attempted murder.\nLittle do they know, that's not who they wanted to..."
+
+    chooseKick: "\nCollectively, the city must decide who's getting away with this awful deed, so we can kick them for good.\nSend the letter for who you think should be kicked:\n"
+    wakeFirst: "🌆 The city wakes up, surprised when they encounter that %s has been stabbed in their own house. Why would anyone do that?"
+    wakeSecond: "🌆 The city wakes up, this time missing %s, who has been stabbed, again, in their house. They say twice is just a coincidence though, right?"
+    wakeThird: "🌆 The city wakes up. We're definitely in \"pattern\" territory surrounding %s's stabbing."
+    wakeFourthPlus: "🌆 The city wakes up, with one less citizen on our realm, and that would be %s. When does this stop?"
+
+    dmCitizen: "🏙 You're a citizen."
+    dmAssassin: "🗡 You're the killer!\nWho will be the unlucky first? (Type their name here)"
+    dmAssassinRecursive: "Who will it be tonight? (Type their name here)"
+
 
 command:
   permissionLock: "⛔ You can't use this command!"
@@ -204,52 +236,4 @@ command:
     message: "Changed the bot's prefix for this guild!"
     description: "Set the command prefix for your guild!"
 
-website:
-  commonWrapper:
-    githubSource: "Github Source"
-    trelloPage: "Trello Page"
-    dblListing: "DBL Listing"
-    supportServer: "Support Server"
-    myServers: "My Servers"
-
-    help: "Help"
-    joinServer: "Join Our Server"
-    addBot: "Add The Bot"
-    logIn: "Log In"
-    signOut: "Sign Out"
-    language: "Language"
-  home:
-    changelog: 
-      title: "What's new with GamesROB v%s"
-      subtitle: "From %s"
-    botDescription: "The Discord bot for playing chat games right on your server!"
-    invite: "Oooh! I want that!"
-    upvote: "Give it a vote on DBL"
-    haveFunTogether:
-      title: "Have fun together!"
-      description: "These are classic party games, and you can play them with basically as many people as you'd like!"
-    playCompetitively:
-      title: "Be competitive!"
-      description: "You can see view leaderboards on your Discord server and on it's page in the website! Who's the best?"
-  server:
-    overall: "Overall"
-    user: "User"
-    wins: "Victories"
-    lost: "Loses"
-    gamesPlayed: "Matches"
-    settings: "Settings"
-  serverEdit:
-    language: "Language"
-    permStartGame: "Starting Games Permission"
-    permStopGame: "Stopping Games Permission"
-    default: "Default"
-    submit: "Save Changes"
-  help:
-    intro: "Intro"
-    commands: "Commands"
-    credits: "Credits"
-    tictactoe: "TicTacToe"
-    connectfour: "ConnectFour"
-    minesweeper: "Minesweeper"
-    hangman: "Hangman"
-    games: "Games"
+achievements:

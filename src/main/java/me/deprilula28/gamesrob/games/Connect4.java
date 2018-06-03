@@ -17,7 +17,7 @@ public class Connect4 extends TurnMatchHandler {
     };
     public static final GamesInstance GAME = new GamesInstance(
             "connectFour", "connect4 connectfour lig4 ligquatro con4 confour c4",
-            1, ITEMS.length - 1, GameType.MULTIPLAYER,
+            1, ITEMS.length - 1, GameType.MULTIPLAYER, false,
             Connect4::new, Connect4.class
     );
 
@@ -37,6 +37,7 @@ public class Connect4 extends TurnMatchHandler {
 
     @Override
     public void receivedMessage(String contents, User author, Message reference) {
+        messages ++;
         getTurn().ifPresent(cur -> {
             if (cur != author) return;
             Optional<Integer> numb = GameUtil.safeParseInt(contents);
@@ -75,7 +76,7 @@ public class Connect4 extends TurnMatchHandler {
     }
 
     @Override
-    public String updatedMessage(boolean over) {
+    public String turnUpdatedMessage(boolean over) {
         if (board.isEmpty()) {
             for (int y = 0; y <= rows; y ++) {
                 List<Optional<String>> row = new ArrayList<>();
@@ -89,6 +90,7 @@ public class Connect4 extends TurnMatchHandler {
         StringBuilder builder = new StringBuilder();
         if (!over) builder.append(Language.transl(match.getLanguage(), "gameFramework.turn", getTurn()
                 .map(User::getAsMention).orElseThrow(() -> new RuntimeException("Asked update message on AI turn."))));
+        builder.append("\n");
 
         for (int i = 0; i < columns; i ++) builder.append(Utility.getNumberEmote(i));
         builder.append("\n");

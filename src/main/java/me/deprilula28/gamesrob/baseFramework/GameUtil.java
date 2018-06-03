@@ -4,11 +4,16 @@ import javafx.util.Pair;
 import me.deprilula28.gamesrob.GamesROB;
 import me.deprilula28.gamesrob.utility.Constants;
 import me.deprilula28.gamesrob.utility.Log;
+import me.deprilula28.jdacmdframework.RequestPromise;
+import net.dv8tion.jda.core.MessageBuilder;
+import net.dv8tion.jda.core.entities.Message;
+import net.dv8tion.jda.core.entities.TextChannel;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.function.Consumer;
 import java.util.function.Function;
 
 public class GameUtil {
@@ -17,6 +22,16 @@ public class GameUtil {
             return Optional.of(Integer.valueOf(contents));
         } catch (Exception e) {
             return Optional.empty();
+        }
+    }
+
+    public static RequestPromise<Message> editSend(TextChannel channel, int messagesSince, RequestPromise<Message> oldMessage, Message message) {
+        if (messagesSince > Constants.MESSAGES_SINCE_THRESHOLD) {
+            oldMessage.then(it -> it.delete().queue());
+            return RequestPromise.forAction(channel.sendMessage(message));
+        } else {
+            oldMessage.then(it -> it.editMessage(message).queue());
+            return oldMessage;
         }
     }
 

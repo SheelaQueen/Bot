@@ -17,7 +17,7 @@ public class TicTacToe extends TurnMatchHandler {
     };
     public static final GamesInstance GAME = new GamesInstance(
             "tictactoe", "tictactoe ttt",
-            1, ITEMS.length - 1, GameType.MULTIPLAYER,
+            1, ITEMS.length - 1, GameType.MULTIPLAYER, false,
             TicTacToe::new, TicTacToe.class
     );
     private int tiles = 9;
@@ -45,6 +45,7 @@ public class TicTacToe extends TurnMatchHandler {
 
     @Override
     public void receivedMessage(String contents, User author, Message reference) {
+        messages ++;
         getTurn().ifPresent(cur -> {
             if (cur != author) return;
             if (contents.length() != 1) return;
@@ -93,7 +94,7 @@ public class TicTacToe extends TurnMatchHandler {
     }
 
     @Override
-    public String updatedMessage(boolean over) {
+    public String turnUpdatedMessage(boolean over) {
         StringBuilder builder = new StringBuilder();
         if (!over) builder.append(Language.transl(match.getLanguage(), "gameFramework.turn", getTurn()
                 .map(User::getAsMention).orElseThrow(() -> new RuntimeException("Asked update message on AI turn."))));

@@ -15,6 +15,7 @@ public class GamesInstance {
     private int minTargetPlayers;
     private int maxTargetPlayers;
     private GameType gameType;
+    private boolean requireBetting;
 
     private transient Supplier<MatchHandler> matchHandlerSupplier;
     private transient Class<? extends MatchHandler> matchHandlerClass;
