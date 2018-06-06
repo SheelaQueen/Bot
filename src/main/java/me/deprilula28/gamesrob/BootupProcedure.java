@@ -1,15 +1,10 @@
 package me.deprilula28.gamesrob;
 
 import me.deprilula28.gamesrob.baseFramework.GameState;
-import me.deprilula28.gamesrob.baseFramework.GameType;
 import me.deprilula28.gamesrob.baseFramework.Match;
 import me.deprilula28.gamesrob.commands.CommandManager;
 import me.deprilula28.gamesrob.data.*;
-import me.deprilula28.gamesrob.utility.Constants;
-import me.deprilula28.gamesrob.utility.Log;
-import me.deprilula28.gamesrob.utility.Utility;
-import me.deprilula28.gamesrob.website.Website;
-import me.deprilula28.jdacmdframework.Command;
+import me.deprilula28.gamesrob.utility.*;
 import me.deprilula28.jdacmdframework.CommandFramework;
 import me.deprilula28.jdacmdframework.Settings;
 import net.dv8tion.jda.core.AccountType;
@@ -19,6 +14,7 @@ import net.dv8tion.jda.core.OnlineStatus;
 import net.dv8tion.jda.core.entities.Game;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.core.events.message.guild.react.GuildMessageReactionAddEvent;
+import org.trello4j.TrelloImpl;
 import redis.clients.jedis.Jedis;
 
 import java.io.File;
@@ -63,7 +59,8 @@ public class BootupProcedure {
 
     private static final BootupTask loadArguments = args -> {
         List<Optional<String>> pargs = Utility.matchValues(args, "token", "dblToken", "shards", "ownerID",
-                "sqlDatabase", "debug", "twitchUserID", "port", "clientSecret", "twitchClientID", "rpcServerIP", "shardId", "totalShards", "useRedis");
+                "sqlDatabase", "debug", "twitchUserID", "port", "clientSecret", "twitchClientID", "rpcServerIP",
+                "shardId", "totalShards", "useRedis", "trelloToken");
         token = pargs.get(0).orElseThrow(() -> new RuntimeException("You need to provide a token!"));
         optDblToken = pargs.get(1);
         shardTo = pargs.get(2).map(Integer::parseInt).orElse(1);
@@ -88,6 +85,8 @@ public class BootupProcedure {
             }
         });
         DataManager.jedisOpt = pargs.get(11).flatMap(it -> (Boolean.valueOf(it) ? Optional.of(new Jedis("localhost")) : Optional.empty()));
+        Trello.optTrello = pargs.get(14).map(it -> new TrelloImpl(Constants.TRELLO_API_KEY, it));
+        Log.info(pargs);
     };
 
     private static final BootupTask transferToDb = args -> {
@@ -99,14 +98,21 @@ public class BootupProcedure {
                     try {
                         reader = new FileReader(new File(file, "leaderboard.json"));
                         GuildProfile guildProfile = Constants.GSON.fromJson(reader, GuildProfile.class);
-                        GuildProfile.manager.saveToSQL(db, guildProfile);
+
+                        Log.info("Guild:", guildProfile, "Saving to SQL...");
+                        GuildProfile.manager.saveToSQL(db, guildProfile).then(n -> {
+                            Log.wrapException("Getting saved guild",  () -> {
+                                Log.trace("Finished saving guild:", guildProfile.getGuildId() + "; Data read: ",
+                                        GuildProfile.manager.getFromSQL(db, guildProfile.getGuildId()));
+                            });
+                        });
+
                         transfered ++;
                         Log.info("Transferred " + file.getName() + ". (" + transfered + ")");
                         reader.close();
                     } catch (Exception e) {
                         if (reader != null) Utility.quietlyClose(reader);
-                        Log.info("Failed to save " + file.getAbsolutePath() + ": " + e.getClass().getName() +  ": "
-                                + e.getMessage());
+                        Log.info("Failed to save " + file.getAbsolutePath(), e);
                     }
                 }
             Log.info(transfered + " guilds transferred");
@@ -118,14 +124,21 @@ public class BootupProcedure {
                     try {
                         reader = new FileReader(file);
                         UserProfile userProfile = Constants.GSON.fromJson(reader, UserProfile.class);
-                        UserProfile.manager.saveToSQL(db, userProfile);
+
+                        Log.info("User:", userProfile, "Saving to SQL...");
+                        UserProfile.manager.saveToSQL(db, userProfile).then(n -> {
+                            Log.wrapException("Getting saved user",  () -> {
+                                Log.trace("Finished saving user:", userProfile.getUserID() + "; Data read: ",
+                                        UserProfile.manager.getFromSQL(db, userProfile.getUserID()));
+                            });
+                        });
+
                         transfered ++;
                         Log.info("Transferred " + file.getName() + ". (" + transfered + ")");
                         reader.close();
                     } catch (Exception e) {
                         if (reader != null) Utility.quietlyClose(reader);
-                        Log.info("Failed to save " + file.getAbsolutePath() + ": " + e.getClass().getName() +  ": "
-                                + e.getMessage());
+                        Log.info("Failed to save " + file.getAbsolutePath(), e);
                     }
                 }
             Log.info(transfered + " users transferred");
@@ -197,6 +210,8 @@ public class BootupProcedure {
     private static final BootupTask loadData = args -> {
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
             Log.info("Shutting down...");
+            Cache.onClose();
+            Log.closeStream();
 
             /*
             if (GamesROB.twitchUserIDListen != -1 && WebhookHandlers.hasConfirmed && GamesROB.twitchClientID.isPresent())

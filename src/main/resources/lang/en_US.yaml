@@ -133,6 +133,7 @@ command:
   join:
     alreadyOnMatch: "You're already on the match!"
     full: "The match is full!"
+    gameStarted: "This game has already started!"
     description: "Joins a match on the current channel"
   stop:
     matchStopped: "⏹ Match stopped by %s"

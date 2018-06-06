@@ -58,7 +58,7 @@ public class Utility {
         }
 
         public void done(R result) {
-            this.result = Optional.of(result);
+            this.result = Optional.ofNullable(result);
             consumers.forEach(cur -> cur.accept(result));
             consumers.clear();
             awaiting.forEach(Thread::interrupt);

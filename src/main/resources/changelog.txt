@@ -15,5 +15,6 @@ You'll each have your own board, and the first to clear the bombs or last to get
 - Games won't spam messages anymore! They bot will edit a game message up to 3 times before sending another message.
 - You can now add token bets to matches! Just put `bet=amount` in the end of the game command. Bets can vary between 10 and 1500.
 - Player amount is now a setting, and you can use it by adding `players=amount` in the end of your game commands.
+- Fixed joining after the match is over, locking you in.
 
 Enjoy! ~ deprilula28

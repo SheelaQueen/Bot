@@ -243,7 +243,7 @@ public class Match extends Thread {
             // Trying to join
             if (Match.PLAYING.containsKey(event.getUser()) || getPlayers().contains(Optional.of(event.getUser()))
                     || getPlayers().size() == getTargetPlayerCount() + 1 || (betting.isPresent() &&
-                    !UserProfile.get(event.getUser()).transaction(betting.get()))) {
+                    !UserProfile.get(event.getUser()).transaction(betting.get())) || gameState != GameState.PRE_GAME) {
                 if (Utility.hasPermission(channelIn, channelIn.getGuild().getMember(channelIn.getJDA().getSelfUser()),
                     Permission.MESSAGE_MANAGE)) event.getReaction().removeReaction(event.getUser()).queue();
                 return;
