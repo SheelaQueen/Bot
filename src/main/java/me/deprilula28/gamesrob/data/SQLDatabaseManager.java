@@ -122,11 +122,14 @@ public class SQLDatabaseManager {
     }
 
     public static void registerTables(SQLDatabaseManager manager) {
-        manager.table("guildData", "leaderboardEntries bytea", "gameEntries bytea", "userStatisticsMap bytea",
-                "permStartGame text", "permStopGame text", "prefix text", "guildId text", "shardId int", "language text");
+        manager.table("guildData", "permStartGame text", "permStopGame text", "prefix text",
+                "guildId text", "shardId int", "language text");
 
         manager.table("userData", "emote text", "language text", "tokens int", "lastUpvote bigint",
                 "upvotedDays int", "shardId int", "userID text");
+
+        manager.table("leaderboardEntries", "userId text", "guildId text", "gameId text",
+                "victories int", "losses int", "gamesPlayed int");
     }
 
     private void table(String name, String... types) {

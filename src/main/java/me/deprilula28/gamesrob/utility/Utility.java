@@ -57,6 +57,13 @@ public class Utility {
             return promise;
         }
 
+        public Promise<Void> both(Promise<R> promise) {
+            Promise<Void> pr = new Promise<>();
+            then(a -> promise.then(b -> pr.done(null)));
+
+            return pr;
+        }
+
         public void done(R result) {
             this.result = Optional.ofNullable(result);
             consumers.forEach(cur -> cur.accept(result));

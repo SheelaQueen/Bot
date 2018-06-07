@@ -228,21 +228,19 @@ public class RPCManager extends WebSocketClient {
     private Object webhookNotification(JsonElement upvoteInfo) {
         Log.info("Received upvote: ", upvoteInfo);
         Statistics.get().setUpvotes(Statistics.get().getUpvotes() + 1);
-        GamesROB.getUserById(upvoteInfo.getAsJsonObject().get("user").getAsLong()).ifPresent(user -> {
-            user.openPrivateChannel().queue(pm -> {
-                UserProfile profile = UserProfile.get(user.getId());
-                if (System.currentTimeMillis() - profile.getLastUpvote() < TimeUnit.DAYS.toMillis(2))
-                    profile.setUpvotedDays(profile.getUpvotedDays() + 1);
-                else profile.setUpvotedDays(0);
-                int days = profile.getUpvotedDays();
-                int amount = 125 + days * 50;
+        GamesROB.getUserById(upvoteInfo.getAsJsonObject().get("user").getAsLong()).ifPresent(user -> user.openPrivateChannel().queue(pm -> {
+            UserProfile profile = UserProfile.get(user.getId());
+            if (System.currentTimeMillis() - profile.getLastUpvote() < TimeUnit.DAYS.toMillis(2))
+                profile.setUpvotedDays(profile.getUpvotedDays() + 1);
+            else profile.setUpvotedDays(0);
+            int days = profile.getUpvotedDays();
+            int amount = 125 + days * 50;
 
-                pm.sendMessage(Language.transl(Optional.ofNullable(profile.getLanguage()).orElse("en_US"),
-                        "genericMessages.upvoteMessage", "+" + amount + " \uD83D\uDD38 tokens", days)).queue();
-                profile.addTokens(amount);
-                profile.setLastUpvote(System.currentTimeMillis());
-            });
-        });
+            pm.sendMessage(Language.transl(Optional.ofNullable(profile.getLanguage()).orElse("en_US"),
+                    "genericMessages.upvoteMessage", "+" + amount + " \uD83D\uDD38 tokens", days)).queue();
+            profile.addTokens(amount);
+            profile.setLastUpvote(System.currentTimeMillis());
+        }));
 
         return null;
     }

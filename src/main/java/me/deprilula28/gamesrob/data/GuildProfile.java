@@ -136,20 +136,45 @@ public class GuildProfile {
     }
 
     public static class GuildSaveManager extends DataManager<String, GuildProfile> {
+        private static List<LeaderboardEntry> getEntriesForGame(SQLDatabaseManager db, String from, String game,
+                                                    Map<String, UserStatistics> userStats) throws Exception {
+            ResultSet overallSelect = db.select("leaderboardEntries", Arrays.asList("userId", "victories", "losses", "gamesPlayed"),
+                    "guildId = '" + from + "' AND gameId='" + game + "'");
+            List<LeaderboardEntry> entries = new ArrayList<>();
+
+            while (overallSelect.next()) {
+                UserProfile.GameStatistics stats = new UserProfile.GameStatistics(overallSelect.getInt("victories"),
+                        overallSelect.getInt("losses"),
+                        overallSelect.getInt("gamesPlayed"));
+                String userId = overallSelect.getString("userId");
+
+                if (game.equals("overall")) userStats.put(userId, new UserStatistics(stats, new HashMap<>()));
+                else userStats.get(userId).getGamesStats().put(game, stats);
+
+                entries.add(new LeaderboardEntry(userId, stats));
+            }
+
+            return entries;
+        }
+
         @Override
         public Optional<GuildProfile> getFromSQL(SQLDatabaseManager db, String from) throws Exception {
-            ResultSet select = db.select("guildData", Arrays.asList("leaderboardEntries", "gameEntries",
-                    "userStatisticsMap", "permStartGame", "permStopGame", "prefix", "language", "shardId"),
-                    "guildId = '" + from + "'");
+            ResultSet select = db.select("guildData", Arrays.asList("userStatisticsMap", "permStartGame",
+                    "permStopGame", "prefix", "language", "shardId"), "guildId = '" + from + "'");
 
             if (select.next()) {
-                Log.info("Next found!");
                 // Overall leaderboard entries
+
+                /*
                 DataInputStream overallStream = new DataInputStream(new ByteArrayInputStream(select.getBytes("leaderboardEntries")));
                 List<LeaderboardEntry> overall = readEntries(overallStream);
                 Utility.quietlyClose(overallStream);
+*/
+                Map<String, UserStatistics> userStats = new HashMap<>();
+                List<LeaderboardEntry> overall = getEntriesForGame(db, from, "overall", userStats);
 
                 // Per game leaderboard entries
+                /*
                 DataInputStream gameStreams = new DataInputStream(new ByteArrayInputStream(select.getBytes("gameEntries")));
 
                 int left = gameStreams.readInt();
@@ -158,8 +183,14 @@ public class GuildProfile {
                     perGame.put(gameStreams.readUTF(), readEntries(gameStreams));
                 }
                 Utility.quietlyClose(gameStreams);
+                */
+                Map<String, List<LeaderboardEntry>> perGame = new HashMap<>();
+                for (GamesInstance game : GamesROB.ALL_GAMES) {
+                    perGame.put(game.getLanguageCode(), getEntriesForGame(db, from, game.getLanguageCode(), userStats));
+                }
 
                 // User statistics data
+                /*
                 DataInputStream userStatisticsStreams = new DataInputStream(new ByteArrayInputStream(select.getBytes("userStatisticsMap")));
 
                 left = userStatisticsStreams.readInt();
@@ -169,6 +200,7 @@ public class GuildProfile {
                            readGameStats(userStatisticsStreams)));
                 }
                 Utility.quietlyClose(userStatisticsStreams);
+                */
 
                 return Optional.of(new GuildProfile(from, overall, perGame, userStats,
                         select.getString("prefix"), select.getString("permStartGame"),
@@ -207,9 +239,10 @@ public class GuildProfile {
 
         @Override
         public Utility.Promise<Void> saveToSQL(SQLDatabaseManager db, GuildProfile value) {
-            return db.save("guildData", Arrays.asList(
-                    "leaderboardEntries", "gameEntries", "userStatisticsMap", "prefix", "permStartGame", "permStopGame", "shardId", "guildId"
-            ), "guildId = '" + value.getGuildId() + "'", it -> Log.wrapException("Saving data on SQL", () -> write(it, value)));
+            Log.wrapException("Saving data of SQL", () -> writeLeaderboardEntries(db, value));
+            return db.save("guildData", Arrays.asList("prefix", "permStartGame", "permStopGame", "shardId", "guildId"),
+                    "guildId = '" + value.getGuildId() + "'", it -> Log.wrapException("Saving data on SQL",
+                    () -> writeGuildData(it, value)));
             /*if (value.isExists()) {
                 db.update("guildData", Arrays.asList("leaderboardEntries", "gameEntries", "userStatisticsMap",
                         "prefix", "permStartGame", "permStopGame"), "guildId = ?",
@@ -222,7 +255,29 @@ public class GuildProfile {
             */
         }
 
-        private void write(PreparedStatement statement, GuildProfile profile) throws Exception {
+        private void writeLeaderboardEntries(SQLDatabaseManager db, GuildProfile profile) throws Exception {
+            profile.getUserStatisticsMap().forEach((userId, stats) -> {
+                writeGameEntries(db, userId, profile.getGuildId(), "overall", stats.getOverall());
+                stats.getGamesStats().forEach((gameId, gameStats) ->
+                        writeGameEntries(db, userId, profile.getGuildId(),  gameId, gameStats));
+            });
+        }
+
+        private void writeGameEntries(SQLDatabaseManager db, String userId, String guildId, String gameId, UserProfile.GameStatistics stats) {
+            db.save("leaderboardEntries", Arrays.asList("userId", "victories", "losses", "gamesPlayed"),
+                    "guildId = '" + guildId + "' AND gameId = '" + gameId + "'",
+                    it -> Log.wrapException("Saving data on SQL", () -> {
+                        it.setString(1, userId);
+                        it.setInt(2, stats.getVictories());
+                        it.setInt(3, stats.getLosses());
+                        it.setInt(4, stats.getGamesPlayed());
+                        it.setString(5, guildId);
+                        it.setString(6, gameId);
+            }));
+        }
+
+        private void writeGuildData(PreparedStatement statement, GuildProfile profile) throws Exception {
+            /*
             // Overall leaderboard entries
             ByteArrayOutputStream overallBaos = new ByteArrayOutputStream();
             DataOutputStream overallStream = new DataOutputStream(overallBaos);
@@ -262,12 +317,12 @@ public class GuildProfile {
 
             statement.setBytes(3, userStatsBaos.toByteArray());
             Utility.quietlyClose(userStatsStream);
-
-            statement.setString(4, profile.getGuildPrefix());
-            statement.setString(5, profile.getPermStartGame());
-            statement.setString(6, profile.getPermStopGame());
-            statement.setInt(7, profile.getShardId());
-            statement.setString(8, profile.getGuildId());
+*/
+            statement.setString(1, profile.getGuildPrefix());
+            statement.setString(2, profile.getPermStartGame());
+            statement.setString(3, profile.getPermStopGame());
+            statement.setInt(4, profile.getShardId());
+            statement.setString(5, profile.getGuildId());
         }
 
 
