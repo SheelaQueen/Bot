@@ -122,7 +122,6 @@ public class GuildProfile {
         if (entry.getStats().getGamesPlayed() < Constants.LEADERBOARD_GAMES_PLAYED_REQUIREMENT) return;
         list.removeIf(it -> it.getId().equals(entry.getId()));
         list.add(entry);
-        list.sort(Collections.reverseOrder(Comparator.comparingInt(it -> it.getStats().getVictories())));
     }
 
     public static GuildSaveManager manager = new GuildSaveManager();
