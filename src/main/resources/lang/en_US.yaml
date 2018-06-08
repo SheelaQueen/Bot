@@ -147,7 +147,7 @@ command:
     playerRatings: " (**%s** victories)"
     noWinner: "~no winner yet~"
     response: "**Overall**\n%s\n**Games:**\n%s"
-    websiteLink: "\n**View in the website:** %s"
+    websiteLink: "View everything in our site"
     description: "View the leaderboard!"
   profile:
     playerStats: "**%s**'s Statistics:\n"

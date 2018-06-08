@@ -221,7 +221,7 @@ public class RPCManager extends WebSocketClient {
                 "/serverLeaderboard/" + it.getId() + "/",
                 it.getIconUrl() == null
                         ? "https://discordapp.com/assets/dd4dbc0016779df1378e7812eabaa04d.png"
-                        : it.getIconUrl().replaceAll(".jpg", ".webp"),
+                        : it.getIconUrl().replaceAll("\\.jpg", ".png"),
                 it.getName())).collect(Collectors.toList());
     }
 

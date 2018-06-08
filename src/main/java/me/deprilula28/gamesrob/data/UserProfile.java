@@ -40,10 +40,9 @@ public class UserProfile {
         public int losses;
         public int gamesPlayed;
 
-        public double getWLRatio() {
-            double ratio = (double) victories / (double) losses;
-            if (Double.isNaN(ratio) || Double.isInfinite(ratio)) return (double) victories;
-            else return ratio;
+        public double getWonPercent() {
+            if (gamesPlayed == 0) return 0.0;
+            return ((double) victories / (double) gamesPlayed) * 100L;
         }
     }
 

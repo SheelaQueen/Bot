@@ -143,7 +143,7 @@ command:
     playerRatings: " (**%s** vitórias)"
     noWinner: "~nenhum vencedor ainda~"
     response: "**Todos Jogos**\n%s\n**Jogos Específicos:**\n%s"
-    websiteLink: "\n**Veja mais no website:** %s"
+    websiteLink: "Veja tudo no nosso site"
     description: "Veja a lista de vencedores!"
   profile:
     playerStats: "Estatísticas de **%s**:\n"

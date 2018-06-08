@@ -16,7 +16,7 @@ import java.util.stream.Collectors;
 
 public class Detective implements MatchHandler {
     public static final GamesInstance GAME = new GamesInstance(
-            "detective", "detective assassin clue murder murderer detetive",
+            "detective", "detective assassin clue murder murderer detetive det dt",
             3, 11, GameType.MULTIPLAYER, false,
             Detective::new, Detective.class
     );

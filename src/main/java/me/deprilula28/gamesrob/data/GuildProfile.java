@@ -159,7 +159,7 @@ public class GuildProfile {
 
         @Override
         public Optional<GuildProfile> getFromSQL(SQLDatabaseManager db, String from) throws Exception {
-            ResultSet select = db.select("guildData", Arrays.asList("userStatisticsMap", "permStartGame",
+            ResultSet select = db.select("guildData", Arrays.asList("permStartGame",
                     "permStopGame", "prefix", "language", "shardId"), "guildId = '" + from + "'");
 
             if (select.next()) {
@@ -264,8 +264,8 @@ public class GuildProfile {
         }
 
         private void writeGameEntries(SQLDatabaseManager db, String userId, String guildId, String gameId, UserProfile.GameStatistics stats) {
-            db.save("leaderboardEntries", Arrays.asList("userId", "victories", "losses", "gamesPlayed"),
-                    "guildId = '" + guildId + "' AND gameId = '" + gameId + "'",
+            db.save("leaderboardEntries", Arrays.asList("userId", "victories", "losses", "gamesPlayed", "guildId", "gameId"),
+                    "guildId = '" + guildId + "' AND userId='" + userId + "' AND gameId = '" + gameId + "'",
                     it -> Log.wrapException("Saving data on SQL", () -> {
                         it.setString(1, userId);
                         it.setInt(2, stats.getVictories());

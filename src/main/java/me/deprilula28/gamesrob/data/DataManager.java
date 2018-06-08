@@ -43,7 +43,7 @@ public abstract class DataManager<A, R> {
                 try {
                     return getFromSQL(db.get(), from).orElseGet(() -> createNew(from));
                 } catch (Exception e) {
-                    Log.info("Requesting to SQL Handler", e);
+                    Log.exception("Requesting to SQL Handler", e);
                     return createNew(from);
                 }
             }, it -> {

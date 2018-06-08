@@ -47,18 +47,18 @@ public class ProfileCommands {
                     leaderboardPosition + 1, Utility.formatNth(Constants.getLanguage(context), leaderboardPosition + 1),
                     Language.transl(context, "command.profile.place")),
                 stats.getVictories(), stats.getLosses(),
-                new BigDecimal(stats.getWLRatio()).setScale(2, BigDecimal.ROUND_HALF_UP),
+                new BigDecimal(stats.getWonPercent()).setScale(1, BigDecimal.ROUND_HALF_UP) + "%",
                 stats.getGamesPlayed());
     }
 
     public static String getEmoji(UserProfile.GameStatistics stats) {
         if (stats.getGamesPlayed() < Constants.LEADERBOARD_GAMES_PLAYED_REQUIREMENT) return "\uD83C\uDFF4";
 
-        double winCount = stats.getWLRatio();
-        if (winCount < 0.5) return "\uD83D\uDEA9";
-        else if (winCount < 1.0) return "\uD83C\uDFF3";
-        else if (winCount < 2.0) return "\uD83C\uDFC1";
-        else return "\uD83D\uDC51";
+        double winCount = stats.getWonPercent();
+        if (winCount > 75.0) return "\uD83D\uDC51";
+            else if (winCount > 50.0) return "\uD83D\uDEA9";
+        else if (winCount > 25.0) return "\uD83C\uDFF3";
+        else return "\uD83C\uDFC1";
     }
 
     private static Pattern emotePattern = Pattern.compile("(<:.*:[0-9]{18}>)");
