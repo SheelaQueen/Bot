@@ -11,6 +11,10 @@ It's a betting-based game, so you need to add a bet in the game to play it.
 Just add the players setting after the command (e.g. `g*minesweeper players=2` for 2 players).
 You'll each have your own board, and the first to clear the bombs or last to get bombed wins!
 
+- The website is now a separate program, coded in node.js with express! http://gamesrob.com
+The source code: https://github.com/GamesROB/Website
+This should hopefully improve its speed (and the bot's speed) by a lot.
+
 - Slots should be less annoyingly unwinnable now.
 - Games won't spam messages anymore! They bot will edit a game message up to 3 times before sending another message.
 - You can now add token bets to matches! Just put `bet=amount` in the end of the game command. Bets can vary between 10 and 1500.

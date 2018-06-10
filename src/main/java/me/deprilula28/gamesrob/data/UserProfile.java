@@ -92,14 +92,14 @@ public class UserProfile {
     public static class UserSaveManager extends DataManager<String, UserProfile> {
         @Override
         public Optional<UserProfile> getFromSQL(SQLDatabaseManager db, String from) throws Exception {
-            ResultSet select = db.select("userData", Arrays.asList("emote", "language", "tokens", "lastUpvote",
-                    "upvotedDays", "shardId"),
-                    "userId = '" + from + "'");
+            ResultSet select = db.select("userData", Arrays.asList("emote", "language", "tokens", "lastupvote",
+                    "upvoteddays", "shardid"),
+                    "userid = '" + from + "'");
             if (select.next()) {
                 return Optional.of(new UserProfile(from, select.getString("emote"),
                         select.getString("language"), select.getInt("tokens"),
-                        select.getLong("lastUpvote"), select.getInt("upvotedDays"),
-                        select.getInt("shardId")));
+                        select.getLong("lastupvote"), select.getInt("upvoteddays"),
+                        select.getInt("shardid")));
             }
             select.close();
 
@@ -113,8 +113,8 @@ public class UserProfile {
         @Override
         public Utility.Promise<Void> saveToSQL(SQLDatabaseManager db, UserProfile value) {
             return db.save("userData", Arrays.asList(
-                    "emote", "userId", "tokens", "lastUpvote", "upvotedDays", "shardId", "language"
-            ), "userId = '" + value.getUserID() + "'", it -> Log.wrapException("Saving data on SQL", () -> write(it, value)));
+                    "emote", "userId", "tokens", "lastupvote", "upvoteddays", "shardid", "language"
+            ), "userid = '" + value.getUserID() + "'", it -> Log.wrapException("Saving data on SQL", () -> write(it, value)));
             /*
             if (value.isExists()) {
                 db.update("userData", Arrays.asList("emote"), "userID = ?",

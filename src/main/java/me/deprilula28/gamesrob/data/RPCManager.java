@@ -177,12 +177,19 @@ public class RPCManager extends WebSocketClient {
     }
 
     @AllArgsConstructor
+    private static class WebsiteRole {
+        private String name;
+        private String id;
+    }
+
+    @AllArgsConstructor
     private static class WebsiteGuild {
         private String id;
         private String name;
         private String iconUrl;
         private int members;
         private boolean manageServer;
+        private List<WebsiteRole> roles;
     }
 
     @Data
@@ -207,9 +214,14 @@ public class RPCManager extends WebSocketClient {
         Optional<String> userId = Optional.ofNullable(req.getUserId());
 
         return GamesROB.getGuildById(id).map(it -> new WebsiteGuild(it.getId(), it.getName(), it.getIconUrl(),
-                it.getMembers().size(), userId.flatMap(GamesROB::getUserById).map(user -> it.getMember(user)
-                .hasPermission(Permission.MANAGE_SERVER)).orElse(false))).orElse(null);
+                it.getMembers().size(),
+                userId.flatMap(GamesROB::getUserById).map(user -> it.getMember(user).hasPermission(Permission.MANAGE_SERVER))
+                        .orElse(false),
+                it.getRoles().stream().map(role -> new WebsiteRole(role.getName(), role.getId())).collect(Collectors.toList())))
+            .orElse(null);
     }
+
+
 
     private List<MutualServer> getMutualServers(JsonElement id) {
         List<Guild> mutualGuilds = new ArrayList<>();

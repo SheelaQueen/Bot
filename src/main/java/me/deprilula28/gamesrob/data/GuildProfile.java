@@ -137,15 +137,15 @@ public class GuildProfile {
     public static class GuildSaveManager extends DataManager<String, GuildProfile> {
         private static List<LeaderboardEntry> getEntriesForGame(SQLDatabaseManager db, String from, String game,
                                                     Map<String, UserStatistics> userStats) throws Exception {
-            ResultSet overallSelect = db.select("leaderboardEntries", Arrays.asList("userId", "victories", "losses", "gamesPlayed"),
-                    "guildId = '" + from + "' AND gameId='" + game + "'");
+            ResultSet overallSelect = db.select("leaderboardEntries", Arrays.asList("userid", "victories", "losses", "gamesPlayed"),
+                    "guildid = '" + from + "' AND gameid='" + game + "'");
             List<LeaderboardEntry> entries = new ArrayList<>();
 
             while (overallSelect.next()) {
                 UserProfile.GameStatistics stats = new UserProfile.GameStatistics(overallSelect.getInt("victories"),
                         overallSelect.getInt("losses"),
-                        overallSelect.getInt("gamesPlayed"));
-                String userId = overallSelect.getString("userId");
+                        overallSelect.getInt("gamesplayed"));
+                String userId = overallSelect.getString("userid");
 
                 if (game.equals("overall")) userStats.put(userId, new UserStatistics(stats, new HashMap<>()));
                 else userStats.get(userId).getGamesStats().put(game, stats);
@@ -158,8 +158,8 @@ public class GuildProfile {
 
         @Override
         public Optional<GuildProfile> getFromSQL(SQLDatabaseManager db, String from) throws Exception {
-            ResultSet select = db.select("guildData", Arrays.asList("permStartGame",
-                    "permStopGame", "prefix", "language", "shardId"), "guildId = '" + from + "'");
+            ResultSet select = db.select("guildData", Arrays.asList("permstartgame",
+                    "permstopgame", "prefix", "language", "shardid"), "guildid = '" + from + "'");
 
             if (select.next()) {
                 // Overall leaderboard entries
@@ -202,9 +202,9 @@ public class GuildProfile {
                 */
 
                 return Optional.of(new GuildProfile(from, overall, perGame, userStats,
-                        select.getString("prefix"), select.getString("permStartGame"),
-                        select.getString("permStopGame"), select.getString("language"),
-                        select.getInt("shardId")));
+                        select.getString("prefix"), select.getString("permStartgame"),
+                        select.getString("permstopgame"), select.getString("language"),
+                        select.getInt("shardid")));
             }
             select.close();
             Log.info("Next not found!");
@@ -239,8 +239,8 @@ public class GuildProfile {
         @Override
         public Utility.Promise<Void> saveToSQL(SQLDatabaseManager db, GuildProfile value) {
             Log.wrapException("Saving data of SQL", () -> writeLeaderboardEntries(db, value));
-            return db.save("guildData", Arrays.asList("prefix", "permStartGame", "permStopGame", "shardId", "guildId"),
-                    "guildId = '" + value.getGuildId() + "'", it -> Log.wrapException("Saving data on SQL",
+            return db.save("guildData", Arrays.asList("prefix", "permstartgame", "permstopgame", "shardid", "guildid"),
+                    "guildid = '" + value.getGuildId() + "'", it -> Log.wrapException("Saving data on SQL",
                     () -> writeGuildData(it, value)));
             /*if (value.isExists()) {
                 db.update("guildData", Arrays.asList("leaderboardEntries", "gameEntries", "userStatisticsMap",
@@ -263,8 +263,8 @@ public class GuildProfile {
         }
 
         private void writeGameEntries(SQLDatabaseManager db, String userId, String guildId, String gameId, UserProfile.GameStatistics stats) {
-            db.save("leaderboardEntries", Arrays.asList("userId", "victories", "losses", "gamesPlayed", "guildId", "gameId"),
-                    "guildId = '" + guildId + "' AND userId='" + userId + "' AND gameId = '" + gameId + "'",
+            db.save("leaderboardEntries", Arrays.asList("userId", "victories", "losses", "gamesplayed", "guildid", "gameid"),
+                    "guildid = '" + guildId + "' AND userid='" + userId + "' AND gameid = '" + gameId + "'",
                     it -> Log.wrapException("Saving data on SQL", () -> {
                         it.setString(1, userId);
                         it.setInt(2, stats.getVictories());
