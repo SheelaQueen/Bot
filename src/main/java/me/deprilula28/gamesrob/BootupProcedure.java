@@ -52,14 +52,13 @@ public class BootupProcedure {
     private static int shardTo;
     public static int shardFrom;
     private static int totalShards;
-    private static int port;
     public static String secret;
     public static String changelog;
     public static boolean useRedis;
 
     private static final BootupTask loadArguments = args -> {
         List<Optional<String>> pargs = Utility.matchValues(args, "token", "dblToken", "shards", "ownerID",
-                "sqlDatabase", "debug", "twitchUserID", "port", "clientSecret", "twitchClientID", "rpcServerIP",
+                "sqlDatabase", "debug", "twitchUserID", "clientSecret", "twitchClientID", "rpcServerIP",
                 "shardId", "totalShards", "useRedis", "trelloToken");
         token = pargs.get(0).orElseThrow(() -> new RuntimeException("You need to provide a token!"));
         optDblToken = pargs.get(1);
@@ -69,13 +68,12 @@ public class BootupProcedure {
         GamesROB.database = pargs.get(4).map(SQLDatabaseManager::new);
         GamesROB.debug = pargs.get(5).map(Boolean::parseBoolean).orElse(false);
         GamesROB.twitchUserIDListen = pargs.get(6).map(Long::parseLong).orElse(-1L);
-        port = pargs.get(7).map(Integer::parseInt).orElse(80);
-        secret = pargs.get(8).orElse("");
-        GamesROB.twitchClientID = pargs.get(9);
-        shardFrom = pargs.get(11).map(Integer::parseInt).orElse(0);
-        totalShards = pargs.get(12).map(Integer::parseInt).orElse(shardTo);
+        secret = pargs.get(7).orElse("");
+        GamesROB.twitchClientID = pargs.get(8);
+        shardFrom = pargs.get(9).map(Integer::parseInt).orElse(0);
+        totalShards = pargs.get(10).map(Integer::parseInt).orElse(shardTo);
 
-        GamesROB.rpc = pargs.get(10).map(it -> {
+        GamesROB.rpc = pargs.get(11).map(it -> {
             try {
                 return new RPCManager(it.substring(0, it.indexOf(":")),
                         Integer.parseInt(it.substring(it.indexOf(":") + 1, it.length())), shardFrom, shardTo, totalShards);
@@ -84,8 +82,8 @@ public class BootupProcedure {
                 return null;
             }
         });
-        DataManager.jedisOpt = pargs.get(11).flatMap(it -> (Boolean.valueOf(it) ? Optional.of(new Jedis("localhost")) : Optional.empty()));
-        Trello.optTrello = pargs.get(14).map(it -> new TrelloImpl(Constants.TRELLO_API_KEY, it));
+        DataManager.jedisOpt = pargs.get(12).flatMap(it -> (Boolean.valueOf(it) ? Optional.of(new Jedis("localhost")) : Optional.empty()));
+        Trello.optTrello = pargs.get(13).map(it -> new TrelloImpl(Constants.TRELLO_API_KEY, it));
         Log.info(pargs);
     };
 
