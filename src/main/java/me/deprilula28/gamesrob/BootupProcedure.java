@@ -7,11 +7,14 @@ import me.deprilula28.gamesrob.data.*;
 import me.deprilula28.gamesrob.utility.*;
 import me.deprilula28.jdacmdframework.CommandFramework;
 import me.deprilula28.jdacmdframework.Settings;
+import me.deprilula28.jdacmdframework.discordbotsorgapi.DiscordBotsOrg;
 import net.dv8tion.jda.core.AccountType;
 import net.dv8tion.jda.core.JDA;
 import net.dv8tion.jda.core.JDABuilder;
 import net.dv8tion.jda.core.OnlineStatus;
 import net.dv8tion.jda.core.entities.Game;
+import net.dv8tion.jda.core.events.guild.GuildJoinEvent;
+import net.dv8tion.jda.core.events.guild.GuildLeaveEvent;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.core.events.message.guild.react.GuildMessageReactionAddEvent;
 import org.trello4j.TrelloImpl;
@@ -228,7 +231,19 @@ public class BootupProcedure {
 
     private static final BootupTask dblLoad = args ->
         optDblToken.ifPresent(dblToken -> {
-            GamesROB.dboAPI = Optional.of(GamesROB.commandFramework.setupDiscordBotsOrg(dblToken));
+            DiscordBotsOrg dbo = DiscordBotsOrg.builder()
+                    .botID(GamesROB.shards.get(0).getSelfUser().getId()).shardCount(totalShards).token(dblToken)
+                    .build();
+
+            GamesROB.getAllShards().then(shards -> dbo.setStats(shards.stream().map(GamesROB.ShardStatus::getGuilds)
+                    .collect(Collectors.toList())));
+
+            GamesROB.commandFramework.handleEvent(GuildJoinEvent.class, event -> dbo.setStats(event.getJDA().getShardInfo().getShardId(),
+                    event.getJDA().getGuilds().size()));
+            GamesROB.commandFramework.handleEvent(GuildLeaveEvent.class, event -> dbo.setStats(event.getJDA().getShardInfo().getShardId(),
+                    event.getJDA().getGuilds().size()));
+
+            GamesROB.dboAPI = Optional.of(dbo);
             GamesROB.owners = GamesROB.dboAPI.get().getBot().getOwners().stream().map(Long::parseLong).collect(Collectors.toList());
     });
 
