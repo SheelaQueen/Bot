@@ -79,8 +79,8 @@ public class RPCManager extends WebSocketClient {
         GET_ALL_SHARDS_INFO
     }
 
-    public RPCManager(String ip, int port, int shardIdFrom, int shardIdTo, int totalShards) throws Exception {
-        super(new URI("ws://" + ip + ":" + port), new Draft_6455());
+    public RPCManager(String ip, int shardIdFrom, int shardIdTo, int totalShards) throws Exception {
+        super(new URI(ip), new Draft_6455());
         info = new SentInfo(shardIdFrom, shardIdTo, totalShards);
         connect();
     }

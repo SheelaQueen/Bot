@@ -73,18 +73,19 @@ public class BootupProcedure {
         GamesROB.twitchUserIDListen = pargs.get(6).map(Long::parseLong).orElse(-1L);
         secret = pargs.get(7).orElse("");
         GamesROB.twitchClientID = pargs.get(8);
-        shardFrom = pargs.get(9).map(Integer::parseInt).orElse(0);
-        totalShards = pargs.get(10).map(Integer::parseInt).orElse(shardTo);
 
-        GamesROB.rpc = pargs.get(11).map(it -> {
+        GamesROB.rpc = pargs.get(9).map(it -> {
             try {
-                return new RPCManager(it.substring(0, it.indexOf(":")),
-                        Integer.parseInt(it.substring(it.indexOf(":") + 1, it.length())), shardFrom, shardTo, totalShards);
+                return new RPCManager(it, shardFrom, shardTo, totalShards);
             } catch (Exception e) {
                 Log.exception("Connecting to RPC/JSON", e);
                 return null;
             }
         });
+
+        shardFrom = pargs.get(10).map(Integer::parseInt).orElse(0);
+        totalShards = pargs.get(11).map(Integer::parseInt).orElse(shardTo);
+
         DataManager.jedisOpt = pargs.get(12).flatMap(it -> (Boolean.valueOf(it) ? Optional.of(new Jedis("localhost")) : Optional.empty()));
         Trello.optTrello = pargs.get(13).map(it -> new TrelloImpl(Constants.TRELLO_API_KEY, it));
         Log.info(pargs);
