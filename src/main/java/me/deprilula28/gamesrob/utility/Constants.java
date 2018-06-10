@@ -17,6 +17,7 @@ import java.util.concurrent.TimeUnit;
 
 public class Constants {
     public static final String GAMESROB_DOMAIN = "https://gamesrob.com";
+    public static final String TRELLO_API_KEY = "52734e54b9cdcdd16656a70e30d5b596";
 
     public static final int LEADERBOARD_GAMES_PLAYED_REQUIREMENT = 1;
     public static final File OLD_DATA_FOLDER = new File("gamesrobData");
@@ -40,6 +41,7 @@ public class Constants {
     public static final Optional<Long> changelogChannel = Optional.of(397851392016121877L);
 
     public static final int MATCH_WIN_TOKENS = 40;
+    public static final int MESSAGES_SINCE_THRESHOLD = 3;
 
     public static final Color[] BOT_COLORS = {
             new Color(0xf8bb37), new Color(0x02aff4), new Color(0xf7413b), new Color(0x05b996)

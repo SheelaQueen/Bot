@@ -4,8 +4,10 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import me.deprilula28.gamesrob.Language;
 import me.deprilula28.gamesrob.baseFramework.*;
+import me.deprilula28.gamesrob.utility.Constants;
 import me.deprilula28.gamesrob.utility.Log;
 import me.deprilula28.jdacmdframework.RequestPromise;
+import net.dv8tion.jda.core.MessageBuilder;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.User;
 
@@ -16,7 +18,7 @@ import java.util.stream.Collectors;
 public class Hangman implements MatchHandler {
     public static final GamesInstance GAME = new GamesInstance(
             "hangman", "hangman hgm hm forca",
-            1, 5, GameType.MULTIPLAYER,
+            1, 5, GameType.MULTIPLAYER, false,
             Hangman::new, Hangman.class
     );
 
@@ -41,6 +43,7 @@ public class Hangman implements MatchHandler {
     private Map<Optional<User>, PlayerInfo> playerInfoMap = new HashMap<>();
     private String lastNotification;
     private Match match;
+    private int messages = 0;
 
     @Data
     @AllArgsConstructor
@@ -73,6 +76,7 @@ public class Hangman implements MatchHandler {
 
     @Override
     public void receivedMessage(String contents, User author, Message reference) {
+        messages ++;
         word.ifPresent(theWord -> {
             if (!match.getPlayers().contains(Optional.of(author)) || match.getCreator().equals(author) ||
                     playerInfoMap.get(Optional.of(author)).hasLost() || contents.length() != 1 ||
@@ -114,8 +118,10 @@ public class Hangman implements MatchHandler {
     }
 
     private void updateMessage() {
-        lastMessage.then(cur -> cur.delete().queue());
-        lastMessage = RequestPromise.forAction(match.getChannelIn().sendMessage(updatedMessage(false)));
+        MessageBuilder builder = new MessageBuilder();
+        updatedMessage(false, builder);
+        lastMessage = GameUtil.editSend(match.getChannelIn(), messages, lastMessage, builder.build());
+        if (messages > Constants.MESSAGES_SINCE_THRESHOLD) messages = 0;
     }
 
     public boolean detectVictory(User user) {
@@ -134,9 +140,8 @@ public class Hangman implements MatchHandler {
     }
 
     @Override
-    public String updatedMessage(boolean over) {
+    public void updatedMessage(boolean over, MessageBuilder builder) {
         if (word.isPresent()) {
-            StringBuilder builder = new StringBuilder();
             builder.append(lastNotification).append("\n\n");
             if (!over) {
                 for (Optional<User> curPlayer : match.getPlayers()) {
@@ -188,7 +193,6 @@ public class Hangman implements MatchHandler {
             }
 
             builder.append("\n```");
-            return builder.toString();
-        } else return over ? "" : Language.transl(match.getLanguage(), "game.hangman.sendWord", match.getCreator().getAsMention());
+        } builder.append(over ? "" : Language.transl(match.getLanguage(), "game.hangman.sendWord", match.getCreator().getAsMention()));
     }
 }

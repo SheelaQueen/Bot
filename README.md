@@ -8,6 +8,8 @@ All the games the bot current has:
 - Connect4
 - Minesweeper
 - Hangman
+- Russian Roulette
+- Detective
 
 ## Links
 [Trello](https://trello.com/b/rdcazEMd/gamesrob)<br>

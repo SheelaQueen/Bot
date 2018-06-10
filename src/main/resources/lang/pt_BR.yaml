@@ -22,15 +22,16 @@ genericMessages:
   upvoteMessage: "Obrigado por votar para o GamesROB!\nVocê recebeu:\n**%s**\nVotos em seguida: **%s dias**\nContinue votando diáriamente para conseguir mais tokens!"
 
 gameFramework:
-  singleplayerMatch: "**Partida Solo de %s!**\n%s\n\n%s"
+  singleplayerMatch: "**Partida Solo de %s!**\n%s\n\n"
   multiplayerMatch: "**Partida Multijogador de %s!**\n%s\n\n"
   joinToPlay: "🚪 Digite `%sjoin` ou clique na porta abaixo para jogar! (%s/%s)"
   joinToPlayNoReaction: "🚪 Digite `%sjoin` para jogar! (%s/%s)"
   betting: "💰 Apostando %s 🔸 tokens!"
-  begin: "**Começou!**\n**%s**\n%s\n\n%s"
+  begin: "**Começou!**\n**%s**\n%s\n\n"
   join: "%s entrou na partida! %s/%s"
   left: "%s saiu da partida!"
 
+  requireBetting: "Esse jogo precisa de uma aposta!\nAdicione `bet=quantidade` no fim do comando para escolher quantos tokens deverão ser apostados."
   settingOutOfRange: "A configuração `%s` deve ter um valor entre %s e %s!"
   activeGame: "Há outro jogo nesse canal."
   viewPlayers: "Veja os jogadores com `%slistplayers`."
@@ -38,7 +39,7 @@ gameFramework:
   typeToJoin: "Digite `%sjoin` para participar."
   playersOutOfRange: "Só pode haver entre %s e %s jogadores nesse jogo!"
 
-  gameOver: "**Fim de Jogo!**\n%s\n\n%s"
+  gameOver: "**Fim de Jogo!**\n%s\n\n"
   winner: "%s venceu!"
   draw: "Empate!"
   timeout: "A partida expirou após de **%s**."
@@ -55,6 +56,10 @@ gameFramework:
   rematch: "Clique no :arrows_counterclockwise: para jogar novamente!"
 
 game:
+  roulette:
+    name: "Roleta Russa"
+    shortDescription: "Vire o barril, não seja acertado!"
+    longDescription: "Uma bala, 8 buracos no barril.\nVire o barril com qualquer força, e acredite no melhor quando puxar o gatilho!"
   connectFour:
     name: "Lig4"
     shortDescription: "Derrube botões e ligar 4!"
@@ -81,6 +86,28 @@ game:
     name: "Jogo da Velha"
     shortDescription: "Faça uma linha de 3!"
     longDescription: "Você sabe como funciona!\nEnvie a letra de onde quer colocar seu símbolo (ex. a)."
+  detective:
+    name: "Detetive"
+    shortDescription: "Um de vocês é um assassino. Sua missão é expulsá-lo antes que seja tarde demais."
+    longDescription: "O assassino esfaqueará uma pessoa toda noite.\nCidadãos irão expulsar alguém todo dia.\nTente expulsar o assassino antes que seja tarde demais."
+
+    invalidUser: "Esse usuário não está no jogo ou já morreu/foi expulso."
+    assassinKicked: "O assassino foi expulso! Finalmente, a cidade poderá durmir em paz."
+    murderReveal: "%s era o assassino!"
+
+    sleep: "🌇 A cidade dorme."
+    sleepIndecisive: "🌇 A cidade dorme, indecisivos, expulsando ninguém. Como que isso irá afetá-los?"
+    sleepKicked: "🌇 A cidade dorme, confidentemente expulsando %s da cidade por tentativa de assassinato.\nSó não sabiam que esse não era quem queriam expulsar..."
+
+    chooseKick: "\nColetivamente, a cidade deve decidir quem está causando esses horríveis momentos, para podermos expulsá-los para sempre.\nEnvie a letra para quem deveria ser expulso da cidade:\n"
+    wakeFirst: "🌆 A cidade acorda, surpresa quando encontram %s esfaqueado na sua própria casa. Por que alguém faria isso?"
+    wakeSecond: "🌆 A cidade acorda, dessa vez sem %s, também esfaqueado, também na sua casa. Dizem que duas vezes é concidência, né?"
+    wakeThird: "🌆 A cidade acorda. Isso não pode ser mais uma concicidência: %s foi esfaqueado na sua casa. Pela terceira vez."
+    wakeFourthPlus: "🌆 A cidade acordo, com menos um cidadão conosco, e esse seria %s. Quando isso irá acabar?"
+
+    dmCitizen: "🏙 Você é um cidadão."
+    dmAssassin: "🗡Você é o assassino!\nQuem será a primeira vítima? (Envie seu nome aqui)"
+    dmAssassinRecursive: "Quem será essa noite? (Envie seu nome aqui)"
 
 command:
   permissionLock: "⛔ Você não tem permissão para usar esse comando!"
@@ -116,7 +143,7 @@ command:
     playerRatings: " (**%s** vitórias)"
     noWinner: "~nenhum vencedor ainda~"
     response: "**Todos Jogos**\n%s\n**Jogos Específicos:**\n%s"
-    websiteLink: "\n**Veja mais no website:** %s"
+    websiteLink: "Veja tudo no nosso site"
     description: "Veja a lista de vencedores!"
   profile:
     playerStats: "Estatísticas de **%s**:\n"
@@ -162,10 +189,10 @@ command:
     description: "Adicione o bot no seu servidor!"
   info:
     embed:
-      description: "**O bot para ter partidas divertidas no seu chat do Discord!**\n[Website](%s)!\n[Adicione-o ao seu servidor](%s)\n[Dê um voto no DBL](%s)\n[Veja o código](%s)\n[Entre no servidor de suporte](%s)"
+      description: "**O bot para ter partidas divertidas no seu chat do Discord!**\n[Website](%s)\n[Adicione o bot ao seu servidor](%s)\n[Dê um voto no DBL](%s)\n[Veja o código](%s)\n[Entre no servidor de suporte](%s)"
       statistics:
         title: "📟 Estatísticas"
-        description: "**%s** servidores, **%s** membros e **%s** canais de texto!\n**%s** partidas jogadas (**%s** partidas estão ativas nesse momento) e **%s** votos no DBL!"
+        description: "**%s** servidores, **%s** membros e **%s** canais de texto!\n**%s** partidas jogadas (**%s** acontecendo agora) e **%s** votos no DBL!"
       versions:
         title: "📁 Versões"
         description: "Versão do GamesROB: **%s**\nVersão do Java: **%s**\nVersão do [JDA](%s): **%s**\nVersão do [DepsJDAFramework](%s): **%s**\nTempo de Atividade da shard: **%s**"
@@ -205,53 +232,3 @@ command:
   setprefix:
     message: "Alterado prefix do bot para esse servidor!"
     description: "Altere o prefix do bot para seu servidor!"
-    
-website:
-  commonWrapper:
-    githubSource: "Código Fonte no Github"
-    trelloPage: "Página do Trello"
-    dblListing: "Página do DBL"
-    supportServer: "Servidor de Suporte"
-    myServers: "Meus Servidores"
-
-    help: "Ajuda"
-    joinServer: "Entre no Servidor"
-    addBot: "Adicione o Bot"
-    logIn: "Entrar"
-    signOut: "Sair"
-  home:
-    changelog: 
-      title: "O que há de novo com GamesROB v%s"
-      description: "De %s"
-    botDescription: "O bot de Discord para jogos de chat direto do seu servidor!"
-    invite: "Eu quero!"
-    upvote: "Dê um like no DBL"
-    haveFunTogether:
-      title: "Divirtam-se juntos!"
-      description: "Temos jogos clássicos de festa, e você pode jogar com práticamente quantas pessoas quiser!"
-    playCompetitively:
-      title: "Sejam competitivos!"
-      description: "Você pode ver a placa de liderança no seu servidor do Discord ou na página dele no site! Quem é o melhor?"
-  server:
-    overall: "Em Geral"
-    user: "Usuário"
-    wins: "Vitórias"
-    lost: "Derrotas"
-    gamesPlayed: "Partidas"
-    settings: "Configurações"
-    language: "Linguagem"
-  serverEdit:
-    language: "Linguagem"
-    permStartGame: "Permissão para iniciar partidas"
-    permStopGame: "Permissão para forçar parada de partidas"
-    default: "Padrão"
-    submit: "Salvar Alterações"
-  help:
-    intro: "Introdução"
-    commands: "Comandos"
-    credits: "Créditos"
-    tictactoe: "Jogo da Velha"
-    connectfour: "Lig4"
-    minesweeper: "Campo Minado"
-    hangman: "Forca"
-    games: "Jogos"

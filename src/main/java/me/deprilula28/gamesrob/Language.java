@@ -1,6 +1,8 @@
 package me.deprilula28.gamesrob;
 
 import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
+import com.google.gson.reflect.TypeToken;
 import lombok.Getter;
 import me.deprilula28.gamesrob.utility.Constants;
 import me.deprilula28.gamesrob.utility.Log;
@@ -17,8 +19,9 @@ public class Language {
 
     public static void loadLanguages() {
         Yaml yaml = new Yaml();
-        Constants.GSON.fromJson(Utility.readResource("/lang/files.json"), JsonArray.class).forEach(el ->
-                readLanguage(el.getAsString(), Utility.readResource("/lang/" + el.getAsString() + ".yaml"), yaml));
+        String rsr = Utility.readResource("/lang/files.json");
+        List<String> list = Constants.GSON.fromJson(rsr, new TypeToken<List<String>>(){}.getType());
+        list.forEach(el -> readLanguage(el, Utility.readResource("/lang/" + el + ".yaml"), yaml));
     }
 
     private static void recReadTree(Map<String, Object> curMap, String prefix, Map<String, String> output) {

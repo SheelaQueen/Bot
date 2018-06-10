@@ -7,23 +7,19 @@ import me.deprilula28.gamesrob.data.GuildProfile;
 import me.deprilula28.gamesrob.data.Statistics;
 import me.deprilula28.gamesrob.data.UserProfile;
 import me.deprilula28.gamesrob.utility.Constants;
-import me.deprilula28.gamesrob.utility.Log;
 import me.deprilula28.gamesrob.utility.Utility;
 import me.deprilula28.jdacmdframework.Command;
 import me.deprilula28.jdacmdframework.RequestPromise;
 import me.deprilula28.jdacmdframework.exceptions.CommandArgsException;
-import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.JDA;
 import net.dv8tion.jda.core.MessageBuilder;
 import net.dv8tion.jda.core.Permission;
 import net.dv8tion.jda.core.entities.*;
 import net.dv8tion.jda.core.events.message.guild.react.GuildMessageReactionAddEvent;
 
-import java.awt.*;
 import java.util.*;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
 
 @Data
 public class Match extends Thread {
@@ -46,13 +42,15 @@ public class Match extends Thread {
     private transient RequestPromise<Message> preMatchMessage;
 
     private String language;
-    private List<String> options;
+    private Map<String, String> options;
     public int matchesPlayed = 0;
     private boolean canReact;
     private Optional<Integer> betting = Optional.empty();
+    private boolean multiplayer;
 
     public Match(GamesInstance game, User creator, TextChannel channel, int targetPlayerCount, List<Optional<User>> players,
-                 List<String> options, int matchesPlayed) {
+                 Map<String, String> options, int matchesPlayed) {
+        multiplayer = true;
         String guildLang = GuildProfile.get(channel.getGuild()).getLanguage();
         language = guildLang == null ? Constants.DEFAULT_LANGUAGE : guildLang;
         channelIn = channel;
@@ -77,15 +75,19 @@ public class Match extends Thread {
         setDaemon(true);
         start();
 
-        matchHandler.begin(this, n -> RequestPromise.forAction(
-                channelIn.sendMessage(Language.transl(language, "gameFramework.begin",
-                        game.getName(language), game.getLongDescription(language), matchHandler.updatedMessage(false)
-                ))).then(no -> gameState = GameState.MATCH));
+        matchHandler.begin(this, n -> {
+            MessageBuilder builder = new MessageBuilder().append(Language.transl(language, "gameFramework.begin",
+                    game.getName(language), game.getLongDescription(language)
+            ));
+            matchHandler.updatedMessage(false, builder);
+            return RequestPromise.forAction(channelIn.sendMessage(builder.build())).then(no -> gameState = GameState.MATCH);
+        });
         players.stream().filter(Optional::isPresent).forEach(it -> PLAYING.put(it.get(), this));
     }
 
-    public Match(GamesInstance game, User creator, TextChannel channel, int targetPlayerCount, List<String> options,
+    public Match(GamesInstance game, User creator, TextChannel channel, int targetPlayerCount, Map<String, String> options,
                  Optional<Integer> betting) {
+        multiplayer = true;
         String guildLang = GuildProfile.get(channel.getGuild()).getLanguage();
         language = guildLang == null ? Constants.DEFAULT_LANGUAGE : guildLang;
         channelIn = channel;
@@ -113,7 +115,8 @@ public class Match extends Thread {
         start();
     }
 
-    public Match(GamesInstance game, User creator, TextChannel channel, List<String> options) {
+    public Match(GamesInstance game, User creator, TextChannel channel, Map<String, String> options) {
+        multiplayer = false;
         String guildLang = GuildProfile.get(channel.getGuild()).getLanguage();
         String userLang = UserProfile.get(creator).getLanguage();
         language = userLang == null ?  guildLang == null ? Constants.DEFAULT_LANGUAGE : guildLang : userLang;
@@ -132,11 +135,14 @@ public class Match extends Thread {
         ACTIVE_GAMES.get(channel.getJDA()).add(this);
 
         Statistics.get().registerGame(game);
-        matchHandler.begin(this, no -> preMatchMessage = RequestPromise.forAction(
-            channel.sendMessage(Language.transl(language, "gameFramework.singleplayerMatch",
-                    game.getName(language), game.getLongDescription(language), matchHandler.updatedMessage(false)
-            ))
-        ));
+
+        matchHandler.begin(this, no -> {
+            MessageBuilder builder = new MessageBuilder().append(Language.transl(language, "gameFramework.singleplayerMatch",
+                    game.getName(language), game.getLongDescription(language)
+            ));
+            matchHandler.updatedMessage(false, builder);
+            return preMatchMessage = RequestPromise.forAction(channel.sendMessage(builder.build()));
+        });
 
         setName("Game timeout thread for " + game.getName(language));
         setDaemon(true);
@@ -166,11 +172,10 @@ public class Match extends Thread {
         } catch (InterruptedException e) {}
     }
 
-    private void updateSettings(List<String> options) {
+    private void updateSettings(Map<String, String> options) {
         CommandManager.matchHandlerSettings.get(game.getMatchHandlerClass()).forEach(cur -> {
             String name = cur.getField().getName();
-            Optional<Integer> intOpt = options.stream().filter(it -> it.startsWith(name + "=")).findFirst()
-                    .flatMap(option -> GameUtil.safeParseInt(option.substring(name.length() + 1)));
+            Optional<Integer> intOpt = options.containsKey(name) ? GameUtil.safeParseInt(options.get(name)) : Optional.empty();
             intOpt.ifPresent(num -> {
                 if (num < cur.getAnnotation().min() || num > cur.getAnnotation().max())
                     throw new CommandArgsException(Language.transl(language, "gameFramework.settingOutOfRange",
@@ -193,7 +198,7 @@ public class Match extends Thread {
         players.forEach(cur -> builder.append(cur.map(it -> "☑ **" + it.getName() + "**").orElse("AI")).append("\n"));
         for (int i = players.size(); i <= targetPlayerCount; i ++) builder.append("⏰ Waiting\n\n");
 
-        betting.ifPresent(amount -> builder.append(Language.transl(language, "gameFramework.betting", amount)));
+        betting.ifPresent(amount -> builder.append(Language.transl(language, "gameFramework.betting", amount)).append("\n"));
         builder.append(Language.transl(language, canReact ? "gameFramework.joinToPlay" : "gameFramework.joinToPlayNoReaction",
                 Constants.getPrefix(channelIn.getGuild()), players.size(), targetPlayerCount + 1
         ));
@@ -216,10 +221,13 @@ public class Match extends Thread {
                 preMatchMessage.then(it -> it.delete().queue());
                 Statistics.get().registerGame(game);
 
-                matchHandler.begin(this, n -> RequestPromise.forAction(
-                        channelIn.sendMessage(Language.transl(language, "gameFramework.begin",
-                                game.getName(language), game.getLongDescription(language), matchHandler.updatedMessage(false)
-                        ))).then(no -> gameState = GameState.MATCH));
+                matchHandler.begin(this, no -> {
+                    MessageBuilder builder = new MessageBuilder().append(Language.transl(language, "gameFramework.begin",
+                            game.getName(language), game.getLongDescription(language)
+                    ));
+                    matchHandler.updatedMessage(false, builder);
+                    return preMatchMessage = RequestPromise.forAction(channelIn.sendMessage(builder.build())).then(no2 -> gameState = GameState.MATCH);
+                });
             } else updatePreMessage();
         } else channelIn.sendMessage(Language.transl(language, "gameFramework.join",
             user.getAsMention(),
@@ -235,7 +243,7 @@ public class Match extends Thread {
             // Trying to join
             if (Match.PLAYING.containsKey(event.getUser()) || getPlayers().contains(Optional.of(event.getUser()))
                     || getPlayers().size() == getTargetPlayerCount() + 1 || (betting.isPresent() &&
-                    !UserProfile.get(event.getUser()).transaction(betting.get()))) {
+                    !UserProfile.get(event.getUser()).transaction(betting.get())) || gameState != GameState.PRE_GAME) {
                 if (Utility.hasPermission(channelIn, channelIn.getGuild().getMember(channelIn.getJDA().getSelfUser()),
                     Permission.MESSAGE_MANAGE)) event.getReaction().removeReaction(event.getUser()).queue();
                 return;
@@ -249,7 +257,7 @@ public class Match extends Thread {
                     !players.stream().filter(Optional::isPresent).map(Optional::get).allMatch(allVoted::contains)) return;
             preMatchMessage.then(it -> it.delete().queue());
 
-            if (game.getGameType().equals(GameType.SINGLEPLAYER)) new Match(game, creator, channelIn, options)
+            if (game.getGameType().equals(GameType.HYBRID)) new Match(game, creator, channelIn, options)
                     .matchesPlayed = matchesPlayed + 1;
             else new Match(game, creator, channelIn, targetPlayerCount, players, options, matchesPlayed + 1);
             interrupt();
@@ -269,8 +277,8 @@ public class Match extends Thread {
         );
 
         onEnd(Language.transl(language, "gameFramework.winner",
-                winner.map(User::getAsMention).orElse("**AI**") + " + \uD83D\uDD38 " +
-                betting.map(it -> it * players.size()).orElse(Constants.MATCH_WIN_TOKENS) + " tokens"), false);
+                winner.map(User::getAsMention).orElse("**AI**") + " *(+ \uD83D\uDD38 " +
+                betting.map(it -> it * players.size()).orElse(Constants.MATCH_WIN_TOKENS) + " tokens)*"), false);
     }
 
     public void onEnd(String reason, boolean registerPoints) {
@@ -284,23 +292,25 @@ public class Match extends Thread {
             })
         );
 
-        String gameOver = Language.transl(language, "gameFramework.gameOver",
-                reason,
-                gameState == GameState.PRE_GAME ? "" : matchHandler.updatedMessage(true)
-        );
+        MessageBuilder gameOver = new MessageBuilder().append(Language.transl(language, "gameFramework.gameOver",
+                reason));
+        if (gameState != GameState.PRE_GAME) matchHandler.updatedMessage(true, gameOver);
         if (Utility.hasPermission(channelIn, channelIn.getGuild().getMember(channelIn.getJDA().getSelfUser()),
-                Permission.MESSAGE_ADD_REACTION)) gameOver += "\n" + Language.transl(language, "gameFramework.rematch");
+                Permission.MESSAGE_ADD_REACTION)) gameOver.append("\n").append(Language.transl(language, "gameFramework.rematch"));
 
         ACTIVE_GAMES.get(channelIn.getJDA()).remove(this);
         GAMES.remove(channelIn);
 
-        preMatchMessage = RequestPromise.forAction(channelIn.sendMessage(gameOver));
+        preMatchMessage = RequestPromise.forAction(channelIn.sendMessage(gameOver.build()));
         preMatchMessage.then(msg -> msg.addReaction("\uD83D\uDD04").queue());
 
         gameState = GameState.POST_MATCH;
         interrupt(); // Stop the timeout
         REMATCH_GAMES.put(channelIn, this);
     }
+
+    private static final int MIN_BET = 10;
+    private static final int MAX_BET = 1500;
 
     public static Command.Executor createCommand(GamesInstance game) {
         return CommandManager.permissionLock(context -> {
@@ -320,16 +330,29 @@ public class Match extends Thread {
                 );
             }
 
-            if (game.getGameType() == GameType.MULTIPLAYER) {
-                int targetPlayers = context.opt(context::nextInt).map(it -> it - 1).orElse(game.getMinTargetPlayers());
-                if (targetPlayers > game.getMaxTargetPlayers() || targetPlayers < game.getMinTargetPlayers()) {
-                    return Language.transl(context, "gameFramework.playersOutOfRange",
-                            game.getMinTargetPlayers() + 1, game.getMaxTargetPlayers() + 1
-                    );
-                }
-                new Match(game, context.getAuthor(), context.getChannel(), targetPlayers, context.remaining(),
-                        context.opt(context::nextInt));
-            } else new Match(game, context.getAuthor(), context.getChannel(), context.remaining());
+            Map<String, String> settings = new HashMap<>();
+            context.remaining().forEach(it -> {
+                String[] split = it.split("=");
+                if (split.length == 2) settings.put(split[0], split[1]);
+            });
+
+            Optional<Integer> bet = settings.containsKey("bet") ? GameUtil.safeParseInt(settings.get("bet")) : Optional.empty();
+            Optional<Integer> players = settings.containsKey("players") ? GameUtil.safeParseInt(settings.get("players")) : Optional.empty();
+
+            if (bet.isPresent()) {
+                int amount = bet.get();
+                if (amount < MIN_BET || amount > MAX_BET) return Language.transl(context,
+                        "command.slots.invalidTokens", MIN_BET, MAX_BET);
+                if (!UserProfile.get(context.getAuthor()).transaction(amount)) return Constants.getNotEnoughTokensMessage(context, amount);
+            } else if (game.isRequireBetting()) return Language.transl(context, "gameFramework.requireBetting");
+
+            int targetPlayers = players.map(it -> it - 1).orElse(game.getGameType() == GameType.MULTIPLAYER ? game.getMinTargetPlayers() : 0);
+            if (targetPlayers == 0 && game.getGameType() == GameType.HYBRID) new Match(game, context.getAuthor(), context.getChannel(), settings);
+            else if(targetPlayers > game.getMaxTargetPlayers() || targetPlayers < game.getMinTargetPlayers())
+                return Language.transl(context, "gameFramework.playersOutOfRange",
+                        game.getMinTargetPlayers() + 1, game.getMaxTargetPlayers() + 1
+                );
+            else new Match(game, context.getAuthor(), context.getChannel(), targetPlayers, settings, bet);
 
             return null;
         }, ctx -> GuildProfile.get(ctx.getGuild()).canStart(ctx));

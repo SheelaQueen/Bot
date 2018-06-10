@@ -1,16 +1,24 @@
-- Restructured storage on the bot:
-> Now using a PostgreSQL database for storing user and guild information.
-> Now using Redis for caching.
+- New game mode: Detective `g*detective`!
+The assassin will kill someone every night.
+Citizens will kick someone out every day.
+Try kicking the killer before it's too late.
 
-- Revamped help command, with categories and specific command info :^)
-- You can now reset your emoji when using `g*emote`! (note: you won't regain your tokens :c)
-- Matches will now say how many tokens you've won. Just so you know, you know?
+- New game mode: Russian Roulette `g*roulette`!
+There's 8 barrel holes and 1 bullet. Each player flips the barrel and pulls the trigger, hoping for the best.
+It's a betting-based game, so you need to add a bet in the game to play it.
 
-- (Hopefully) Fixed the "playing" when not really playing bug.
-- Fixed time formatting. The predicted time should now look right below.
-- Fixed dollar sign and backslash not being usable in prefixes.
-- Fixed in a match message giving the leave command.
-- Fixed translations on the turn match handler.
-- Fixed formatting on nth messages multiples of 10.
+- You can now play minesweeper with multiple players (up to 5)!
+Just add the players setting after the command (e.g. `g*minesweeper players=2` for 2 players).
+You'll each have your own board, and the first to clear the bombs or last to get bombed wins!
+
+- The website is now a separate program, coded in node.js with express! http://gamesrob.com
+The source code: https://github.com/GamesROB/Website
+This should hopefully improve its speed (and the bot's speed) by a lot.
+
+- Slots should be less annoyingly unwinnable now.
+- Games won't spam messages anymore! They bot will edit a game message up to 3 times before sending another message.
+- You can now add token bets to matches! Just put `bet=amount` in the end of the game command. Bets can vary between 10 and 1500.
+- Player amount is now a setting, and you can use it by adding `players=amount` in the end of your game commands.
+- Fixed joining after the match is over, locking you in.
 
 Enjoy! ~ deprilula28

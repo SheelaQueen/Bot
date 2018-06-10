@@ -13,10 +13,10 @@ genericMessages:
   invalidLanguage: "Pas une langue valide."
 
 gameFramework:
-  singleplayerMatch: "**%s - Match solo!**\n%s\n\n%s"
+  singleplayerMatch: "**%s - Match solo!**\n%s\n\n"
   multiplayerMatch: "**%s - Match multijoueur!**\n%s\n\n"
   joinToPlay: "🚪 Tapez `%sjoin` pour jouer! (%s/%s)"
-  begin: "**C'est parti!**\n**%s**\n%s\n\n%s"
+  begin: "**C'est parti!**\n**%s**\n%s\n\n"
   join: "%s a rejoint le match! %s/%s"
   left: "%s a quitté le match!"
 
@@ -26,7 +26,7 @@ gameFramework:
   typeToJoin: "Vous pouvez tapez `%sjoin` pour le rejoindre."
   playersOutOfRange: "Vous ne pouvez être qu'entre %s et %s joueurs dans ce jeu!"
 
-  gameOver: "**Game Over!**\n%s\n\n%s"
+  gameOver: "**Game Over!**\n%s\n\n"
   winner: "%s a gagné!"
   draw: "Match nul!"
   timeout: "Le match a expiré après **%s**."

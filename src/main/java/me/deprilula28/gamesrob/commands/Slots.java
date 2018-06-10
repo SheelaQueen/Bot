@@ -20,7 +20,7 @@ public class Slots {
     private static final int MIN_ITEMS = 3;
 
     public static String slotsGame(CommandContext context) {
-        Random random = ThreadLocalRandom.current();
+        Random random = new Random(System.currentTimeMillis());
         int betting = context.nextInt();
         if (betting < MIN_TOKENS || betting > MAX_TOKENS) return Language.transl(context, "command.slots.invalidTokens",
                 MIN_TOKENS, MAX_TOKENS);

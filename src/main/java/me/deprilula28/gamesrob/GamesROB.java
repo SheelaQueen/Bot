@@ -9,10 +9,7 @@ import me.deprilula28.gamesrob.baseFramework.GamesInstance;
 import me.deprilula28.gamesrob.baseFramework.Match;
 import me.deprilula28.gamesrob.data.RPCManager;
 import me.deprilula28.gamesrob.data.SQLDatabaseManager;
-import me.deprilula28.gamesrob.games.Connect4;
-import me.deprilula28.gamesrob.games.Hangman;
-import me.deprilula28.gamesrob.games.Minesweeper;
-import me.deprilula28.gamesrob.games.TicTacToe;
+import me.deprilula28.gamesrob.games.*;
 import me.deprilula28.gamesrob.utility.Constants;
 import me.deprilula28.gamesrob.utility.Log;
 import me.deprilula28.gamesrob.utility.Utility;
@@ -28,13 +25,13 @@ import java.util.stream.Collectors;
 
 public class GamesROB {
     public static final GamesInstance[] ALL_GAMES = {
-            Connect4.GAME, TicTacToe.GAME, Minesweeper.GAME, Hangman.GAME
+            Connect4.GAME, TicTacToe.GAME, Minesweeper.GAME, Hangman.GAME, Detective.GAME, Roulette.GAME
     };
 
     public static final long UP_SINCE = System.currentTimeMillis();
     private static final int MAJOR = 1;
     private static final int MINOR = 6;
-    private static final int PATCH = 0;
+    private static final int PATCH = 1;
     public static final String VERSION = String.format("%s.%s.%s", MAJOR, MINOR, PATCH);
 
     public static Optional<DiscordBotsOrg> dboAPI = Optional.empty();

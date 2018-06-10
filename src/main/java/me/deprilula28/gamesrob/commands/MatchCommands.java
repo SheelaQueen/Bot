@@ -1,6 +1,7 @@
 package me.deprilula28.gamesrob.commands;
 
 import me.deprilula28.gamesrob.Language;
+import me.deprilula28.gamesrob.baseFramework.GameState;
 import me.deprilula28.gamesrob.baseFramework.Match;
 import me.deprilula28.gamesrob.data.UserProfile;
 import me.deprilula28.gamesrob.utility.Constants;
@@ -27,6 +28,7 @@ public class MatchCommands {
             );
 
         Match game = getGame(context);
+        if (game.getGameState() != GameState.PRE_GAME) return Language.transl(context, "command.join.gameStarted");
         if (game.getPlayers().contains(Optional.of(context.getAuthor())))
             return Language.transl(context, "command.join.alreadyOnMatch");
         if (game.getPlayers().size() == game.getTargetPlayerCount() + 1)
