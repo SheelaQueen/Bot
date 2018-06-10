@@ -189,10 +189,10 @@ command:
     description: "Adicione o bot no seu servidor!"
   info:
     embed:
-      description: "**O bot para ter partidas divertidas no seu chat do Discord!**\n[Website](%s)!\n[Adicione-o ao seu servidor](%s)\n[Dê um voto no DBL](%s)\n[Veja o código](%s)\n[Entre no servidor de suporte](%s)"
+      description: "**O bot para ter partidas divertidas no seu chat do Discord!**\n[Website](%s)\n[Adicione o bot ao seu servidor](%s)\n[Dê um voto no DBL](%s)\n[Veja o código](%s)\n[Entre no servidor de suporte](%s)"
       statistics:
         title: "📟 Estatísticas"
-        description: "**%s** servidores, **%s** membros e **%s** canais de texto!\n**%s** partidas jogadas (**%s** partidas estão ativas nesse momento) e **%s** votos no DBL!"
+        description: "**%s** servidores, **%s** membros e **%s** canais de texto!\n**%s** partidas jogadas (**%s** acontecendo agora) e **%s** votos no DBL!"
       versions:
         title: "📁 Versões"
         description: "Versão do GamesROB: **%s**\nVersão do Java: **%s**\nVersão do [JDA](%s): **%s**\nVersão do [DepsJDAFramework](%s): **%s**\nTempo de Atividade da shard: **%s**"

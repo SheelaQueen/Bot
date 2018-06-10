@@ -193,10 +193,10 @@ command:
     description: "Invite the bot!"
   info:
     embed:
-      description: "**The bot for playing fun chat games in your Discord!**\n[Website](%s)\n[Add the bot to your server](%s)\n[Upvote the bot in DBO](%s)\n[View the source code](%s)\n[Join our support server](%s)"
+      description: "**The bot for playing fun chat games in your Discord!**\n[Website](%s)\n[Add the bot to your server](%s)\n[Upvote the bot in DBL](%s)\n[View the source code](%s)\n[Join our support server](%s)"
       statistics:
         title: "📟 Statistics"
-        description: "**%s** servers, **%s** members and **%s** text channels!\n**%s** games played (**%s** matches right now) and **%s** upvotes on DBO!"
+        description: "**%s** servers, **%s** members and **%s** text channels!\n**%s** games played (**%s** matches happening now) and **%s** votes on DBL!"
       versions:
         title: "📁 Versions"
         description: "GamesROB Version: **%s**\nJava Version: **%s**\n[JDA](%s) Version: **%s**\n[DepsJDAFramework](%s) Version: **%s**\nShard Uptime: **%s**"

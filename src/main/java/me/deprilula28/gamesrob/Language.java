@@ -20,7 +20,6 @@ public class Language {
     public static void loadLanguages() {
         Yaml yaml = new Yaml();
         String rsr = Utility.readResource("/lang/files.json");
-        Log.info(rsr);
         List<String> list = Constants.GSON.fromJson(rsr, new TypeToken<List<String>>(){}.getType());
         list.forEach(el -> readLanguage(el, Utility.readResource("/lang/" + el + ".yaml"), yaml));
     }

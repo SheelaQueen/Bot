@@ -41,7 +41,7 @@ public class SQLDatabaseManager {
                 Log.info("Login is " + attribs[2]);
             }
             connection = getConnection();
-            registerTables(this);
+            registerTables();
         });
     }
 
@@ -121,28 +121,13 @@ public class SQLDatabaseManager {
        }));
     }
 
-    public static void registerTables(SQLDatabaseManager manager) {
-        manager.table("guildData", "permstartgame text", "permstopgame text", "prefix text",
-                "guildid text", "shardid int", "language text");
-
-        manager.table("userData", "emote text", "language text", "tokens int", "lastupvote bigint",
-                "upvoteddays int", "shardid int", "userID text");
-
-        manager.table("leaderboardEntries", "userid text", "guildid text", "gameid text",
-                "victories int", "losses int", "gamesplayed int");
-    }
-
-    private void table(String name, String... types) {
-        String sql = String.format(
-                "CREATE TABLE IF NOT EXISTS %s (%s)",
-                name, Arrays.stream(types).collect(Collectors.joining(", "))
-        );
+    private void registerTables() {
         asyncExecutor.execute(() -> Log.wrapException("Creating SQL Table", () -> {
-            //Connection conn = getConnection();
+            String command = Utility.readResource("/makeTables.sql");
             Statement statement = connection.createStatement();
-            statement.executeUpdate(sql);
+            statement.executeUpdate(command);
             statement.close();
-            //conn.close();
+            Log.trace("Ran make tables command.");
         }));
     }
 }
