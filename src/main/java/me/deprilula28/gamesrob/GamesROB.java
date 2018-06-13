@@ -127,6 +127,9 @@ public class GamesROB {
                     cur.getPresence().setStatus(OnlineStatus.ONLINE);
                     cur.getPresence().setGame(Game.streaming(title, url));
                 });
+                if (!twitchPresence) Log.wrapException("Setting avatar", () -> shards.get(0).getSelfUser().getManager()
+                        .setAvatar(Icon.from(GamesROB.class.getResourceAsStream("/avatar/GamesROB Streaming.png")))
+                        .queue());
                 twitchPresence = true;
             }
         }
@@ -138,6 +141,9 @@ public class GamesROB {
             cur.getPresence().setGame(Game.watching("gamesrob.com - @" + cur.getSelfUser().getName() + "#" +
                 cur.getSelfUser().getDiscriminator()));
         });
+        Log.wrapException("Setting avatar", () -> shards.get(0).getSelfUser().getManager()
+                .setAvatar(Icon.from(GamesROB.class.getResourceAsStream("/avatar/GamesROB New.png")))
+                .queue());
     }
 
     public static boolean hasUpvoted(String id) {

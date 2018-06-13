@@ -29,7 +29,7 @@ public class CommandManager {
     public static Map<Class<? extends MatchHandler>, List<GameSettingValue>> matchHandlerSettings = new HashMap<>();
     private static Map<String, String> languageHelpMessages = new HashMap<>();
     private static Map<String, Long> commandStart = new ConcurrentHashMap<>();
-    public static long avgCommandDelay = 0L;
+    public static double avgCommandDelay = 0L;
 
     @Data
     @AllArgsConstructor
@@ -148,16 +148,17 @@ public class CommandManager {
 
         f.command("update", UpdateCommand::update);
         f.command("eval", EvalCommand::eval);
+        f.command("gengif", Gengif::gen);
 
         f.before(it -> {
-            commandStart.put(it.getAuthor().getId(), System.currentTimeMillis());
+            commandStart.put(it.getAuthor().getId(), System.nanoTime());
             return null;
         });
         f.after(it -> {
             Statistics stats = Statistics.get();
             stats.setCommandCount(stats.getCommandCount() + 1);
 
-            long delay = System.currentTimeMillis() - commandStart.get(it.getAuthor().getId());
+            long delay = System.nanoTime() - commandStart.get(it.getAuthor().getId());
             commandStart.remove(it.getAuthor().getId());
             double singleCommandWeight = (1.0 / (double) stats.getCommandCount());
             avgCommandDelay = (int) (avgCommandDelay * (1.0 - singleCommandWeight) + delay * singleCommandWeight);

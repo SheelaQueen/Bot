@@ -147,10 +147,9 @@ command:
     message: ":computer: RAM Usage Info\nOverall: **%s**\nCommand Framework: **%s**\nShards: **%s**\nCache: **%s**\nGames: **%s**"
     description: "🗄 *Debug* عرض تقرير استخدام RAM الكامل"
   ping:
-    message: "🏓 Pong!\nBot -> Discord: %s\nYou -> Bot: %s\nWebsocket: %s"
     description: "🗄 *Debug* عرض تأخير البوت"
   shardinfo:
-    title: "**معلومات عامة:**\n```js\n%s\n```"
+    title: "**معلومات عامة:**\n```prolog\n%s\n```"
     shard: "عامة"
     guilds: "السيرفرات"
     users: "المستخدمين"

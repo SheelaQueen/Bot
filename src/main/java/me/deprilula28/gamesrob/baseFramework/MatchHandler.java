@@ -6,6 +6,7 @@ import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.User;
 
 import javax.xml.ws.Provider;
+import java.awt.image.BufferedImage;
 import java.util.List;
 import java.util.Map;
 
@@ -16,4 +17,8 @@ public interface MatchHandler {
 
     void receivedDM(String contents, User from, Message reference);
     void receivedMessage(String contents, User author, Message reference);
+
+    public static interface ImageMatchHandler {
+        byte[] getImage();
+    }
 }

@@ -1,4 +1,4 @@
-CREATE TABLE IF NOT EXISTS guildData (
+;CREATE TABLE IF NOT EXISTS guildData (
     permstartgame TEXT, 
     permstopgame TEXT, 
     prefix TEXT,

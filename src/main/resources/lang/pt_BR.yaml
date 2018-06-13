@@ -206,10 +206,10 @@ command:
     message: ":computer: Uso de RAM\nEm geral: **%s**\nComandos: **%s**\nShards: **%s**\nCache: **%s**\nJogos: **%s**"
     description: "🗄 *Debug* Veja um reporte completo de RAM"
   ping:
-    message: "🏓 Pong!\nBot -> Discord: %s\nVocê -> Bot: %s\nConexão: %s"
+    message: "🏓 Pong!\nBot -> Discord: %s\nVocê -> Bot: %s\nWebsocket: %s\nMédia de latência de processamento: %s"
     description: "🗄 *Debug* Ver a latência do bot"
   shardinfo:
-    title: "**Informação das Shards:**\n```js\n%s\n```"
+    title: "**Informação das Shards:**\n```prolog\n%s\n```"
     shard: "Shard"
     guilds: "Servidores"
     users: "Usuários"

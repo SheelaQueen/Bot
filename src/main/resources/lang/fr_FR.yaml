@@ -138,7 +138,7 @@ command:
     message: ":computer: Information sur l'utilisation de la RAM\nGlobal: **%s**\nCommand Framework: **%s**\nShards: **%s**\nCache: **%s**\nJeux: **%s**"
     description: "🗄 *Debug* View a full RAM Usage report"
   ping:
-    message: "🏓 Pong!\nBot -> Discord: %s\nVous -> Bot: %s\nWebsocket: %s"
+    message: "🏓 Pong!\nBot -> Discord: %s\nVous -> Bot: %s\nWebsocket: %s\n?: %s"
     description: "🗄 *Debug* Voir la latence du bot"
   shardinfo:
     shard: "Shard"

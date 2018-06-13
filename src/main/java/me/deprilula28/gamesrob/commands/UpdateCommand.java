@@ -41,13 +41,13 @@ public class UpdateCommand {
                 lastSecond.set(downloaded);
 
                 context.edit(String.format(
-                        "Downloading: %s/%s @%s/s (ETA %s)",
+                        "<a:updating:403035325242540032> Downloading: %s/%s @%s/s (ETA %s)",
                         Utility.formatBytes(downloaded), Utility.formatBytes(step.getContentSize()),
                         Utility.formatBytes((downloaded - lastSecond.get()) / TransferUtility.UPDATE_MESSAGE_PERIOD),
                         Utility.formatPeriod(Utility.calculateETA(now - begin, downloaded, step.getContentSize()))
                 ));
             }, success -> {
-                context.edit("Finished download, updating...");
+                context.edit("<a:updating:403035325242540032> Finished download, saving file...");
 
                 try {
                     File gamesrobJar = new File("gamesrob.jar");
@@ -57,7 +57,7 @@ public class UpdateCommand {
                     TransferUtility.download(new FileInputStream(output), new FileOutputStream(gamesrobJar),
                             output.length(), step -> {}, n -> {
                                 output.delete();
-                                context.edit("Finished update!").then(m -> System.exit(-1));
+                                context.edit("<a:updating:403035325242540032> Restarting...").then(m -> System.exit(-1));
                             }, error -> {
                                 context.send("Failed to install update: " + error.getClass().getName() + ": " + error.getMessage());
                                 Log.exception("Failed to install update from " + updateURL, error);

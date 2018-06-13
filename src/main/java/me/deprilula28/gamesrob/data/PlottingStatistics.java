@@ -22,9 +22,9 @@ public class PlottingStatistics {
         Map<String, Supplier<Long>> map = new HashMap<>();
 
         map.put("avgCommandDelay", () -> {
-            long delay = CommandManager.avgCommandDelay;
+            double delay = CommandManager.avgCommandDelay;
             CommandManager.avgCommandDelay = 0;
-            return delay;
+            return (long) (delay * 1000000);
         });
         map.put("totalCommandsExecuted", () -> Statistics.get().getCommandCount());
         map.put("totalGamesPlayed", () -> Statistics.get().getGameCount());

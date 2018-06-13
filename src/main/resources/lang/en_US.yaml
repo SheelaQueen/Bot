@@ -210,10 +210,12 @@ command:
     message: ":computer: RAM Usage Info\nOverall: **%s**\nCommand Framework: **%s**\nShards: **%s**\nCache: **%s**\nGames: **%s**"
     description: "🗄 *Debug* View a full RAM Usage report"
   ping:
-    message: "🏓 Pong!\nBot -> Discord: %s\nYou -> Bot: %s\nWebsocket: %s"
+    message: "🏓 Pong!\nBot -> Discord: %s\nYou -> Bot: %s\nWebsocket: %s\nAvarage Command Processing Time: %s"
     description: "🗄 *Debug* View the latency of the bot"
   shardinfo:
-    title: "**Shard Information:**\n```js\n%s\n```"
+    title: "**Shard Information:**\n```prolog\n%s\n```"
+    newTitle: "**Bot Statistics and Information:**\n"
+    singleShard: "%s **Shard %s**: %s guilds (%s%% load), %s channels, %s users, %s ping and %s games."
     shard: "Shard"
     guilds: "Guilds"
     users: "Users"
