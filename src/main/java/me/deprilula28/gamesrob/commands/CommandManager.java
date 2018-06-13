@@ -173,14 +173,18 @@ public class CommandManager {
         });
         f.handleEvent(GuildMemberLeaveEvent.class, event -> {
             GuildProfile guild = GuildProfile.get(event.getGuild());
-            synchronized (guild) {
+            synchronized (guild.getUserStatisticsMap()) {
                 if (guild.getUserStatisticsMap() != null) guild.getUserStatisticsMap().remove(event.getUser().getId());
+            }
+            synchronized (guild.getOverall()) {
                 if (guild.getOverall() != null) guild.getOverall().forEach(entry -> {
                     if (entry.getId().equals(event.getUser().getId())) guild.getOverall().remove(entry);
                 });
+            }
+            synchronized (guild.getPerGame()) {
                 if (guild.getPerGame() != null) guild.getPerGame().forEach((key, value) -> {
                     value.forEach(entry -> {
-                        if (entry.getId().equals(event.getUser().getId())) guild.getOverall().remove(entry);
+                        if (entry.getId().equals(event.getUser().getId())) guild.getPerGame().get(key).remove(entry);
                     });
                 });
             }

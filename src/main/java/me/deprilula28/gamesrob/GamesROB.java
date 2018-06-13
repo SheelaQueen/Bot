@@ -7,6 +7,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import me.deprilula28.gamesrob.baseFramework.GamesInstance;
 import me.deprilula28.gamesrob.baseFramework.Match;
+import me.deprilula28.gamesrob.data.PlottingStatistics;
 import me.deprilula28.gamesrob.data.RPCManager;
 import me.deprilula28.gamesrob.data.SQLDatabaseManager;
 import me.deprilula28.gamesrob.games.*;
@@ -44,6 +45,7 @@ public class GamesROB {
     static long twitchUserIDListen = -1L;
     private static boolean twitchPresence = false;
     public static Optional<RPCManager> rpc = Optional.empty();
+    public static PlottingStatistics plots = new PlottingStatistics();
 
     @Data
     @AllArgsConstructor

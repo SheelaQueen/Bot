@@ -41,6 +41,7 @@ public class BootupProcedure {
         task(argList, "Loading presence task", presenceTask);
         task(argList, "Sending changelog message", sendChangelog);
         Log.info("Bot fully loaded in " + Utility.formatPeriod(System.currentTimeMillis() - begin) + "!");
+        GamesROB.plots.start();
     }
 
     @FunctionalInterface
@@ -155,6 +156,7 @@ public class BootupProcedure {
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
             Log.info("Shutting down...");
             Cache.onClose();
+            GamesROB.plots.interrupt();
             Log.closeStream();
 
             /*
