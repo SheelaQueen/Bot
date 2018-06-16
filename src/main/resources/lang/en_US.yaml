@@ -5,7 +5,7 @@ languageProperties:
   country: "USA"
   languageName: "🇺🇸 American English"  
   translators: "deprilula28#3609"
-  version: "1.5.2"
+  version: "1.6.2"
 
 genericMessages:
   alreadyPlaying: "You are already playing another game on %s!\nType `%sstop` to stop that match."

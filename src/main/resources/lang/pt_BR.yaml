@@ -5,7 +5,7 @@ languageProperties:
   country: "Brasil"
   languageName: "🇧🇷 Português Brasileiro"  
   translators: "deprilula28#3609"
-  version: "1.5.2"
+  version: "1.6.2"
 
 genericMessages:
   alreadyPlaying: "Você já está jogando em %s!\nDigite `%sleave` para sair da partida."
@@ -20,6 +20,7 @@ genericMessages:
   nth3: "º"
   nth4: "º"
   upvoteMessage: "Obrigado por votar para o GamesROB!\nVocê recebeu:\n**%s**\nVotos em seguida: **%s dias**\nContinue votando diáriamente para conseguir mais tokens!"
+  ownersOnly: "Esse comando só é acessível por donos."
 
 gameFramework:
   singleplayerMatch: "**Partida Solo de %s!**\n%s\n\n"

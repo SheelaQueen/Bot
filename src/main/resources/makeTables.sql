@@ -13,7 +13,7 @@ CREATE TABLE IF NOT EXISTS userData (
     lastupvote BIGINT,
     upvoteddays INT,
     shardid INT,
-    userID TEXT
+    userid TEXT
 );
 CREATE TABLE IF NOT EXISTS leaderboardEntries (
     userid TEXT,

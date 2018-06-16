@@ -173,7 +173,6 @@ public class CommandManager {
         });
         f.handleEvent(GuildMessageReactionAddEvent.class, event -> {
             String name = event.getReactionEmote().getName();
-            Log.info(name);
              if (EMOTE_LIST.contains(name)) {
                  event.getChannel().getMessageById(event.getMessageIdLong()).queue(message -> {
                      message.getReactions().stream().filter(it -> it.getReactionEmote().getName().equals(name)).findAny().ifPresent(it -> {

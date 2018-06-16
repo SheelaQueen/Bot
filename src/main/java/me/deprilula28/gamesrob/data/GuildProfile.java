@@ -75,12 +75,7 @@ public class GuildProfile {
             ResultSet select = db.select("guildData", Arrays.asList("permstartgame",
                     "permstopgame", "prefix", "language", "shardid"), "guildid = '" + from + "'");
 
-            if (select.next()) {
-                return Optional.of(new GuildProfile(new LeaderboardHandler(from), from,
-                        select.getString("prefix"), select.getString("permStartgame"),
-                        select.getString("permstopgame"), select.getString("language"),
-                        select.getInt("shardid")));
-            }
+            if (select.next()) return fromResultSet(from, select);
             select.close();
             Log.info("Next not found!");
 
@@ -89,9 +84,23 @@ public class GuildProfile {
 
         @Override
         public Utility.Promise<Void> saveToSQL(SQLDatabaseManager db, GuildProfile value) {
-            return db.save("guildData", Arrays.asList("prefix", "permstartgame", "permstopgame", "shardid", "guildid"),
-                    "guildid = '" + value.getGuildId() + "'", it -> Log.wrapException("Saving data on SQL",
-                    () -> writeGuildData(it, value)));
+            return db.save("guildData", Arrays.asList(
+                    "prefix", "permstartgame", "permstopgame", "shardid", "guildid"
+            ), "guildid = '" + value.getGuildId() + "'",
+                set -> fromResultSet(value.getGuildId(), set).equals(Optional.of(value)),
+                it -> Log.wrapException("Saving data on SQL", () -> writeGuildData(it, value)));
+        }
+
+        private Optional<GuildProfile> fromResultSet(String from, ResultSet select) {
+            try {
+                return Optional.of(new GuildProfile(new LeaderboardHandler(from), from,
+                        select.getString("prefix"), select.getString("permStartgame"),
+                        select.getString("permstopgame"), select.getString("language"),
+                        select.getInt("shardid")));
+            } catch (Exception e) {
+                Log.exception("Saving GuildProfile in SQL", e);
+                return Optional.empty();
+            }
         }
 
         private void writeGuildData(PreparedStatement statement, GuildProfile profile) throws Exception {

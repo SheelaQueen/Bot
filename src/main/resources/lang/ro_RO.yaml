@@ -5,7 +5,7 @@ languageProperties:
   country: "Romania"
   languageName: "🇷🇴 Romanian"
   translators: "RT - 𝓒𝓖#7528"
-  version: "1.6.1"
+  version: "1.6.2"
 
 genericMessages:
   alreadyPlaying: "Deja te joci alt joc în %s!\nScrie `%sstop` ca să oprești acel meci."
@@ -109,7 +109,14 @@ game:
     dmCitizen: "🏙 Ești un cetățean."
     dmAssassin: "🗡 Ești ucigașul!\nCine va fi primul ghinionist? (scrie numele lor aici)"
     dmAssassinRecursive: "Cine va fi în această noapte? (scrie numele lor)"
-
+  quiz:
+    name: "Chestionar"
+    shortDescription: "Știi toate răspunsurile?"
+    longDescription: "Cine poate răspunde la întrebări primul?\nTrimite, într-un mesaj, litera pe care crezi că este răspunsul corect."
+    revealAnswer: "%s\nRăspunsul era: %s\n"
+    cantPlay: "%s: Ai ghicit de prea multe ori! Așteaptă următoarea lună pentru a juca."
+    answer: "%s (+%s puncte) a răspuns corect!"
+    noOneAnswered: "Nimeni nu a putut să răspundă! Răspunsul era \"**%s**\"."
 
 command:
   permissionLock: "⛔ Nu poți folosi această comandă!"
@@ -170,7 +177,7 @@ command:
     description: "Schimbă limba implicită pentru acest Server."
 
   help:
-    beginning: "**<:GamesROB:391744594863325184> GamesROB v%s** *de deprilula28*\n\n"
+    beginning: "**<:GamesROBNew:456913958457049109> GamesROB v%s** *de deprilula28*\n\n"
     subCategory: "Folosește `%%PREFIX%%help categorie/comandă` pentru a lua informații despre o comandă sau o categorie (ex. `%%PREFIX%%help profile` sau `%%PREFIX%%help slots`)"
     gameString: "%s `%%PREFIX%%%s` - %s"
     commandInfo: "`%s%s`: %s\nPseudonime: %s\nCategorie: %s"
@@ -201,7 +208,7 @@ command:
         description: "Versiunea GamesROB: **%s**\nVersiunea Java: **%s**\n[JDA](%s) Versune: **%s**\n[DepsJDAFramework](%s) Versiune: **%s**\nTimp de funcționare Shard: **%s**"
       system:
         title: "💻 Sistem"
-        description: "Fplosire RAM: **%s**\nSistem de operare: **%s**"
+        description: "Folosire RAM: **%s**\nSistem de operare: **%s**"
       credits:
         title: "❤ Credite"
     description: "Vezi statistici și informații"

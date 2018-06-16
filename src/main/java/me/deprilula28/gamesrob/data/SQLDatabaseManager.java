@@ -16,6 +16,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.function.Consumer;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 public class SQLDatabaseManager {
@@ -62,10 +63,10 @@ public class SQLDatabaseManager {
         return connection.createStatement().executeQuery(sql);
     }
 
-    public Utility.Promise<Void> save(String table, List<String> keys, String where, Consumer<PreparedStatement> consumer) {
+    public Utility.Promise<Void> save(String table, List<String> keys, String where, Predicate<ResultSet> checkChanges, Consumer<PreparedStatement> consumer) {
         try {
             ResultSet set = select(table, keys, where);
-            if (set.next()) return update(table, keys, where, consumer);
+            if (set.next() && checkChanges.test(set)) return update(table, keys, where, consumer);
             else return insert(table, keys, consumer);
         } catch (PSQLException ex) {
             Log.trace(ex.getClass().getName() + ": " + ex.getMessage());

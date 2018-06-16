@@ -95,6 +95,19 @@ public class LeaderboardHandler {
     private void saveEntry(SQLDatabaseManager db, String gameId, LeaderboardEntry entry) {
         db.save("leaderboardEntries", Arrays.asList("victories", "losses", "gamesplayed", "guildid", "userid", "gameid"),
                 "guildid = '" + guildId + "' AND userid = '" + entry.getId() + "' AND gameid = '" + gameId + "'",
+            set -> {
+                try {
+                    return set.getString("gameid").equals(gameId) &&
+                        set.getString("guildid").equals(guildId) &&
+                            new LeaderboardEntry(set.getString("userid"), new UserProfile.GameStatistics(
+                                    set.getInt("victories"), set.getInt("losses"),
+                                    set.getInt("gamesplayed")
+                            )).equals(entry);
+                } catch (Exception e) {
+                    Log.exception("Saving Leaderboard Entry SQL", e);
+                    return false;
+                }
+            },
             statement -> {
                 Log.wrapException("Saving leaderboard entry", () -> {
                     statement.setInt(0, entry.getStats().getVictories());

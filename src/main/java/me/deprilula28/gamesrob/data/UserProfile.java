@@ -10,19 +10,17 @@ import me.deprilula28.gamesrob.utility.Utility;
 import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.User;
 
-import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.File;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.util.Arrays;
-import java.util.Map;
 import java.util.Optional;
 
 @Data
 @AllArgsConstructor
 public class UserProfile {
-    private String userID;
+    private String userId;
     private String emote;
     private String language;
     private int tokens;
@@ -31,7 +29,7 @@ public class UserProfile {
     private int shardId;
 
     public LeaderboardHandler.UserStatistics getStatsForGuild(Guild guild) {
-        return GuildProfile.get(guild).getLeaderboard().getStatsForUser(userID);
+        return GuildProfile.get(guild).getLeaderboard().getStatsForUser(userId);
     }
 
     @Data
@@ -88,40 +86,36 @@ public class UserProfile {
             ResultSet select = db.select("userData", Arrays.asList("emote", "language", "tokens", "lastupvote",
                     "upvoteddays", "shardid"),
                     "userid = '" + from + "'");
-            if (select.next()) {
-                return Optional.of(new UserProfile(from, select.getString("emote"),
-                        select.getString("language"), select.getInt("tokens"),
-                        select.getLong("lastupvote"), select.getInt("upvoteddays"),
-                        select.getInt("shardid")));
-            }
+            if (select.next()) return fromResultSet(from, select);
             select.close();
 
             return Optional.empty();
-        }
-
-        private UserProfile.GameStatistics readEntry(DataInputStream stream) throws Exception {
-            return new UserProfile.GameStatistics(stream.readInt(), stream.readInt(), stream.readInt());
         }
 
         @Override
         public Utility.Promise<Void> saveToSQL(SQLDatabaseManager db, UserProfile value) {
             return db.save("userData", Arrays.asList(
                     "emote", "userId", "tokens", "lastupvote", "upvoteddays", "shardid", "language"
-            ), "userid = '" + value.getUserID() + "'", it -> Log.wrapException("Saving data on SQL", () -> write(it, value)));
-            /*
-            if (value.isExists()) {
-                db.update("userData", Arrays.asList("emote"), "userID = ?",
-                        it -> Log.wrapException("Saving to SQL", () -> write(it, value)));
-            } else {
-                db.insert("userData", Arrays.asList("emote", "userID"),
-                        it -> Log.wrapException("Inserting to SQL", () -> write(it, value)));
+            ), "userid = '" + value.getUserId() + "'",
+                set -> fromResultSet(value.getUserId(), set).equals(Optional.of(value)),
+                it -> Log.wrapException("Saving data on SQL", () -> write(it, value)));
+        }
+
+        private Optional<UserProfile> fromResultSet(String from, ResultSet select) {
+            try {
+                return Optional.of(new UserProfile(from, select.getString("emote"),
+                        select.getString("language"), select.getInt("tokens"),
+                        select.getLong("lastupvote"), select.getInt("upvoteddays"),
+                        select.getInt("shardid")));
+            } catch (Exception e) {
+                Log.exception("Saving UserProfile in SQL", e);
+                return Optional.empty();
             }
-            */
         }
 
         private void write(PreparedStatement statement, UserProfile profile) throws Exception {
             statement.setString(1, profile.getEmote());
-            statement.setString(2, profile.getUserID());
+            statement.setString(2, profile.getUserId());
             statement.setInt(3, profile.getTokens());
             statement.setLong(4, profile.getLastUpvote());
             statement.setInt(5, profile.getUpvotedDays());
