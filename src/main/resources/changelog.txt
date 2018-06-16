@@ -6,5 +6,7 @@ The player who can answer the most questions accurately wins.
 - Added reactions for categories in the help command.
 
 - Fixed rematch reactions once and for all!
+- Fixed innacurate leaderboards.
+- Fixed emoji with `g*hangman` and `g*minesweeper`
 
 Enjoy! ~ deprilula28
