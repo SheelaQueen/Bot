@@ -5,6 +5,7 @@ import me.deprilula28.gamesrob.GamesROB;
 import me.deprilula28.gamesrob.Language;
 import me.deprilula28.gamesrob.baseFramework.GamesInstance;
 import me.deprilula28.gamesrob.data.GuildProfile;
+import me.deprilula28.gamesrob.data.LeaderboardHandler;
 import me.deprilula28.gamesrob.data.UserProfile;
 import me.deprilula28.gamesrob.utility.Constants;
 import me.deprilula28.gamesrob.utility.Utility;
@@ -21,18 +22,20 @@ public class ProfileCommands {
     public static String profile(CommandContext context) {
         GuildProfile board = GuildProfile.get(context.getGuild());
         User profileOf = context.opt(context::nextUser).orElse(context.getAuthor());
-        GuildProfile.UserStatistics stats = UserProfile.get(profileOf).getStatsForGuild(context.getGuild());
+        LeaderboardHandler.UserStatistics stats = UserProfile.get(profileOf).getStatsForGuild(context.getGuild());
 
         StringBuilder builder = new StringBuilder(Language.transl(context, "command.profile.playerStats",
                 profileOf.getName()));
         builder.append(Language.transl(context, "command.profile.overall",
-                getEmoji(stats.getOverall()),
-                getStatisticsString(context, stats.getOverall(), board.getIndex(board.getOverall(), profileOf.getId()))));
+                getEmoji(stats.getStats("overall")),
+                getStatisticsString(context, stats.getStats("overall"), board.getIndex(board.getLeaderboard()
+                        .getEntriesForGame(Optional.empty()), profileOf.getId()))));
 
         for (GamesInstance game : GamesROB.ALL_GAMES) {
-            UserProfile.GameStatistics gameStats = stats.getGameStats(game);
+            UserProfile.GameStatistics gameStats = stats.getStats(game.getLanguageCode());
             builder.append(String.format("%s %s: %s\n", getEmoji(gameStats), game.getName(Constants.getLanguage(context)),
-                    getStatisticsString(context, gameStats, board.getIndex(board.getOption(game), profileOf.getId()))));
+                    getStatisticsString(context, gameStats, board.getIndex(board.getLeaderboard()
+                            .getEntriesForGame(Optional.of(game.getLanguageCode())), profileOf.getId()))));
         }
 
         return builder.toString();
@@ -52,8 +55,6 @@ public class ProfileCommands {
     }
 
     public static String getEmoji(UserProfile.GameStatistics stats) {
-        if (stats.getGamesPlayed() < Constants.LEADERBOARD_GAMES_PLAYED_REQUIREMENT) return "\uD83C\uDFF4";
-
         double winCount = stats.getWonPercent();
         if (winCount > 75.0) return "\uD83D\uDC51";
             else if (winCount > 50.0) return "\uD83D\uDEA9";

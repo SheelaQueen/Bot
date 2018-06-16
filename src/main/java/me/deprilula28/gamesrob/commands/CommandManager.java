@@ -15,9 +15,10 @@ import me.deprilula28.jdacmdframework.CommandContext;
 import me.deprilula28.jdacmdframework.CommandFramework;
 import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.Permission;
+import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.events.guild.member.GuildMemberLeaveEvent;
+import net.dv8tion.jda.core.events.message.guild.react.GuildMessageReactionAddEvent;
 
-import java.awt.*;
 import java.lang.reflect.Field;
 import java.util.*;
 import java.util.List;
@@ -41,6 +42,10 @@ public class CommandManager {
     private static final String[] CATEGORIES = {
             "games", "profilecommands", "servercommands", "matchcommands", "infocommands"
     };
+    private static final String[] EMOTES = {
+            "\uD83C\uDFB2", "\uD83D\uDC65", "\uD83D\uDCDF", "\uD83C\uDFAE", "\uD83D\uDCCB"
+    };
+    private static final List<String> EMOTE_LIST = Arrays.asList(EMOTES);
     private static final Map<String, List<Command>> perCategory = new HashMap<>();
 
     public static void registerCommands(CommandFramework f) {
@@ -106,12 +111,7 @@ public class CommandManager {
 
             for (String category : CATEGORIES) {
                 if (!category.equals("games")) cmd.sub(category, context -> {
-                    String prefix = Constants.getPrefixHelp(context.getGuild());
-                    return Language.transl(context, "command.help.categories." + category) + "\n"
-                            + perCategory.get(category).stream().map(it -> Language.transl(context, "command.help.gameString",
-                                "", it.getName(),
-                                Language.transl(context, "command." + it.getName() + ".description")
-                    )).collect(Collectors.joining("\n")).replaceAll("%PREFIX%", prefix);
+                    return categoryMessage(Constants.getLanguage(context), context.getGuild(), category);
                 });
             }
 
@@ -171,24 +171,34 @@ public class CommandManager {
             return languageHelpMessages.get(lang == null ? Constants.DEFAULT_LANGUAGE : lang)
                     .replaceAll("%PREFIX%", Constants.getPrefixHelp(guild));
         });
-        f.handleEvent(GuildMemberLeaveEvent.class, event -> {
-            GuildProfile guild = GuildProfile.get(event.getGuild());
-            synchronized (guild.getUserStatisticsMap()) {
-                if (guild.getUserStatisticsMap() != null) guild.getUserStatisticsMap().remove(event.getUser().getId());
-            }
-            synchronized (guild.getOverall()) {
-                if (guild.getOverall() != null) guild.getOverall().forEach(entry -> {
-                    if (entry.getId().equals(event.getUser().getId())) guild.getOverall().remove(entry);
-                });
-            }
-            synchronized (guild.getPerGame()) {
-                if (guild.getPerGame() != null) guild.getPerGame().forEach((key, value) -> {
-                    value.forEach(entry -> {
-                        if (entry.getId().equals(event.getUser().getId())) guild.getPerGame().get(key).remove(entry);
-                    });
-                });
-            }
+        f.handleEvent(GuildMessageReactionAddEvent.class, event -> {
+            String name = event.getReactionEmote().getName();
+            Log.info(name);
+             if (EMOTE_LIST.contains(name)) {
+                 event.getChannel().getMessageById(event.getMessageIdLong()).queue(message -> {
+                     message.getReactions().stream().filter(it -> it.getReactionEmote().getName().equals(name)).findAny().ifPresent(it -> {
+                         it.getUsers().queue(users -> {
+                             Log.info(users);
+                             if (users.contains(event.getJDA().getSelfUser()) && !event.getUser().isBot() && message.getAuthor().equals(message.getJDA().getSelfUser())) {
+                                 message.editMessage("→ " + categoryMessage(Constants.getLanguage(event.getUser(), event.getGuild()),
+                                         message.getGuild(), CATEGORIES[EMOTE_LIST.indexOf(name)]))
+                                         .queue();
+                                 event.getReaction().removeReaction(event.getUser()).queue();
+                             }
+                         });
+                     });
+                 });
+             }
         });
+    }
+
+    private static String categoryMessage(String language, Guild guild, String category) {
+        String prefix = Constants.getPrefixHelp(guild);
+        return Language.transl(language, "command.help.categories." + category) + "\n"
+                + perCategory.get(category).stream().map(it -> Language.transl(language, "command.help.gameString",
+                "", it.getName(),
+                Language.transl(language, "command." + it.getName() + ".description")
+        )).collect(Collectors.joining("\n")).replaceAll("%PREFIX%", prefix);
     }
 
     private static void genHelpMessage(String language) {
@@ -205,18 +215,23 @@ public class CommandManager {
 
         help.append(Language.transl(language, "command.help.games"));
         */
-        for (String category : CATEGORIES) {
-            help.append(Language.transl(language, "command.help.categories." + category));
+        for (int i = 0; i < CATEGORIES.length; i++) {
+            String category = CATEGORIES[i];
+            help.append(EMOTES[i]).append(" ").append(Language.transl(language, "command.help.categories." + category));
             if (category.equals("games")) {
                 help.append("\n");
                 perCategory.get(category).forEach(cur -> {
                     String gameCode = cur.attr("gameCode");
-                    help.append(Language.transl(language, "command.help.gameString",
-                            gameCode == null ? "" : Language.transl(language, "game." + gameCode + ".name"),
-                            cur.getAliases().get(0), Language.transl(language, gameCode == null
-                                    ? "command." + cur.getName() + ".description"
-                                    : "game." + gameCode + ".shortDescription")
-                    )).append("\n");
+                    help.append(gameCode == null
+                        ? Language.transl(language, "command.help.gameString",
+                            "", cur.getName(),
+                            Language.transl(language, "command." + cur.getName() + ".description"))
+                        : Language.transl(language, "command.help.gameString",
+                                Language.transl(language, "game." + gameCode + ".name"),
+                                cur.getAliases().get(0),
+                            Language.transl(language, "game." + gameCode + ".shortDescription")
+                        ))
+                    .append("\n");
                 });
             } else {
                 help.append(" `").append(category).append("` (");
@@ -239,8 +254,13 @@ public class CommandManager {
     public static String help(CommandContext context) {
         context.send(builder -> builder.append(languageHelpMessages.get(Constants.getLanguage(context))
                 .replaceAll("%PREFIX%", Constants.getPrefixHelp(context.getGuild()))).setEmbed(
-                        new EmbedBuilder().setColor(Utility.randomBotColor())
-                                .setTitle(Language.transl(context, "command.help.websiteTitle"), Constants.GAMESROB_DOMAIN).build()));
+                        new EmbedBuilder().setColor(Utility.getEmbedColor(context.getGuild()))
+                                .setTitle(Language.transl(context, "command.help.websiteTitle"), Constants.GAMESROB_DOMAIN).build()))
+            .then(message -> {
+                for (int i = 0; i < EMOTES.length; i++) {
+                    if (!CATEGORIES[i].equals("games")) message.addReaction(EMOTES[i]).queue();
+                }}
+            );
         return null;
     }
 

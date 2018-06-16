@@ -38,7 +38,7 @@ public class PlottingStatistics extends Thread {
             Log.info("Saved stats.");
 
             try {
-                Thread.sleep(TimeUnit.MINUTES.toMillis(10));
+                Thread.sleep(TimeUnit.MINUTES.toMillis(30));
             } catch (InterruptedException e) {
                 break;
             }

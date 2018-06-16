@@ -1,6 +1,7 @@
 package me.deprilula28.gamesrob.commands;
 
 import com.sun.javafx.iio.ImageStorage;
+import me.deprilula28.gamesrob.games.Quiz;
 import me.deprilula28.gamesrob.utility.GifSequenceWriter;
 import me.deprilula28.gamesrob.utility.Interpolation;
 import me.deprilula28.gamesrob.utility.Log;
@@ -22,6 +23,7 @@ import java.util.concurrent.TimeUnit;
 public class Gengif {
     public static String gen(CommandContext context) {
         Log.wrapException("Image build error", () -> {
+            /*
             final long timeMs = TimeUnit.SECONDS.toMillis(2L);
             final int fps = 40;
             final long frames = fps * (timeMs / 1000);
@@ -36,7 +38,7 @@ public class Gengif {
 
             Log.info("Rendering ", frames + " @" + fps + " (" + frameTime + "ms)");
             BufferedImage image = ImageIO.read(new File("1f50d.png"));
-            ImageOutputStream stream = new FileImageOutputStream(new File("finish.gif"));
+            ImageOutputStream stream = new FileImageOutputStream(new File("output"));
             GifSequenceWriter writer = new GifSequenceWriter(stream, type, frameTime, true);
 
             for (int i = 0; i < frames; i ++) {
@@ -68,8 +70,31 @@ public class Gengif {
 
             writer.close();
             stream.close();
+            context.getChannel().sendFile(new File("output")).queue();
+            *//*
+            int amount = 12;
+            for (int i = 0; i <= amount; i ++) {
+                BufferedImage image = new BufferedImage(128, 128, BufferedImage.TYPE_INT_ARGB);
+                Graphics2D g2d = image.createGraphics();
+                BufferedImage read = ImageIO.read(new File("qmgreen.png"));
+                double hue = (((double) i / amount));
+                Log.info("Hue: " + hue);
 
-            context.getChannel().sendFile(new File("finish.gif")).queue();
+                for (int x = 0; x < 128; x ++) {
+                    for (int y = 0; y < 128; y ++) {
+                        Color color = new Color(read.getRGB(x, y), true);
+                        if (color.getAlpha() == 0) continue;
+                        float[] hsb = Color.RGBtoHSB(color.getRed(), color.getBlue(), color.getGreen(), null);
+                        Log.info("Hue: " + (float) (hsb[0] + hue));
+                        image.setRGB(x, y, Color.HSBtoRGB((float) (hsb[0] + hue), hsb[1], hsb[2]));
+                    }
+                }
+
+                ImageOutputStream stream = new FileImageOutputStream(new File("questioninverted" + i + ".png"));
+                ImageIO.write(image, "png", stream);
+
+                context.getChannel().sendFile(new File("question" + i + ".png")).queue();
+            }*/
         });
         return null;
     }

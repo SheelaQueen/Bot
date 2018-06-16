@@ -22,6 +22,8 @@ genericMessages:
   upvoteMessage: "Thank you for upvoting GamesROB!\nYou've earnt:\n**%s**\nUpvote streak: **%s days**\nKeep upvoting daily for more rewards!"
   ownersOnly: "This command is only accessible for owners."
 
+welcome: "" # Do not translate this key! It's only going to be used in english.
+
 gameFramework:
   singleplayerMatch: "**%s Singleplayer Match!**\n%s\n\n"
   multiplayerMatch: "**%s Multiplayer Match!**\n%s\n\n"
@@ -110,7 +112,15 @@ game:
     dmCitizen: "🏙 You're a citizen."
     dmAssassin: "🗡 You're the killer!\nWho will be the unlucky first? (Type their name here)"
     dmAssassinRecursive: "Who will it be tonight? (Type their name here)"
+  quiz:
+    name: "Quiz"
+    shortDescription: "Do you know all the answers?"
+    longDescription: "Who can answer the questions first?\nSend in the letter you think is the correct answer in a message.\nWhoever has more points in the end will win!"
 
+    revealAnswer: "%s\nAnswer was: %s\n"
+    cantPlay: "%s: You've guessed too many times! Wait to play in the next round."
+    answer: "%s (+%s points) has answered it correctly!"
+    noOneAnswered: "No one could answer that! The answer was \"**%s**\"."
 
 command:
   permissionLock: "⛔ You can't use this command!"
@@ -171,17 +181,17 @@ command:
     description: "Change the default language for the guild."
 
   help:
-    beginning: "**<:GamesROB:391744594863325184> GamesROB v%s** *by deprilula28*\n\n"
-    subCategory: "Use `%%PREFIX%%help category/command` to get information about a command or a category (e.g. `%%PREFIX%%help profile` or `%%PREFIX%%help slots`)"
+    beginning: "**<:GamesROBNew:456913958457049109> GamesROB v%s** *by deprilula28*\n\n"
+    subCategory: "Use `%%PREFIX%%help category/command` to get information about a command or a category (e.g. `%%PREFIX%%help profilecomamnds` or `%%PREFIX%%help slots`)"
     gameString: "%s `%%PREFIX%%%s` - %s"
     commandInfo: "`%s%s`: %s\nAliases: %s\nCategory: %s"
     gameInfo: "`%s%s`: %s\n\n**Long Description**\n%s\n\nAliases: %s\nMore information: %s"
     categories:
-      games: ":game_die: Games"
-      profilecommands: ":busts_in_silhouette: Profile"
-      servercommands: ":pager: Server"
-      matchcommands: ":video_game: Match"
-      infocommands: ":clipboard: Information"
+      games: "Games"
+      profilecommands: "Profile"
+      servercommands: "Server"
+      matchcommands: "Match"
+      infocommands: "Information"
     other: "%s others"
 
     websiteTitle: "Our website"

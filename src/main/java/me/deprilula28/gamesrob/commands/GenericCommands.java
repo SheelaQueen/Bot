@@ -3,12 +3,9 @@ package me.deprilula28.gamesrob.commands;
 import me.deprilula28.gamesrob.BootupProcedure;
 import me.deprilula28.gamesrob.GamesROB;
 import me.deprilula28.gamesrob.Language;
-import me.deprilula28.gamesrob.baseFramework.Match;
 import me.deprilula28.gamesrob.data.GuildProfile;
 import me.deprilula28.gamesrob.data.Statistics;
-import me.deprilula28.gamesrob.utility.Cache;
 import me.deprilula28.gamesrob.utility.Constants;
-import me.deprilula28.gamesrob.utility.Log;
 import me.deprilula28.gamesrob.utility.Utility;
 import me.deprilula28.jdacmdframework.CommandContext;
 import me.deprilula28.jdacmdframework.CommandFramework;
@@ -17,12 +14,10 @@ import net.dv8tion.jda.core.JDA;
 import net.dv8tion.jda.core.JDAInfo;
 import net.dv8tion.jda.core.entities.MessageEmbed;
 
-import java.awt.*;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -49,7 +44,7 @@ public class GenericCommands {
         return new EmbedBuilder()
                 .setTitle(Language.transl(context, "command.invite.embed.title"), Constants.getInviteURL(context.getJda()))
                 .setDescription(Language.transl(context, "command.invite.embed.description"))
-                .setColor(Utility.randomBotColor())
+                .setColor(Utility.getEmbedColor(context.getGuild()))
                 .build();
     }
 
@@ -60,7 +55,7 @@ public class GenericCommands {
             context.send(new EmbedBuilder()
                     .setAuthor("deprilula28#3609", null, "https://i.imgur.com/PPa4OzQ.png")
                     .setTitle("\uD83C\uDFAE GamesROB", Constants.GAMESROB_DOMAIN)
-                    .setColor(Utility.randomBotColor())
+                    .setColor(Utility.getEmbedColor(context.getGuild()))
                     .setDescription(Language.transl(context, "command.info.embed.description",
                             Constants.GAMESROB_DOMAIN, Constants.getInviteURL(context.getJda()),
                             Constants.getDboURL(context.getJda()),

@@ -5,10 +5,9 @@ import me.deprilula28.gamesrob.commands.ProfileCommands;
 import me.deprilula28.gamesrob.data.Statistics;
 import me.deprilula28.gamesrob.data.UserProfile;
 import net.dv8tion.jda.core.Permission;
-import net.dv8tion.jda.core.entities.Channel;
-import net.dv8tion.jda.core.entities.Member;
-import net.dv8tion.jda.core.entities.User;
+import net.dv8tion.jda.core.entities.*;
 
+import javax.xml.ws.Provider;
 import java.awt.*;
 import java.io.Closeable;
 import java.io.IOException;
@@ -41,14 +40,30 @@ public class Utility {
             "GB", "MB", "KB", "B"
     };
 
-    public static Color randomBotColor() {
-        return Constants.BOT_COLORS[ThreadLocalRandom.current().nextInt(Constants.BOT_COLORS.length)];
+    public static Color getEmbedColor(Guild guild) {
+        Color color = guild.getMember(guild.getJDA().getSelfUser()).getColor();
+        return color.equals(Color.white) ? Constants.BOT_COLORS[ThreadLocalRandom.current().nextInt(Constants.BOT_COLORS.length)] : color;
     }
 
     public static class Promise<R> {
         private List<Consumer<R>> consumers = new ArrayList<>();
         private List<Thread> awaiting = new ArrayList<>();
         private Optional<R> result = Optional.empty();
+
+        @FunctionalInterface
+        public static interface PromiseProvider<R> {
+            R invoke();
+        }
+
+        public static <R> Promise<R> provider(PromiseProvider<R> provider) {
+            Promise<R> promise = new Promise<>();
+            Thread thread = new Thread(() -> promise.done(provider.invoke()));
+            thread.setName("Promise thread");
+            thread.setDaemon(false);
+            thread.start();
+
+            return promise;
+        }
 
         public static <R> Promise<R> result(R resulting) {
             Promise<R> promise = new Promise<>();

@@ -38,3 +38,8 @@ CREATE TABLE IF NOT EXISTS statsPlots (
 
     time BIGINT
 );
+CREATE TABLE IF NOT EXISTS achievements (
+    type TEXT,
+    userid TEXT,
+    amount INT
+);

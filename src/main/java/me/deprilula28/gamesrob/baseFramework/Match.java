@@ -260,15 +260,16 @@ public class Match extends Thread {
             joined(event.getUser());
         } else if (name.equals("\uD83D\uDD04")) {
             // Rematch
-            List<User> allVoted = event.getReaction().getUsers().getCached();
-            if (GAMES.containsKey(event.getChannel()) || PLAYING.containsKey(event.getUser()) ||
-                    !players.stream().filter(Optional::isPresent).map(Optional::get).allMatch(allVoted::contains)) return;
-            preMatchMessage.then(it -> it.delete().queue());
+            event.getReaction().getUsers().queue(allVoted -> {
+                if (GAMES.containsKey(event.getChannel()) || PLAYING.containsKey(event.getUser()) ||
+                        !players.stream().filter(Optional::isPresent).map(Optional::get).allMatch(allVoted::contains)) return;
+                preMatchMessage.then(it -> it.delete().queue());
 
-            if (game.getGameType().equals(GameType.HYBRID)) new Match(game, creator, channelIn, options)
-                    .matchesPlayed = matchesPlayed + 1;
-            else new Match(game, creator, channelIn, targetPlayerCount, players, options, matchesPlayed + 1);
-            interrupt();
+                if (game.getGameType().equals(GameType.HYBRID)) new Match(game, creator, channelIn, options)
+                        .matchesPlayed = matchesPlayed + 1;
+                else new Match(game, creator, channelIn, targetPlayerCount, players, options, matchesPlayed + 1);
+                interrupt();
+            });
         }
     }
 

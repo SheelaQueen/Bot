@@ -16,6 +16,7 @@ import java.io.File;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.util.Arrays;
+import java.util.Map;
 import java.util.Optional;
 
 @Data
@@ -29,8 +30,8 @@ public class UserProfile {
     private int upvotedDays;
     private int shardId;
 
-    public GuildProfile.UserStatistics getStatsForGuild(Guild guild) {
-        return GuildProfile.get(guild).getUserStats(userID);
+    public LeaderboardHandler.UserStatistics getStatsForGuild(Guild guild) {
+        return GuildProfile.get(guild).getLeaderboard().getStatsForUser(userID);
     }
 
     @Data
@@ -60,17 +61,9 @@ public class UserProfile {
     public void registerGameResult(Guild guild, User user, boolean victory, boolean loss, GamesInstance game) {
         if (victory) addTokens(40);
 
-        GuildProfile.UserStatistics stats = getStatsForGuild(guild);
-        Log.info(stats);
-        registerGameResult(stats.getOverall(), victory, loss);
-
-        if (stats.getGamesStats().containsKey(game.getLanguageCode())) {
-            registerGameResult(stats.getGamesStats().get(game.getLanguageCode()), victory, loss);
-        } else {
-            stats.getGamesStats().put(game.getLanguageCode(), new GameStatistics(victory ? 1 : 0, victory ? 0 : 1, 1));
-        }
-        GuildProfile.get(guild).getUserStatisticsMap().put(user.getId(), stats);
-        GuildProfile.get(guild).onUserProfileSaved(this);
+        LeaderboardHandler.UserStatistics stats = getStatsForGuild(guild);
+        registerGameResult(stats.getStats("overall"), victory, loss);
+        registerGameResult(stats.getStats(game.getLanguageCode()), victory, loss);
     }
 
     private void registerGameResult(GameStatistics stats, boolean victory, boolean loss) {
