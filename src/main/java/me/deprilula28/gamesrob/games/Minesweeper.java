@@ -150,7 +150,7 @@ public class Minesweeper implements MatchHandler {
     @Override
     public void updatedMessage(boolean over, MessageBuilder msgBuilder) {
         EmbedBuilder embed = new EmbedBuilder().setTitle(Language.transl(match.getLanguage(), "game.minesweeper.name"))
-                .setColor(Utility.randomBotColor());
+                .setColor(Utility.getEmbedColor(match.getChannelIn().getGuild()));
 
         board.forEach((user, curBoard) -> {
             StringBuilder builder = new StringBuilder();

@@ -6,6 +6,7 @@ import me.deprilula28.gamesrob.commands.CommandManager;
 import me.deprilula28.gamesrob.data.GuildProfile;
 import me.deprilula28.gamesrob.data.Statistics;
 import me.deprilula28.gamesrob.data.UserProfile;
+import me.deprilula28.gamesrob.utility.Cache;
 import me.deprilula28.gamesrob.utility.Constants;
 import me.deprilula28.gamesrob.utility.Utility;
 import me.deprilula28.jdacmdframework.Command;
@@ -47,6 +48,7 @@ public class Match extends Thread {
     private boolean canReact;
     private Optional<Integer> betting = Optional.empty();
     private boolean multiplayer;
+    public int iteration;
 
     public Match(GamesInstance game, User creator, TextChannel channel, int targetPlayerCount, List<Optional<User>> players,
                  Map<String, String> options, int matchesPlayed) {
@@ -147,6 +149,12 @@ public class Match extends Thread {
         setName("Game timeout thread for " + game.getName(language));
         setDaemon(true);
         start();
+    }
+
+    private byte[] getImage(int iteration) {
+        if (this.iteration != iteration) throw new RuntimeException("Invalid iteration.");
+        if (!(matchHandler instanceof MatchHandler.ImageMatchHandler)) throw new RuntimeException("Not an image game.");
+        return Cache.get(matchHandler.hashCode() + "_" + iteration, n -> ((MatchHandler.ImageMatchHandler) matchHandler).getImage());
     }
 
     private boolean canReact() {
@@ -252,15 +260,16 @@ public class Match extends Thread {
             joined(event.getUser());
         } else if (name.equals("\uD83D\uDD04")) {
             // Rematch
-            List<User> allVoted = event.getReaction().getUsers().getCached();
-            if (GAMES.containsKey(event.getChannel()) || PLAYING.containsKey(event.getUser()) ||
-                    !players.stream().filter(Optional::isPresent).map(Optional::get).allMatch(allVoted::contains)) return;
-            preMatchMessage.then(it -> it.delete().queue());
+            event.getReaction().getUsers().queue(allVoted -> {
+                if (GAMES.containsKey(event.getChannel()) || PLAYING.containsKey(event.getUser()) ||
+                        !players.stream().filter(Optional::isPresent).map(Optional::get).allMatch(allVoted::contains)) return;
+                preMatchMessage.then(it -> it.delete().queue());
 
-            if (game.getGameType().equals(GameType.HYBRID)) new Match(game, creator, channelIn, options)
-                    .matchesPlayed = matchesPlayed + 1;
-            else new Match(game, creator, channelIn, targetPlayerCount, players, options, matchesPlayed + 1);
-            interrupt();
+                if (game.getGameType().equals(GameType.HYBRID)) new Match(game, creator, channelIn, options)
+                        .matchesPlayed = matchesPlayed + 1;
+                else new Match(game, creator, channelIn, targetPlayerCount, players, options, matchesPlayed + 1);
+                interrupt();
+            });
         }
     }
 

@@ -84,7 +84,7 @@ public class SQLDatabaseManager {
          ));
     }
 
-    private Utility.Promise<Void> insert(String table, List<String> keys, Consumer<PreparedStatement> consumer) {
+    public Utility.Promise<Void> insert(String table, List<String> keys, Consumer<PreparedStatement> consumer) {
         StringBuilder keysBuilder = new StringBuilder();
         StringBuilder valuesBuilder = new StringBuilder();
 

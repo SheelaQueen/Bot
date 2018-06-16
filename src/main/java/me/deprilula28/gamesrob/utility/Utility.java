@@ -5,10 +5,9 @@ import me.deprilula28.gamesrob.commands.ProfileCommands;
 import me.deprilula28.gamesrob.data.Statistics;
 import me.deprilula28.gamesrob.data.UserProfile;
 import net.dv8tion.jda.core.Permission;
-import net.dv8tion.jda.core.entities.Channel;
-import net.dv8tion.jda.core.entities.Member;
-import net.dv8tion.jda.core.entities.User;
+import net.dv8tion.jda.core.entities.*;
 
+import javax.xml.ws.Provider;
 import java.awt.*;
 import java.io.Closeable;
 import java.io.IOException;
@@ -27,11 +26,11 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 public class Utility {
-    private static final int[] TIME_MEASURE_UNITS = {
-            24 * 60 * 60 * 1000, 60 * 60 * 1000, 60 * 1000, 1000, 1 // days, hours, minutes, seconds, millis
+    private static final double[] TIME_MEASURE_UNITS = {
+            24 * 60 * 60 * 1000, 60 * 60 * 1000, 60 * 1000, 1000, 1, 1.0 / 1000000.0 // days, hours, minutes, seconds, millis, micro
     };
     private static final String[] TIME_UNIT_NAMES = {
-            "d", "h", "m", "s", "ms"
+            "d", "h", "m", "s", "ms", "μs"
     };
 
     private static final int[] BYTE_MEASURE_UNITS = {
@@ -41,14 +40,30 @@ public class Utility {
             "GB", "MB", "KB", "B"
     };
 
-    public static Color randomBotColor() {
-        return Constants.BOT_COLORS[ThreadLocalRandom.current().nextInt(Constants.BOT_COLORS.length)];
+    public static Color getEmbedColor(Guild guild) {
+        Color color = guild.getMember(guild.getJDA().getSelfUser()).getColor();
+        return color.equals(Color.white) ? Constants.BOT_COLORS[ThreadLocalRandom.current().nextInt(Constants.BOT_COLORS.length)] : color;
     }
 
     public static class Promise<R> {
         private List<Consumer<R>> consumers = new ArrayList<>();
         private List<Thread> awaiting = new ArrayList<>();
         private Optional<R> result = Optional.empty();
+
+        @FunctionalInterface
+        public static interface PromiseProvider<R> {
+            R invoke();
+        }
+
+        public static <R> Promise<R> provider(PromiseProvider<R> provider) {
+            Promise<R> promise = new Promise<>();
+            Thread thread = new Thread(() -> promise.done(provider.invoke()));
+            thread.setName("Promise thread");
+            thread.setDaemon(false);
+            thread.start();
+
+            return promise;
+        }
 
         public static <R> Promise<R> result(R resulting) {
             Promise<R> promise = new Promise<>();
@@ -134,11 +149,11 @@ public class Utility {
         return in[ThreadLocalRandom.current().nextInt(in.length)];
     }
 
-    public static String formatPeriod(long timePeriod) {
+    public static String formatPeriod(double timePeriod) {
         int minIndex = TIME_MEASURE_UNITS.length - 1;
 
         for (int index = 0; index < TIME_MEASURE_UNITS.length; index++) {
-            int n = TIME_MEASURE_UNITS[index];
+            double n = TIME_MEASURE_UNITS[index];
             if (timePeriod >= n) {
                 minIndex = index;
                 break;
@@ -147,15 +162,20 @@ public class Utility {
 
         StringBuilder builder = new StringBuilder();
         for (int i = minIndex; i < minIndex + 2 && i < TIME_MEASURE_UNITS.length; i ++) {
-            long number = timePeriod;
+            double number = timePeriod;
 
             if (i - 1 >= 0) number %= TIME_MEASURE_UNITS[i - 1];
             number /= TIME_MEASURE_UNITS[i];
+            if (number == 0.0) continue;
 
-            builder.append(number).append(TIME_UNIT_NAMES[i]);
+            builder.append(Math.round(number)).append(TIME_UNIT_NAMES[i]);
         }
 
         return builder.toString();
+    }
+
+    public static String formatPeriod(long timePeriod) {
+        return formatPeriod((double) timePeriod);
     }
 
     public static void quietlyClose(Closeable closeable) {
@@ -239,7 +259,7 @@ public class Utility {
         StringBuilder builder = new StringBuilder();
 
         // Titles
-        for (int i = 0; i < titles.size(); i++) {
+        for (int i = 0; i < titles.size(); i ++) {
             String title = titles.get(i);
             int desired = itemLengths.get(i);
 
@@ -248,10 +268,21 @@ public class Utility {
         }
         builder.append("\n");
 
+        // Division
+        for (int i = 0; i < titles.size(); i ++) {
+            if (i > 0) builder.append("-+-");
+            int length = itemLengths.get(i);
+            while (length > 0) {
+                builder.append("-");
+                length --;
+            }
+        }
+        builder.append("\n");
+
         // Columns
         StringBuilder line = new StringBuilder();
         for (int row = 0; row < rows; row ++) {
-            for (int i = 0; i < titles.size(); i++) {
+            for (int i = 0; i < titles.size(); i ++) {
                 String title = columns.get(i).get(row);
                 int desired = itemLengths.get(i);
 

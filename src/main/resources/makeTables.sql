@@ -23,3 +23,23 @@ CREATE TABLE IF NOT EXISTS leaderboardEntries (
     losses INT,
     gamesplayed INT
 );
+CREATE TABLE IF NOT EXISTS statsPlots (
+    shardsOnline INT,
+    avgCommandDelay BIGINT,
+    totalCommandsExecuted BIGINT,
+    totalGamesPlayed BIGINT,
+    activeGames BIGINT,
+    websocketPing BIGINT,
+    guilds BIGINT,
+    users BIGINT,
+    textChannels BIGINT,
+    ramUsage BIGINT,
+    upvotes BIGINT,
+
+    time BIGINT
+);
+CREATE TABLE IF NOT EXISTS achievements (
+    type TEXT,
+    userid TEXT,
+    amount INT
+);

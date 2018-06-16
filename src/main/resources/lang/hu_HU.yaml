@@ -110,7 +110,7 @@ command:
     description: "Alapértelmezett nyelv megváltoztatása a szerver számára"
 
   help:
-    beginning: "**<:GamesROB:391744594863325184> GamesROB v%s** *by deprilula28*\n\n"
+    beginning: "**<:GamesROBNew:456913958457049109> GamesROB v%s** *by deprilula28*\n\n"
     gameString: "%s `%%PREFIX%%%s` - %s"
     moreCustomizability: "🔧 **Egyéb testreszabhatóságok**\nA játék beállításai megváltoztathatóak a `<beállítás neve>=<beállításhoz tartozó érték>` parancs végi hozzáadásával! Példa: `%sminesweeper bombs=10`\nA játékosok számának megadása szintén a parancs végén lehetséges! Például: `%sconnect4 3`"
     description: "Ez a leírás"
@@ -139,10 +139,9 @@ command:
     message: "💻 RAM használat\nÖsszesen: **%s**\nParancsok keretrendszere: **%s**\nShardok: **%s**\nGyorsítótár: **%s**\nJátékok: **%s**"
     description: "🗄 *Debug* Részletes RAM használat listázás"
   ping:
-    message: "🏓 Pong!\nBot -> Discord: %s\nYou -> Bot: %s\nWebsocket: %s"
     description: "🗄 *Debug* bot késleltetések listázása"
   shardinfo:
-    title: "**Shard információk:**\n```js\n%s\n```"
+    title: "**Shard információk:**\n```prolog\n%s\n```"
     shard: "Shard"
     guilds: "Szerverek"
     users: "Felhasználók"

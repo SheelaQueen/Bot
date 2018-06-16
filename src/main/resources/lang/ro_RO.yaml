@@ -1,0 +1,241 @@
+# To translators: Start on genericMessages
+languageProperties:
+  code: "ro_RO"
+  language: "Romanian"
+  country: "Romania"
+  languageName: "🇷🇴 Romanian"
+  translators: "RT - 𝓒𝓖#7528"
+  version: "1.6.1"
+
+genericMessages:
+  alreadyPlaying: "Deja te joci alt joc în %s!\nScrie `%sstop` ca să oprești acel meci."
+  noGamesInChannel: "Nu există nici un joc acum în acest canal.\nPoți scrie `%shelp` ca să alegi și să începi un joc!"
+  invalidLanguage: "Nu este o limbă validă."
+  notEnoughTokens:
+    beggining: "Nu ai destule jetoane ca să faci asta (Mai ai nevoie de %s)."
+    upvote: "\nCâștigă mai multe jetoane prin câștigarea jocurilor și la upvotarea robotului pe %s."
+
+  nth1: "st"
+  nth2: "nd"
+  nth3: "rd"
+  nth4: "th"
+  upvoteMessage: "Mulțumim pentru upvotarea GamesROB!\nAi câștiat:\n**%s**\nUpvote-uri consecutive: **%s zile**\nContinuă să upvotezi zilnic pentru mai multe recompense!"
+  ownersOnly: "Această comandă este accesibilă doar pentru proprietari."
+
+gameFramework:
+  singleplayerMatch: "**%s Meci de un singur jucător!**\n%s\n\n"
+  multiplayerMatch: "**%s Meci de mai mulți jucători!**\n%s\n\n"
+  joinToPlay: "🚪 Scrie `%sjoin` sau apasă ușa de dedesubt pentru a juca! (%s/%s)"
+  joinToPlayNoReaction: "🚪 Scrie `%sjoin` pentru a juca! (%s/%s)"
+  betting: "💰 Pariezi %s 🔸 jetoane!"
+  begin: "**A început!**\n**%s**\n%s\n\n"
+  join: "%s a intrat în meci! %s/%s"
+  left: "%s a ieșit din meci!"
+
+  requireBetting: "Acest joc necesită pariere!\nAdaugă `bet=amount` la sfârșitul comenzii pentru a alege câte jetoane ara trebui să fie pariate."
+  settingOutOfRange: "Setarea `%s` trebuie să fie între %s și %s!"
+  activeGame: "Mai este un joc curent în acest canal."
+  viewPlayers: "Vezi jucătorii folosind `%slistplayers`."
+  viewPlayersStop: "Vezi jucătorii folosind `%slistplayers` și oprește cu `%sstop`."
+  typeToJoin: "Poți scrie `%sjoin` pentru a te alătura."
+  playersOutOfRange: "Poți avea doar între %s și %s jucători în acest joc!"
+
+  gameOver: "**Jocul s-a terminat!**\n%s\n\n"
+  winner: "%s a câștigat!"
+  draw: "Este o remiză!"
+  timeout: "Meciul a expirat după **%s**."
+  creatorQuit: "Meciul %s a fost anulat fiindcă creatorul lui l-a părăsit."
+  everyoneQuit: "Meciul a fost anulat fiindcă toată lumea l-a părăsit."
+
+  now: " - **Acum**"
+  next: " - **Următorul**"
+  turn: "Rândul lui %s"
+
+  rematch: "Apasă pe :arrows_counterclockwise: pentru o revanșă!"
+
+game:
+  roulette:
+    name: "Ruleta rusească"
+    shortDescription: "Rotește țeava de pușcă, nu fii lovit!"
+    longDescription: "Un glonț, 8 găuri de țeavă.\nRotește țeava la oricare tărie vrei și speră la ce e mai bun atunci când apeși pe trăgaci!"
+
+    chooseStrength: "🔫 Cât de puternic vei roti țeava?\nTrimite un număr de la %s la %s."
+    shot: "%s apasă pe trăgaci și devine lovit! Cât de ghinionist pentru ei."
+    survive: "%s apasă pe trăgaci și este ușurat de la lipsa zgomotului."
+  connectFour:
+    name: "ConnectFour"
+    shortDescription: "Scapă 4 cercuri din culoarea ta!"
+    longDescription: "Trebuie să conectezi 4 cercuri din culoarea ta vertical, orizontal sau diagonal!\nTrimite numărul pentru rândul în care vrei să le lași să cadă (ex.: 3)"
+  hangman:
+    name: "Spânzurătoarea"
+    shortDescription: "Ghicește cuvântul submis de creatorul meciului!"
+    longDescription: "Creatorul meciului trimite un cuvânt secret robotului în mesaje.\nDupă aceea, ceilalți jucători încearcă să-l ghicească, literă try to guess it, literă cu literă!"
+
+    sendWord: "Înainte de toate, %s: Trimite cuvântul pe care îl vrei în mesaje!"
+    wordSet: "**Cuvânt setat!**\nPoți să te întorci la %s."
+    wordPicked: "Cuvântul a fost ales!"
+    invalidGuess: "%s a ghicit %s și l-a greșit!"
+    validGuess: "%s are litera %s la punct!"
+    outOfLimbs: "%s a rămas fără membre! Bună încercare!"
+  minesweeper:
+    name: "Minesweeper"
+    shortDescription: "Vechiul Minesweeper, nu exploda!"
+    longDescription: "Trimite locul în care vrei să sapi (ex. c4), numărul bombelor apropiate va fi arătat.\nNu săpa într-o bombă! Poți să semnalizezi o bombă prin sufixarea lui F (ex. e1F)"
+
+    bomb: "Ai săpat într-o bombă!"
+    left: "Jucătorul a plecat"
+  tictactoe:
+    name: "X și 0"
+    shortDescription: "Aranjează 3 plăci cu simbolul tău într-o linie din tablă!"
+    longDescription: "Știi cum funcționează X și 0!\nPur și simplu trimite litera în care vrei să-ți pui simbolul (ex. a)."
+  detective:
+    name: "Detectivul"
+    shortDescription: "Unul dintre voi este un asasin. Dă-i afară înainte de a fi prea târziu."
+    longDescription: "Asasinul va omorî pe cineva în fiecare noapte.\nCetățenii vor da afară pe cineva în fiecare zi.\nÎncearcă să dai afară ucigașul afară până nu e prea târziu."
+    invalidUser: "Acel utilizator nu se joacă acest joc sau a fost dat afară/murit deja."
+    assassinKicked: "Asasinul a fost dat afară! În sfârșit, orașul poate dormi în pace."
+    murderReveal: "%s a fost asasinul!"
+
+    sleep: "🌇 Orașul se duce la culcare."
+    sleepIndecisive: "🌇 Orașul se duce la culcare, indecisiv dând afară pe nimeni. Cum se va dovedi asta?"
+    sleepKicked: "🌇 Orașul se duce la culcare, dând afară pe %s din oraș pentru tentativă de omor.\nPuțin știau, acela nu este cel/cea care trebuia să fie dat(ă) afară..."
+
+    chooseKick: "\nÎn comun, orașul trebuie să decidă cine tot scapă cu basma curată de la această faptă îngrozitoare, ca să îi putem da afară pentru totdeauna.\nTrimite the letter pentru cine crezi că ar trebui dat afară:\n"
+    wakeFirst: "🌆 Orașul se trezește, surprinși atunci când dau de %s înjunghiat în propria casă. De ce ar face oricine asta?"
+    wakeSecond: "🌆 Orașul se trezește, de data aceasta în absența lui %s, care a fost înjunghiat, din nou, în propria casă. Se spune că de două ori este o coincidență, nu?"
+    wakeThird: "🌆 Orașul se trezește. Suntem sigur în teritoriu „tipar”, înconjurând înjunghierile lui %s."
+    wakeFourthPlus: "🌆 Orașul se trezește, cu un cetățean mai puțin pe tărâmul nostru, și ăsta ar fi %s. Când se va opri aceasta?"
+
+    dmCitizen: "🏙 Ești un cetățean."
+    dmAssassin: "🗡 Ești ucigașul!\nCine va fi primul ghinionist? (scrie numele lor aici)"
+    dmAssassinRecursive: "Cine va fi în această noapte? (scrie numele lor)"
+
+
+command:
+  permissionLock: "⛔ Nu poți folosi această comandă!"
+
+  slots:
+    matchHeader: "Rulare pentru 🔸 %s jetoane..."
+    matchEnd: "Ai %s 🔸 %s jetoane!"
+    earnt: "câștigat"
+    lost: "pierdut"
+
+    invalidTokens: "Poți juca doar de la %s spre %s jetoane."
+    description: "Joacăți jetoanele într-un joc de sloturi! Total nefalsificat ai încredere"
+
+  tokens:
+    own: "Ai 🔸 %s jetoane"
+    earnUpvote: "Câștigă mai multe jetoane prin câștigarea meciurilor, completarea Realizărilor, votând în %s ori jucând cu `%sslots`."
+    earn: "Ia mai multe jetoane prin câștigarea meciurilor, completarea Realizărilor sau jucând cu `%sslots`.\n*Poți upvota din nou în %s*"
+    other: "%s are 🔸 %s (de) jetoane"
+    description: "Vezi câte jetoane ai tu sau altcineva"
+  join:
+    alreadyOnMatch: "Ești deja în meci!"
+    full: "Meciul este plin!"
+    gameStarted: "Acest joc a început deja!"
+    description: "Se alătură unui meci din canalul curent"
+  stop:
+    matchStopped: "⏹ Meciul a fost oprit de %s"
+    description: "Forțează o oprire meciului curent"
+  listplayers:
+    header: "**%s Meci**\n%s\n\n"
+    description: "Listează jucătorii în jocul curent din canal"
+
+  leaderboard:
+    unknownUser: "*utilizator necunoscut*"
+    playerRatings: " (**%s** (de) victorii)"
+    noWinner: "~nici un câștigător încă~"
+    response: "**Per total**\n%s\n**Jocuri:**\n%s"
+    websiteLink: "Vizionează totul în site-ul nostru"
+    description: "Vizionează Leaderboard-ul!"
+  profile:
+    playerStats: "Statisticile lui **%s**:\n"
+    overall: "%s **Statistici per total**: %s\n\n"
+    statsString: "%s%s Câștiguri, %s Pierderi (%s Raport de Câștig/Pierdere), %s jocuri jucate"
+    place: "locul"
+    description: "Vizionează-ți profilul, sau al altcuiva!"
+    notRanked: "Nu este clasificat"
+  emote:
+    set: "Emoji-ul tău a fost setat! %s"
+    reset: "Emoji-ul tău a fost resetat!"
+    cannotUse: "No pot folosi acel Emote! Încearcă să pui din acest Server."
+    invalid: "Scuze, dar aceea nu este un Emote valid..."
+    description: "Schimbă placa de Emoji care va fi în meciuri!"
+
+  userlang:
+    set: "Limba ta personală a fost setată la %s"
+    description: "Schimbă-ți propria limbă"
+  guildlang:
+    set: "Limba implicită pentru acest Server a fost setată la %s"
+    description: "Schimbă limba implicită pentru acest Server."
+
+  help:
+    beginning: "**<:GamesROB:391744594863325184> GamesROB v%s** *de deprilula28*\n\n"
+    subCategory: "Folosește `%%PREFIX%%help categorie/comandă` pentru a lua informații despre o comandă sau o categorie (ex. `%%PREFIX%%help profile` sau `%%PREFIX%%help slots`)"
+    gameString: "%s `%%PREFIX%%%s` - %s"
+    commandInfo: "`%s%s`: %s\nPseudonime: %s\nCategorie: %s"
+    gameInfo: "`%s%s`: %s\n\n**Descriere lungă:**\n%s\n\nPseudonime: %s\nMai multe informații: %s"
+    categories:
+      games: "Jocuri"
+      profilecommands: "Profil"
+      servercommands: "Server"
+      matchcommands: "Meci"
+      infocommands: "Informții"
+    other: "%s altele"
+
+    websiteTitle: "Website-ul nostru"
+    description: "Îți dă niște ajutor!"
+  invite:
+    embed:
+      title: "🎮 Apasă pentru a invita GamesROB!"
+      description: "⚠ Vei avea nevoie de permisiunea Manage Server (Gestionează server-ul) în Server-ul la care vrei să-l adaugi."
+    description: "Invită robotul!"
+  info:
+    embed:
+      description: "**Robotul pentru jucarea jocurilor distractive în Server-ul tău de Discord!**\n[Website](%s)\n[Adaugă robotul în Server-ul tău](%s)\n[Upvotează robotul în DBL](%s)\n[Vezi codul sursă](%s)\n[Intră în Server-ul nostru de suport](%s)"
+      statistics:
+        title: "📟 Statistici"
+        description: "**%s** Servere, **%s** membri și **%s** canale text!\n**%s** jocuri jucate (**%s** meciuri ce se întâmplă acum) și **%s** voturi pe DBL!"
+      versions:
+        title: "📁 Versiuni"
+        description: "Versiunea GamesROB: **%s**\nVersiunea Java: **%s**\n[JDA](%s) Versune: **%s**\n[DepsJDAFramework](%s) Versiune: **%s**\nTimp de funcționare Shard: **%s**"
+      system:
+        title: "💻 Sistem"
+        description: "Fplosire RAM: **%s**\nSistem de operare: **%s**"
+      credits:
+        title: "❤ Credite"
+    description: "Vezi statistici și informații"
+  raminfo:
+    message: ":computer: Info folosire RAM\nPer total: **%s**\nCadru de comandă: **%s**\nShard-uri: **%s**\nCache: **%s**\nJocuri: **%s**"
+    description: "🗄 *Depanare* Vezi un raport de folosire RAM complet"
+  ping:
+    message: "🏓 Pong!\nRobot -> Discord: %s\nTu -> Robot: %s\nWebsocket: %s\nTimp de procesare a comenzilor în medie: %s"
+    description: "🗄 *Depanare* Vezi latența robotului"
+  shardinfo:
+    title: "**Informații Shard:**\n```prolog\n%s\n```"
+    newTitle: "**Statistici robot și informații:**\n"
+    singleShard: "%s **Shard %s**: %s servere (%s%% încărcate), %s canale, %s utilizatori, %s ping și %s jocuri."
+    shard: "Shard"
+    guilds: "Servere"
+    users: "Utilizatori"
+    channels: "Canale"
+    status: "Status"
+    ping: "Ping"
+    games: "Jocuri"
+    ram: "Folosire RAM"
+    description: "🗄 *Depanare* Vezi o scurgere de informații Shard"
+  changelog:
+    text: "**GamesROB v%s**\nDe la %s\n\n%s\n\n*Actualizările sunt, de obicei, programate pentru fiecare vineri, făcând următoarea actualizare %s.*\n*Puteți sugera caracteristici noi și corectarea erorilor în Server-ul nostru: %s*"
+    description: "Arată toate schimbările și ultima actualizare."
+
+  perm:
+    invalidPerm: "Permisiune invalidă!"
+    noRole: "N-am putut găsi un Rol cu acel nume!"
+    set: "🔨 Schimbă permisiunea la %s jocuri pentru membrii cu Rol-ul (sau mai înalt decât) `%s`"
+    reset: "🔨 Permisiunea %s a fost resetată!"
+    description: "Schimbă o permisiune"
+  setprefix:
+    message: "S-a schimbat prefixul robotului pentru acest Server!"
+    description: "Setează prefixul pentru comenzile din Server-ul tău!"
+
+achievements:

@@ -109,7 +109,7 @@ command:
     description: "Changez la langue par défaut du serveur."
 
   help:
-    beginning: "**<:GamesROB:391744594863325184> GamesROB v%s** *by deprilula28*\n\n"
+    beginning: "**<:GamesROBNew:456913958457049109> GamesROB v%s** *by deprilula28*\n\n"
     gameString: "%s `%%PREFIX%%%s` - %s"
     moreCustomizability: "🔧 **Plus de personnalisation**\nModifiez les paramètres d'un jeu en ajoutant `<nom du paramètre>=<valeur du paramètre>` à la fin de la commande! ex: `%sminesweeper bombs=10`\nJouez avec plus de personnes en précisant le nombre de joueurs après la commande! ex: `%sconnect4 3`"
     description: "Vous obtient de l'aide!"
@@ -138,7 +138,7 @@ command:
     message: ":computer: Information sur l'utilisation de la RAM\nGlobal: **%s**\nCommand Framework: **%s**\nShards: **%s**\nCache: **%s**\nJeux: **%s**"
     description: "🗄 *Debug* View a full RAM Usage report"
   ping:
-    message: "🏓 Pong!\nBot -> Discord: %s\nVous -> Bot: %s\nWebsocket: %s"
+    message: "🏓 Pong!\nBot -> Discord: %s\nVous -> Bot: %s\nWebsocket: %s\n?: %s"
     description: "🗄 *Debug* Voir la latence du bot"
   shardinfo:
     shard: "Shard"

@@ -221,8 +221,6 @@ public class RPCManager extends WebSocketClient {
             .orElse(null);
     }
 
-
-
     private List<MutualServer> getMutualServers(JsonElement id) {
         List<Guild> mutualGuilds = new ArrayList<>();
         GamesROB.shards.forEach(cur -> {
