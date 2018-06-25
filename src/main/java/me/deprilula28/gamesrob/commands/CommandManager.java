@@ -135,6 +135,7 @@ public class CommandManager {
                 });
             });
 
+            for (int i = 1; i < EMOTE_LIST.size(); i++) cmd.reactSub(EMOTE_LIST.get(i), CATEGORIES[i]);
             cmd.sub("i_like_easter_eggs", context -> "Fin was here Fin was here Fin was here Fin was here Fin was here Fin was here Fin was here Fin was here Fin was here Fin was here Fin was here Fin was here Fin was here Fin was here (lol)");
         }).attr("category", "infocommands");
 
@@ -170,24 +171,6 @@ public class CommandManager {
             String lang = GuildProfile.get(guild).getLanguage();
             return languageHelpMessages.get(lang == null ? Constants.DEFAULT_LANGUAGE : lang)
                     .replaceAll("%PREFIX%", Constants.getPrefixHelp(guild));
-        });
-        f.handleEvent(GuildMessageReactionAddEvent.class, event -> {
-            String name = event.getReactionEmote().getName();
-             if (EMOTE_LIST.contains(name)) {
-                 event.getChannel().getMessageById(event.getMessageIdLong()).queue(message -> {
-                     message.getReactions().stream().filter(it -> it.getReactionEmote().getName().equals(name)).findAny().ifPresent(it -> {
-                         it.getUsers().queue(users -> {
-                             Log.info(users);
-                             if (users.contains(event.getJDA().getSelfUser()) && !event.getUser().isBot() && message.getAuthor().equals(message.getJDA().getSelfUser())) {
-                                 message.editMessage("→ " + categoryMessage(Constants.getLanguage(event.getUser(), event.getGuild()),
-                                         message.getGuild(), CATEGORIES[EMOTE_LIST.indexOf(name)]))
-                                         .queue();
-                                 event.getReaction().removeReaction(event.getUser()).queue();
-                             }
-                         });
-                     });
-                 });
-             }
         });
     }
 

@@ -1,14 +1,18 @@
 package me.deprilula28.gamesrob.commands;
 
 import me.deprilula28.gamesrob.Language;
+import me.deprilula28.gamesrob.achievements.Achievement;
+import me.deprilula28.gamesrob.achievements.AchievementType;
 import me.deprilula28.gamesrob.data.UserProfile;
 import me.deprilula28.gamesrob.utility.Constants;
 import me.deprilula28.gamesrob.utility.Log;
 import me.deprilula28.jdacmdframework.CommandContext;
+import net.dv8tion.jda.core.MessageBuilder;
 
 import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 public class Slots {
@@ -63,10 +67,16 @@ public class Slots {
 
                         int earntAmount = (int) (multiplier * betting);
                         if (multiplier != 0) profile.setTokens(profile.getTokens() + earntAmount);
-                        context.edit(generateMessage(Language.transl(context, "command.slots.matchEnd",
+
+                        Consumer<MessageBuilder> messageGen = generateMessage(Language.transl(context, "command.slots.matchEnd",
                                 earntAmount == 0 ? Language.transl(context, "command.slots.lost") :
-                                Language.transl(context, "command.slots.earnt"), Math.abs(earntAmount - betting)),
-                                items));
+                                        Language.transl(context, "command.slots.earnt"), Math.abs(earntAmount)),
+                                items);
+                        context.edit(it -> {
+                            AchievementType.GAMBLE_TOKENS.addAmount(betting, context, messageGen);
+                            if (earntAmount > 0) AchievementType.WIN_TOKENS_GAMBLING.addAmount(earntAmount - betting, context, builder -> {});
+                            else AchievementType.LOSE_TOKENS_GAMBLING.addAmount(betting, context, builder -> {});
+                        });
                     } else {
                         context.edit(generateMessage(Language.transl(context, "command.slots.matchHeader", betting), items));
                     }
@@ -78,14 +88,14 @@ public class Slots {
         return null;
     }
 
-    private static String generateMessage(String header, List<List<String>> items) {
-        StringBuilder builder = new StringBuilder(header + "\n\uD83D\uDD36\uD83D\uDCB8\uD83D\uDD36\n");
-        items.forEach(it -> {
-            it.forEach(builder::append);
-            builder.append("\n");
-        });
-
-        return builder.toString();
+    private static Consumer<MessageBuilder> generateMessage(String header, List<List<String>> items) {
+        return builder -> {
+            builder.append(new StringBuilder(header + "\n\uD83D\uDD36\uD83D\uDCB8\uD83D\uDD36\n"));
+            items.forEach(it -> {
+                it.forEach(builder::append);
+                builder.append("\n");
+            });
+        };
     }
 
     private static List<String> generateRow(Random random, List<String> validItems) {

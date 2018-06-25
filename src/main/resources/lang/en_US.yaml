@@ -122,6 +122,34 @@ game:
     answer: "%s (+%s points) has answered it correctly!"
     noOneAnswered: "No one could answer that! The answer was \"**%s**\"."
 
+  achievement:
+    got: "Achievement got: **%s**!\n*%s*\n+🔸 %s tokens"
+
+    # Types
+    playGames: "Play %s games"
+    winGames: "Win %s games"
+    gambleTokens: "Gamble %s tokens"
+    winTokensGambling: "Get %s tokens with gambling"
+
+    # Achievements
+    realPlayer: "Real Player"
+    intensePlayer: "Intense Player"
+    proPlayer: "Pro Player"
+    tooManyGames: "Too Many Games"
+
+    crowned: "#Crowned"
+    master: "Master"
+    tooGood: "Too Good"
+    tryhard: "Tryhard"
+
+    gambler: "Gambler"
+    addicted: "Addicted"
+    highRoller: "High Roller"
+
+    onARoll: "On a Roll"
+    lucky: "Lucky"
+    rigged: "Rigged!!"
+
 command:
   permissionLock: "⛔ You can't use this command!"
 

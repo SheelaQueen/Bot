@@ -2,12 +2,15 @@ package me.deprilula28.gamesrob.baseFramework;
 
 import lombok.Data;
 import me.deprilula28.gamesrob.Language;
+import me.deprilula28.gamesrob.achievements.Achievement;
+import me.deprilula28.gamesrob.achievements.AchievementType;
 import me.deprilula28.gamesrob.commands.CommandManager;
 import me.deprilula28.gamesrob.data.GuildProfile;
 import me.deprilula28.gamesrob.data.Statistics;
 import me.deprilula28.gamesrob.data.UserProfile;
 import me.deprilula28.gamesrob.utility.Cache;
 import me.deprilula28.gamesrob.utility.Constants;
+import me.deprilula28.gamesrob.utility.Log;
 import me.deprilula28.gamesrob.utility.Utility;
 import me.deprilula28.jdacmdframework.Command;
 import me.deprilula28.jdacmdframework.RequestPromise;
@@ -33,6 +36,7 @@ public class Match extends Thread {
     private static final long REMATCH_TIMEOUT_PERIOD = TimeUnit.MINUTES.toMillis(1);
 
     protected TextChannel channelIn;
+    private final Map<User, List<AchievementType>> addAchievement = new HashMap<>();
     private GamesInstance game;
     private GameState gameState;
     private List<Optional<User>> players = new ArrayList<>();
@@ -84,7 +88,10 @@ public class Match extends Thread {
             matchHandler.updatedMessage(false, builder);
             return RequestPromise.forAction(channelIn.sendMessage(builder.build())).then(no -> gameState = GameState.MATCH);
         });
-        players.stream().filter(Optional::isPresent).forEach(it -> PLAYING.put(it.get(), this));
+        players.stream().filter(Optional::isPresent).forEach(it -> {
+            PLAYING.put(it.get(), this);
+            achievement(it.get(), AchievementType.PLAY_GAMES);
+        });
     }
 
     public Match(GamesInstance game, User creator, TextChannel channel, int targetPlayerCount, Map<String, String> options,
@@ -134,6 +141,7 @@ public class Match extends Thread {
 
         GAMES.put(channel, this);
         PLAYING.put(creator, this);
+        achievement(creator, AchievementType.PLAY_GAMES);
         ACTIVE_GAMES.get(channel.getJDA()).add(this);
 
         Statistics.get().registerGame(game);
@@ -199,6 +207,11 @@ public class Match extends Thread {
         });
     }
 
+    public void achievement(User user, AchievementType type) {
+        if (!addAchievement.containsKey(user)) addAchievement.put(user, new ArrayList<>());
+        addAchievement.get(user).add(type);
+    }
+
     private String getPregameText() {
         StringBuilder builder = new StringBuilder(Language.transl(language, "gameFramework.multiplayerMatch",
                 game.getName(language), game.getShortDescription(language)
@@ -236,6 +249,7 @@ public class Match extends Thread {
                     matchHandler.updatedMessage(false, builder);
                     return preMatchMessage = RequestPromise.forAction(channelIn.sendMessage(builder.build())).then(no2 -> gameState = GameState.MATCH);
                 });
+                players.stream().filter(Optional::isPresent).forEach(it -> achievement(it.get(), AchievementType.PLAY_GAMES));
             } else updatePreMessage();
         } else channelIn.sendMessage(Language.transl(language, "gameFramework.join",
             user.getAsMention(),
@@ -284,6 +298,7 @@ public class Match extends Thread {
                         .orElse(Constants.MATCH_WIN_TOKENS));
             })
         );
+        winner.ifPresent(it -> achievement(it, AchievementType.WIN_GAMES));
 
         onEnd(Language.transl(language, "gameFramework.winner",
                 winner.map(User::getAsMention).orElse("**AI**") + " *(+ \uD83D\uDD38 " +
@@ -303,9 +318,16 @@ public class Match extends Thread {
 
         MessageBuilder gameOver = new MessageBuilder().append(Language.transl(language, "gameFramework.gameOver",
                 reason));
-        if (gameState != GameState.PRE_GAME) matchHandler.updatedMessage(true, gameOver);
+        Log.wrapException("Getting message for match end", () -> {
+            if (gameState != GameState.PRE_GAME) matchHandler.updatedMessage(true, gameOver);
+        });
         if (Utility.hasPermission(channelIn, channelIn.getGuild().getMember(channelIn.getJDA().getSelfUser()),
                 Permission.MESSAGE_ADD_REACTION)) gameOver.append("\n").append(Language.transl(language, "gameFramework.rematch"));
+
+        players.forEach(cur -> cur.ifPresent(user -> {
+            if (addAchievement.containsKey(user)) addAchievement.get(user).forEach(type ->
+                type.addAmount(true, 1, gameOver, user, language));
+        }));
 
         ACTIVE_GAMES.get(channelIn.getJDA()).remove(this);
         GAMES.remove(channelIn);

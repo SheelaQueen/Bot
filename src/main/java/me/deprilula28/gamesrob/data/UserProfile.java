@@ -98,7 +98,7 @@ public class UserProfile {
                     "emote", "userId", "tokens", "lastupvote", "upvoteddays", "shardid", "language"
             ), "userid = '" + value.getUserId() + "'",
                 set -> fromResultSet(value.getUserId(), set).equals(Optional.of(value)),
-                it -> Log.wrapException("Saving data on SQL", () -> write(it, value)));
+                (set, it) -> Log.wrapException("Saving data on SQL", () -> write(it, value)));
         }
 
         private Optional<UserProfile> fromResultSet(String from, ResultSet select) {

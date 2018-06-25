@@ -75,21 +75,23 @@ public class Quiz implements MatchHandler {
     }
     private static Map<String, BlockingQueue<OpenTDBResponse.QuizQuestion>> urlMap = new HashMap<>();
 
-    private static OpenTDBResponse request(String url) {
-        return Constants.GSON.fromJson(HttpRequest.get(url).body(), OpenTDBResponse.class);
+    private static OpenTDBResponse request(String url, int amount) {
+        return Constants.GSON.fromJson(HttpRequest.get(url + "&amount=" + amount).body(), OpenTDBResponse.class);
     }
 
     public static OpenTDBResponse.QuizQuestion getQuestion(String url) {
         if (urlMap.containsKey(url)) {
             BlockingQueue<OpenTDBResponse.QuizQuestion> queue = urlMap.get(url);
-            OpenTDBResponse.QuizQuestion question = queue.poll();
-            if (queue.size() < 10) Utility.Promise.provider(() -> request(url)).then(it ->
+            if (queue.size() < 10) Utility.Promise.provider(() -> request(url, 50)).then(it ->
                 queue.addAll(it.getResults()));
+
+            OpenTDBResponse.QuizQuestion question = queue.poll();
+            if (question == null) return request(url, 1).getResults().get(0);
 
             return question;
         } else {
             BlockingQueue<OpenTDBResponse.QuizQuestion> queue = new LinkedBlockingQueue<>();
-            queue.addAll(request(url).getResults());
+            queue.addAll(request(url, 50).getResults());
             urlMap.put(url, queue);
 
             return queue.poll();
@@ -98,7 +100,7 @@ public class Quiz implements MatchHandler {
 
     private void newQuizQuestion() {
         double percentDone = (double) roundsDone / (double) rounds;
-        curQuestion = getQuestion("https://opentdb.com/api.php?amount=1&difficulty=" + (
+        curQuestion = getQuestion("https://opentdb.com/api.php?difficulty=" + (
             percentDone >= 2.0 / 3.0 ? "hard" :
             percentDone >= 1.0 / 3.0 ? "medium" :
             "easy"

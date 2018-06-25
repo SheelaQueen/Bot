@@ -23,7 +23,7 @@
 
         <!-- Dependencies -->
         <lombok.version>1.16.18</lombok.version>
-        <jdaframework.version>1.1.9</jdaframework.version>
+        <jdaframework.version>1.1.10</jdaframework.version>
         <slf4j.version>1.7.13</slf4j.version>
         <emoji-java.version>4.0.0</emoji-java.version>
         <snakeyaml.version>1.19</snakeyaml.version>

@@ -88,7 +88,7 @@ public class GuildProfile {
                     "prefix", "permstartgame", "permstopgame", "shardid", "guildid"
             ), "guildid = '" + value.getGuildId() + "'",
                 set -> fromResultSet(value.getGuildId(), set).equals(Optional.of(value)),
-                it -> Log.wrapException("Saving data on SQL", () -> writeGuildData(it, value)));
+                (set, it) -> Log.wrapException("Saving data on SQL", () -> writeGuildData(it, value)));
         }
 
         private Optional<GuildProfile> fromResultSet(String from, ResultSet select) {

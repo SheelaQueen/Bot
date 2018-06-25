@@ -107,16 +107,13 @@ public class LeaderboardHandler {
                     Log.exception("Saving Leaderboard Entry SQL", e);
                     return false;
                 }
-            },
-            statement -> {
-                Log.wrapException("Saving leaderboard entry", () -> {
-                    statement.setInt(0, entry.getStats().getVictories());
-                    statement.setInt(1, entry.getStats().getLosses());
-                    statement.setInt(2, entry.getStats().getGamesPlayed());
-                    statement.setString(3, guildId);
-                    statement.setString(4, entry.getId());
-                    statement.setString(5, gameId);
-                });
-        });
+            }, (set, statement) -> Log.wrapException("Saving leaderboard entry", () -> {
+                statement.setInt(1, entry.getStats().getVictories());
+                statement.setInt(2, entry.getStats().getLosses());
+                statement.setInt(3, entry.getStats().getGamesPlayed());
+                statement.setString(4, guildId);
+                statement.setString(5, entry.getId());
+                statement.setString(6, gameId);
+            }));
     }
 }
