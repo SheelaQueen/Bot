@@ -21,6 +21,8 @@ genericMessages:
   nth4: "th"
   upvoteMessage: "Thank you for upvoting GamesROB!\nYou've earnt:\n**%s**\nUpvote streak: **%s days**\nKeep upvoting daily for more rewards!"
   ownersOnly: "This command is only accessible for owners."
+  blacklisted: "⛔ You were blacklisted from using GamesROB by %s (%s).\nReason: %s"
+  blacklistedNoInfo: "⛔ You were blacklisted from using GamesROB."
 
 welcome: "" # Do not translate this key! It's only going to be used in english.
 
@@ -222,7 +224,7 @@ command:
       infocommands: "Information"
     other: "%s others"
 
-    websiteTitle: "Our website"
+    websiteTitle: "Check out our website!"
     description: "Gets you some help!"
   invite:
     embed:

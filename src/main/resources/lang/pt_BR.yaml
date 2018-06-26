@@ -21,6 +21,8 @@ genericMessages:
   nth4: "º"
   upvoteMessage: "Obrigado por votar para o GamesROB!\nVocê recebeu:\n**%s**\nVotos em seguida: **%s dias**\nContinue votando diáriamente para conseguir mais tokens!"
   ownersOnly: "Esse comando só é acessível por donos."
+  blacklisted: "⛔ Você foi bloqueado de usar GamesROB por %s (%s).\nRazão: %s"
+  blacklistedNoInfo: "⛔ Você foi bloqueado de usar o GamesROB."
 
 gameFramework:
   singleplayerMatch: "**Partida Solo de %s!**\n%s\n\n"
@@ -190,7 +192,7 @@ command:
       infocommands: "Informações"
     other: "%s outros"
 
-    websiteTitle: "Nosso site"
+    websiteTitle: "Veja nosso site!"
     description: "Te dá ajuda!"
   invite:
     embed:

@@ -60,7 +60,7 @@ public class SQLDatabaseManager {
         return promise;
     }
 
-    private ResultSet sqlQuery(String sql) throws Exception {
+    public ResultSet sqlQuery(String sql) throws Exception {
         return connection.createStatement().executeQuery(sql);
     }
 
@@ -68,8 +68,10 @@ public class SQLDatabaseManager {
                                       BiConsumer<Optional<ResultSet>, PreparedStatement> consumer) {
         try {
             ResultSet set = select(table, keys, where);
-            if (set.next() && checkChanges.test(set)) return update(table, keys, where, statement -> consumer.accept(Optional.of(set), statement));
-            else return insert(table, keys, statement -> consumer.accept(Optional.empty(), statement));
+            if (set.next()) {
+                if (checkChanges.test(set)) return update(table, keys, where, statement -> consumer.accept(Optional.of(set), statement));
+                else return Utility.Promise.result(null);
+            } else return insert(table, keys, statement -> consumer.accept(Optional.empty(), statement));
         } catch (PSQLException ex) {
             Log.trace(ex.getClass().getName() + ": " + ex.getMessage());
             return insert(table, keys, statement -> consumer.accept(Optional.empty(), statement));
@@ -105,7 +107,7 @@ public class SQLDatabaseManager {
         ), statement -> Log.wrapException("Inserting to SQL table", () -> {
             consumer.accept(statement);
             statement.executeUpdate();
-        }));
+        }, table, keys, consumer));
     }
 
     public Utility.Promise<Void> update(String table, List<String> keys, String where, Consumer<PreparedStatement> consumer) {

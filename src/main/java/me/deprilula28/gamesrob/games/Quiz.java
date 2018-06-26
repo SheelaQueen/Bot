@@ -139,7 +139,7 @@ public class Quiz implements MatchHandler {
 
             String option = orderedOptions.get(letter);
             if (curQuestion.getCorrectAnswer().equals(option)) {
-                double score = Math.min(1 - ((double) (System.currentTimeMillis() - questionAsked) / (double) MAX_TIME) * MAX_SCORE, MIN_SCORE);
+                double score = Math.min((1 - ((double) (System.currentTimeMillis() - questionAsked) / (double) MAX_TIME)) * MAX_SCORE, MIN_SCORE);
                 scoreboard.put(player, scoreboard.containsKey(player) ? scoreboard.get(player) + score : score);
 
                 if (roundsDone == rounds) {
@@ -149,7 +149,8 @@ public class Quiz implements MatchHandler {
                 } else {
                     attempts.clear();
                     Log.wrapException("Failed to get quiz question", this::newQuizQuestion);
-                    lastNotification = Optional.of(Language.transl(match.getLanguage(), "game.quiz.answer", author.getAsMention(), score) + "\n");
+                    lastNotification = Optional.of(Language.transl(match.getLanguage(), "game.quiz.answer",
+                            author.getAsMention(), Math.round(score)) + "\n");
                     updateMessage();
                 }
                 reference.addReaction("<:check:314349398811475968>").queue();

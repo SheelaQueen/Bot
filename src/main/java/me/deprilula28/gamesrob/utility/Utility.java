@@ -4,6 +4,7 @@ import me.deprilula28.gamesrob.Language;
 import me.deprilula28.gamesrob.commands.ProfileCommands;
 import me.deprilula28.gamesrob.data.Statistics;
 import me.deprilula28.gamesrob.data.UserProfile;
+import me.deprilula28.jdacmdframework.exceptions.CommandArgsException;
 import net.dv8tion.jda.core.Permission;
 import net.dv8tion.jda.core.entities.*;
 
@@ -177,6 +178,15 @@ public class Utility {
 
     public static String formatPeriod(long timePeriod) {
         return formatPeriod((double) timePeriod);
+    }
+
+    public static long extractPeriod(String text) {
+        if (text.matches("[0-9]+[dhms]")) {
+            int n = Integer.valueOf(text.substring(0, text.length() - 1) + "");
+            int period = Arrays.asList(TIME_UNIT_NAMES).indexOf(text.charAt(text.length() - 1) + "");
+            if (period < -1) throw new CommandArgsException("Time period isn't existant!");
+            return (long) TIME_MEASURE_UNITS[period] * n;
+        } else throw new CommandArgsException("Couldn't extract period!");
     }
 
     public static void quietlyClose(Closeable closeable) {

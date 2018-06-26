@@ -85,7 +85,7 @@ public class GuildProfile {
         @Override
         public Utility.Promise<Void> saveToSQL(SQLDatabaseManager db, GuildProfile value) {
             return db.save("guildData", Arrays.asList(
-                    "prefix", "permstartgame", "permstopgame", "shardid", "guildid"
+                    "prefix", "permstartgame", "permstopgame", "shardid", "language", "guildid"
             ), "guildid = '" + value.getGuildId() + "'",
                 set -> fromResultSet(value.getGuildId(), set).equals(Optional.of(value)),
                 (set, it) -> Log.wrapException("Saving data on SQL", () -> writeGuildData(it, value)));
@@ -108,7 +108,8 @@ public class GuildProfile {
             statement.setString(2, profile.getPermStartGame());
             statement.setString(3, profile.getPermStopGame());
             statement.setInt(4, profile.getShardId());
-            statement.setString(5, profile.getGuildId());
+            statement.setString(5, profile.getLanguage());
+            statement.setString(6, profile.getGuildId());
         }
 
 

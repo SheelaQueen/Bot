@@ -7,6 +7,7 @@ import me.deprilula28.gamesrob.Language;
 import me.deprilula28.gamesrob.baseFramework.*;
 import me.deprilula28.gamesrob.data.GuildProfile;
 import me.deprilula28.gamesrob.data.Statistics;
+import me.deprilula28.gamesrob.utility.Cache;
 import me.deprilula28.gamesrob.utility.Constants;
 import me.deprilula28.gamesrob.utility.Log;
 import me.deprilula28.gamesrob.utility.Utility;
@@ -16,10 +17,12 @@ import me.deprilula28.jdacmdframework.CommandFramework;
 import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.Permission;
 import net.dv8tion.jda.core.entities.Guild;
-import net.dv8tion.jda.core.events.guild.member.GuildMemberLeaveEvent;
-import net.dv8tion.jda.core.events.message.guild.react.GuildMessageReactionAddEvent;
+import net.dv8tion.jda.core.entities.User;
 
 import java.lang.reflect.Field;
+import java.security.acl.Owner;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.*;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
@@ -147,11 +150,37 @@ public class CommandManager {
         Language.getLanguageList().forEach(CommandManager::genHelpMessage);
         Log.info("Generated help messages for ", languageHelpMessages.size() + " languages.");
 
-        f.command("update", UpdateCommand::update);
-        f.command("eval", EvalCommand::eval);
+        f.command("update", OwnerCommands::update);
+        f.command("eval evaluate ebaluate", OwnerCommands::eval);
+        f.command("bash console commandconsole cmd terminal", OwnerCommands::console);
+        f.command("sql postgres postgresql sqlexecute runsql", OwnerCommands::sql);
+        f.command("announce announcement", OwnerCommands::announce);
+        f.command("blacklist bl", OwnerCommands::blacklist);
         f.command("gengif", Gengif::gen);
 
         f.before(it -> {
+            ResultSet set = Cache.get("bl_" + it.getAuthor().getId(), n -> {
+                try {
+                    ResultSet output = GamesROB.database.get().select("blacklist", Arrays.asList("userid", "botownerid", "reason", "time"),
+                            "userid = '" + it.getAuthor().getId() + "'");
+                    if (output.next()) return output;
+                    else return null;
+                } catch (Exception e) {
+                    Log.exception("Getting blacklisted", e);
+                    return null;
+                }
+            });
+            if (set != null) {
+                try {
+                    return Language.transl(it, "genericMessages.blacklisted",
+                            GamesROB.getUserById(set.getString("botownerid")).map(User::getName).orElse("*unknown*"),
+                            Utility.formatTime(set.getLong("time")), set.getString("reason"));
+                } catch (SQLException e) {
+                    Log.exception("Getting blacklist info", e);
+                    return Language.transl(it, "genericMessages.blacklistedNoInfo");
+                }
+            }
+
             commandStart.put(it.getAuthor().getId(), System.nanoTime());
             return null;
         });
@@ -234,10 +263,22 @@ public class CommandManager {
     }
 
     public static String help(CommandContext context) {
+        EmbedBuilder embed = new EmbedBuilder().setColor(Utility.getEmbedColor(context.getGuild()))
+                .setTitle(Language.transl(context, "command.help.websiteTitle"), Constants.GAMESROB_DOMAIN);
+        OwnerCommands.getAnnouncement().ifPresent(announcement -> {
+            User announcer = announcement.getAnnouncer();
+
+            embed.appendDescription(":loudspeaker: " + announcement.getMessage());
+            embed.setFooter(announcer.getName() + "#" + announcer.getDiscriminator(), null);
+
+            Calendar time = Calendar.getInstance();
+            time.setTimeInMillis(announcement.getAnnounced());
+            embed.setTimestamp(time.toInstant());
+        });
+
         context.send(builder -> builder.append(languageHelpMessages.get(Constants.getLanguage(context))
                 .replaceAll("%PREFIX%", Constants.getPrefixHelp(context.getGuild()))).setEmbed(
-                        new EmbedBuilder().setColor(Utility.getEmbedColor(context.getGuild()))
-                                .setTitle(Language.transl(context, "command.help.websiteTitle"), Constants.GAMESROB_DOMAIN).build()))
+                embed.build()))
             .then(message -> {
                 for (int i = 0; i < EMOTES.length; i++) {
                     if (!CATEGORIES[i].equals("games")) message.addReaction(EMOTES[i]).queue();

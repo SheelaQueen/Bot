@@ -43,3 +43,9 @@ CREATE TABLE IF NOT EXISTS achievements (
     userid TEXT,
     amount INT
 );
+CREATE TABLE IF NOT EXISTS blacklist (
+    userid TEXT,
+    botownerid TEXT,
+    reason TEXT,
+    time BIGINT
+);
