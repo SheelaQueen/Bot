@@ -193,6 +193,6 @@ public class Hangman implements MatchHandler {
             }
 
             builder.append("\n```");
-        } builder.append(over ? "" : Language.transl(match.getLanguage(), "game.hangman.sendWord", match.getCreator().getAsMention()));
+        } else builder.append(over ? "" : Language.transl(match.getLanguage(), "game.hangman.sendWord", match.getCreator().getAsMention()));
     }
 }

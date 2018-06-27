@@ -80,6 +80,7 @@ public class ProfileCommands {
 
         if (target.equals(context.getAuthor())) {
             context.send(message -> {
+                message.append("→ ");
                 Map<String, Boolean> winMethods = new HashMap<>();
                 winMethods.put(Language.transl(context, "command.tokens.winningMatches"), true);
 

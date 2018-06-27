@@ -64,13 +64,13 @@ public class SQLDatabaseManager {
         return connection.createStatement().executeQuery(sql);
     }
 
-    public Utility.Promise<Void> save(String table, List<String> keys, String where, Predicate<ResultSet> checkChanges,
+    public Utility.Promise<Void> save(String table, List<String> keys, String where, Predicate<ResultSet> checkSameValue,
                                       BiConsumer<Optional<ResultSet>, PreparedStatement> consumer) {
         try {
             ResultSet set = select(table, keys, where);
             if (set.next()) {
-                if (checkChanges.test(set)) return update(table, keys, where, statement -> consumer.accept(Optional.of(set), statement));
-                else return Utility.Promise.result(null);
+                if (checkSameValue.test(set)) return Utility.Promise.result(null);
+                else return update(table, keys, where, statement -> consumer.accept(Optional.of(set), statement));
             } else return insert(table, keys, statement -> consumer.accept(Optional.empty(), statement));
         } catch (PSQLException ex) {
             Log.trace(ex.getClass().getName() + ": " + ex.getMessage());
