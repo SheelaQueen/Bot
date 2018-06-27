@@ -3,6 +3,7 @@ package me.deprilula28.gamesrob.achievements;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import me.deprilula28.gamesrob.Language;
+import me.deprilula28.gamesrob.utility.Log;
 
 @Data
 @AllArgsConstructor
@@ -17,6 +18,7 @@ public class Achievement {
     }
 
     public String getDescription(String language) {
+        Log.info(toString());
         return type == AchievementType.OTHER
                 ? Language.transl(language, "game.achievement." + langCode + ".description")
                 : Language.transl(language, "game.achievement." + type.getLanguageCode(), amount);

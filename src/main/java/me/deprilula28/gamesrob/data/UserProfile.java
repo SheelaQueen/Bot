@@ -3,10 +3,12 @@ package me.deprilula28.gamesrob.data;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import me.deprilula28.gamesrob.GamesROB;
+import me.deprilula28.gamesrob.achievements.AchievementType;
 import me.deprilula28.gamesrob.baseFramework.GamesInstance;
 import me.deprilula28.gamesrob.utility.Constants;
 import me.deprilula28.gamesrob.utility.Log;
 import me.deprilula28.gamesrob.utility.Utility;
+import me.deprilula28.jdacmdframework.CommandContext;
 import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.User;
 
@@ -57,8 +59,6 @@ public class UserProfile {
     }
 
     public void registerGameResult(Guild guild, User user, boolean victory, boolean loss, GamesInstance game) {
-        if (victory) addTokens(40);
-
         LeaderboardHandler.UserStatistics stats = getStatsForGuild(guild);
         registerGameResult(stats.getStats("overall"), victory, loss);
         registerGameResult(stats.getStats(game.getLanguageCode()), victory, loss);

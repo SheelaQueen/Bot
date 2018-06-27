@@ -36,7 +36,7 @@ public class Match extends Thread {
     private static final long REMATCH_TIMEOUT_PERIOD = TimeUnit.MINUTES.toMillis(1);
 
     protected TextChannel channelIn;
-    private final Map<User, List<AchievementType>> addAchievement = new HashMap<>();
+    private final Map<User, Map<AchievementType, Integer>> addAchievement = new HashMap<>();
     private GamesInstance game;
     private GameState gameState;
     private List<Optional<User>> players = new ArrayList<>();
@@ -90,7 +90,7 @@ public class Match extends Thread {
         });
         players.stream().filter(Optional::isPresent).forEach(it -> {
             PLAYING.put(it.get(), this);
-            achievement(it.get(), AchievementType.PLAY_GAMES);
+            achievement(it.get(), AchievementType.PLAY_GAMES, 1);
         });
     }
 
@@ -141,7 +141,7 @@ public class Match extends Thread {
 
         GAMES.put(channel, this);
         PLAYING.put(creator, this);
-        achievement(creator, AchievementType.PLAY_GAMES);
+        achievement(creator, AchievementType.PLAY_GAMES, 1);
         ACTIVE_GAMES.get(channel.getJDA()).add(this);
 
         Statistics.get().registerGame(game);
@@ -207,9 +207,10 @@ public class Match extends Thread {
         });
     }
 
-    public void achievement(User user, AchievementType type) {
-        if (!addAchievement.containsKey(user)) addAchievement.put(user, new ArrayList<>());
-        addAchievement.get(user).add(type);
+    public void achievement(User user, AchievementType type, int amount) {
+        if (!addAchievement.containsKey(user)) addAchievement.put(user, new HashMap<>());
+        if (!addAchievement.get(user).containsKey(type)) addAchievement.get(user).put(type, 0);
+        addAchievement.get(user).put(type, amount + addAchievement.get(user).get(type));
     }
 
     private String getPregameText() {
@@ -249,7 +250,7 @@ public class Match extends Thread {
                     matchHandler.updatedMessage(false, builder);
                     return preMatchMessage = RequestPromise.forAction(channelIn.sendMessage(builder.build())).then(no2 -> gameState = GameState.MATCH);
                 });
-                players.stream().filter(Optional::isPresent).forEach(it -> achievement(it.get(), AchievementType.PLAY_GAMES));
+                players.stream().filter(Optional::isPresent).forEach(it -> achievement(it.get(), AchievementType.PLAY_GAMES, 1));
             } else updatePreMessage();
         } else channelIn.sendMessage(Language.transl(language, "gameFramework.join",
             user.getAsMention(),
@@ -294,11 +295,14 @@ public class Match extends Thread {
                 boolean victory = winner.equals(Optional.of(user));
                 userProfile.registerGameResult(channelIn.getGuild(), user, victory, !victory, game);
 
-                if (winner.equals(cur)) userProfile.addTokens(betting.map(it -> it * players.size())
-                        .orElse(Constants.MATCH_WIN_TOKENS));
+                if (winner.equals(cur)) {
+                    int won = betting.map(it -> it * players.size()).orElse(Constants.MATCH_WIN_TOKENS);
+                    userProfile.addTokens(won);
+                    achievement(user, AchievementType.REACH_TOKENS, won);
+                }
             })
         );
-        winner.ifPresent(it -> achievement(it, AchievementType.WIN_GAMES));
+        winner.ifPresent(it -> achievement(it, AchievementType.WIN_GAMES, 1));
 
         onEnd(Language.transl(language, "gameFramework.winner",
                 winner.map(User::getAsMention).orElse("**AI**") + " *(+ \uD83D\uDD38 " +
@@ -310,7 +314,10 @@ public class Match extends Thread {
             cur.ifPresent(user -> {
                 if (registerPoints) {
                     UserProfile.get(user).registerGameResult(channelIn.getGuild(), user, false, false, game);
-                    betting.ifPresent(amount -> UserProfile.get(user).addTokens(amount));
+                    betting.ifPresent(amount -> {
+                        UserProfile.get(user).addTokens(amount);
+                        achievement(user, AchievementType.REACH_TOKENS, amount);
+                    });
                 }
                 PLAYING.remove(user);
             })
@@ -325,8 +332,8 @@ public class Match extends Thread {
                 Permission.MESSAGE_ADD_REACTION)) gameOver.append("\n").append(Language.transl(language, "gameFramework.rematch"));
 
         players.forEach(cur -> cur.ifPresent(user -> {
-            if (addAchievement.containsKey(user)) addAchievement.get(user).forEach(type ->
-                type.addAmount(true, 1, gameOver, user, language));
+            if (addAchievement.containsKey(user)) addAchievement.get(user).forEach((type, amount) ->
+                type.addAmount(true, amount, gameOver, user, language));
         }));
 
         ACTIVE_GAMES.get(channelIn.getJDA()).remove(this);

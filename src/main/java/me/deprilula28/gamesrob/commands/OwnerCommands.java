@@ -177,24 +177,24 @@ public class OwnerCommands {
         scriptEngine.put("shards", GamesROB.shards);
 
         context.send("<a:typing:393848431413559296> Evaluating...");
-        String text;
+        Object response;
         long begin = System.nanoTime();
         boolean success;
         try {
-            Object response = scriptEngine.eval(String.join(" ", context.remaining()));
-            text = response.toString();
+            response = scriptEngine.eval(String.join(" ", context.remaining()));
             success = true;
         } catch (Exception e) {
             e.printStackTrace();
-            text = e.getClass().getName() + ": " + e.getMessage();
+            response = e.getClass().getName() + ": " + e.getMessage();
             success = false;
         }
         double time = (double) (System.nanoTime() - begin) / 1000000000.0;
 
+        String text = response == null ? "null" : (response instanceof String ? (String) response : response.toString());
         String message = (success
                 ? "<:check:314349398811475968> Output took " + Utility.formatPeriod(time)
                 : "<:xmark:314349398824058880> Failed in " + Utility.formatPeriod(time)) + ":\n" +
-                "```js\n" + (text == null ? "null" : (text.length() > 1500 ? text.substring(0, 1500) + "..." : text)) + "\n```";
+                "```js\n" + (text.length() > 1500 ? text.substring(0, 1500) + "..." : text) + "\n```";
 
         context.edit(message);
 

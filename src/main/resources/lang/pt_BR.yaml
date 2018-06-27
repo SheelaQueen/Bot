@@ -121,6 +121,48 @@ game:
     answer: "%s (+%s pontos) respondeu corretamente!"
     noOneAnswered: "Ninguém conseguiu responder aquela pergunta! A resposta era \"**%s**\"."
 
+  achievement:
+    got: "Conquista completa: **%s**!\n*%s*\n+🔸 %s tokens"
+
+    # Types
+    playGames: "Jogue %s partidas"
+    winGames: "Vença %s partidas"
+    gambleTokens: "Aposte %s tokens"
+    winTokensGambling: "Ganhe %s tokens apostando"
+    loseTokensGambling: "Perca %s tokens apostando"
+    reachPlaceLeaderboard: "Chegue no %sº lugar do placar"
+    reachTokens: "Alcançe %s tokens"
+
+    # Achievements
+    realPlayer: "Jogador de Verdade"
+    intensePlayer: "Jogador Intenso"
+    proPlayer: "Pro Player"
+    tooManyGames: "Jogos Demais"
+
+    crowned: "#Coroa"
+    master: "Mestre"
+    tooGood: "Bom Demais"
+    tryhard: "Tryhard"
+
+    gambler: "Apostador"
+    addicted: "Viciado"
+    highRoller: "Rolador"
+
+    onARoll: "Na onda certa"
+    lucky: "Sortudo"
+    rigged: "Roubado!!"
+
+    unfair: "Isso é injusto!"
+    overconfident: "Confidente demais"
+    stubborn: "Teimoso"
+
+    winnerWinnerChickenDinner: "Winner winner chicken dinner"
+
+    mediumClass: "Classe Média"
+    upperClass: "Classe Alta"
+    richBoi: "Riquinho"
+    billGates: "Bill Gates"
+
 command:
   permissionLock: "⛔ Você não tem permissão para usar esse comando!"
 
@@ -134,11 +176,15 @@ command:
     description: "Aposte seus tokens em um jogo de cassino! Totalmente não roubado, confie em mim"
 
   tokens:
-    own: "Você tem 🔸 %s tokens"
-    earnUpvote: "Ganhe mais tokens vencendo partidas, completando conquistas, votando para o bot em %s ou apostando com `%sslots`."
-    earn: "Ganhe mais tokens vencendo partidas, completando conquistas ou apostando com `%sslots`.\n*Você poderá votar novamente em %s`"
     other: "%s tem 🔸 %s tokens"
-    description: "Veja quantos tokens você e outros têm"
+    own: "Você tem 🔸 %s tokens\nGanhe mais:"
+    winningMatches: "**Vencendo Partidas**"
+    upvoteCan: "Votando para o bot (%s dias seguidos = + 🔸 %s tokens!)"
+    upvoteLater: "~~Votando para o bot~~ (Você poderá fazê-lo novamente em %s)"
+    achievements: "**Completando conquistas:**\n"
+    noAchievements: "~~Completando conquistas~~ (Nenhuma conquista para completar)"
+
+    description: "Veja quantos tokens você e outros têm, e veja seu progresso em conquistas"
   join:
     alreadyOnMatch: "Você já está nesse jogo!"
     full: "O jogo já começou!"

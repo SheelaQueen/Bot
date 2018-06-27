@@ -65,8 +65,8 @@ public class BootupProcedure {
         token = pargs.get(0).orElseThrow(() -> new RuntimeException("You need to provide a token!"));
         optDblToken = pargs.get(1);
         shardTo = pargs.get(2).map(Integer::parseInt).orElse(1);
-        GamesROB.owners = pargs.get(3).map(it -> Arrays.stream(it.split(",")).map(Long::parseLong).collect(Collectors.toList()))
-                .orElse(Collections.singletonList(197448151064379393L));
+        GamesROB.owners = Collections.unmodifiableList(pargs.get(3).map(it -> Arrays.stream(it.split(",")).map(Long::parseLong).collect(Collectors.toList()))
+                .orElse(Collections.singletonList(197448151064379393L)));
         GamesROB.database = pargs.get(4).map(SQLDatabaseManager::new);
         GamesROB.debug = pargs.get(5).map(Boolean::parseBoolean).orElse(false);
         GamesROB.twitchUserIDListen = pargs.get(6).map(Long::parseLong).orElse(-1L);
@@ -189,7 +189,7 @@ public class BootupProcedure {
                     event.getJDA().getGuilds().size()));
 
             GamesROB.dboAPI = Optional.of(dbo);
-            GamesROB.owners = GamesROB.dboAPI.get().getBot().getOwners().stream().map(Long::parseLong).collect(Collectors.toList());
+            GamesROB.owners = Collections.unmodifiableList(GamesROB.dboAPI.get().getBot().getOwners().stream().map(Long::parseLong).collect(Collectors.toList()));
     });
 
     private static final BootupTask presenceTask = args -> {

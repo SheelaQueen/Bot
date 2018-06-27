@@ -51,7 +51,7 @@ public class LeaderboardHandler {
             Map<String, UserProfile.GameStatistics> userStats = new HashMap<>();
 
             Log.wrapException("SQL Exception", () -> {
-                ResultSet overallSelect = db.select("leaderboardEntries", Arrays.asList("userid", "victories", "losses", "gamesplayed"),
+                ResultSet overallSelect = db.select("leaderboardEntries", Arrays.asList("userid", "victories", "losses", "gamesplayed", "gameid"),
                         "guildid = '" + guildId + "' AND userid='" + userId + "'");
                 while (overallSelect.next()) {
                     UserProfile.GameStatistics stats = new UserProfile.GameStatistics(overallSelect.getInt("victories"),

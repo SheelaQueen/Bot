@@ -131,7 +131,10 @@ game:
     playGames: "Play %s games"
     winGames: "Win %s games"
     gambleTokens: "Gamble %s tokens"
-    winTokensGambling: "Get %s tokens with gambling"
+    winTokensGambling: "Win %s tokens gambling"
+    loseTokensGambling: "Lose %s tokens gambling"
+    reachPlaceLeaderboard: "Reach %sst place in the leaderboard"
+    reachTokens: "Get %s tokens"
 
     # Achievements
     realPlayer: "Real Player"
@@ -152,6 +155,17 @@ game:
     lucky: "Lucky"
     rigged: "Rigged!!"
 
+    unfair: "This is unfair!"
+    overconfident: "Overconfident"
+    stubborn: "Stubborn"
+
+    winnerWinnerChickenDinner: "Winner winner chicken dinner"
+
+    mediumClass: "Medium Class"
+    upperClass: "Upper Class"
+    richBoi: "Rich boii"
+    billGates: "Literally Bill Gates"
+
 command:
   permissionLock: "⛔ You can't use this command!"
 
@@ -165,11 +179,15 @@ command:
     description: "Gamble your tokens in a slots game! Totally not rigged trust me"
 
   tokens:
-    own: "You have 🔸 %s tokens"
-    earnUpvote: "Get more tokens winning matches, completing achievements, voting in %s or gambling with `%sslots`."
-    earn: "Get more tokens winning matches, completing achievements or gambling with `%sslots`.\n*You can upvote again in %s*"
     other: "%s has 🔸 %s tokens"
-    description: "View how many tokens you or someone else has"
+    own: "You have 🔸 %s tokens\nHere are some ways to get more:"
+    winningMatches: "**Winning matches**"
+    upvoteCan: "Upvoting the bot (%s days in a row = + 🔸 %s tokens!)"
+    upvoteLater: "~~Upvoting the bot~~ (You can do it again in %s)"
+    achievements: "**Completing achievements:**\n"
+    noAchievements: "~~Completing achievements~~ (No achievements left to complete)"
+
+    description: "View how many tokens you or someone else has, and view your progress in achievements"
   join:
     alreadyOnMatch: "You're already on the match!"
     full: "The match is full!"

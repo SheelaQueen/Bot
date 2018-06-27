@@ -14,37 +14,43 @@ import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.entities.User;
 
+import java.sql.ResultSet;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.function.Consumer;
 
 @AllArgsConstructor
 public enum AchievementType {
-    PLAY_GAMES("playGames", new Achievement[]{
-            Achievements.realPlayer, Achievements.intensePlayer, Achievements.proPlayer, Achievements.tooManyGames
-    }), WIN_GAMES("winGames", new Achievement[] {
-            Achievements.crowned, Achievements.master, Achievements.tooGood, Achievements.tryhard
-    }), GAMBLE_TOKENS("gambleTokens", new Achievement[] {
-            Achievements.gambler, Achievements.addicted, Achievements.highRoller
-    }), WIN_TOKENS_GAMBLING("winTokensGambling", new Achievement[] {
-            Achievements.onARoll, Achievements.lucky, Achievements.rigged
-    }), LOSE_TOKENS_GAMBLING("loseTokensGambling", new Achievement[] {}),
-    REACH_PLACE_LEADERBOARD("reachPlaceLeaderboard", new Achievement[] {}),
-    REACH_TOKENS("reachTokens", new Achievement[] {}),
-    OTHER("other", new Achievement[] {});
+    PLAY_GAMES("playGames"), WIN_GAMES("winGames"), GAMBLE_TOKENS("gambleTokens"), WIN_TOKENS_GAMBLING("winTokensGambling"),
+    LOSE_TOKENS_GAMBLING("loseTokensGambling"), REACH_PLACE_LEADERBOARD("reachPlaceLeaderboard"),
+    REACH_TOKENS("reachTokens"), OTHER("other");
 
     private static final String[] ACHIEVEMENT_GOT_EMOTES = {
         "\uD83D\uDC83", "\uD83D\uDC51", "\uD83D\uDCAB", "<:rules_header:456960990559338497>", "\uD83C\uDF20", "\uD83C\uDF89"
     };
 
     @Getter private String languageCode;
-    private Achievement[] achievements;
 
     public void addAmount(int amount, CommandContext context, Consumer<MessageBuilder> before) {
         context.send(builder -> {
             before.accept(builder);
             addAmount(false, amount, builder, context.getAuthor(), Constants.getLanguage(context));
         });
+    }
+
+    public int getAmount(User user) {
+        try {
+            if (GamesROB.database.isPresent()) {
+                ResultSet set = GamesROB.database.get().select("achievements", Collections.singletonList("amount"),
+                        "userid = '" + user.getId() + "' AND type = '" + toString() + "'");
+                if (set.next()) return set.getInt("amount");
+                return 0;
+            } else return 0;
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new RuntimeException(e);
+        }
     }
 
     public void addAmount(boolean tagName, int amount, MessageBuilder builder, User user, String language) {
@@ -67,7 +73,8 @@ public enum AchievementType {
                 statement.setInt(2, newAmount);
                 statement.setString(3, profile.getUserId());
 
-                for (Achievement achievement : achievements)
+                Arrays.stream(Achievements.values()).filter(it -> it.getAchievement().getType().equals(this)).forEach(achievements -> {
+                    Achievement achievement = achievements.getAchievement();
                     if (prevAmount < achievement.getAmount() && newAmount >= achievement.getAmount()) {
                         // Achievement got!
                         builder.append("\n");
@@ -76,8 +83,11 @@ public enum AchievementType {
                                 .append(Language.transl(language, "game.achievement.got",
                                         achievement.getName(language), achievement.getDescription(language),
                                         achievement.getTokens()));
+
                         profile.addTokens(achievement.getTokens());
+                        AchievementType.REACH_TOKENS.addAmount(tagName, achievement.getTokens(), builder, user, language);
                     }
+                });
             }));
         });
     }
