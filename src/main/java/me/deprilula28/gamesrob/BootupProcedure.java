@@ -121,17 +121,6 @@ public class BootupProcedure {
         // Commands
         CommandManager.registerCommands(f);
 
-        f.handleEvent(GuildMessageReactionAddEvent.class, event -> {
-            try {
-                if (Match.GAMES.containsKey(event.getChannel())) Match.GAMES.get(event.getChannel()).reaction(event);
-                else if (Match.REMATCH_GAMES.containsKey(event.getChannel()))
-                    Match.REMATCH_GAMES.get(event.getChannel())
-                            .reaction(event);
-            } catch (Exception e) {
-                Log.exception("Guild message reaction add had an error", e);
-            }
-        });
-
         f.handleEvent(MessageReceivedEvent.class, event -> {
             if (Match.PLAYING.containsKey(event.getAuthor())) {
                 Match game = Match.PLAYING.get(event.getAuthor());

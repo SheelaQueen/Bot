@@ -13,8 +13,10 @@ import me.deprilula28.gamesrob.utility.Constants;
 import me.deprilula28.gamesrob.utility.Log;
 import me.deprilula28.gamesrob.utility.Utility;
 import me.deprilula28.jdacmdframework.Command;
+import me.deprilula28.jdacmdframework.CommandContext;
 import me.deprilula28.jdacmdframework.RequestPromise;
 import me.deprilula28.jdacmdframework.exceptions.CommandArgsException;
+import me.deprilula28.jdacmdframework.exceptions.InvalidCommandSyntaxException;
 import net.dv8tion.jda.core.JDA;
 import net.dv8tion.jda.core.MessageBuilder;
 import net.dv8tion.jda.core.Permission;
@@ -258,34 +260,27 @@ public class Match extends Thread {
         )).queue();
     }
 
-    public void reaction(GuildMessageReactionAddEvent event) {
-        if (event.getUser().isBot()) return;
-        String name = event.getReactionEmote().getName();
-
-        if (name.equals("\uD83D\uDEAA")) {
-            // Trying to join
-            if (Match.PLAYING.containsKey(event.getUser()) || getPlayers().contains(Optional.of(event.getUser()))
-                    || getPlayers().size() == getTargetPlayerCount() + 1 || (betting.isPresent() &&
-                    !UserProfile.get(event.getUser()).transaction(betting.get())) || gameState != GameState.PRE_GAME) {
-                if (Utility.hasPermission(channelIn, channelIn.getGuild().getMember(channelIn.getJDA().getSelfUser()),
-                    Permission.MESSAGE_MANAGE)) event.getReaction().removeReaction(event.getUser()).queue();
-                return;
-            }
-
-            joined(event.getUser());
-        } else if (name.equals("\uD83D\uDD04")) {
-            // Rematch
-            event.getReaction().getUsers().queue(allVoted -> {
-                if (GAMES.containsKey(event.getChannel()) || PLAYING.containsKey(event.getUser()) ||
-                        !players.stream().filter(Optional::isPresent).map(Optional::get).allMatch(allVoted::contains)) return;
-                preMatchMessage.then(it -> it.delete().queue());
-
-                if (game.getGameType().equals(GameType.HYBRID)) new Match(game, creator, channelIn, options)
-                        .matchesPlayed = matchesPlayed + 1;
-                else new Match(game, creator, channelIn, targetPlayerCount, players, options, matchesPlayed + 1);
-                interrupt();
-            });
+    public void joinReaction(CommandContext context) {
+        if (Match.PLAYING.containsKey(context.getAuthor()) || getPlayers().contains(Optional.of(context.getAuthor()))
+                || getPlayers().size() == getTargetPlayerCount() + 1 || (betting.isPresent() &&
+                !UserProfile.get(context.getAuthor()).transaction(betting.get())) || gameState != GameState.PRE_GAME) {
+            throw new InvalidCommandSyntaxException();
         }
+
+        joined(context.getAuthor());
+    }
+
+    public void rematchReaction(CommandContext context) {
+        ((GuildMessageReactionAddEvent) context.getEvent()).getReaction().getUsers().queue(allVoted -> {
+            if (GAMES.containsKey(context.getChannel()) || PLAYING.containsKey(context.getAuthor()) ||
+                    !players.stream().filter(Optional::isPresent).map(Optional::get).allMatch(allVoted::contains)) return;
+            preMatchMessage.then(it -> it.delete().queue());
+
+            if (game.getGameType().equals(GameType.HYBRID)) new Match(game, creator, channelIn, options)
+                    .matchesPlayed = matchesPlayed + 1;
+            else new Match(game, creator, channelIn, targetPlayerCount, players, options, matchesPlayed + 1);
+            interrupt();
+        });
     }
 
     public void onEnd(Optional<User> winner) {

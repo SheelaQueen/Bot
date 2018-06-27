@@ -18,6 +18,7 @@ import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.Permission;
 import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.User;
+import net.dv8tion.jda.core.events.message.guild.react.GuildMessageReactionAddEvent;
 
 import java.lang.reflect.Field;
 import java.security.acl.Owner;
@@ -194,6 +195,14 @@ public class CommandManager {
             avgCommandDelay = (int) (avgCommandDelay * (1.0 - singleCommandWeight) + delay * singleCommandWeight);
 
             return null;
+        });
+
+        // Door
+        f.reactionHandler("\uD83D\uDEAA", context -> {
+            if (Match.GAMES.containsKey(context.getChannel())) Match.GAMES.get(context.getChannel()).joinReaction(context);
+        });
+        f.reactionHandler("\uD83D\uDD04", context -> {
+            if (Match.REMATCH_GAMES.containsKey(context.getChannel())) Match.REMATCH_GAMES.get(context.getChannel()).rematchReaction(context);
         });
 
         f.getSettings().setMentionedMessageGetter(guild -> {
