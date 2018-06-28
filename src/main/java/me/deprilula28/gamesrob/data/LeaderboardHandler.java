@@ -51,7 +51,7 @@ public class LeaderboardHandler {
             Map<String, UserProfile.GameStatistics> userStats = new HashMap<>();
 
             Log.wrapException("SQL Exception", () -> {
-                ResultSet overallSelect = db.select("leaderboardEntries", Arrays.asList("userid", "victories", "losses", "gamesplayed"),
+                ResultSet overallSelect = db.select("leaderboardEntries", Arrays.asList("userid", "victories", "losses", "gamesplayed", "gameid"),
                         "guildid = '" + guildId + "' AND userid='" + userId + "'");
                 while (overallSelect.next()) {
                     UserProfile.GameStatistics stats = new UserProfile.GameStatistics(overallSelect.getInt("victories"),
@@ -95,15 +95,25 @@ public class LeaderboardHandler {
     private void saveEntry(SQLDatabaseManager db, String gameId, LeaderboardEntry entry) {
         db.save("leaderboardEntries", Arrays.asList("victories", "losses", "gamesplayed", "guildid", "userid", "gameid"),
                 "guildid = '" + guildId + "' AND userid = '" + entry.getId() + "' AND gameid = '" + gameId + "'",
-            statement -> {
-                Log.wrapException("Saving leaderboard entry", () -> {
-                    statement.setInt(0, entry.getStats().getVictories());
-                    statement.setInt(1, entry.getStats().getLosses());
-                    statement.setInt(2, entry.getStats().getGamesPlayed());
-                    statement.setString(3, guildId);
-                    statement.setString(4, entry.getId());
-                    statement.setString(5, gameId);
-                });
-        });
+            set -> {
+                try {
+                    return set.getString("gameid").equals(gameId) &&
+                        set.getString("guildid").equals(guildId) &&
+                            new LeaderboardEntry(set.getString("userid"), new UserProfile.GameStatistics(
+                                    set.getInt("victories"), set.getInt("losses"),
+                                    set.getInt("gamesplayed")
+                            )).equals(entry);
+                } catch (Exception e) {
+                    Log.exception("Saving Leaderboard Entry SQL", e);
+                    return false;
+                }
+            }, (set, statement) -> Log.wrapException("Saving leaderboard entry", () -> {
+                statement.setInt(1, entry.getStats().getVictories());
+                statement.setInt(2, entry.getStats().getLosses());
+                statement.setInt(3, entry.getStats().getGamesPlayed());
+                statement.setString(4, guildId);
+                statement.setString(5, entry.getId());
+                statement.setString(6, gameId);
+            }));
     }
 }

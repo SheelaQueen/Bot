@@ -6,7 +6,7 @@
 
     <groupId>me.deprilula28</groupId>
     <artifactId>gamesrob</artifactId>
-    <version>1.6.2</version>
+    <version>1.6.3</version>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -23,13 +23,10 @@
 
         <!-- Dependencies -->
         <lombok.version>1.16.18</lombok.version>
-        <jdaframework.version>1.1.9</jdaframework.version>
+        <jdaframework.version>1.1.12</jdaframework.version>
         <slf4j.version>1.7.13</slf4j.version>
         <emoji-java.version>4.0.0</emoji-java.version>
         <snakeyaml.version>1.19</snakeyaml.version>
-        <sparkjava-jade.version>2.7.1</sparkjava-jade.version>
-        <sparkjava.version>2.7.2</sparkjava.version>
-        <markdown4j.version>2.2-cj-1.0</markdown4j.version>
         <jedis.version>2.9.0</jedis.version>
         <postgresql.version>9.1-901-1.jdbc4</postgresql.version>
         <java-websocket.version>1.3.8</java-websocket.version>
@@ -71,27 +68,6 @@
             <groupId>redis.clients</groupId>
             <artifactId>jedis</artifactId>
             <version>${jedis.version}</version>
-        </dependency>
-
-        <!-- Markdown4j -->
-        <dependency>
-            <groupId>org.commonjava.googlecode.markdown4j</groupId>
-            <artifactId>markdown4j</artifactId>
-            <version>${markdown4j.version}</version>
-        </dependency>
-
-        <!-- Jade Template for SparkJava -->
-        <dependency>
-            <groupId>com.sparkjava</groupId>
-            <artifactId>spark-template-jade</artifactId>
-            <version>${sparkjava-jade.version}</version>
-        </dependency>
-
-        <!-- SparkJava -->
-        <dependency>
-            <groupId>com.sparkjava</groupId>
-            <artifactId>spark-core</artifactId>
-            <version>${sparkjava.version}</version>
         </dependency>
 
         <!-- SnakeYAML -->

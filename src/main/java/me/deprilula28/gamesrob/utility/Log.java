@@ -161,11 +161,11 @@ public class Log {
         void invoke() throws Exception;
     }
 
-    public static void wrapException(String status, ExceptionWrapper wrapper) {
+    public static void wrapException(String status, ExceptionWrapper wrapper, Object... objects) {
         try {
             wrapper.invoke();
         } catch (Exception e) {
-            exception(status, e);
+            exception(status, e, (Object[]) objects);
         }
     }
 }

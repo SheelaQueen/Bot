@@ -27,7 +27,7 @@ import java.util.stream.Stream;
 public class Quiz implements MatchHandler {
     private static String[] ITEMS;
     public static final GamesInstance GAME = new GamesInstance(
-            "quiz", "quiz trivia quizzes",
+            "quiz", "quiz trivia quizzes qz",
             1, 11, GameType.MULTIPLAYER, false,
             Quiz::new, Quiz.class
     );
@@ -41,6 +41,7 @@ public class Quiz implements MatchHandler {
     @Setting(min = 1, max = 20, defaultValue = 5) public int rounds;
     private static final long MAX_TIME = TimeUnit.MINUTES.toMillis(5);
     private static final int MAX_SCORE = 100;
+    private static final int MIN_SCORE = 50;
 
     private Match match;
 
@@ -74,21 +75,23 @@ public class Quiz implements MatchHandler {
     }
     private static Map<String, BlockingQueue<OpenTDBResponse.QuizQuestion>> urlMap = new HashMap<>();
 
-    private static OpenTDBResponse request(String url) {
-        return Constants.GSON.fromJson(HttpRequest.get(url).body(), OpenTDBResponse.class);
+    private static OpenTDBResponse request(String url, int amount) {
+        return Constants.GSON.fromJson(HttpRequest.get(url + "&amount=" + amount).body(), OpenTDBResponse.class);
     }
 
     public static OpenTDBResponse.QuizQuestion getQuestion(String url) {
         if (urlMap.containsKey(url)) {
             BlockingQueue<OpenTDBResponse.QuizQuestion> queue = urlMap.get(url);
-            OpenTDBResponse.QuizQuestion question = queue.poll();
-            if (queue.size() < 10) Utility.Promise.provider(() -> request(url)).then(it ->
+            if (queue.size() < 10) Utility.Promise.provider(() -> request(url, 50)).then(it ->
                 queue.addAll(it.getResults()));
+
+            OpenTDBResponse.QuizQuestion question = queue.poll();
+            if (question == null) return request(url, 1).getResults().get(0);
 
             return question;
         } else {
             BlockingQueue<OpenTDBResponse.QuizQuestion> queue = new LinkedBlockingQueue<>();
-            queue.addAll(request(url).getResults());
+            queue.addAll(request(url, 50).getResults());
             urlMap.put(url, queue);
 
             return queue.poll();
@@ -97,10 +100,10 @@ public class Quiz implements MatchHandler {
 
     private void newQuizQuestion() {
         double percentDone = (double) roundsDone / (double) rounds;
-        curQuestion = getQuestion("https://opentdb.com/api.php?amount=1&difficulty=" + (
-                percentDone >= 2.0 / 3.0 ? "hard" :
-                        percentDone >= 1.0 / 3.0 ? "medium" :
-                                "easy"
+        curQuestion = getQuestion("https://opentdb.com/api.php?difficulty=" + (
+            percentDone >= 2.0 / 3.0 ? "hard" :
+            percentDone >= 1.0 / 3.0 ? "medium" :
+            "easy"
         ));
         questionAsked = System.currentTimeMillis();
 
@@ -129,12 +132,14 @@ public class Quiz implements MatchHandler {
             if (letter < 0 || letter >= orderedOptions.size()) return;
 
             Optional<User> player = Optional.of(author);
-            if (attempts.containsKey(player) && attempts.get(player) >= orderedOptions.size() / 2) return;
+            if (attempts.containsKey(player) && attempts.get(player) >= orderedOptions.size() / 2) {
+                reference.addReaction("⛔").queue();
+                return;
+            }
 
             String option = orderedOptions.get(letter);
             if (curQuestion.getCorrectAnswer().equals(option)) {
-
-                double score = ((double) (System.currentTimeMillis() - questionAsked) / (double) MAX_TIME) * MAX_SCORE;
+                double score = Math.min((1 - ((double) (System.currentTimeMillis() - questionAsked) / (double) MAX_TIME)) * MAX_SCORE, MIN_SCORE);
                 scoreboard.put(player, scoreboard.containsKey(player) ? scoreboard.get(player) + score : score);
 
                 if (roundsDone == rounds) {
@@ -144,21 +149,23 @@ public class Quiz implements MatchHandler {
                 } else {
                     attempts.clear();
                     Log.wrapException("Failed to get quiz question", this::newQuizQuestion);
-                    lastNotification = Optional.of(Language.transl(match.getLanguage(), "game.quiz.answer", author.getAsMention(), score));
+                    lastNotification = Optional.of(Language.transl(match.getLanguage(), "game.quiz.answer",
+                            author.getAsMention(), Math.round(score)) + "\n");
                     updateMessage();
                 }
+                reference.addReaction("<:check:314349398811475968>").queue();
             } else {
                 attempts.put(player, attempts.containsKey(player) ? attempts.get(player) + 1 : 1);
                 if (attempts.get(player) >= orderedOptions.size() / 2) {
                     if (match.getPlayers().stream().allMatch(it -> attempts.containsKey(it) && attempts.get(it) >= orderedOptions.size() / 2)) {
                         attempts.clear();
                         lastNotification = Optional.of(Language.transl(match.getLanguage(), "game.quiz.noOneAnswered",
-                                curQuestion.getCorrectAnswer()));
+                                curQuestion.getCorrectAnswer()) + "\n");
                         Log.wrapException("Failed to get quiz question", this::newQuizQuestion);
                         updateMessage();
                     } else match.getChannelIn().sendMessage(Language.transl(match.getLanguage(),
                             "game.quiz.cantPlay", player.map(User::getAsMention).orElse("**AI**"))).queue();
-                }
+                } else reference.addReaction("<:xmark:314349398824058880>").queue();
             }
         }
     }
@@ -181,12 +188,15 @@ public class Quiz implements MatchHandler {
         String decodedQuestion = curQuestion.getQuestion().replaceAll("&quot;", "\"").replaceAll("&#039;", "'");
         if (over) builder.append(Language.transl(match.getLanguage(), "game.quiz.revealAnswer", decodedQuestion,
                 curQuestion.getCorrectAnswer()));
-        else builder.append(String.format("<:qmgreenupsidedown:456945984736460801> **%s/%s**\n%s *- %s*\n\n%s\n%s\n",
-                roundsDone, rounds,
-                curQuestion.getCategory(), curQuestion.getDifficulty(),
-                decodedQuestion.replaceAll("\\?", "<:qmgreen:456945984656900096>"),
-                orderedOptions.stream().map(it -> Utility.getLetterEmote(orderedOptions.indexOf(it)) + " " + it)
-                    .collect(Collectors.joining("\n"))));
+        else {
+            lastNotification.ifPresent(builder::append);
+            builder.append(String.format("<:qmgreenupsidedown:456945984736460801> **%s/%s**\n%s *- %s*\n\n%s\n%s\n",
+                    roundsDone, rounds,
+                    curQuestion.getCategory(), curQuestion.getDifficulty(),
+                    decodedQuestion.replaceAll("\\?", "<:qmgreen:456945984656900096>"),
+                    orderedOptions.stream().map(it -> Utility.getLetterEmote(orderedOptions.indexOf(it)) + " " + it)
+                            .collect(Collectors.joining("\n"))));
+        }
         playerItems.forEach((player, item) -> {
             boolean contains = scoreboard.containsKey(player);
             if (!over || contains) builder.append("\n").append(item).append(" ").append(player.map(User::getName).orElse("**AI**"));

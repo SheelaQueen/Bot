@@ -4,6 +4,7 @@ import me.deprilula28.gamesrob.Language;
 import me.deprilula28.gamesrob.commands.ProfileCommands;
 import me.deprilula28.gamesrob.data.Statistics;
 import me.deprilula28.gamesrob.data.UserProfile;
+import me.deprilula28.jdacmdframework.exceptions.CommandArgsException;
 import net.dv8tion.jda.core.Permission;
 import net.dv8tion.jda.core.entities.*;
 
@@ -27,7 +28,7 @@ import java.util.stream.Collectors;
 
 public class Utility {
     private static final double[] TIME_MEASURE_UNITS = {
-            24 * 60 * 60 * 1000, 60 * 60 * 1000, 60 * 1000, 1000, 1, 1.0 / 1000000.0 // days, hours, minutes, seconds, millis, micro
+            24 * 60 * 60 * 1000, 60 * 60 * 1000, 60 * 1000, 1000, 1, 1.0 / 1000000.0 // days, hours, minutes, seconds, milliseconds, microseconds
     };
     private static final String[] TIME_UNIT_NAMES = {
             "d", "h", "m", "s", "ms", "μs"
@@ -42,7 +43,8 @@ public class Utility {
 
     public static Color getEmbedColor(Guild guild) {
         Color color = guild.getMember(guild.getJDA().getSelfUser()).getColor();
-        return color.equals(Color.white) ? Constants.BOT_COLORS[ThreadLocalRandom.current().nextInt(Constants.BOT_COLORS.length)] : color;
+        return color == null || color.equals(Color.white) ?
+                Constants.BOT_COLORS[ThreadLocalRandom.current().nextInt(Constants.BOT_COLORS.length)] : color;
     }
 
     public static class Promise<R> {
@@ -176,6 +178,15 @@ public class Utility {
 
     public static String formatPeriod(long timePeriod) {
         return formatPeriod((double) timePeriod);
+    }
+
+    public static long extractPeriod(String text) {
+        if (text.matches("[0-9]+[dhms]")) {
+            int n = Integer.valueOf(text.substring(0, text.length() - 1) + "");
+            int period = Arrays.asList(TIME_UNIT_NAMES).indexOf(text.charAt(text.length() - 1) + "");
+            if (period < -1) throw new CommandArgsException("Time period isn't existant!");
+            return (long) TIME_MEASURE_UNITS[period] * n;
+        } else throw new CommandArgsException("Couldn't extract period!");
     }
 
     public static void quietlyClose(Closeable closeable) {
@@ -332,9 +343,16 @@ public class Utility {
                 .anyMatch(it -> it.getMember().equals(member) && it.getAllowed().contains(permission));
     }
 
+    private static long nextUpdatePredictment = -1;
+
     public static long predictNextUpdate() {
+        if (nextUpdatePredictment != -1) return nextUpdatePredictment;
+
         LocalDateTime time = Instant.ofEpochMilli(Statistics.get().getLastUpdateLogSentTime())
                 .atZone(ZoneId.systemDefault()).toLocalDateTime();
-        return time.with(TemporalAdjusters.next(DayOfWeek.FRIDAY)).atZone(ZoneId.systemDefault()).toInstant().toEpochMilli();
+        long prediction = time.with(TemporalAdjusters.next(DayOfWeek.FRIDAY)).atZone(ZoneId.systemDefault()).toInstant().toEpochMilli();
+        nextUpdatePredictment = prediction;
+
+        return prediction;
     }
 }

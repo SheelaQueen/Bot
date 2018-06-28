@@ -13,7 +13,7 @@ CREATE TABLE IF NOT EXISTS userData (
     lastupvote BIGINT,
     upvoteddays INT,
     shardid INT,
-    userID TEXT
+    userid TEXT
 );
 CREATE TABLE IF NOT EXISTS leaderboardEntries (
     userid TEXT,
@@ -42,4 +42,10 @@ CREATE TABLE IF NOT EXISTS achievements (
     type TEXT,
     userid TEXT,
     amount INT
+);
+CREATE TABLE IF NOT EXISTS blacklist (
+    userid TEXT,
+    botownerid TEXT,
+    reason TEXT,
+    time BIGINT
 );

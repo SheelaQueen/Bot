@@ -5,7 +5,7 @@ languageProperties:
   country: "USA"
   languageName: "🇺🇸 American English"  
   translators: "deprilula28#3609"
-  version: "1.5.2"
+  version: "1.6.2"
 
 genericMessages:
   alreadyPlaying: "You are already playing another game on %s!\nType `%sstop` to stop that match."
@@ -21,6 +21,8 @@ genericMessages:
   nth4: "th"
   upvoteMessage: "Thank you for upvoting GamesROB!\nYou've earnt:\n**%s**\nUpvote streak: **%s days**\nKeep upvoting daily for more rewards!"
   ownersOnly: "This command is only accessible for owners."
+  blacklisted: "⛔ You were blacklisted from using GamesROB by %s (%s).\nReason: %s"
+  blacklistedNoInfo: "⛔ You were blacklisted from using GamesROB."
 
 welcome: "" # Do not translate this key! It's only going to be used in english.
 
@@ -122,6 +124,48 @@ game:
     answer: "%s (+%s points) has answered it correctly!"
     noOneAnswered: "No one could answer that! The answer was \"**%s**\"."
 
+  achievement:
+    got: "Achievement got: **%s**!\n*%s*\n+🔸 %s tokens"
+
+    # Types
+    playGames: "Play %s games"
+    winGames: "Win %s games"
+    gambleTokens: "Gamble %s tokens"
+    winTokensGambling: "Win %s tokens gambling"
+    loseTokensGambling: "Lose %s tokens gambling"
+    reachPlaceLeaderboard: "Reach %sst place in the leaderboard"
+    reachTokens: "Get %s tokens"
+
+    # Achievements
+    realPlayer: "Real Player"
+    intensePlayer: "Intense Player"
+    proPlayer: "Pro Player"
+    tooManyGames: "Too Many Games"
+
+    crowned: "#Crowned"
+    master: "Master"
+    tooGood: "Too Good"
+    tryhard: "Tryhard"
+
+    gambler: "Gambler"
+    addicted: "Addicted"
+    highRoller: "High Roller"
+
+    onARoll: "On a Roll"
+    lucky: "Lucky"
+    rigged: "Rigged!!"
+
+    unfair: "This is unfair!"
+    overconfident: "Overconfident"
+    stubborn: "Stubborn"
+
+    winnerWinnerChickenDinner: "Winner winner chicken dinner"
+
+    mediumClass: "Medium Class"
+    upperClass: "Upper Class"
+    richBoi: "Rich boii"
+    billGates: "Literally Bill Gates"
+
 command:
   permissionLock: "⛔ You can't use this command!"
 
@@ -135,11 +179,15 @@ command:
     description: "Gamble your tokens in a slots game! Totally not rigged trust me"
 
   tokens:
-    own: "You have 🔸 %s tokens"
-    earnUpvote: "Get more tokens winning matches, completing achievements, voting in %s or gambling with `%sslots`."
-    earn: "Get more tokens winning matches, completing achievements or gambling with `%sslots`.\n*You can upvote again in %s*"
     other: "%s has 🔸 %s tokens"
-    description: "View how many tokens you or someone else has"
+    own: "You have 🔸 %s tokens\nHere are some ways to get more:"
+    winningMatches: "**Winning matches**"
+    upvoteCan: "Upvoting the bot (%s days in a row = + 🔸 %s tokens!)"
+    upvoteLater: "~~Upvoting the bot~~ (You can do it again in %s)"
+    achievements: "**Completing achievements:**\n"
+    noAchievements: "~~Completing achievements~~ (No achievements left to complete)"
+
+    description: "View how many tokens you or someone else has, and view your progress in achievements"
   join:
     alreadyOnMatch: "You're already on the match!"
     full: "The match is full!"
@@ -194,7 +242,7 @@ command:
       infocommands: "Information"
     other: "%s others"
 
-    websiteTitle: "Our website"
+    websiteTitle: "Check out our website!"
     description: "Gets you some help!"
   invite:
     embed:

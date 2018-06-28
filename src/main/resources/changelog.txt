@@ -1,12 +1,9 @@
-- New game mode: Quiz!
-Do you know the answers?
-The player who can answer the most questions accurately wins.
+- Added achievements! You can look at the achievements in `g*tokens`, and they'll get you tokens when you complete them!
+- Help command now has announcements! How cool right?
 
-- Romanian language by RT - 𝓒𝓖#7528 was added!
-- Added reactions for categories in the help command.
-
-- Fixed rematch reactions once and for all!
-- Fixed innacurate leaderboards.
-- Fixed emoji with `g*hangman` and `g*minesweeper`
+- Fixed stucking you into games if they have errors returning messages...
+- Fixed things not saving
+- Fixed the DM Message always being in the bottom of Hangman
+- Fixed hangman randomly erroring out
 
 Enjoy! ~ deprilula28

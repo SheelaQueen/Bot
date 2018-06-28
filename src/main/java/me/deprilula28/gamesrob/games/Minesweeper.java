@@ -26,7 +26,7 @@ public class Minesweeper implements MatchHandler {
     private static final Map<String, String> EMOTE_ID_MAP = new HashMap<>();
     private static boolean loaded = false;
 
-    public static void ensureLoaded() {
+    private static void ensureLoaded() {
         if (loaded) return;
         loaded = true;
 
@@ -34,8 +34,6 @@ public class Minesweeper implements MatchHandler {
             String name = "bombs" + i;
             GameUtil.getEmote(name).ifPresent(it -> EMOTE_ID_MAP.put(name, it));
         }
-        GameUtil.getEmote("unnocupied").ifPresent(it -> EMOTE_ID_MAP.put("unnocupied", it));
-        GameUtil.getEmote("flag").ifPresent(it -> EMOTE_ID_MAP.put("flag", it));
         Log.info(EMOTE_ID_MAP);
     }
 
@@ -46,7 +44,7 @@ public class Minesweeper implements MatchHandler {
 
     @Data
     @AllArgsConstructor
-    public class MinesweeperTile {
+    private class MinesweeperTile {
         private MinesweeperTileType type;
         private boolean flagged;
     }

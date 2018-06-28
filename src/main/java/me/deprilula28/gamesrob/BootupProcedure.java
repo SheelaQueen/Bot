@@ -65,8 +65,8 @@ public class BootupProcedure {
         token = pargs.get(0).orElseThrow(() -> new RuntimeException("You need to provide a token!"));
         optDblToken = pargs.get(1);
         shardTo = pargs.get(2).map(Integer::parseInt).orElse(1);
-        GamesROB.owners = pargs.get(3).map(it -> Arrays.stream(it.split(",")).map(Long::parseLong).collect(Collectors.toList()))
-                .orElse(Collections.singletonList(197448151064379393L));
+        GamesROB.owners = Collections.unmodifiableList(pargs.get(3).map(it -> Arrays.stream(it.split(",")).map(Long::parseLong).collect(Collectors.toList()))
+                .orElse(Collections.singletonList(197448151064379393L)));
         GamesROB.database = pargs.get(4).map(SQLDatabaseManager::new);
         GamesROB.debug = pargs.get(5).map(Boolean::parseBoolean).orElse(false);
         GamesROB.twitchUserIDListen = pargs.get(6).map(Long::parseLong).orElse(-1L);
@@ -93,15 +93,13 @@ public class BootupProcedure {
     private static final BootupTask connectDiscord = args -> {
         int curShard = shardFrom;
         while (curShard < shardTo) {
-            String shard = curShard + "/" + (shardTo - 1);
-
             JDA jda = new JDABuilder(AccountType.BOT).setToken(token)
                     .useSharding(curShard, totalShards).setStatus(OnlineStatus.DO_NOT_DISTURB)
                     .setGame(Game.watching("it all load...")).buildBlocking();
             GamesROB.shards.add(jda);
             Match.ACTIVE_GAMES.put(jda, new ArrayList<>());
 
-            Log.info("Shard loaded: " + shard);
+            Log.info("Shard loaded: " + curShard + "/" + (shardTo - 1));
             curShard ++;
             if (curShard < shardTo) Thread.sleep(5000L);
         }
@@ -122,17 +120,6 @@ public class BootupProcedure {
 
         // Commands
         CommandManager.registerCommands(f);
-
-        f.handleEvent(GuildMessageReactionAddEvent.class, event -> {
-            try {
-                if (Match.GAMES.containsKey(event.getChannel())) Match.GAMES.get(event.getChannel()).reaction(event);
-                else if (Match.REMATCH_GAMES.containsKey(event.getChannel()))
-                    Match.REMATCH_GAMES.get(event.getChannel())
-                            .reaction(event);
-            } catch (Exception e) {
-                Log.exception("Guild message reaction add had an error", e);
-            }
-        });
 
         f.handleEvent(MessageReceivedEvent.class, event -> {
             if (Match.PLAYING.containsKey(event.getAuthor())) {
@@ -189,7 +176,7 @@ public class BootupProcedure {
                     event.getJDA().getGuilds().size()));
 
             GamesROB.dboAPI = Optional.of(dbo);
-            GamesROB.owners = GamesROB.dboAPI.get().getBot().getOwners().stream().map(Long::parseLong).collect(Collectors.toList());
+            GamesROB.owners = Collections.unmodifiableList(GamesROB.dboAPI.get().getBot().getOwners().stream().map(Long::parseLong).collect(Collectors.toList()));
     });
 
     private static final BootupTask presenceTask = args -> {

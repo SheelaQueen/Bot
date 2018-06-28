@@ -15,7 +15,9 @@ import java.util.Optional;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadPoolExecutor;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 public class SQLDatabaseManager {
@@ -58,18 +60,21 @@ public class SQLDatabaseManager {
         return promise;
     }
 
-    private ResultSet sqlQuery(String sql) throws Exception {
+    public ResultSet sqlQuery(String sql) throws Exception {
         return connection.createStatement().executeQuery(sql);
     }
 
-    public Utility.Promise<Void> save(String table, List<String> keys, String where, Consumer<PreparedStatement> consumer) {
+    public Utility.Promise<Void> save(String table, List<String> keys, String where, Predicate<ResultSet> checkSameValue,
+                                      BiConsumer<Optional<ResultSet>, PreparedStatement> consumer) {
         try {
             ResultSet set = select(table, keys, where);
-            if (set.next()) return update(table, keys, where, consumer);
-            else return insert(table, keys, consumer);
+            if (set.next()) {
+                if (checkSameValue.test(set)) return Utility.Promise.result(null);
+                else return update(table, keys, where, statement -> consumer.accept(Optional.of(set), statement));
+            } else return insert(table, keys, statement -> consumer.accept(Optional.empty(), statement));
         } catch (PSQLException ex) {
             Log.trace(ex.getClass().getName() + ": " + ex.getMessage());
-            return insert(table, keys, consumer);
+            return insert(table, keys, statement -> consumer.accept(Optional.empty(), statement));
         } catch (Exception e) {
             Log.exception("Saving SQL Data", e);
             return null;
@@ -102,7 +107,7 @@ public class SQLDatabaseManager {
         ), statement -> Log.wrapException("Inserting to SQL table", () -> {
             consumer.accept(statement);
             statement.executeUpdate();
-        }));
+        }, table, keys, consumer));
     }
 
     public Utility.Promise<Void> update(String table, List<String> keys, String where, Consumer<PreparedStatement> consumer) {
