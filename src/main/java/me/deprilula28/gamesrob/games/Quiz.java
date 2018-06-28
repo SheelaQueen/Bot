@@ -27,7 +27,7 @@ import java.util.stream.Stream;
 public class Quiz implements MatchHandler {
     private static String[] ITEMS;
     public static final GamesInstance GAME = new GamesInstance(
-            "quiz", "quiz trivia quizzes",
+            "quiz", "quiz trivia quizzes qz",
             1, 11, GameType.MULTIPLAYER, false,
             Quiz::new, Quiz.class
     );

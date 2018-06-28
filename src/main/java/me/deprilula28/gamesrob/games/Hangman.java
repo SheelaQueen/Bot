@@ -124,9 +124,9 @@ public class Hangman implements MatchHandler {
         if (messages > Constants.MESSAGES_SINCE_THRESHOLD) messages = 0;
     }
 
-    public boolean detectVictory(User user) {
+    private boolean detectVictory(User user) {
         if (word.isPresent() && word.get().chars().mapToObj(c -> (char) c).allMatch(it ->
-                guessedLetters.contains(Character.toLowerCase(it)) || it == ' ')) {
+                guessedLetters.contains(Character.toLowerCase(it)) || !Character.isLetter(it)) ) {
             match.onEnd(Optional.of(user));
             return true;
         }
@@ -148,49 +148,21 @@ public class Hangman implements MatchHandler {
                     if (curPlayer.isPresent() && match.getCreator().equals(curPlayer.get())) continue;
                     PlayerInfo playerInfo = playerInfoMap.get(curPlayer);
 
-                    List<StringBuilder> lines = new ArrayList<>();
-                    String[] curLines = {
-                            "`" + curPlayer.map(User::getName).orElse("AI") + "`",
-                            " \\_\\_\\_\\_",
-                            "⏐          ",
-                            "⏐       ", //+ FACES[5 - (playerInfo.bottom + playerInfo.torso + 1)],
-                            "⏐       ", //+ BODY_PARTS.getTwitch(playerInfo.torso),
-                            "⏐       ", //+ BODY_PARTS.getTwitch(playerInfo.bottom + 3),
-                            "⏐"
-                    };
-                    for (int excessLeft = 0; excessLeft < playerInfo.tries / 5; excessLeft ++) {
-                        curLines[0] += "\\_";
-                        curLines[1] += "|";
-                        curLines[2] += FACES[0];
-                        curLines[3] += BODY_PARTS.get(2);
-                        curLines[4] += BODY_PARTS.get(5);
-                    }
-                    int triesMod = playerInfo.tries % 5;
-                    Log.trace(playerInfo.tries, triesMod, Math.min(triesMod, 2), Math.max(triesMod + 1, 3));
-                    curLines[1] += "\\_";
-                    curLines[2] += "|";
-                    curLines[3] += FACES[FACES.length - triesMod];
-                    curLines[4] += BODY_PARTS.get(Math.min(triesMod, 2));
-                    curLines[5] += BODY_PARTS.get(Math.max(triesMod + 1, 3));
-
-                    int max = Arrays.stream(curLines).mapToInt(String::length).max().orElse(0);
-
-                    for (int i = 0; i < curLines.length; i++) {
-                        if (i == lines.size()) lines.add(new StringBuilder());
-                        StringBuilder lineBuilder = lines.get(i);
-                        String line = curLines[i];
-
-                        lineBuilder.append(line);
-                        for (int padding = -2; padding < max - line.length(); padding ++) lineBuilder.append(" ");
-                    }
-
-                    builder.append(lines.stream().map(Object::toString).collect(Collectors.joining("\n"))).append("\n");
+                    // torso0 torso1 torso2 bottom0 bottom1 bottom2
+                    // 0      1      2      3       4       5
+                    if (match.getPlayers().size() > 2) builder.append(curPlayer.map(User::getAsMention).orElse("**AI**"));
+                    builder.append(" \\_\\_\\_\\_\n")
+                            .append("⏐          |\n")
+                            .append("|       ").append(FACES[Math.min(FACES.length - playerInfo.tries, 0)]).append("\n")
+                            .append("|       ").append(BODY_PARTS.get(Math.min(playerInfo.tries, 2))).append("\n")
+                            .append("|       ").append(BODY_PARTS.get(Math.max(Math.min(playerInfo.tries, 5), 3))).append("\n")
+                            .append("|       \n");
                 }
             }
             builder.append("```\n");
-            for (char cur : word.get().toCharArray()){
-                builder.append(cur == ' ' || guessedLetters.contains(Character.toLowerCase(cur)) || over ? String.valueOf(cur) : "_");
-            }
+            for (char cur : word.get().toCharArray())
+                builder.append(cur == ' ' || guessedLetters.contains(Character.toLowerCase(cur)) || !Character.isLetter(cur)
+                        || over ? String.valueOf(cur) : "_");
 
             builder.append("\n```");
         } else builder.append(over ? "" : Language.transl(match.getLanguage(), "game.hangman.sendWord", match.getCreator().getAsMention()));

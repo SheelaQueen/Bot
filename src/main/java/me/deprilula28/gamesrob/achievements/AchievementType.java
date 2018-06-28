@@ -85,7 +85,7 @@ public enum AchievementType {
                                         achievement.getTokens()));
 
                         profile.addTokens(achievement.getTokens());
-                        AchievementType.REACH_TOKENS.addAmount(tagName, achievement.getTokens(), builder, user, language);
+                        REACH_TOKENS.addAmount(tagName, achievement.getTokens(), builder, user, language);
                     }
                 });
             }));

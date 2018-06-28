@@ -4,5 +4,6 @@
 - Fixed stucking you into games if they have errors returning messages...
 - Fixed things not saving
 - Fixed the DM Message always being in the bottom of Hangman
+- Fixed hangman randomly erroring out
 
 Enjoy! ~ deprilula28

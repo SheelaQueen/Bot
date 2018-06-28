@@ -224,17 +224,6 @@ public class CommandManager {
     private static void genHelpMessage(String language) {
         StringBuilder help = new StringBuilder(Language.transl(language, "command.help.beginning", GamesROB.VERSION));
 
-        /*
-        commands.forEach(command -> {
-            String code = command.getAliases().get(0).toLowerCase();
-            help.append(String.format(
-                "`%%PREFIX%%%s` - %s\n",
-                code, Language.transl(language, "command." + code + ".description")
-            ));
-        });
-
-        help.append(Language.transl(language, "command.help.games"));
-        */
         for (int i = 0; i < CATEGORIES.length; i++) {
             String category = CATEGORIES[i];
             help.append(EMOTES[i]).append(" ").append(Language.transl(language, "command.help.categories." + category));
