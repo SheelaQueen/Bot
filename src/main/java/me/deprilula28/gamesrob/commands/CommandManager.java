@@ -66,51 +66,50 @@ public class CommandManager {
         });
 
         // Profile
-        f.command("profile whois getprofile viewprofile v", ProfileCommands::profile).attr("category", "profilecommands");
-        f.command("tokens tk tks tok token viewtokens gettokens tokenamount t achievements achieve tasks missions", ProfileCommands::tokens).attr("category", "profilecommands");
-        f.command("userlang ulang lang setlang language u", LanguageCommands::setUserLanguage).attr("category", "profilecommands");
-        f.command("emote emotetile changeemote setemote setemoji changeemoji tile etile emojit emotet e" +
-                "changetile settile et changeemojitile setemojitile emoji emojitile", ProfileCommands::emojiTile)
+        f.command("profile prof getprofile getprof viewprofile viewprof user usr getuser getusr viewuser viewusr player getplayer viewplayers", ProfileCommands::profile).attr("category", "profilecommands");
+        f.command("tokens tk tks tok toks t viewtokens viewtk viewtks viewtok viewtoks viewt gettokens gettk gettks gettok gettoks gett tokenamount tkamount tokamount tamount achievements achieve achieved achieves ach viewachievements viewachieve viewachieved viewachieves viewach accomplishments accomplished viewaccomplishments viewaccomplished tasks task viewtasks viewtask missions mission viewmissions viewmission", ProfileCommands::tokens).attr("category", "profilecommands");
+        f.command("lang language userlang userlanguage mylang mylanguage ", LanguageCommands::setUserLanguage).attr("category", "profilecommands");
+        f.command("emoji changeemoji emojitile setemojitile setemoji emojis emoticons emoticon changeemoticon emoticontile setemoticon setemoticontile emote changeemote emotetile setemote setemotetile emotes tile changetile settile" +
+                "depwhyaretheretwolinesforonecommandimscaredidkwhattodosothisisherehelphelphelphelp", ProfileCommands::emojiTile)
                 .attr("category", "profilecommands").setUsage("emojitile <Emoji>");
 
         // Server
-        f.command("leaderboard leaders winners board boards lb lbs leaderboards leaderb lboards lboard winnerlist b",
+        f.command("leaderboard getleaderboard viewleaderboard checkleaderboard leaderboards getleaderboards viewleaderboards checkleaderboards board getboard viewboard checkboard boards getboards checkboards viewboards leader getleader checkleader viewleader leaders getleaders checkleaders viewleaders lb getlb checklb viewlb lbs getlbs checklbs viewlbs top gettop checktop viewtop",
                 LeaderboardCommand::leaderboard).attr("category", "servercommands");
-        f.command("guildlang glang setglang serverlang setslang setserverlang setguildlang g",
+        f.command("guildlang changeguildlang setguildlang guildlanguage changeguildlanguage setguildlanguage glang changeglang setglang glanguage changeglanguage setglanguage serverlang changeserverlang setserverlang serverlanguage changeserverlanguage setserverlanguage slang changeslang setslang slanguage changeslanguage setslanguage",
                 permissionLock(LanguageCommands::setGuildLanguage, ctx -> ctx.getAuthorMember()
                         .hasPermission(Permission.MANAGE_SERVER))).attr("category", "servercommands");
-        f.command("perm setperm changeperm m", permissionLock(PermissionCommands::changePerm,
+        f.command("perm setperm changeperm perms setperms changeperms permission setpermission changepermission permissions setpermissions changepermissions", permissionLock(PermissionCommands::changePerm,
                 ctx -> ctx.getAuthorMember().hasPermission(Permission.MANAGE_SERVER))).attr("category", "servercommands")
                 .setUsage("perm <command> [permission]");
-        f.command("setprefix prefix changeprefix f", permissionLock(GenericCommands::setPrefix,
+        f.command("prefix setprefix changeprefix", permissionLock(GenericCommands::setPrefix,
                 ctx -> ctx.getAuthorMember().hasPermission(Permission.MANAGE_SERVER)))
                 .attr("category", "servercommands").setUsage("setprefix <Prefix>");
 
         // Match
-        f.command("join joinmatch play jm joinm jmatch j", MatchCommands::join).attr("category", "matchcommands");
-        f.command("stop stopmatch stopgame gamestop matchstop stap stahp s",
+        f.command("join jn joingame jg joinmatch jm", MatchCommands::join).attr("category", "matchcommands");
+        f.command("stop stopgame stopmatch stopplaying staph stahp stap nodie",
                 permissionLock(MatchCommands::stop, ctx -> GuildProfile.get(ctx.getGuild()).canStop(ctx))).attr("category", "matchcommands");
-        f.command("listplayers players getplayers viewplayers playerlist y", MatchCommands::listPlayers).attr("category", "matchcommands");
+        f.command("listplayers players viewplayers getplayers checkplayers playerlist viewplayerlist getplayerlist checkplayerlist", MatchCommands::listPlayers).attr("category", "matchcommands");
 
         // Information
-        f.command("invite addbot getbot getgrob add getgamesrob getbot get a", GenericCommands::invite).attr("category", "infocommands");
-        f.command("info information botinfo i", GenericCommands::info).attr("category", "infocommands");
-        f.command("changelog cl chgl version latestversion versioninfo ver r", GenericCommands::changelog).attr("category", "infocommands");
-        f.command("ping pingpong pong getping pinger botping botsping latency connection p", GenericCommands::ping)
+        f.command("invite invitebot invitegrob invitegamesrob add addbot addgrob addgamesrob get getbot getgrob getgamesrob getgood getgud", GenericCommands::invite).attr("category", "infocommands");
+        f.command("info information botinfo botinformation helpbutwithdetails", GenericCommands::info).attr("category", "infocommands");
+        f.command("changelog getchangelog viewchangelog log getlog viewlog clog getclog viewclog changes getchanges viewchanges version getversion viewversion ver getver viewver additions getaddions viewadditions whatsnew getwhatsnew viewwhatsnew", GenericCommands::changelog).attr("category", "infocommands");
+        f.command("ping getping viewping seeping checkping pong getpong viewpong seepong checkpong connection getconnection viewconnection seeconnection checkconnection latency getlatency viewlatency seelatency checklatency latenci getlatenci viewlatenci seelatenci checklatenci pingpong getpingpong viewpingpong seepingpong checkpingpong pongping getpongping viewpongping seepongping checkpongping ms2 getms2 viewms2 seems2 checkms2", GenericCommands::ping)
                 .attr("category", "infocommands");
-        f.command("shardinfo shards servers notspoofing shardinformation h", GenericCommands::shardsInfo)
+        f.command("shard sharddetails getsharddetails viewsharddetails seesharddetails checksharddetails shardinfo getshardinfo viewshardinfo seeshardinfo checkshardinfo shardinformation getshardinformation viewshardinformation seeshardinformation checkshardinformation shardstuff getshardstuff viewshardstuff seeshardstuff checkshardstuff shards getshards viewshards seeshards checkshards", GenericCommands::shardsInfo)
                 .attr("category", "infocommands");
 
-        f.command("help games what ivefallenandicantgetup whatisgoingon commands cmds ?", CommandManager::help, cmd -> {
+        f.command("help halp games what wat uwot uwotm8 uwotm9  wtf tf ... ivefallenandicantgetup whatisgoingon imscared commands cmds ?", CommandManager::help, cmd -> {
             /*
             cmd.sub("developers developer dev devs d", context -> "My Developers are deprilula28#3609 and Fin#1337.");
             cmd.sub("discordstaff staff discstaff disc discs s", context -> "The staff in the GamesROB Discord are deprilula28#3609, Fin#1337, dirtify#3776, Not Hamel#5995, diniboy#0998, and Jazzy Spazzy#0691");
             cmd.sub("translators translator t", context -> "My translators are deprilula28#3609 (pt_BR), diniboy#0998 (hu_HU), Niekold#9410 (de_DE), Ephysios#1912 (fr_FR), and 0211#موهاماد هيف (ar_SA).");
-            cmd.sub("commands command cmd cmds c", context -> "GOING TO DO THIS LATER BECAUSE IM LAZY");
             cmd.sub("libraries lib libs library frameworks fws fw framew rwork fworks framework dependancies dependancy f", context -> "We use the following frameworks/dependancies; Lombok, DepsJDAFramework, SLF4j, emoji-java, sqlite-driver (JDBC), snakeyaml, sparkjava, markdown4j, jade4j, Materialize, and JQuery.");
             cmd.sub("api apis", context -> "We use the Discord Developer API, Twitch API, and Discord Bot List's API.");
             cmd.sub("prgm programs prgms progrm progrms software sw softw sware", context -> "The programs we use for the bot's development are; JetBrains' IntelliJ IDEA, Git, and of course, Discord (More specifically; Discord Canary)");
-            cmd.sub("webapps wapps wa was webapp services srvcs srvc service", context -> "We use GSuite (Business), Google Domains, and OVH for web apps.");
+            cmd.sub("webapps wapps wa was webapp services srvcs srvc service", context -> "We use OVH.");
             */
 
             for (String category : CATEGORIES) {
@@ -140,7 +139,7 @@ public class CommandManager {
             });
 
             for (int i = 1; i < EMOTE_LIST.size(); i++) cmd.reactSub(EMOTE_LIST.get(i), CATEGORIES[i]);
-            cmd.sub("i_like_easter_eggs", context -> "Fin was here Fin was here Fin was here Fin was here Fin was here Fin was here Fin was here Fin was here Fin was here Fin was here Fin was here Fin was here Fin was here Fin was here (lol)");
+            cmd.sub(" why dep_lied why_dep -_- really_dep really rlly dep_why", context -> "So dep said that he didn't want to hardcode owners, but I just now searched the bot code for his User ID, and found he hardcoded himself and not me. If you found this message, please DM dep and ask him why he did this and that he needs to stop abusing me, thank you.");
         }).attr("category", "infocommands");
 
         f.getCommands().forEach(cur -> {
@@ -151,13 +150,13 @@ public class CommandManager {
         Language.getLanguageList().forEach(CommandManager::genHelpMessage);
         Log.info("Generated help messages for ", languageHelpMessages.size() + " languages.");
 
-        f.command("update", OwnerCommands::update);
-        f.command("eval evaluate ebaluate", OwnerCommands::eval);
-        f.command("bash console commandconsole cmd terminal", OwnerCommands::console);
+        f.command("update upd8 updep", OwnerCommands::update);
+        f.command("eval evaluate ebal ebaluate", OwnerCommands::eval);
+        f.command("bash con console commandconsole cmd commandprompt terminal term", OwnerCommands::console);
         f.command("sql postgres postgresql sqlexecute runsql", OwnerCommands::sql);
-        f.command("announce announcement", OwnerCommands::announce);
-        f.command("blacklist bl", OwnerCommands::blacklist);
-        f.command("gengif", Gengif::gen);
+        f.command("announce announcement br broadcast ", OwnerCommands::announce);
+        f.command("blacklist bl l8r adios cya pce peace later bye rekt dab", OwnerCommands::blacklist);
+        f.command("gengif gifgen xdxdxdlmao", Gengif::gen);
 
         f.before(it -> {
             ResultSet set = Cache.get("bl_" + it.getAuthor().getId(), n -> {

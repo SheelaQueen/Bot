@@ -242,7 +242,7 @@ public class OwnerCommands {
                     TransferUtility.download(new FileInputStream(output), new FileOutputStream(gamesrobJar),
                             output.length(), step -> {}, n -> {
                                 output.delete();
-                                context.edit("<a:updating:403035325242540032> Restarting...").then(m -> System.exit(-1));
+                                context.edit("<a:updating:403035325242540032> Restarting... *fin was here*").then(m -> System.exit(-1));
                             }, error -> {
                                 context.send("Failed to install update: " + error.getClass().getName() + ": " + error.getMessage());
                                 Log.exception("Failed to install update from " + updateURL, error);
