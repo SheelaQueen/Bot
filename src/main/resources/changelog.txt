@@ -1,5 +1,6 @@
 - Added achievements! You can look at the achievements in `g*tokens`, and they'll get you tokens when you complete them!
 - Help command now has announcements! How cool right?
+- Revamped `g*info`! Looks nicer now, doesn't it?
 
 - Fixed stucking you into games if they have errors returning messages...
 - Fixed things not saving

@@ -46,7 +46,7 @@ public class GenericCommands {
     public static MessageEmbed invite(CommandContext context) {
         return new EmbedBuilder()
                 .setTitle(Language.transl(context, "command.invite.embed.title"), Constants.getInviteURL(context.getJda()))
-                .setDescription(Language.transl(context, "command.invite.embed.description"))
+                .setFooter(Language.transl(context, "command.invite.embed.description"), "https://i.imgur.com/em1fKRC.png")
                 .setColor(Utility.getEmbedColor(context.getGuild()))
                 .build();
     }
@@ -59,33 +59,35 @@ public class GenericCommands {
                     .setAuthor("deprilula28#3609", null, "https://i.imgur.com/PPa4OzQ.png")
                     .setTitle("\uD83C\uDFAE GamesROB", Constants.GAMESROB_DOMAIN)
                     .setColor(Utility.getEmbedColor(context.getGuild()))
-                    .setDescription(Language.transl(context, "command.info.embed.description",
-                            Constants.GAMESROB_DOMAIN, Constants.getInviteURL(context.getJda()),
-                            Constants.getDboURL(context.getJda()),
-                            "https://github.com/GamesROB/Bot", Constants.GAMESROB_DOMAIN + "/server?from=info"
-                    ))
-                    .addField(Language.transl(context, "command.info.embed.statistics.title"),
-                            Language.transl(context, "command.info.embed.statistics.description",
+                    .setDescription(Language.transl(context, "command.info.embed2.description"))
+                    .addField(Language.transl(context, "command.info.embed2.statistics.title"),
+                            Language.transl(context, "command.info.embed2.statistics.description",
                                     Utility.addNumberDelimitors(shards.stream().mapToInt(GamesROB.ShardStatus::getGuilds).sum()),
                                     Utility.addNumberDelimitors(shards.stream().mapToInt(GamesROB.ShardStatus::getUsers).sum()),
                                     Utility.addNumberDelimitors(shards.stream().mapToInt(GamesROB.ShardStatus::getTextChannels).sum()),
                                     Utility.addNumberDelimitors(stats.getGameCount()),
                                     Utility.addNumberDelimitors(shards.stream().mapToInt(GamesROB.ShardStatus::getActiveGames).sum()),
+                                    Utility.addNumberDelimitors(stats.getCommandCount()),
                                     Utility.addNumberDelimitors(stats.getUpvotes())
-                            ), false)
-                    .addField(Language.transl(context, "command.info.embed.versions.title"),
-                            Language.transl(context, "command.info.embed.versions.description",
+                            ), true)
+                    .addField(Language.transl(context, "command.info.embed2.links.title"),
+                            Language.transl(context, "command.info.embed2.links.description",
+                                    Constants.GAMESROB_DOMAIN, Constants.getInviteURL(context.getJda()),
+                                    "https://github.com/GamesROB/Bot", "https://discord.gg/8EZ7BEz",
+                                    Constants.GAMESROB_DOMAIN + "/help/credits", Constants.getDboURL(context.getJda()) + "/vote"
+                            ), true)
+                    .addField(Language.transl(context, "command.info.embed2.versions.title"),
+                            Language.transl(context, "command.info.embed2.versions.description",
                                     GamesROB.VERSION, System.getProperty("java.version"),
                                     "https://github.com/DV8FromTheWorld/JDA", JDAInfo.VERSION,
                                     "https://github.com/deprilula28/DepsJDAFramework", CommandFramework.FRAMEWORK_VERSION,
                                     Utility.formatPeriod(System.currentTimeMillis() - GamesROB.UP_SINCE)
                             ), true)
-                    .addField(Language.transl(context, "command.info.embed.system.title"),
-                            Language.transl(context, "command.info.embed.system.description",
-                                    Utility.getRAM(), System.getProperty("os.name")
+                    .addField(Language.transl(context, "command.info.embed2.system.title"),
+                            Language.transl(context, "command.info.embed2.system.description",
+                                    Utility.getRAM(), System.getProperty("os.name"), context.getJda().getShardInfo().getShardId() + 1,
+                                    context.getJda().getShardInfo().getShardTotal(), Utility.formatPeriod(context.getJda().getPing())
                             ), true)
-                    .addField(Language.transl(context, "command.info.embed.credits.title"),
-                            Constants.GAMESROB_DOMAIN + "/help/credits", false)
                     .build());
         });
         return null;

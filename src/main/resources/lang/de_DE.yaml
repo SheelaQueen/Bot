@@ -3,7 +3,8 @@ languageProperties:
   code: "de_DE"
   language: "German"
   country: "Germany"
-  languageName: "🇩🇪 German"  
+  flag: "🇩🇪"
+  languageName: "German"
   translators: "Niekold#9410"
   version: "1.4.2"
 

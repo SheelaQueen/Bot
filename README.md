@@ -1,6 +1,6 @@
 # GamesROB
 A Discord bot for playing games from chat!<br>
-[![Discord Bots](https://discordbots.org/api/widget/383995098754711555.png)](https://discordbots.org/bot/383995098754711555)
+[![Discord Bots](https://discordbots.org/api/widget/383995098754711555.svg?topcolor=132028&highlightcolor=132028&certifiedcolor=e4a72f&datacolor=FFFFFF)](https://discordbots.org/bot/383995098754711555)
 
 ## The Games
 All the games the bot current has:

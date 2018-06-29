@@ -3,7 +3,8 @@ languageProperties:
   code: "hu_HU"
   language: "Hungarian"
   country: "Hungary"
-  languageName: "🇭🇺 Hungarian"  
+  flag: "🇭🇺"
+  languageName: "Hungarian"
   translators: "diniboy#0998"
   version: "1.5.0"
 

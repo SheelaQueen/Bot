@@ -3,9 +3,10 @@ languageProperties:
   code: "pt_BR"
   language: "Português"
   country: "Brasil"
-  languageName: "🇧🇷 Português Brasileiro"  
+  flag: "🇧🇷"
+  languageName: "Português Brasileiro"
   translators: "deprilula28#3609"
-  version: "1.6.2"
+  version: "1.6.3"
 
 genericMessages:
   alreadyPlaying: "Você já está jogando em %s!\nDigite `%sleave` para sair da partida."
@@ -246,19 +247,20 @@ command:
       description: "⚠ Você precisará da permissão \"Gerenciador Servidor\" no servidor que quer convidar."
     description: "Adicione o bot no seu servidor!"
   info:
-    embed:
-      description: "**O bot para ter partidas divertidas no seu chat do Discord!**\n[Website](%s)\n[Adicione o bot ao seu servidor](%s)\n[Dê um voto no DBL](%s)\n[Veja o código](%s)\n[Entre no servidor de suporte](%s)"
+    embed2:
+      description: "**O bot para jogar jogos de chat divertidos no seu Discord!**"
       statistics:
         title: "📟 Estatísticas"
-        description: "**%s** servidores, **%s** membros e **%s** canais de texto!\n**%s** partidas jogadas (**%s** acontecendo agora) e **%s** votos no DBL!"
+        description: "📶 **%s** servidores\n👥 **%s** usuários\n🗨 **%s** canais de texto\n🎮 **%s** partidas (**%s** ativas)\n❗ **%s** comandos\n📈 **%s** votos no DBL"
       versions:
         title: "📁 Versões"
-        description: "Versão do GamesROB: **%s**\nVersão do Java: **%s**\nVersão do [JDA](%s): **%s**\nVersão do [DepsJDAFramework](%s): **%s**\nTempo de Atividade da shard: **%s**"
+        description: "Versão do GamesROB: **%s**\nVersão do Java: **%s**\nVersão do [JDA](%s): **%s**\nVersão do [JDA Framework](%s): **%s**\nTempo de Atividade: **%s**"
       system:
         title: "💻 Sistema"
-        description: "Uso de RAM: **%s**\nSistema Operacional: **%s**"
-      credits:
-        title: "❤ Créditos"
+        description: "RAM: **%s**\nSistema: **%s**\nShard: **%s/%s** (**%s**)"
+      links:
+        title: "🔗 Links úteis"
+        description: "🌐 [Nosso Site](%s)\n➕ [Adicione o bot num servidor](%s)\n🗒 [Ver o código](%s)\nℹ️ [Entrar no servidor de suporte](%s)\n❤ [Créditos](%s)\n⬆ [Vote para o bot no DBL](%s)"
     description: "Ver estatísticas e informações"
   raminfo:
     message: ":computer: Uso de RAM\nEm geral: **%s**\nComandos: **%s**\nShards: **%s**\nCache: **%s**\nJogos: **%s**"
