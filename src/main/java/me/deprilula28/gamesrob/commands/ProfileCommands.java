@@ -1,38 +1,49 @@
 package me.deprilula28.gamesrob .commands;
 
 import com.vdurmont.emoji.EmojiManager;
+import javafx.util.Pair;
 import me.deprilula28.gamesrob.GamesROB;
 import me.deprilula28.gamesrob.Language;
+import me.deprilula28.gamesrob.achievements.Achievement;
+import me.deprilula28.gamesrob.achievements.AchievementType;
+import me.deprilula28.gamesrob.achievements.Achievements;
 import me.deprilula28.gamesrob.baseFramework.GamesInstance;
 import me.deprilula28.gamesrob.data.GuildProfile;
+import me.deprilula28.gamesrob.data.LeaderboardHandler;
 import me.deprilula28.gamesrob.data.UserProfile;
 import me.deprilula28.gamesrob.utility.Constants;
 import me.deprilula28.gamesrob.utility.Utility;
 import me.deprilula28.jdacmdframework.CommandContext;
+import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.JDA;
 import net.dv8tion.jda.core.entities.User;
 
 import java.math.BigDecimal;
-import java.util.Optional;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
 
 public class ProfileCommands {
+    private static final int BAR_LENGTH = 5;
+    private static final String BAR_CHAR = "=";
+
     public static String profile(CommandContext context) {
         GuildProfile board = GuildProfile.get(context.getGuild());
         User profileOf = context.opt(context::nextUser).orElse(context.getAuthor());
-        GuildProfile.UserStatistics stats = UserProfile.get(profileOf).getStatsForGuild(context.getGuild());
+        LeaderboardHandler.UserStatistics stats = UserProfile.get(profileOf).getStatsForGuild(context.getGuild());
 
         StringBuilder builder = new StringBuilder(Language.transl(context, "command.profile.playerStats",
                 profileOf.getName()));
         builder.append(Language.transl(context, "command.profile.overall",
-                getEmoji(stats.getOverall()),
-                getStatisticsString(context, stats.getOverall(), board.getIndex(board.getOverall(), profileOf.getId()))));
+                getEmoji(stats.getStats("overall")),
+                getStatisticsString(context, stats.getStats("overall"), board.getIndex(board.getLeaderboard()
+                        .getEntriesForGame(Optional.empty()), profileOf.getId()))));
 
         for (GamesInstance game : GamesROB.ALL_GAMES) {
-            UserProfile.GameStatistics gameStats = stats.getGameStats(game);
+            UserProfile.GameStatistics gameStats = stats.getStats(game.getLanguageCode());
             builder.append(String.format("%s %s: %s\n", getEmoji(gameStats), game.getName(Constants.getLanguage(context)),
-                    getStatisticsString(context, gameStats, board.getIndex(board.getOption(game), profileOf.getId()))));
+                    getStatisticsString(context, gameStats, board.getIndex(board.getLeaderboard()
+                            .getEntriesForGame(Optional.of(game.getLanguageCode())), profileOf.getId()))));
         }
 
         return builder.toString();
@@ -52,8 +63,6 @@ public class ProfileCommands {
     }
 
     public static String getEmoji(UserProfile.GameStatistics stats) {
-        if (stats.getGamesPlayed() < Constants.LEADERBOARD_GAMES_PLAYED_REQUIREMENT) return "\uD83C\uDFF4";
-
         double winCount = stats.getWonPercent();
         if (winCount > 75.0) return "\uD83D\uDC51";
             else if (winCount > 50.0) return "\uD83D\uDEA9";
@@ -68,14 +77,70 @@ public class ProfileCommands {
         UserProfile profile = UserProfile.get(target);
         int tokens = profile.getTokens();
         String prefix = Constants.getPrefix(context.getGuild());
-        return target.equals(context.getAuthor()) ? Language.transl(context, "command.tokens.own", tokens) + "\n" +
-                (System.currentTimeMillis() - profile.getLastUpvote() > TimeUnit.DAYS.toMillis(1)
-                    ? Language.transl(context, "command.tokens.earnUpvote",
-                        Constants.getDboURL(context.getJda()) + "/vote", prefix)
-                    : Language.transl(context, "command.tokens.earn", prefix,
-                        Utility.formatPeriod((profile.getLastUpvote() + TimeUnit.DAYS.toMillis(1))
-                        - System.currentTimeMillis())))
-            : Language.transl(context, "command.tokens.other", target.getName(), tokens);
+
+        if (target.equals(context.getAuthor())) {
+            context.send(message -> {
+                message.append("→ ");
+                Map<String, Boolean> winMethods = new HashMap<>();
+                winMethods.put(Language.transl(context, "command.tokens.winningMatches"), true);
+
+                // Upvoting
+                long timeSinceUpvote = System.currentTimeMillis() - profile.getLastUpvote();
+                if (timeSinceUpvote > TimeUnit.DAYS.toMillis(1)) {
+                    int row = timeSinceUpvote < TimeUnit.DAYS.toMillis(2) ? profile.getUpvotedDays() : 0;
+                    message.setEmbed(new EmbedBuilder()
+                            .setTitle(Language.transl(context, "command.tokens.upvoteCan", row, 125 + row * 50),
+                                    Constants.getDboURL(context.getJda()) + "/vote")
+                            .setColor(Utility.getEmbedColor(context.getGuild())).build());
+                } else winMethods.put(Language.transl(context, "command.tokens.upvoteLater", Utility.formatPeriod
+                                ((profile.getLastUpvote() + TimeUnit.DAYS.toMillis(1)) - System.currentTimeMillis())),
+                        false);
+
+                // Achievements
+                Map<Achievement, Integer> toComplete = new HashMap<>();
+
+                for (AchievementType type : AchievementType.values()) {
+                    if (type == AchievementType.OTHER) continue;
+                    int amount = type.getAmount(context.getAuthor());
+                    Arrays.stream(Achievements.values()).filter(it -> type.equals(it.getAchievement().getType()))
+                            .map(Achievements::getAchievement).filter(it -> it.getAmount() > amount)
+                            .min(Comparator.comparingInt(Achievement::getAmount)).ifPresent(achievement ->
+                            toComplete.put(achievement, amount));
+                }
+
+                if (toComplete.isEmpty()) winMethods.put(Language.transl(context, "command.tokens.noAchievements"), false);
+                else {
+                    StringBuilder builder = new StringBuilder(Language.transl(context, "command.tokens.achievements"));
+                    String language = Constants.getLanguage(context);
+                    toComplete.forEach((achievement, amount) -> {
+                        double percent = (double) amount / (double) achievement.getAmount();
+                        StringBuilder bar = new StringBuilder();
+                        for (int i = 0; i < BAR_LENGTH; i ++) {
+                            if ((double) i / (double) BAR_LENGTH < percent) bar.append(BAR_CHAR);
+                            else bar.append("   ");
+                        }
+
+                        builder.append(String.format(
+                                "%s: *%s*\n`%s [%s] %s`\n",
+                                achievement.getName(language), achievement.getDescription(language),
+                                amount, bar.toString(), achievement.getAmount()
+                        ));
+                    });
+
+                    winMethods.put(builder.toString(), true);
+                }
+
+                message.append(Language.transl(context, "command.tokens.own", tokens)).append("\n");
+                winMethods.forEach((text, check) -> {
+                    message.append(String.format(
+                            "- %s %s\n",
+                            check ? "<:check:314349398811475968>" : "<:xmark:314349398824058880>", text
+                    ));
+                });
+            });
+
+            return null;
+        } else return Language.transl(context, "command.tokens.other", target.getName(), tokens);
     }
 
     public static String emojiTile(CommandContext context) {

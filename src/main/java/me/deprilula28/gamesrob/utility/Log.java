@@ -141,7 +141,7 @@ public class Log {
                         ? "(Native Method)" : (ste.getFileName() != null && ste.getLineNumber() >= 0
                         ? "(" + (ste.getClassName().startsWith("me.deprilula28.gamesrob.")
                         ? "[" + ste.getFileName() + ":" + ste.getLineNumber() + "](" +
-                        "https://github.com/deprilula28/GamesROB/blob/master/src/main/java/"
+                        "https://github.com/GamesROB/Bot/blob/master/src/main/java/"
                         + ste.getClassName().replaceAll("\\.", "/") + ".java#L" + ste.getLineNumber() + "))"
                         : ste.getFileName() + ":" + ste.getLineNumber() + ")")
                         : (ste.getFileName() != null ?  "("+ ste.getFileName() +")" : "(Unknown Source)")));
@@ -161,11 +161,11 @@ public class Log {
         void invoke() throws Exception;
     }
 
-    public static void wrapException(String status, ExceptionWrapper wrapper) {
+    public static void wrapException(String status, ExceptionWrapper wrapper, Object... objects) {
         try {
             wrapper.invoke();
         } catch (Exception e) {
-            exception(status, e);
+            exception(status, e, (Object[]) objects);
         }
     }
 }

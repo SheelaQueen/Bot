@@ -38,11 +38,10 @@ public class BootupProcedure {
         task(argList, "Loading framework", frameworkLoad);
         task(argList, "Loading data", loadData);
         task(argList, "Loading DiscordBotsOrg", dblLoad);
-        task(argList, "Loading website", loadWebsite);
         task(argList, "Loading presence task", presenceTask);
-        task(argList, "Transferring data to DB", transferToDb);
         task(argList, "Sending changelog message", sendChangelog);
         Log.info("Bot fully loaded in " + Utility.formatPeriod(System.currentTimeMillis() - begin) + "!");
+        GamesROB.plots.start();
     }
 
     @FunctionalInterface
@@ -66,8 +65,8 @@ public class BootupProcedure {
         token = pargs.get(0).orElseThrow(() -> new RuntimeException("You need to provide a token!"));
         optDblToken = pargs.get(1);
         shardTo = pargs.get(2).map(Integer::parseInt).orElse(1);
-        GamesROB.owners = pargs.get(3).map(it -> Arrays.stream(it.split(",")).map(Long::parseLong).collect(Collectors.toList()))
-                .orElse(Collections.singletonList(197448151064379393L));
+        GamesROB.owners = Collections.unmodifiableList(pargs.get(3).map(it -> Arrays.stream(it.split(",")).map(Long::parseLong).collect(Collectors.toList()))
+                .orElse(Collections.singletonList(197448151064379393, 386945522608373785)));
         GamesROB.database = pargs.get(4).map(SQLDatabaseManager::new);
         GamesROB.debug = pargs.get(5).map(Boolean::parseBoolean).orElse(false);
         GamesROB.twitchUserIDListen = pargs.get(6).map(Long::parseLong).orElse(-1L);
@@ -91,74 +90,16 @@ public class BootupProcedure {
         Log.info(pargs);
     };
 
-    private static final BootupTask transferToDb = args -> {
-        GamesROB.database.ifPresent(db -> {
-            int transfered = 0;
-            File[] GUILD_FILES = Constants.GUILDS_FOLDER.listFiles();
-            if (GUILD_FILES != null) for (File file : GUILD_FILES) {
-                    FileReader reader = null;
-                    try {
-                        reader = new FileReader(new File(file, "leaderboard.json"));
-                        GuildProfile guildProfile = Constants.GSON.fromJson(reader, GuildProfile.class);
-
-                        Log.info("Guild:", guildProfile, "Saving to SQL...");
-                        GuildProfile.manager.saveToSQL(db, guildProfile).then(n -> {
-                            Log.wrapException("Getting saved guild",  () -> {
-                                Log.trace("Finished saving guild:", guildProfile.getGuildId() + "; Data read: ",
-                                        GuildProfile.manager.getFromSQL(db, guildProfile.getGuildId()));
-                            });
-                        });
-
-                        transfered ++;
-                        Log.info("Transferred " + file.getName() + ". (" + transfered + ")");
-                        reader.close();
-                    } catch (Exception e) {
-                        if (reader != null) Utility.quietlyClose(reader);
-                        Log.info("Failed to save " + file.getAbsolutePath(), e);
-                    }
-                }
-            Log.info(transfered + " guilds transferred");
-            transfered = 0;
-
-            File[] USER_PROFILES = Constants.USER_PROFILES_FOLDER.listFiles();
-            if (USER_PROFILES != null) for (File file : USER_PROFILES) {
-                    FileReader reader = null;
-                    try {
-                        reader = new FileReader(file);
-                        UserProfile userProfile = Constants.GSON.fromJson(reader, UserProfile.class);
-
-                        Log.info("User:", userProfile, "Saving to SQL...");
-                        UserProfile.manager.saveToSQL(db, userProfile).then(n -> {
-                            Log.wrapException("Getting saved user",  () -> {
-                                Log.trace("Finished saving user:", userProfile.getUserID() + "; Data read: ",
-                                        UserProfile.manager.getFromSQL(db, userProfile.getUserID()));
-                            });
-                        });
-
-                        transfered ++;
-                        Log.info("Transferred " + file.getName() + ". (" + transfered + ")");
-                        reader.close();
-                    } catch (Exception e) {
-                        if (reader != null) Utility.quietlyClose(reader);
-                        Log.info("Failed to save " + file.getAbsolutePath(), e);
-                    }
-                }
-            Log.info(transfered + " users transferred");
-        });
-    };
-
     private static final BootupTask connectDiscord = args -> {
         int curShard = shardFrom;
         while (curShard < shardTo) {
-            String shard = curShard + "/" + (shardTo - 1);
-
             JDA jda = new JDABuilder(AccountType.BOT).setToken(token)
                     .useSharding(curShard, totalShards).setStatus(OnlineStatus.DO_NOT_DISTURB)
                     .setGame(Game.watching("it all load...")).buildBlocking();
             GamesROB.shards.add(jda);
             Match.ACTIVE_GAMES.put(jda, new ArrayList<>());
 
-            Log.info("Shard loaded: " + shard);
+            Log.info("Shard loaded: " + curShard + "/" + (shardTo - 1));
             curShard ++;
             if (curShard < shardTo) Thread.sleep(5000L);
         }
@@ -179,17 +120,6 @@ public class BootupProcedure {
 
         // Commands
         CommandManager.registerCommands(f);
-
-        f.handleEvent(GuildMessageReactionAddEvent.class, event -> {
-            try {
-                if (Match.GAMES.containsKey(event.getChannel())) Match.GAMES.get(event.getChannel()).reaction(event);
-                else if (Match.REMATCH_GAMES.containsKey(event.getChannel()))
-                    Match.REMATCH_GAMES.get(event.getChannel())
-                            .reaction(event);
-            } catch (Exception e) {
-                Log.exception("Guild message reaction add had an error", e);
-            }
-        });
 
         f.handleEvent(MessageReceivedEvent.class, event -> {
             if (Match.PLAYING.containsKey(event.getAuthor())) {
@@ -213,6 +143,7 @@ public class BootupProcedure {
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
             Log.info("Shutting down...");
             Cache.onClose();
+            GamesROB.plots.interrupt();
             Log.closeStream();
 
             /*
@@ -245,7 +176,7 @@ public class BootupProcedure {
                     event.getJDA().getGuilds().size()));
 
             GamesROB.dboAPI = Optional.of(dbo);
-            GamesROB.owners = GamesROB.dboAPI.get().getBot().getOwners().stream().map(Long::parseLong).collect(Collectors.toList());
+            GamesROB.owners = Collections.unmodifiableList(GamesROB.dboAPI.get().getBot().getOwners().stream().map(Long::parseLong).collect(Collectors.toList()));
     });
 
     private static final BootupTask presenceTask = args -> {
@@ -277,10 +208,6 @@ public class BootupProcedure {
         */
     };
 
-    private static final BootupTask loadWebsite = args -> {
-        //Website.start(port);
-    };
-
     private static final BootupTask sendChangelog = args -> {
         changelog = Utility.readResource("/changelog.txt");
         Statistics statistics = Statistics.get();
@@ -288,7 +215,7 @@ public class BootupProcedure {
             statistics.setLastUpdateLogSent(GamesROB.VERSION);
             statistics.setLastUpdateLogSentTime(System.currentTimeMillis());
             GamesROB.getTextChannelById(Constants.changelogChannel.get()).ifPresent(channel ->
-                    channel.sendMessage("<@&389918430733664256>\n**GamesROB v" + GamesROB.VERSION + " is out!**" +
+                    channel.sendMessage("<@&389918430733664256>\n<:update:264184209617321984> **GamesROB v" + GamesROB.VERSION + " is available!**" +
                         "\n\nChangelog:\n" + changelog + "\n\n*Updates are usually scheduled for every friday, " +
                         "making the next update " + Utility.formatTime(Utility.predictNextUpdate()) + ".*")
                         .queue());

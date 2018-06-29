@@ -3,11 +3,13 @@ package me.deprilula28.gamesrob.utility;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import me.deprilula28.gamesrob.Language;
+import me.deprilula28.gamesrob.baseFramework.Match;
 import me.deprilula28.gamesrob.data.GuildProfile;
 import me.deprilula28.gamesrob.data.UserProfile;
 import me.deprilula28.jdacmdframework.CommandContext;
 import net.dv8tion.jda.core.JDA;
 import net.dv8tion.jda.core.entities.Guild;
+import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.entities.User;
 
 import java.awt.*;
@@ -19,7 +21,6 @@ public class Constants {
     public static final String GAMESROB_DOMAIN = "https://gamesrob.com";
     public static final String TRELLO_API_KEY = "52734e54b9cdcdd16656a70e30d5b596";
 
-    public static final int LEADERBOARD_GAMES_PLAYED_REQUIREMENT = 1;
     public static final File OLD_DATA_FOLDER = new File("gamesrobData");
 
     public static final String DEFAULT_PREFIX = "g*";
@@ -46,6 +47,10 @@ public class Constants {
     public static final Color[] BOT_COLORS = {
             new Color(0xf8bb37), new Color(0x02aff4), new Color(0xf7413b), new Color(0x05b996)
     };
+
+    public static String getImageURL(Match match) {
+        return GAMESROB_DOMAIN + "/gameimage/" + match.getChannelIn().getId() + "/" + match.getIteration();
+    }
 
     public static final String USER_AGENT = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, " +
             "like Gecko) Chrome/66.0.3359.139 Safari/537.36";

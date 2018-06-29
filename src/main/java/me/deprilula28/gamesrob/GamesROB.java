@@ -7,6 +7,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import me.deprilula28.gamesrob.baseFramework.GamesInstance;
 import me.deprilula28.gamesrob.baseFramework.Match;
+import me.deprilula28.gamesrob.data.PlottingStatistics;
 import me.deprilula28.gamesrob.data.RPCManager;
 import me.deprilula28.gamesrob.data.SQLDatabaseManager;
 import me.deprilula28.gamesrob.games.*;
@@ -25,13 +26,13 @@ import java.util.stream.Collectors;
 
 public class GamesROB {
     public static final GamesInstance[] ALL_GAMES = {
-            Connect4.GAME, TicTacToe.GAME, Minesweeper.GAME, Hangman.GAME, Detective.GAME, Roulette.GAME
+            Connect4.GAME, TicTacToe.GAME, Minesweeper.GAME, Hangman.GAME, Detective.GAME, Roulette.GAME, Quiz.GAME
     };
 
     public static final long UP_SINCE = System.currentTimeMillis();
     private static final int MAJOR = 1;
     private static final int MINOR = 6;
-    private static final int PATCH = 1;
+    private static final int PATCH = 3;
     public static final String VERSION = String.format("%s.%s.%s", MAJOR, MINOR, PATCH);
 
     public static Optional<DiscordBotsOrg> dboAPI = Optional.empty();
@@ -44,6 +45,7 @@ public class GamesROB {
     static long twitchUserIDListen = -1L;
     private static boolean twitchPresence = false;
     public static Optional<RPCManager> rpc = Optional.empty();
+    public static PlottingStatistics plots = new PlottingStatistics();
 
     @Data
     @AllArgsConstructor
@@ -127,6 +129,9 @@ public class GamesROB {
                     cur.getPresence().setStatus(OnlineStatus.ONLINE);
                     cur.getPresence().setGame(Game.streaming(title, url));
                 });
+                if (!twitchPresence) Log.wrapException("Setting avatar", () -> shards.get(0).getSelfUser().getManager()
+                        .setAvatar(Icon.from(GamesROB.class.getResourceAsStream("/avatar/GamesROB Streaming.png")))
+                        .queue());
                 twitchPresence = true;
             }
         }
@@ -138,6 +143,9 @@ public class GamesROB {
             cur.getPresence().setGame(Game.watching("gamesrob.com - @" + cur.getSelfUser().getName() + "#" +
                 cur.getSelfUser().getDiscriminator()));
         });
+        Log.wrapException("Setting avatar", () -> shards.get(0).getSelfUser().getManager()
+                .setAvatar(Icon.from(GamesROB.class.getResourceAsStream("/avatar/GamesROB New.png")))
+                .queue());
     }
 
     public static boolean hasUpvoted(String id) {

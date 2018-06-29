@@ -5,7 +5,7 @@ languageProperties:
   country: "Brasil"
   languageName: "🇧🇷 Português Brasileiro"  
   translators: "deprilula28#3609"
-  version: "1.5.2"
+  version: "1.6.2"
 
 genericMessages:
   alreadyPlaying: "Você já está jogando em %s!\nDigite `%sleave` para sair da partida."
@@ -20,6 +20,9 @@ genericMessages:
   nth3: "º"
   nth4: "º"
   upvoteMessage: "Obrigado por votar para o GamesROB!\nVocê recebeu:\n**%s**\nVotos em seguida: **%s dias**\nContinue votando diáriamente para conseguir mais tokens!"
+  ownersOnly: "Esse comando só é acessível por donos."
+  blacklisted: "⛔ Você foi bloqueado de usar GamesROB por %s (%s).\nRazão: %s"
+  blacklistedNoInfo: "⛔ Você foi bloqueado de usar o GamesROB."
 
 gameFramework:
   singleplayerMatch: "**Partida Solo de %s!**\n%s\n\n"
@@ -103,11 +106,62 @@ game:
     wakeFirst: "🌆 A cidade acorda, surpresa quando encontram %s esfaqueado na sua própria casa. Por que alguém faria isso?"
     wakeSecond: "🌆 A cidade acorda, dessa vez sem %s, também esfaqueado, também na sua casa. Dizem que duas vezes é concidência, né?"
     wakeThird: "🌆 A cidade acorda. Isso não pode ser mais uma concicidência: %s foi esfaqueado na sua casa. Pela terceira vez."
-    wakeFourthPlus: "🌆 A cidade acordo, com menos um cidadão conosco, e esse seria %s. Quando isso irá acabar?"
+    wakeFourthPlus: "🌆 A cidade acordou, com menos um cidadão conosco, e esse seria %s. Quando isso irá acabar?"
 
     dmCitizen: "🏙 Você é um cidadão."
     dmAssassin: "🗡Você é o assassino!\nQuem será a primeira vítima? (Envie seu nome aqui)"
     dmAssassinRecursive: "Quem será essa noite? (Envie seu nome aqui)"
+  quiz:
+    name: "Quiz"
+    shortDescription: "Você sabe as respostas?"
+    longDescription: "Quem consegue responder as respostas primeiro?\nMande a letra que você acha que é a resposta correta em mensagem.\nQuem tiver mais pontos no final vencerá!"
+
+    revealAnswer: "%s\nA resposta era: %s\n"
+    cantPlay: "%s: Você adivinhou muitas vezes! Espere para jogar na próxima rodada."
+    answer: "%s (+%s pontos) respondeu corretamente!"
+    noOneAnswered: "Ninguém conseguiu responder aquela pergunta! A resposta era \"**%s**\"."
+
+  achievement:
+    got: "Conquista completa: **%s**!\n*%s*\n+🔸 %s tokens"
+
+    # Types
+    playGames: "Jogue %s partidas"
+    winGames: "Vença %s partidas"
+    gambleTokens: "Aposte %s tokens"
+    winTokensGambling: "Ganhe %s tokens apostando"
+    loseTokensGambling: "Perca %s tokens apostando"
+    reachPlaceLeaderboard: "Chegue no %sº lugar do placar"
+    reachTokens: "Alcançe %s tokens"
+
+    # Achievements
+    realPlayer: "Jogador de Verdade"
+    intensePlayer: "Jogador Intenso"
+    proPlayer: "Pro Player"
+    tooManyGames: "Jogos Demais"
+
+    crowned: "#Coroa"
+    master: "Mestre"
+    tooGood: "Bom Demais"
+    tryhard: "Tryhard"
+
+    gambler: "Apostador"
+    addicted: "Viciado"
+    highRoller: "Rolador"
+
+    onARoll: "Na onda certa"
+    lucky: "Sortudo"
+    rigged: "Roubado!!"
+
+    unfair: "Isso é injusto!"
+    overconfident: "Confidente demais"
+    stubborn: "Teimoso"
+
+    winnerWinnerChickenDinner: "Winner winner chicken dinner"
+
+    mediumClass: "Classe Média"
+    upperClass: "Classe Alta"
+    richBoi: "Riquinho"
+    billGates: "Bill Gates"
 
 command:
   permissionLock: "⛔ Você não tem permissão para usar esse comando!"
@@ -122,11 +176,15 @@ command:
     description: "Aposte seus tokens em um jogo de cassino! Totalmente não roubado, confie em mim"
 
   tokens:
-    own: "Você tem 🔸 %s tokens"
-    earnUpvote: "Ganhe mais tokens vencendo partidas, completando conquistas, votando para o bot em %s ou apostando com `%sslots`."
-    earn: "Ganhe mais tokens vencendo partidas, completando conquistas ou apostando com `%sslots`.\n*Você poderá votar novamente em %s`"
     other: "%s tem 🔸 %s tokens"
-    description: "Veja quantos tokens você e outros têm"
+    own: "Você tem 🔸 %s tokens\nGanhe mais:"
+    winningMatches: "**Vencendo Partidas**"
+    upvoteCan: "Votando para o bot (%s dias seguidos = + 🔸 %s tokens!)"
+    upvoteLater: "~~Votando para o bot~~ (Você poderá fazê-lo novamente em %s)"
+    achievements: "**Completando conquistas:**\n"
+    noAchievements: "~~Completando conquistas~~ (Nenhuma conquista para completar)"
+
+    description: "Veja quantos tokens você e outros têm, e veja seu progresso em conquistas"
   join:
     alreadyOnMatch: "Você já está nesse jogo!"
     full: "O jogo já começou!"
@@ -167,20 +225,20 @@ command:
     description: "Altere a linguagem padrão para o servidor."
 
   help:
-    beginning: "**<:GamesROB:391744594863325184> GamesROB v%s** *por deprilula28*\n\n"
+    beginning: "**<:GamesROBNew:456913958457049109> GamesROB v%s** *por deprilula28*\n\n"
     subCategory: "Use `%%PREFIX%%help categoria/comando` para receber informações sobre um comando ou categoria (ex. `%%PREFIX%%help profile` ou `%%PREFIX%%help slots`)"
     gameString: "%s `%%PREFIX%%%s` - %s"
     commandInfo: "`%s%s`: %s\nAliases: %s\nCategoria: %s"
     gameInfo: "`%s%s`: %s\n\n**Descrição Longa**\n%s\n\nAliases: %s\nMais informações: %s"
     categories:
-      games: ":game_die: Jogos"
-      profilecommands: ":busts_in_silhouette: Perfil"
-      servercommands: ":pager: Servidor"
-      matchcommands: ":video_game: Partida"
-      infocommands: ":clipboard: Informações"
+      games: "Jogos"
+      profilecommands: "Perfil"
+      servercommands: "Servidor"
+      matchcommands: "Partida"
+      infocommands: "Informações"
     other: "%s outros"
 
-    websiteTitle: "Nosso site"
+    websiteTitle: "Veja nosso site!"
     description: "Te dá ajuda!"
   invite:
     embed:
@@ -206,10 +264,10 @@ command:
     message: ":computer: Uso de RAM\nEm geral: **%s**\nComandos: **%s**\nShards: **%s**\nCache: **%s**\nJogos: **%s**"
     description: "🗄 *Debug* Veja um reporte completo de RAM"
   ping:
-    message: "🏓 Pong!\nBot -> Discord: %s\nVocê -> Bot: %s\nConexão: %s"
+    message: "🏓 Pong!\nBot -> Discord: %s\nVocê -> Bot: %s\nWebsocket: %s\nMédia de latência de processamento: %s"
     description: "🗄 *Debug* Ver a latência do bot"
   shardinfo:
-    title: "**Informação das Shards:**\n```js\n%s\n```"
+    title: "**Informação das Shards:**\n```prolog\n%s\n```"
     shard: "Shard"
     guilds: "Servidores"
     users: "Usuários"

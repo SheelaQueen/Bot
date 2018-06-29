@@ -8,9 +8,11 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import me.deprilula28.gamesrob.GamesROB;
 import me.deprilula28.gamesrob.Language;
+import me.deprilula28.gamesrob.achievements.AchievementType;
 import me.deprilula28.gamesrob.utility.Constants;
 import me.deprilula28.gamesrob.utility.Log;
 import me.deprilula28.gamesrob.utility.Utility;
+import net.dv8tion.jda.core.MessageBuilder;
 import net.dv8tion.jda.core.Permission;
 import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.User;
@@ -221,8 +223,6 @@ public class RPCManager extends WebSocketClient {
             .orElse(null);
     }
 
-
-
     private List<MutualServer> getMutualServers(JsonElement id) {
         List<Guild> mutualGuilds = new ArrayList<>();
         GamesROB.shards.forEach(cur -> {
@@ -248,8 +248,12 @@ public class RPCManager extends WebSocketClient {
             int days = profile.getUpvotedDays();
             int amount = 125 + days * 50;
 
-            pm.sendMessage(Language.transl(Optional.ofNullable(profile.getLanguage()).orElse("en_US"),
-                    "genericMessages.upvoteMessage", "+" + amount + " \uD83D\uDD38 tokens", days)).queue();
+            MessageBuilder builder = new MessageBuilder();
+            String lang = Optional.ofNullable(profile.getLanguage()).orElse("en_US");
+            builder.append(Language.transl(lang, "genericMessages.upvoteMessage", "+" + amount + " \uD83D\uDD38 tokens", days));
+            AchievementType.REACH_TOKENS.addAmount(false, amount, builder, user, lang);
+            pm.sendMessage(builder.build()).queue();
+
             profile.addTokens(amount);
             profile.setLastUpvote(System.currentTimeMillis());
         }));

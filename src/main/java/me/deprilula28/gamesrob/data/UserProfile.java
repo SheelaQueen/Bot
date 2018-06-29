@@ -3,14 +3,15 @@ package me.deprilula28.gamesrob.data;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import me.deprilula28.gamesrob.GamesROB;
+import me.deprilula28.gamesrob.achievements.AchievementType;
 import me.deprilula28.gamesrob.baseFramework.GamesInstance;
 import me.deprilula28.gamesrob.utility.Constants;
 import me.deprilula28.gamesrob.utility.Log;
 import me.deprilula28.gamesrob.utility.Utility;
+import me.deprilula28.jdacmdframework.CommandContext;
 import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.User;
 
-import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.File;
 import java.sql.PreparedStatement;
@@ -21,7 +22,7 @@ import java.util.Optional;
 @Data
 @AllArgsConstructor
 public class UserProfile {
-    private String userID;
+    private String userId;
     private String emote;
     private String language;
     private int tokens;
@@ -29,8 +30,8 @@ public class UserProfile {
     private int upvotedDays;
     private int shardId;
 
-    public GuildProfile.UserStatistics getStatsForGuild(Guild guild) {
-        return GuildProfile.get(guild).getUserStats(userID);
+    public LeaderboardHandler.UserStatistics getStatsForGuild(Guild guild) {
+        return GuildProfile.get(guild).getLeaderboard().getStatsForUser(userId);
     }
 
     @Data
@@ -58,19 +59,9 @@ public class UserProfile {
     }
 
     public void registerGameResult(Guild guild, User user, boolean victory, boolean loss, GamesInstance game) {
-        if (victory) addTokens(40);
-
-        GuildProfile.UserStatistics stats = getStatsForGuild(guild);
-        Log.info(stats);
-        registerGameResult(stats.getOverall(), victory, loss);
-
-        if (stats.getGamesStats().containsKey(game.getLanguageCode())) {
-            registerGameResult(stats.getGamesStats().get(game.getLanguageCode()), victory, loss);
-        } else {
-            stats.getGamesStats().put(game.getLanguageCode(), new GameStatistics(victory ? 1 : 0, victory ? 0 : 1, 1));
-        }
-        GuildProfile.get(guild).getUserStatisticsMap().put(user.getId(), stats);
-        GuildProfile.get(guild).onUserProfileSaved(this);
+        LeaderboardHandler.UserStatistics stats = getStatsForGuild(guild);
+        registerGameResult(stats.getStats("overall"), victory, loss);
+        registerGameResult(stats.getStats(game.getLanguageCode()), victory, loss);
     }
 
     private void registerGameResult(GameStatistics stats, boolean victory, boolean loss) {
@@ -95,40 +86,36 @@ public class UserProfile {
             ResultSet select = db.select("userData", Arrays.asList("emote", "language", "tokens", "lastupvote",
                     "upvoteddays", "shardid"),
                     "userid = '" + from + "'");
-            if (select.next()) {
-                return Optional.of(new UserProfile(from, select.getString("emote"),
-                        select.getString("language"), select.getInt("tokens"),
-                        select.getLong("lastupvote"), select.getInt("upvoteddays"),
-                        select.getInt("shardid")));
-            }
+            if (select.next()) return fromResultSet(from, select);
             select.close();
 
             return Optional.empty();
-        }
-
-        private UserProfile.GameStatistics readEntry(DataInputStream stream) throws Exception {
-            return new UserProfile.GameStatistics(stream.readInt(), stream.readInt(), stream.readInt());
         }
 
         @Override
         public Utility.Promise<Void> saveToSQL(SQLDatabaseManager db, UserProfile value) {
             return db.save("userData", Arrays.asList(
                     "emote", "userId", "tokens", "lastupvote", "upvoteddays", "shardid", "language"
-            ), "userid = '" + value.getUserID() + "'", it -> Log.wrapException("Saving data on SQL", () -> write(it, value)));
-            /*
-            if (value.isExists()) {
-                db.update("userData", Arrays.asList("emote"), "userID = ?",
-                        it -> Log.wrapException("Saving to SQL", () -> write(it, value)));
-            } else {
-                db.insert("userData", Arrays.asList("emote", "userID"),
-                        it -> Log.wrapException("Inserting to SQL", () -> write(it, value)));
+            ), "userid = '" + value.getUserId() + "'",
+                set -> fromResultSet(value.getUserId(), set).equals(Optional.of(value)),
+                (set, it) -> Log.wrapException("Saving data on SQL", () -> write(it, value)));
+        }
+
+        private Optional<UserProfile> fromResultSet(String from, ResultSet select) {
+            try {
+                return Optional.of(new UserProfile(from, select.getString("emote"),
+                        select.getString("language"), select.getInt("tokens"),
+                        select.getLong("lastupvote"), select.getInt("upvoteddays"),
+                        select.getInt("shardid")));
+            } catch (Exception e) {
+                Log.exception("Saving UserProfile in SQL", e);
+                return Optional.empty();
             }
-            */
         }
 
         private void write(PreparedStatement statement, UserProfile profile) throws Exception {
             statement.setString(1, profile.getEmote());
-            statement.setString(2, profile.getUserID());
+            statement.setString(2, profile.getUserId());
             statement.setInt(3, profile.getTokens());
             statement.setLong(4, profile.getLastUpvote());
             statement.setInt(5, profile.getUpvotedDays());
