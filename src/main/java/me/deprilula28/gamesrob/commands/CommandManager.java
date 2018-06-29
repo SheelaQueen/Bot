@@ -7,6 +7,7 @@ import me.deprilula28.gamesrob.Language;
 import me.deprilula28.gamesrob.baseFramework.*;
 import me.deprilula28.gamesrob.data.GuildProfile;
 import me.deprilula28.gamesrob.data.Statistics;
+import me.deprilula28.gamesrob.data.UserProfile;
 import me.deprilula28.gamesrob.utility.Cache;
 import me.deprilula28.gamesrob.utility.Constants;
 import me.deprilula28.gamesrob.utility.Log;
@@ -72,12 +73,31 @@ public class CommandManager {
         f.command("tokens tk tks tok toks t viewtokens viewtk viewtks viewtok viewtoks viewt gettokens gettk gettks " +
                 "gettok gettoks gett tokenamount tkamount tokamount tamount achievements achieve achieved achieves ach " +
                 "viewachievements viewachieve viewachieved viewachieves viewach accomplishments accomplished viewaccomplishments " +
-                "viewaccomplished tasks task viewtasks viewtask missions mission viewmissions viewmission", ProfileCommands::tokens)
-                .attr("category", "profilecommands");
+                "viewaccomplished tasks task viewtasks viewtask missions mission viewmissions viewmission bal balance viewbalance",
+                ProfileCommands::tokens, cmd -> {
+            // Moderator currency management
+            cmd.sub("add + cheat a", OwnerCommands.tokenCommand(UserProfile::addTokens, "command.tokens.add"));
+            cmd.sub("remove - rem r", OwnerCommands.tokenCommand((profile, tokens) -> profile.addTokens(-tokens), "command.tokens.remove"));
+            cmd.sub("set", OwnerCommands.tokenCommand(UserProfile::setTokens, "command.tokens.set"));
 
-        f.command("lang language userlang userlanguage mylang mylanguage ", LanguageCommands::setUserLanguage).attr("category", "profilecommands");
+            // Giving tokens
+            cmd.sub("give pay repay giveto", context -> {
+                User target = context.nextUser();
+                int amount = context.nextInt();
+                if (amount < 10 || amount > 5000) return Language.transl(context,"command.tokens.giveInvalidAmount", 10, 5000);
 
-        f.command("emoji changeemoji emojitile setemojitile setemoji emojis emoticons emoticon changeemoticon emoticontile setemoticon setemoticontile emote changeemote emotetile setemote setemotetile emotes tile changetile settile" +
+                if (!UserProfile.get(context.getAuthor()).transaction(amount))
+                    return Constants.getNotEnoughTokensMessage(context, amount);
+                UserProfile.get(target).addTokens(amount);
+
+                return Language.transl(context, "command.tokens.give", context.getAuthor().getAsMention(), target.getAsMention(), amount);
+            }).setUsage("g*token give <user> <amount>");
+        }).attr("category", "profilecommands");
+
+        f.command("userlang lang language userlanguage mylang mylanguage ", LanguageCommands::setUserLanguage).attr("category", "profilecommands");
+
+        f.command("emote emoji changeemoji emojitile setemojitile setemoji emojis emoticons emoticon changeemoticon emoticontile " +
+                "setemoticon setemoticontile changeemote emotetile setemote setemotetile emotes tile changetile settile" +
                 "depwhyaretheretwolinesforonecommandimscaredidkwhattodosothisisherehelphelphelphelp", ProfileCommands::emojiTile)
                 .attr("category", "profilecommands").setUsage("emojitile <Emoji>");
 
@@ -173,7 +193,7 @@ public class CommandManager {
             });
 
             for (int i = 1; i < EMOTE_LIST.size(); i++) cmd.reactSub(EMOTE_LIST.get(i), CATEGORIES[i]);
-            
+
             cmd.sub("why dep_lied why_dep -_- really_dep really rlly dep_why", context -> "So dep said that he " +
                     "didn't want to hardcode owners, but I just now searched the bot code for his User ID, and found he " +
                     "hardcoded himself and not me. If you found this message, please DM dep and ask him why he did this " +
@@ -195,6 +215,7 @@ public class CommandManager {
         f.command("announce announcement br broadcast", OwnerCommands::announce);
         f.command("blacklist bl l8r adios cya pce peace later bye rekt dab", OwnerCommands::blacklist);
         f.command("gengif gifgen xdxdxdlmao", Gengif::gen);
+        OwnerCommands.owners(f);
 
         f.before(it -> {
             ResultSet set = Cache.get("bl_" + it.getAuthor().getId(), n -> {

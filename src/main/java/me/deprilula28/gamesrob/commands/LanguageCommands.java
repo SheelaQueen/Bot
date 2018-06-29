@@ -31,7 +31,7 @@ public class LanguageCommands {
 
             if (!Language.getLanguageList().contains(it)) return Language.transl(context, "genericMessages.invalidLanguage");
             GuildProfile.get(context.getGuild()).setLanguage(it);
-            return Language.transl(context, "command.guildlang.set", language);
+            return Language.transl(context, "command.guildlang.set", it);
         } else return getAllLangsMessage(Constants.getPrefix(context.getGuild()), context.getCurrentCommand().getName());
     }
 

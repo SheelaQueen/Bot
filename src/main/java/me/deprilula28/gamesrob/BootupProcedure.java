@@ -1,5 +1,6 @@
 package me.deprilula28.gamesrob;
 
+import lombok.Getter;
 import me.deprilula28.gamesrob.baseFramework.GameState;
 import me.deprilula28.gamesrob.baseFramework.Match;
 import me.deprilula28.gamesrob.commands.CommandManager;
@@ -55,6 +56,7 @@ public class BootupProcedure {
     public static String secret;
     public static String changelog;
     public static boolean useRedis;
+    @Getter private static List<Long> owners;
 
     private static final BootupTask loadArguments = args -> {
         List<Optional<String>> pargs = Utility.matchValues(args, "token", "dblToken", "shards", "ownerID",
@@ -65,6 +67,7 @@ public class BootupProcedure {
         shardTo = pargs.get(2).map(Integer::parseInt).orElse(1);
         GamesROB.owners = Collections.unmodifiableList(pargs.get(3).map(it -> Arrays.stream(it.split(",")).map(Long::parseLong).collect(Collectors.toList()))
                 .orElse(Arrays.asList(197448151064379393L, 386945522608373785L)));
+        owners = GamesROB.owners;
         GamesROB.database = pargs.get(4).map(SQLDatabaseManager::new);
         GamesROB.debug = pargs.get(5).map(Boolean::parseBoolean).orElse(false);
         GamesROB.twitchUserIDListen = pargs.get(6).map(Long::parseLong).orElse(-1L);
@@ -85,7 +88,6 @@ public class BootupProcedure {
 
         DataManager.jedisOpt = pargs.get(12).flatMap(it -> (Boolean.valueOf(it) ? Optional.of(new Jedis("localhost")) : Optional.empty()));
         Trello.optTrello = pargs.get(13).map(it -> new TrelloImpl(Constants.TRELLO_API_KEY, it));
-        Log.info(pargs);
     };
 
     private static final BootupTask connectDiscord = args -> {
@@ -192,6 +194,7 @@ public class BootupProcedure {
 
             GamesROB.dboAPI = Optional.of(dbo);
             GamesROB.owners = Collections.unmodifiableList(GamesROB.dboAPI.get().getBot().getOwners().stream().map(Long::parseLong).collect(Collectors.toList()));
+            owners = GamesROB.owners;
     });
 
     private static final BootupTask presenceTask = args -> {

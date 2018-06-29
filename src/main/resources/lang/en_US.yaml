@@ -186,6 +186,13 @@ command:
     achievements: "**Completing achievements:**\n"
     noAchievements: "~~Completing achievements~~ (No achievements left to complete)"
 
+    give: "%s gave %s + 🔶 %s tokens!"
+    giveInvalidAmount: "You can only give %s to %s tokens."
+
+    add: "Added %s tokens to %s's balance (Current balance: %s)."
+    remove: "Removed %s tokens from %s's balance (Current balance: %s)."
+    set: "Set %2$s's balance to %1$s (Current balance: %s)."
+
     description: "View how many tokens you or someone else has, and view your progress in achievements"
   join:
     alreadyOnMatch: "You're already on the match!"

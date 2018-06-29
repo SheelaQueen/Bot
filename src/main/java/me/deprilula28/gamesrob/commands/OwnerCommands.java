@@ -1,14 +1,20 @@
 package me.deprilula28.gamesrob.commands;
 
+import jdk.nashorn.api.scripting.ClassFilter;
+import jdk.nashorn.api.scripting.NashornScriptEngineFactory;
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import me.deprilula28.gamesrob.BootupProcedure;
 import me.deprilula28.gamesrob.GamesROB;
 import me.deprilula28.gamesrob.Language;
+import me.deprilula28.gamesrob.data.UserProfile;
 import me.deprilula28.gamesrob.utility.Constants;
 import me.deprilula28.gamesrob.utility.Log;
 import me.deprilula28.gamesrob.utility.TransferUtility;
 import me.deprilula28.gamesrob.utility.Utility;
+import me.deprilula28.jdacmdframework.Command;
 import me.deprilula28.jdacmdframework.CommandContext;
+import me.deprilula28.jdacmdframework.CommandFramework;
 import net.dv8tion.jda.core.entities.User;
 
 import javax.script.ScriptEngine;
@@ -18,12 +24,12 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.function.BiConsumer;
+import java.util.function.Consumer;
+import java.util.stream.Collectors;
 
 public class OwnerCommands {
     private static ScriptEngine scriptEngine = new ScriptEngineManager().getEngineByName("nashorn");
@@ -36,6 +42,19 @@ public class OwnerCommands {
         private long time;
         private String message;
         private User announcer;
+    }
+
+    public static Command.Executor tokenCommand(BiConsumer<UserProfile, Integer> profileUser, String langCode) {
+        return context -> {
+            if (!GamesROB.owners.contains(context.getAuthor().getIdLong())) return Language.transl(context,
+                    "genericMessages.ownersOnly");
+            User user = context.nextUser();
+            int amount = context.nextInt();
+            UserProfile profile = UserProfile.get(user);
+            profileUser.accept(profile, amount);
+
+            return Language.transl(context, langCode, amount, user.getName(), profile.getTokens());
+        };
     }
 
     public static Optional<Announcement> getAnnouncement() {
@@ -55,9 +74,6 @@ public class OwnerCommands {
         return "Announcement set. It will now show in `g*help`.";
     }
 
-    // nitro is gay
-    // wanna know what else is gay
-    // fin
     public static String blacklist(CommandContext context) {
         if (!GamesROB.owners.contains(context.getAuthor().getIdLong())) return Language.transl(context,
                 "genericMessages.ownersOnly");
@@ -191,6 +207,7 @@ public class OwnerCommands {
         double time = (double) (System.nanoTime() - begin) / 1000000000.0;
 
         String text = response == null ? "null" : (response instanceof String ? (String) response : response.toString());
+        text = text.replaceAll(context.getJda().getToken(), "no u");
         String message = (success
                 ? "<:check:314349398811475968> Output took " + Utility.formatPeriod(time)
                 : "<:xmark:314349398824058880> Failed in " + Utility.formatPeriod(time)) + ":\n" +
@@ -206,7 +223,7 @@ public class OwnerCommands {
                 "genericMessages.ownersOnly");
 
         String updateURL = context.next();
-        context.send("Beginning download...");
+        context.send("<a:updating:403035325242540032> Beginning download...");
 
         try {
             File output = new File(Constants.TEMP_FOLDER, "update_download");
@@ -242,7 +259,7 @@ public class OwnerCommands {
                     TransferUtility.download(new FileInputStream(output), new FileOutputStream(gamesrobJar),
                             output.length(), step -> {}, n -> {
                                 output.delete();
-                                context.edit("<a:updating:403035325242540032> Restarting... *fin was here*").then(m -> System.exit(-1));
+                                context.edit("<a:updating:403035325242540032> Restarting...").then(m -> System.exit(-1));
                             }, error -> {
                                 context.send("Failed to install update: " + error.getClass().getName() + ": " + error.getMessage());
                                 Log.exception("Failed to install update from " + updateURL, error);
@@ -261,5 +278,39 @@ public class OwnerCommands {
         }
 
         return null;
+    }
+
+    public static void owners(CommandFramework f) {
+        f.command("owners getowners viewowners", context -> "Owners:\n" + GamesROB.owners.stream().map(it ->
+                GamesROB.getUserById(it).map(user -> user.getName() + "#" + user.getDiscriminator()).orElse("unknown"))
+                    .collect(Collectors.joining("\n")), cmd -> {
+            cmd.sub("add +", context -> {
+                if (!GamesROB.owners.contains(context.getAuthor().getIdLong())) return Language.transl(context,
+                        "genericMessages.ownersOnly");
+
+                List<Long> owners = new ArrayList<>(GamesROB.owners);
+                owners.add(context.nextUser().getIdLong());
+                GamesROB.owners = Collections.unmodifiableList(owners);
+
+                return "Added them to the owner list.";
+            });
+            cmd.sub("remove -", context -> {
+                if (!GamesROB.owners.contains(context.getAuthor().getIdLong())) return Language.transl(context,
+                        "genericMessages.ownersOnly");
+
+                List<Long> owners = new ArrayList<>(GamesROB.owners);
+                owners.remove(context.nextUser().getIdLong());
+                GamesROB.owners = Collections.unmodifiableList(owners);
+
+                return "Removed them from the owner list.";
+            });
+            cmd.sub("clear", context -> {
+                if (!GamesROB.owners.contains(context.getAuthor().getIdLong())) return Language.transl(context,
+                        "genericMessages.ownersOnly");
+
+                GamesROB.owners = BootupProcedure.getOwners();
+                return "Cleared owners.";
+            });
+        });
     }
 }
