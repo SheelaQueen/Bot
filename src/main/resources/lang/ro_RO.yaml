@@ -3,7 +3,8 @@ languageProperties:
   code: "ro_RO"
   language: "Romanian"
   country: "Romania"
-  languageName: "🇷🇴 Romanian"
+  flag: "🇷🇴"
+  languageName: "Romanian"
   translators: "RT - 𝓒𝓖#7528"
   version: "1.6.2"
 

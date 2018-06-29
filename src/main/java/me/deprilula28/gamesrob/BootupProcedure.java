@@ -8,11 +8,9 @@ import me.deprilula28.gamesrob.utility.*;
 import me.deprilula28.jdacmdframework.CommandFramework;
 import me.deprilula28.jdacmdframework.Settings;
 import me.deprilula28.jdacmdframework.discordbotsorgapi.DiscordBotsOrg;
-import net.dv8tion.jda.core.AccountType;
-import net.dv8tion.jda.core.JDA;
-import net.dv8tion.jda.core.JDABuilder;
-import net.dv8tion.jda.core.OnlineStatus;
+import net.dv8tion.jda.core.*;
 import net.dv8tion.jda.core.entities.Game;
+import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.events.guild.GuildJoinEvent;
 import net.dv8tion.jda.core.events.guild.GuildLeaveEvent;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
@@ -136,6 +134,23 @@ public class BootupProcedure {
                         game.onEnd("⛔ An error occurred causing the game to end.\nMy bad :c", false);
                     }
             }
+        });
+
+        f.handleEvent(GuildJoinEvent.class, event -> {
+            if (event.getGuild().getMembers().size() < 50)
+                event.getGuild().getTextChannels().stream().filter(TextChannel::canTalk).findFirst().ifPresent(channel ->
+                    channel.sendMessage(new MessageBuilder()
+                            .append(":wave: Hey there!\n" +
+                                "I'm **GamesROB**, the <:botTag:230105988211015680> that lets you play chat games right from Discord!\n\n" +
+                                "If you want to set a language for your guild, type `g*glang`!\n" +
+                                "We currently support: " + Language.getLanguageList().stream().map(it ->
+                                Language.transl(it, "languageProperties.languageName")).collect(Collectors.joining(", ")) + "!\n\n" +
+                                "If you want to start playing games, type `g*help` and pick a game!")
+                            .setEmbed(new EmbedBuilder().setTitle("If you need help:")
+                                    .setDescription("- [View our online command list](" + Constants.GAMESROB_DOMAIN + "/help)\n" +
+                                            "- [Join our support server](https://discord.gg/8EZ7BEz), we'll always be there for you!")
+                                    .setColor(Utility.getEmbedColor(event.getGuild())).build())
+                    .build()).queue());
         });
     };
 

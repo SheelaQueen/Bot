@@ -3,7 +3,8 @@ languageProperties:
   code: "fr_FR"
   language: "Français"
   country: "France"
-  languageName: "🇫🇷 Français"  
+  flag: "🇫🇷"
+  languageName: "Français"
   translators: "Ephysios#1912"
   version: "1.4.2"
 

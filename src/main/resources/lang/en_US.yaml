@@ -3,9 +3,10 @@ languageProperties:
   code: "en_US"
   language: "English"
   country: "USA"
-  languageName: "🇺🇸 American English"  
+  flag: "🇺🇸"
+  languageName: "American English"
   translators: "deprilula28#3609"
-  version: "1.6.2"
+  version: "1.6.3"
 
 genericMessages:
   alreadyPlaying: "You are already playing another game on %s!\nType `%sstop` to stop that match."
@@ -23,8 +24,6 @@ genericMessages:
   ownersOnly: "This command is only accessible for owners."
   blacklisted: "⛔ You were blacklisted from using GamesROB by %s (%s).\nReason: %s"
   blacklistedNoInfo: "⛔ You were blacklisted from using GamesROB."
-
-welcome: "" # Do not translate this key! It's only going to be used in english.
 
 gameFramework:
   singleplayerMatch: "**%s Singleplayer Match!**\n%s\n\n"
@@ -246,23 +245,24 @@ command:
     description: "Gets you some help!"
   invite:
     embed:
-      title: "🎮 Click to invite GamesROB!"
-      description: "⚠ You'll need the Manage Server permission in the server you want to add it on."
+      title: "Click to invite GamesROB!"
+      description: "You'll need the Manage Server permission in the server you want to add it on."
     description: "Invite the bot!"
   info:
-    embed:
-      description: "**The bot for playing fun chat games in your Discord!**\n[Website](%s)\n[Add the bot to your server](%s)\n[Upvote the bot in DBL](%s)\n[View the source code](%s)\n[Join our support server](%s)"
+    embed2:
+      description: "**The bot for playing fun chat games in your Discord!**"
       statistics:
         title: "📟 Statistics"
-        description: "**%s** servers, **%s** members and **%s** text channels!\n**%s** games played (**%s** matches happening now) and **%s** votes on DBL!"
+        description: "📶 **%s** servers\n👥 **%s** users\n🗨 **%s** text channels\n🎮 **%s** games (**%s** active)\n❗ **%s** commands\n📈 **%s** votes on DBL"
       versions:
         title: "📁 Versions"
-        description: "GamesROB Version: **%s**\nJava Version: **%s**\n[JDA](%s) Version: **%s**\n[DepsJDAFramework](%s) Version: **%s**\nShard Uptime: **%s**"
+        description: "GamesROB Version: **%s**\nJava Version: **%s**\n[JDA](%s) Version: **%s**\n[JDA Framework](%s) Version: **%s**\nShard Uptime: **%s**"
       system:
         title: "💻 System"
-        description: "RAM Usage: **%s**\nOS: **%s**"
-      credits:
-        title: "❤ Credits"
+        description: "RAM: **%s**\nOS: **%s**\nShard: **%s/%s** (**%s**)"
+      links:
+        title: "🔗 Useful Links"
+        description: "🌐 [Our Website](%s)\n➕ [Add bot to server](%s)\n🗒 [View the source code](%s)\nℹ️ [Join our support server](%s)\n❤ [Credits](%s)\n⬆ [Upvote the bot in DBL](%s)"
     description: "View statistics and information"
   raminfo:
     message: ":computer: RAM Usage Info\nOverall: **%s**\nCommand Framework: **%s**\nShards: **%s**\nCache: **%s**\nGames: **%s**"

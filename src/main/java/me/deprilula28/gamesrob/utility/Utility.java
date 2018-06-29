@@ -106,11 +106,14 @@ public class Utility {
     private static final SimpleDateFormat REGULAR_DATE_FORMAT = new SimpleDateFormat("EEE, d/M/yyyy hh:mm a");
     
     public static String addNumberDelimitors(long number) {
-        return new DecimalFormat(",###").format(number);
+        if (number < 1000L) return String.valueOf(number);
+        else if (number < 1000000L) return new BigDecimal((double) number / 1000.0).setScale(1, BigDecimal.ROUND_HALF_UP).toString() + "K";
+        else if (number < 1000000000L) return new BigDecimal((double) number / 1000000.0).setScale(2, BigDecimal.ROUND_HALF_UP).toString() + "M";
+        return new BigDecimal((double) number / 1000000000.0).setScale(4, BigDecimal.ROUND_HALF_UP).toString() + "B";
     }
 
     public static String addNumberDelimitors(int number) {
-        return new DecimalFormat(",###").format(number);
+        return addNumberDelimitors((long) number);
     }
 
     public static void populateItems(List<Optional<User>> players, String[] items,
@@ -170,7 +173,7 @@ public class Utility {
             number /= TIME_MEASURE_UNITS[i];
             if (number == 0.0) continue;
 
-            builder.append(Math.round(number)).append(TIME_UNIT_NAMES[i]);
+            builder.append(new DecimalFormat(",###").format(Math.floor(number))).append(TIME_UNIT_NAMES[i]);
         }
 
         return builder.toString();

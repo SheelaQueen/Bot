@@ -2,8 +2,9 @@
 languageProperties:
   code: "ar_SA"
   language: "العربية"
-  country: "🇸🇦 KSA"
-  languageName: "🇸🇦العربية"  
+  country: "KSA"
+  flag: "🇸🇦"
+  languageName: "العربية"
   translators: "موهاماد هيف#0211"
   version: "1.5.2"
 
