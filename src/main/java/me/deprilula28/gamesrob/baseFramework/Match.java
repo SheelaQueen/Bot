@@ -55,6 +55,7 @@ public class Match extends Thread {
     private Optional<Integer> betting = Optional.empty();
     private boolean multiplayer;
     public int iteration;
+    private boolean allowRematch;
 
     public Match(GamesInstance game, User creator, TextChannel channel, int targetPlayerCount, List<Optional<User>> players,
                  Map<String, String> options, int matchesPlayed) {
@@ -271,16 +272,15 @@ public class Match extends Thread {
     }
 
     public void rematchReaction(CommandContext context) {
-        ((GuildMessageReactionAddEvent) context.getEvent()).getReaction().getUsers().queue(allVoted -> {
-            if (GAMES.containsKey(context.getChannel()) || PLAYING.containsKey(context.getAuthor()) ||
-                    !players.stream().filter(Optional::isPresent).map(Optional::get).allMatch(allVoted::contains)) return;
-            preMatchMessage.then(it -> it.delete().queue());
+        if (!allowRematch) throw new InvalidCommandSyntaxException();
+        if (GAMES.containsKey(context.getChannel()) || PLAYING.containsKey(context.getAuthor()) ||
+                !players.stream().filter(Optional::isPresent).map(Optional::get).allMatch(context.getReactionUsers()::contains)) return;
+        preMatchMessage.then(it -> it.delete().queue());
 
-            if (game.getGameType().equals(GameType.HYBRID)) new Match(game, creator, channelIn, options)
-                    .matchesPlayed = matchesPlayed + 1;
-            else new Match(game, creator, channelIn, targetPlayerCount, players, options, matchesPlayed + 1);
-            interrupt();
-        });
+        if (game.getGameType().equals(GameType.HYBRID)) new Match(game, creator, channelIn, options)
+                .matchesPlayed = matchesPlayed + 1;
+        else new Match(game, creator, channelIn, targetPlayerCount, players, options, matchesPlayed + 1);
+        interrupt();
     }
 
     public void onEnd(Optional<User> winner) {
@@ -318,13 +318,17 @@ public class Match extends Thread {
             })
         );
 
+        allowRematch = gameState == GameState.MATCH;
+
         MessageBuilder gameOver = new MessageBuilder().append(Language.transl(language, "gameFramework.gameOver",
                 reason));
         Log.wrapException("Getting message for match end", () -> {
             if (gameState != GameState.PRE_GAME) matchHandler.updatedMessage(true, gameOver);
         });
+
         if (Utility.hasPermission(channelIn, channelIn.getGuild().getMember(channelIn.getJDA().getSelfUser()),
-                Permission.MESSAGE_ADD_REACTION)) gameOver.append("\n").append(Language.transl(language, "gameFramework.rematch"));
+                Permission.MESSAGE_ADD_REACTION) && allowRematch)
+            gameOver.append("\n").append(Language.transl(language, "gameFramework.rematch"));
 
         players.forEach(cur -> cur.ifPresent(user -> {
             if (addAchievement.containsKey(user)) addAchievement.get(user).forEach((type, amount) ->
@@ -335,7 +339,7 @@ public class Match extends Thread {
         GAMES.remove(channelIn);
 
         preMatchMessage = RequestPromise.forAction(channelIn.sendMessage(gameOver.build()));
-        preMatchMessage.then(msg -> msg.addReaction("\uD83D\uDD04").queue());
+        if (allowRematch) preMatchMessage.then(msg -> msg.addReaction("\uD83D\uDD04").queue());
 
         gameState = GameState.POST_MATCH;
         interrupt(); // Stop the timeout

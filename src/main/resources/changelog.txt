@@ -1,10 +1,8 @@
-- Added achievements! You can look at the achievements in `g*tokens`, and they'll get you tokens when you complete them!
-- Help command now has announcements! How cool right?
-- Revamped `g*info`! Looks nicer now, doesn't it?
+- Numbers are now represented with "K" and "M"! Try it out with `g*shards`.
+- A bunch of aliases have been added courtesy of fin.
+- Commands that need user will now work with the ID as well.
 
-- Fixed stucking you into games if they have errors returning messages...
-- Fixed things not saving
-- Fixed the DM Message always being in the bottom of Hangman
-- Fixed hangman randomly erroring out
-
+- Fixed rematch on timeout games for easy wins.
+- Fixed shardinfo's description.
+- Fixed minesweeper.
 Enjoy! ~ deprilula28

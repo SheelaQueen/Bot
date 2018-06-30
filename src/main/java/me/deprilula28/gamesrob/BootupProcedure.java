@@ -112,7 +112,7 @@ public class BootupProcedure {
                         new LinkedBlockingQueue<>())).prefixGetter(Constants::getPrefix).joinQuotedArgs(true)
                 .commandExceptionFunction((context, exception) -> {
                     context.send("⛔ An error has occured! It has been reported to devs. My bad...");
-                    Log.exception("Command: " + context.getMessage().getRawContent(), exception, context);
+                    Log.exception("Command: " + context.getMessage().getContentRaw(), exception, context);
                 }).genericExceptionFunction((message, exception) -> Log.exception(message, exception))
                 .caseIndependent(true)
                 .build());
@@ -127,9 +127,9 @@ public class BootupProcedure {
 
                 if (game.getGameState() == GameState.MATCH)
                     try {
-                        if (event.getGuild() == null) game.getMatchHandler().receivedDM(event.getMessage().getRawContent(),
+                        if (event.getGuild() == null) game.getMatchHandler().receivedDM(event.getMessage().getContentRaw(),
                                 event.getAuthor(), event.getMessage());
-                        else game.getMatchHandler().receivedMessage(event.getMessage().getRawContent(),
+                        else game.getMatchHandler().receivedMessage(event.getMessage().getContentRaw(),
                                     event.getAuthor(), event.getMessage());
                     } catch (Exception e) {
                         Log.exception("Game of " + game.getGame().getName(Constants.DEFAULT_LANGUAGE) + " had an error", e);

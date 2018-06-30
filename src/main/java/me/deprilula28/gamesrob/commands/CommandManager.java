@@ -97,7 +97,7 @@ public class CommandManager {
         f.command("userlang lang language userlanguage mylang mylanguage ", LanguageCommands::setUserLanguage).attr("category", "profilecommands");
 
         f.command("emote emoji changeemoji emojitile setemojitile setemoji emojis emoticons emoticon changeemoticon emoticontile " +
-                "setemoticon setemoticontile changeemote emotetile setemote setemotetile emotes tile changetile settile" +
+                "setemoticon setemoticontile changeemote emotetile setemote setemotetile emotes tile changetile settile " +
                 "depwhyaretheretwolinesforonecommandimscaredidkwhattodosothisisherehelphelphelphelp", ProfileCommands::emojiTile)
                 .attr("category", "profilecommands").setUsage("emojitile <Emoji>");
 
@@ -148,7 +148,7 @@ public class CommandManager {
                 "pongping getpongping viewpongping seepongping checkpongping ms2 getms2 viewms2 seems2 checkms2", GenericCommands::ping)
                 .attr("category", "infocommands");
 
-        f.command("shard sharddetails getsharddetails viewsharddetails seesharddetails checksharddetails shardinfo " +
+        f.command("shardinfo sharddetails getsharddetails viewsharddetails seesharddetails checksharddetails shard " +
                 "getshardinfo viewshardinfo seeshardinfo checkshardinfo shardinformation getshardinformation viewshardinformation " +
                 "seeshardinformation checkshardinformation shardstuff getshardstuff viewshardstuff seeshardstuff checkshardstuff " +
                 "shards getshards viewshards seeshards checkshards", GenericCommands::shardsInfo)

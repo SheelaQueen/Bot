@@ -76,6 +76,7 @@ public class Slots {
                             AchievementType.GAMBLE_TOKENS.addAmount(betting, context, messageGen);
                             if (earntAmount > 0) AchievementType.WIN_TOKENS_GAMBLING.addAmount(earntAmount - betting, context, builder -> {});
                             else AchievementType.LOSE_TOKENS_GAMBLING.addAmount(betting, context, builder -> {});
+                            AchievementType.REACH_TOKENS.addAmount(earntAmount, context, builder -> {});
                         });
                     } else {
                         context.edit(generateMessage(Language.transl(context, "command.slots.matchHeader", betting), items));
