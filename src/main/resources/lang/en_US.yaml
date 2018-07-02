@@ -45,6 +45,7 @@ gameFramework:
 
   gameOver: "**Game Over!**\n%s\n\n"
   winner: "%s has won!"
+  winnerTokens: "(+ 🔸 %s tokens, view your balance with `%sbal`)"
   draw: "It's a draw!"
   timeout: "The match has timed out after **%s**."
   creatorQuit: "The %s match has been cancelled because its creator quit."
@@ -124,7 +125,7 @@ game:
     noOneAnswered: "No one could answer that! The answer was \"**%s**\"."
 
   achievement:
-    got: "Achievement got: **%s**!\n*%s*\n+🔸 %s tokens"
+    got: "Achievement Get: **%s**!\n*%s*\n+🔸 %s tokens"
 
     # Types
     playGames: "Play %s games"
@@ -175,17 +176,22 @@ command:
     lost: "lost"
 
     invalidTokens: "You can only gamble %s to %s tokens."
+    all: "all"
     description: "Gamble your tokens in a slots game! Totally not rigged trust me"
 
   tokens:
     other: "%s has 🔸 %s tokens"
     own: "You have 🔸 %s tokens\nHere are some ways to get more:"
     winningMatches: "**Winning matches**"
-    upvoteCan: "Upvoting the bot (%s days in a row = + 🔸 %s tokens!)"
+    upvoteCan: "**Upvoting the bot** (%s days in a row = + 🔸 %s tokens!)"
     upvoteLater: "~~Upvoting the bot~~ (You can do it again in %s)"
     achievements: "**Completing achievements:**\n"
     noAchievements: "~~Completing achievements~~ (No achievements left to complete)"
+    gamblingTokens: "**Gambling with** `g*slots`"
+    gamblingNoTokens: "~~Gambling~~ (Negative or zero balance)"
 
+    guide: "Click here to learn more about tokens in our guide"
+    embedUpvote: "Or [Click here](%s) to upvote the bot"
     give: "%s gave %s + 🔶 %s tokens!"
     giveInvalidAmount: "You can only give %s to %s tokens."
 

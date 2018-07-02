@@ -94,7 +94,7 @@ public class CommandManager {
             }).setUsage("g*token give <user> <amount>");
         }).attr("category", "profilecommands");
 
-        f.command("userlang lang language userlanguage mylang mylanguage ", LanguageCommands::setUserLanguage).attr("category", "profilecommands");
+        f.command("userlang lang language userlanguage mylang mylanguage", LanguageCommands::setUserLanguage).attr("category", "profilecommands");
 
         f.command("emote emoji changeemoji emojitile setemojitile setemoji emojis emoticons emoticon changeemoticon emoticontile " +
                 "setemoticon setemoticontile changeemote emotetile setemote setemotetile emotes tile changetile settile " +
@@ -208,7 +208,7 @@ public class CommandManager {
         Language.getLanguageList().forEach(CommandManager::genHelpMessage);
         Log.info("Generated help messages for ", languageHelpMessages.size() + " languages.");
 
-        f.command("update upd8 updep", OwnerCommands::update);
+        f.command("update upd8 updep", OwnerCommands::updateCommand);
         f.command("eval evaluate ebal ebaluate", OwnerCommands::eval);
         f.command("bash con console commandconsole cmd commandprompt terminal term", OwnerCommands::console);
         f.command("sql postgres postgresql sqlexecute runsql", OwnerCommands::sql);

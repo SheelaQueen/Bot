@@ -57,8 +57,8 @@ public enum AchievementType {
         GamesROB.database.ifPresent(db -> {
             UserProfile profile = UserProfile.get(user);
             db.save("achievements", Arrays.asList("type", "amount", "userid"),
-                    "userid = '" + profile.getUserId() + "'", set -> true, (set, statement) ->
-                            Log.wrapException("Storing achievement amount", () -> {
+                    "userid = '" + profile.getUserId() + "'", set -> false,
+                    (set, statement) -> Log.wrapException("Storing achievement amount", () -> {
                 int prevAmount = set.map(it -> {
                     try {
                         return it.getInt("amount");

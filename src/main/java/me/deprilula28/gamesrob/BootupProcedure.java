@@ -111,8 +111,9 @@ public class BootupProcedure {
                 .async(true).threadPool(new ThreadPoolExecutor(10, 100, 5, TimeUnit.MINUTES,
                         new LinkedBlockingQueue<>())).prefixGetter(Constants::getPrefix).joinQuotedArgs(true)
                 .commandExceptionFunction((context, exception) -> {
-                    context.send("⛔ An error has occured! It has been reported to devs. My bad...");
-                    Log.exception("Command: " + context.getMessage().getContentRaw(), exception, context);
+                    Optional<String> trelloUrl = Log.exception("Command: " + context.getMessage().getContentRaw(), exception, context);
+                    context.send("⛔ I ran into an error attempting to run that command!\nYou can send this: " +
+                            trelloUrl.orElse("*No trello info found*") + " to our support server at https://discord.gg/gJKQPkN !");
                 }).genericExceptionFunction((message, exception) -> Log.exception(message, exception))
                 .caseIndependent(true)
                 .build());
@@ -132,8 +133,9 @@ public class BootupProcedure {
                         else game.getMatchHandler().receivedMessage(event.getMessage().getContentRaw(),
                                     event.getAuthor(), event.getMessage());
                     } catch (Exception e) {
-                        Log.exception("Game of " + game.getGame().getName(Constants.DEFAULT_LANGUAGE) + " had an error", e);
-                        game.onEnd("⛔ An error occurred causing the game to end.\nMy bad :c", false);
+                        Optional<String> trelloUrl = Log.exception("Game of " + game.getGame().getName(Constants.DEFAULT_LANGUAGE) + " had an error", e);
+                        game.onEnd("⛔ Oops! Something spoopy happened and I had to stop this game.\n" +
+                                "You can send this: " + trelloUrl.orElse("*No trello info found*") + " to our support server at https://discord.gg/gJKQPkN !", false);
                     }
             }
         });

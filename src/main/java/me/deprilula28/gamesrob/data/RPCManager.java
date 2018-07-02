@@ -9,6 +9,7 @@ import lombok.Data;
 import me.deprilula28.gamesrob.GamesROB;
 import me.deprilula28.gamesrob.Language;
 import me.deprilula28.gamesrob.achievements.AchievementType;
+import me.deprilula28.gamesrob.commands.OwnerCommands;
 import me.deprilula28.gamesrob.utility.Constants;
 import me.deprilula28.gamesrob.utility.Log;
 import me.deprilula28.gamesrob.utility.Utility;
@@ -75,10 +76,11 @@ public class RPCManager extends WebSocketClient {
 
     public static enum RequestType {
         // Server -> Client
-        WEBHOOK_NOTIFICATION, GET_USER_BY_ID, GET_GUILD_BY_ID, GET_MUTUAL_SERVERS, GET_SHARDS_INFO,
+        WEBHOOK_NOTIFICATION, GET_USER_BY_ID, GET_GUILD_BY_ID, GET_MUTUAL_SERVERS, GET_SHARDS_INFO, OWNER_LIST_UPDATED,
+        BOT_UDPATED,
 
         // Client -> Server
-        GET_ALL_SHARDS_INFO
+        GET_ALL_SHARDS_INFO, BOT_UPDATE, OWNER_LIST_UPDATE
     }
 
     public RPCManager(String ip, int shardIdFrom, int shardIdTo, int totalShards) throws Exception {
@@ -208,6 +210,20 @@ public class RPCManager extends WebSocketClient {
         handlerMap.put(RequestType.WEBHOOK_NOTIFICATION, this::webhookNotification);
         handlerMap.put(RequestType.GET_MUTUAL_SERVERS, this::getMutualServers);
         handlerMap.put(RequestType.GET_SHARDS_INFO, n -> GamesROB.getShardsInfo());
+
+        handlerMap.put(RequestType.OWNER_LIST_UPDATED, owners -> {
+            List<Long> newOwners = new ArrayList<>();
+            owners.getAsJsonArray().forEach(it -> newOwners.add(Long.parseLong(it.getAsString())));
+            GamesROB.owners = newOwners;
+            Log.info("Owner list has been updated.");
+
+            return null;
+        });
+
+        handlerMap.put(RequestType.BOT_UDPATED, url -> {
+            Log.wrapException("Updating bot from RPC request", () -> OwnerCommands.update(url.getAsString(), Log::info));
+            return null;
+        });
     }
 
     private WebsiteGuild getGuildById(JsonElement el) {

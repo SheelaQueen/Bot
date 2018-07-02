@@ -2,7 +2,6 @@ package me.deprilula28.gamesrob.baseFramework;
 
 import lombok.Data;
 import me.deprilula28.gamesrob.Language;
-import me.deprilula28.gamesrob.achievements.Achievement;
 import me.deprilula28.gamesrob.achievements.AchievementType;
 import me.deprilula28.gamesrob.commands.CommandManager;
 import me.deprilula28.gamesrob.data.GuildProfile;
@@ -21,7 +20,6 @@ import net.dv8tion.jda.core.JDA;
 import net.dv8tion.jda.core.MessageBuilder;
 import net.dv8tion.jda.core.Permission;
 import net.dv8tion.jda.core.entities.*;
-import net.dv8tion.jda.core.events.message.guild.react.GuildMessageReactionAddEvent;
 
 import java.util.*;
 import java.util.List;
@@ -46,7 +44,7 @@ public class Match extends Thread {
     private transient MatchHandler matchHandler;
 
     private int targetPlayerCount;
-    private transient RequestPromise<Message> preMatchMessage;
+    private transient RequestPromise<Message> matchMessage;
 
     private String language;
     private Map<String, String> options;
@@ -154,7 +152,7 @@ public class Match extends Thread {
                     game.getName(language), game.getLongDescription(language)
             ));
             matchHandler.updatedMessage(false, builder);
-            return preMatchMessage = RequestPromise.forAction(channel.sendMessage(builder.build()));
+            return matchMessage = RequestPromise.forAction(channel.sendMessage(builder.build()));
         });
 
         setName("Game timeout thread for " + game.getName(language));
@@ -187,7 +185,7 @@ public class Match extends Thread {
             if (this.equals(REMATCH_GAMES.get(channelIn))) REMATCH_GAMES.remove(channelIn);
             else if (REMATCH_GAMES.containsKey(channelIn)) REMATCH_GAMES.get(channelIn).matchesPlayed = matchesPlayed + 1;
             if (Utility.hasPermission(channelIn, channelIn.getGuild().getMember(channelIn.getJDA().getSelfUser()),
-                    Permission.MESSAGE_MANAGE)) preMatchMessage.then(it -> it.clearReactions().queue());
+                    Permission.MESSAGE_MANAGE)) matchMessage.then(it -> it.clearReactions().queue());
         } catch (InterruptedException e) {}
     }
 
@@ -232,9 +230,9 @@ public class Match extends Thread {
     }
 
     private void updatePreMessage() {
-        if (preMatchMessage != null) preMatchMessage.then(it -> it.delete().queue());
-        preMatchMessage = RequestPromise.forAction(channelIn.sendMessage(getPregameText()));
-        if (canReact) preMatchMessage.then(msg -> msg.addReaction("\uD83D\uDEAA").queue());
+        if (matchMessage != null) matchMessage.then(it -> it.delete().queue());
+        matchMessage = RequestPromise.forAction(channelIn.sendMessage(getPregameText()));
+        if (canReact) matchMessage.then(msg -> msg.addReaction("\uD83D\uDEAA").queue());
     }
 
     public void joined(User user) {
@@ -243,7 +241,7 @@ public class Match extends Thread {
         players.add(Optional.of(user));
         if (gameState == GameState.PRE_GAME) {
             if (players.size() == targetPlayerCount + 1) {
-                preMatchMessage.then(it -> it.delete().queue());
+                matchMessage.then(it -> it.delete().queue());
                 Statistics.get().registerGame(game);
 
                 matchHandler.begin(this, no -> {
@@ -251,7 +249,7 @@ public class Match extends Thread {
                             game.getName(language), game.getLongDescription(language)
                     ));
                     matchHandler.updatedMessage(false, builder);
-                    return preMatchMessage = RequestPromise.forAction(channelIn.sendMessage(builder.build())).then(no2 -> gameState = GameState.MATCH);
+                    return matchMessage = RequestPromise.forAction(channelIn.sendMessage(builder.build())).then(no2 -> gameState = GameState.MATCH);
                 });
                 players.stream().filter(Optional::isPresent).forEach(it -> achievement(it.get(), AchievementType.PLAY_GAMES, 1));
             } else updatePreMessage();
@@ -275,7 +273,7 @@ public class Match extends Thread {
         if (!allowRematch) throw new InvalidCommandSyntaxException();
         if (GAMES.containsKey(context.getChannel()) || PLAYING.containsKey(context.getAuthor()) ||
                 !players.stream().filter(Optional::isPresent).map(Optional::get).allMatch(context.getReactionUsers()::contains)) return;
-        preMatchMessage.then(it -> it.delete().queue());
+        matchMessage.then(it -> it.delete().queue());
 
         if (game.getGameType().equals(GameType.HYBRID)) new Match(game, creator, channelIn, options)
                 .matchesPlayed = matchesPlayed + 1;
@@ -299,9 +297,9 @@ public class Match extends Thread {
         );
         winner.ifPresent(it -> achievement(it, AchievementType.WIN_GAMES, 1));
 
-        onEnd(Language.transl(language, "gameFramework.winner",
-                winner.map(User::getAsMention).orElse("**AI**") + " *(+ \uD83D\uDD38 " +
-                betting.map(it -> it * players.size()).orElse(Constants.MATCH_WIN_TOKENS) + " tokens)*"), false);
+        onEnd(Language.transl(language, "gameFramework.winner", winner.map(User::getAsMention).orElse("**AI**"))
+                + Language.transl(language, "gameFramework.winnerTokens", betting.map(it -> it * players.size())
+                        .orElse(Constants.MATCH_WIN_TOKENS), Constants.getPrefix(channelIn.getGuild())), false);
     }
 
     public void onEnd(String reason, boolean registerPoints) {
@@ -338,8 +336,10 @@ public class Match extends Thread {
         ACTIVE_GAMES.get(channelIn.getJDA()).remove(this);
         GAMES.remove(channelIn);
 
-        preMatchMessage = RequestPromise.forAction(channelIn.sendMessage(gameOver.build()));
-        if (allowRematch) preMatchMessage.then(msg -> msg.addReaction("\uD83D\uDD04").queue());
+        if (matchMessage != null) matchMessage.then(it -> it.editMessage(gameOver.build()).queue());
+        else matchMessage = RequestPromise.forAction(channelIn.sendMessage(gameOver.build()));
+        
+        if (allowRematch) matchMessage.then(msg -> msg.addReaction("\uD83D\uDD04").queue());
 
         gameState = GameState.POST_MATCH;
         interrupt(); // Stop the timeout

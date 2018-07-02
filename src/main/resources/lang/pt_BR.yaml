@@ -45,6 +45,7 @@ gameFramework:
 
   gameOver: "**Fim de Jogo!**\n%s\n\n"
   winner: "%s venceu!"
+  winnerTokens: "(+ 🔸 %s tokens, veja seu dinheiro com `g*bal`)"
   draw: "Empate!"
   timeout: "A partida expirou após de **%s**."
   creatorQuit: "A partida de %s foi cancelada porque o(a) criador(a) saiu."
@@ -174,16 +175,24 @@ command:
     lost: "perdeu"
 
     invalidTokens: "Você só pode apostar de %s á %s tokens."
+    all: "todos os seus"
     description: "Aposte seus tokens em um jogo de cassino! Totalmente não roubado, confie em mim"
 
   tokens:
     other: "%s tem 🔸 %s tokens"
     own: "Você tem 🔸 %s tokens\nGanhe mais:"
     winningMatches: "**Vencendo Partidas**"
-    upvoteCan: "Votando para o bot (%s dias seguidos = + 🔸 %s tokens!)"
+    upvoteCan: "**Votando para o bot** (%s dias seguidos = + 🔸 %s tokens!)"
     upvoteLater: "~~Votando para o bot~~ (Você poderá fazê-lo novamente em %s)"
     achievements: "**Completando conquistas:**\n"
     noAchievements: "~~Completando conquistas~~ (Nenhuma conquista para completar)"
+    gamblingTokens: "**Apostando com** `g*slots`"
+    gamblingNoTokens: "~~Apostando~~ (Balança menor ou igual a zero)"
+
+    guide: "Clique aqui para saber mais sobre tokens com nosso guia"
+    embedUpvote: "Ou [Clique aqui](%s) para votar para o bot"
+    give: "%s deu + 🔶 %$3s tokens para %s$2!"
+    giveInvalidAmount: "Você só pode dar de %s à %s tokens."
 
     description: "Veja quantos tokens você e outros têm, e veja seu progresso em conquistas"
   join:

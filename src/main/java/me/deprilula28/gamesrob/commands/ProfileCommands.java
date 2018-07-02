@@ -72,6 +72,8 @@ public class ProfileCommands {
 
     private static Pattern emotePattern = Pattern.compile("(<:.*:[0-9]{18}>)");
 
+    public static
+
     public static String tokens(CommandContext context) {
         User target = context.opt(context::nextUser).orElse(context.getAuthor());
         UserProfile profile = UserProfile.get(target);
@@ -80,18 +82,24 @@ public class ProfileCommands {
 
         if (target.equals(context.getAuthor())) {
             context.send(message -> {
+                EmbedBuilder embed = new EmbedBuilder().setTitle(Language.transl(context, "command.tokens.guide"),
+                        Constants.GAMESROB_DOMAIN + "/help/currency").setColor(Utility.getEmbedColor(context.getGuild()));
+
                 message.append("→ ");
                 Map<String, Boolean> winMethods = new HashMap<>();
                 winMethods.put(Language.transl(context, "command.tokens.winningMatches"), true);
+
+                boolean positiveBalance = tokens > 0;
+                winMethods.put(Language.transl(context, positiveBalance ? "command.tokens.gamblingTokens" : "command.tokens.gamblingNoTokens"), positiveBalance);
 
                 // Upvoting
                 long timeSinceUpvote = System.currentTimeMillis() - profile.getLastUpvote();
                 if (timeSinceUpvote > TimeUnit.DAYS.toMillis(1)) {
                     int row = timeSinceUpvote < TimeUnit.DAYS.toMillis(2) ? profile.getUpvotedDays() : 0;
-                    message.setEmbed(new EmbedBuilder()
-                            .setTitle(Language.transl(context, "command.tokens.upvoteCan", row, 125 + row * 50),
-                                    Constants.getDboURL(context.getJda()) + "/vote")
-                            .setColor(Utility.getEmbedColor(context.getGuild())).build());
+
+                    winMethods.put(Language.transl(context, "command.tokens.upvoteCan", row, 125 + row * 50), true);
+                    embed.setDescription(Language.transl(context, "command.tokens.embedUpvote",
+                            Constants.getDboURL(context.getJda()) + "/vote"));
                 } else winMethods.put(Language.transl(context, "command.tokens.upvoteLater", Utility.formatPeriod
                                 ((profile.getLastUpvote() + TimeUnit.DAYS.toMillis(1)) - System.currentTimeMillis())),
                         false);
@@ -121,9 +129,9 @@ public class ProfileCommands {
                         }
 
                         builder.append(String.format(
-                                "%s: *%s*\n`%s [%s] %s`\n",
+                                "%s: *%s*\n`%s [%s] %s` (+\uD83D\uDD38 %s tokens)\n",
                                 achievement.getName(language), achievement.getDescription(language),
-                                amount, bar.toString(), achievement.getAmount()
+                                amount, bar.toString(), achievement.getAmount(), achievement.getTokens()
                         ));
                     });
 
@@ -131,6 +139,7 @@ public class ProfileCommands {
                 }
 
                 message.append(Language.transl(context, "command.tokens.own", tokens)).append("\n");
+                message.setEmbed(embed.build());
                 winMethods.forEach((text, check) -> {
                     message.append(String.format(
                             "- %s %s\n",

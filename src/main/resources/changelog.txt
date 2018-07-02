@@ -1,8 +1,4 @@
-- Numbers are now represented with "K" and "M"! Try it out with `g*shards`.
-- A bunch of aliases have been added courtesy of fin.
-- Commands that need user will now work with the ID as well.
-
-- Fixed rematch on timeout games for easy wins.
-- Fixed shardinfo's description.
-- Fixed minesweeper.
+- Slots token limit was removed! Go wild! You can also use `g*gamble all` to gamble it all in.
+- You can now give someone tokens! `g*tokens give <person> <amount>`
+- Tokens command now shows the amount of tokens each task/achievement grants you, and a link to the Tokens Guide.
 Enjoy! ~ deprilula28

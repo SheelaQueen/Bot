@@ -1,7 +1,6 @@
 package me.deprilula28.gamesrob.commands;
 
 import me.deprilula28.gamesrob.Language;
-import me.deprilula28.gamesrob.achievements.Achievement;
 import me.deprilula28.gamesrob.achievements.AchievementType;
 import me.deprilula28.gamesrob.data.UserProfile;
 import me.deprilula28.gamesrob.utility.Constants;
@@ -10,7 +9,6 @@ import me.deprilula28.jdacmdframework.CommandContext;
 import net.dv8tion.jda.core.MessageBuilder;
 
 import java.util.*;
-import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
@@ -20,22 +18,24 @@ public class Slots {
         "🍒", "🍇", "🍎", "🍉", "🔔", "🎲", "👑", "🍋", "🍀"
     };
     private static final int MIN_TOKENS = 50;
-    private static final int MAX_TOKENS = 2000;
+    private static final int ALL_ITEMS = 2000;
     private static final int MIN_ITEMS = 3;
 
     public static String slotsGame(CommandContext context) {
         Random random = new Random(System.currentTimeMillis());
-        int betting = context.nextInt();
-        if (betting < MIN_TOKENS || betting > MAX_TOKENS) return Language.transl(context, "command.slots.invalidTokens",
-                MIN_TOKENS, MAX_TOKENS);
+        String next = context.next();
+        int betting = next.equalsIgnoreCase("all") ? UserProfile.get(context.getAuthor()).getTokens()
+            : Integer.parseInt(next);
+        if (betting < MIN_TOKENS) return Language.transl(context, "command.slots.invalidTokens",
+                MIN_TOKENS, Language.transl(context, "command.slots.all"));
 
         UserProfile profile = UserProfile.get(context.getAuthor());
         if (!profile.transaction(betting))
             return Constants.getNotEnoughTokensMessage(context, betting);
 
-        double percentBet = (double) (betting - MIN_TOKENS) / (double) (MAX_TOKENS - MIN_TOKENS);
+        double percentBet = (double) (betting - MIN_TOKENS) / (double) (ALL_ITEMS - MIN_TOKENS);
         int validItemCount = (int) (percentBet * (ITEMS.length - MIN_ITEMS)) + MIN_ITEMS;
-        List<String> validItems = betting == MAX_TOKENS ? Arrays.asList(ITEMS) :
+        List<String> validItems = betting == ALL_ITEMS ? Arrays.asList(ITEMS) :
                 Arrays.stream(ITEMS).sorted(Comparator.comparingInt(it -> random.nextInt(ITEMS.length)))
                     .limit(validItemCount).collect(Collectors.toList());
 
@@ -73,10 +73,12 @@ public class Slots {
                                         Language.transl(context, "command.slots.earnt"), Math.abs(earntAmount)),
                                 items);
                         context.edit(it -> {
-                            AchievementType.GAMBLE_TOKENS.addAmount(betting, context, messageGen);
-                            if (earntAmount > 0) AchievementType.WIN_TOKENS_GAMBLING.addAmount(earntAmount - betting, context, builder -> {});
-                            else AchievementType.LOSE_TOKENS_GAMBLING.addAmount(betting, context, builder -> {});
-                            AchievementType.REACH_TOKENS.addAmount(earntAmount, context, builder -> {});
+                            String language = Constants.getLanguage(context);
+
+                            AchievementType.GAMBLE_TOKENS.addAmount(false, betting, it, context.getAuthor(), language);
+                            if (earntAmount > 0) AchievementType.WIN_TOKENS_GAMBLING.addAmount(false, earntAmount - betting, it, context.getAuthor(), language);
+                            else AchievementType.LOSE_TOKENS_GAMBLING.addAmount(false, betting, it, context.getAuthor(), language);
+                            AchievementType.REACH_TOKENS.addAmount(false, earntAmount, it, context.getAuthor(), language);
                         });
                     } else {
                         context.edit(generateMessage(Language.transl(context, "command.slots.matchHeader", betting), items));

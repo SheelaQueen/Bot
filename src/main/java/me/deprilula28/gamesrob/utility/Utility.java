@@ -106,10 +106,7 @@ public class Utility {
     private static final SimpleDateFormat REGULAR_DATE_FORMAT = new SimpleDateFormat("EEE, d/M/yyyy hh:mm a");
     
     public static String addNumberDelimitors(long number) {
-        if (number < 1000L) return String.valueOf(number);
-        else if (number < 1000000L) return new BigDecimal((double) number / 1000.0).setScale(1, BigDecimal.ROUND_HALF_UP).toString() + "K";
-        else if (number < 1000000000L) return new BigDecimal((double) number / 1000000.0).setScale(2, BigDecimal.ROUND_HALF_UP).toString() + "M";
-        return new BigDecimal((double) number / 1000000000.0).setScale(4, BigDecimal.ROUND_HALF_UP).toString() + "B";
+        return new DecimalFormat(",###").format(number);
     }
 
     public static String addNumberDelimitors(int number) {

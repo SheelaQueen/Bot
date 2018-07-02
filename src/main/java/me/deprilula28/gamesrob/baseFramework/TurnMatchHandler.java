@@ -15,14 +15,13 @@ import java.util.Map;
 import java.util.Optional;
 
 public abstract class TurnMatchHandler implements MatchHandler {
-    @Getter protected RequestPromise<Message> lastMessage = null;
     protected int turn = 0;
     protected Match match;
 
     @Override
     public void begin(Match match, Provider<RequestPromise<Message>> initialMessage) {
         this.match = match;
-        lastMessage = initialMessage.invoke(null);
+        match.setMatchMessage(initialMessage.invoke(null));
     }
 
     public abstract void handleAIPlay();
@@ -50,7 +49,7 @@ public abstract class TurnMatchHandler implements MatchHandler {
 
         MessageBuilder builder = new MessageBuilder();
         updatedMessage(false, builder);
-        lastMessage = GameUtil.editSend(match.getChannelIn(), messages, lastMessage, builder.build());
+        match.setMatchMessage(GameUtil.editSend(match.getChannelIn(), messages, match.getMatchMessage(), builder.build()));
         if (messages > Constants.MESSAGES_SINCE_THRESHOLD) messages = 0;
     }
 
