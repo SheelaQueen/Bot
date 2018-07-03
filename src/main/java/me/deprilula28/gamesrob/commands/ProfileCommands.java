@@ -72,8 +72,6 @@ public class ProfileCommands {
 
     private static Pattern emotePattern = Pattern.compile("(<:.*:[0-9]{18}>)");
 
-    public static
-
     public static String tokens(CommandContext context) {
         User target = context.opt(context::nextUser).orElse(context.getAuthor());
         UserProfile profile = UserProfile.get(target);

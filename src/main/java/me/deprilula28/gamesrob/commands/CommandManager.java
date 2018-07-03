@@ -119,7 +119,7 @@ public class CommandManager {
                 ctx -> ctx.getAuthorMember().hasPermission(Permission.MANAGE_SERVER))).attr("category", "servercommands")
                 .setUsage("perm <command> [permission]");
 
-        f.command("prefix setprefix changeprefix", permissionLock(GenericCommands::setPrefix,
+        f.command("setprefix prefix changeprefix", permissionLock(GenericCommands::setPrefix,
                 ctx -> ctx.getAuthorMember().hasPermission(Permission.MANAGE_SERVER)))
                 .attr("category", "servercommands").setUsage("setprefix <Prefix>");
 

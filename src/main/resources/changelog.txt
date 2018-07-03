@@ -1,4 +1,6 @@
 - Slots token limit was removed! Go wild! You can also use `g*gamble all` to gamble it all in.
 - You can now give someone tokens! `g*tokens give <person> <amount>`
 - Tokens command now shows the amount of tokens each task/achievement grants you, and a link to the Tokens Guide.
+
+- Fixed the setprefix description.
 Enjoy! ~ deprilula28
