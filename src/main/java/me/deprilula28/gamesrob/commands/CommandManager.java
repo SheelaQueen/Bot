@@ -67,14 +67,9 @@ public class CommandManager {
         });
 
         // Profile
-        f.command("profile prof getprofile getprof viewprofile viewprof user usr getuser getusr viewuser viewusr " +
-                "player getplayer viewplayers rank", ProfileCommands::profile).attr("category", "profilecommands");
-
         f.command("tokens tk tks tok toks t viewtokens viewtk viewtks viewtok viewtoks viewt gettokens gettk gettks " +
-                "gettok gettoks gett tokenamount tkamount tokamount tamount achievements achieve achieved achieves ach " +
-                "viewachievements viewachieve viewachieved viewachieves viewach accomplishments accomplished viewaccomplishments " +
-                "viewaccomplished tasks task viewtasks viewtask missions mission viewmissions viewmission bal balance viewbalance",
-                ProfileCommands::tokens, cmd -> {
+                "gettok gettoks gett tokenamount tkamount tokamount tamount bal balance viewbalance",
+                Tokens::tokens, cmd -> {
             // Moderator currency management
             cmd.sub("add + cheat a", OwnerCommands.tokenCommand(UserProfile::addTokens, "command.tokens.add"));
             cmd.sub("remove - rem r", OwnerCommands.tokenCommand((profile, tokens) -> profile.addTokens(-tokens), "command.tokens.remove"));
@@ -93,6 +88,17 @@ public class CommandManager {
                 return Language.transl(context, "command.tokens.give", context.getAuthor().getAsMention(), target.getAsMention(), amount);
             }).setUsage("g*token give <user> <amount>");
         }).attr("category", "profilecommands");
+
+        f.command("achievements achieve achieved achieves ach " +
+                "viewachievements viewachieve viewachieved viewachieves viewach accomplishments accomplished viewaccomplishments " +
+                "viewaccomplished tasks task viewtasks viewtask missions mission viewmissions viewmission",
+                Tokens::achievements).attr("category", "profilecommands");
+
+        f.command("baltop balancetop topbalance rich tokensleaderboard tokenslb tklb", Tokens::baltop)
+                .attr("category", "profilecommands");
+
+        f.command("profile prof getprofile getprof viewprofile viewprof user usr getuser getusr viewuser viewusr " +
+                "player getplayer viewplayers rank", ProfileCommands::profile).attr("category", "profilecommands");
 
         f.command("userlang lang language userlanguage mylang mylanguage", LanguageCommands::setUserLanguage).attr("category", "profilecommands");
 

@@ -81,6 +81,22 @@ public class SQLDatabaseManager {
         }
     }
 
+    public ResultSet select(String table, List<String> items, String where, String orderBy, boolean desc, int limit, int offset) throws Exception {
+        return sqlQuery(String.format(
+                "SELECT %s FROM %s WHERE %s ORDER BY %s%s LIMIT %s OFFSET %s",
+                items.stream().collect(Collectors.joining(", ")),
+                table, where, orderBy, desc ? " DESC" : "", limit, offset
+        ));
+    }
+
+    public ResultSet select(String table, List<String> items, String orderBy, boolean desc, int limit, int offset) throws Exception {
+        return sqlQuery(String.format(
+                "SELECT %s FROM %s ORDER BY %s%s LIMIT %s OFFSET %s",
+                items.stream().collect(Collectors.joining(", ")),
+                table, orderBy, desc ? " DESC" : "", limit, offset
+        ));
+    }
+
     public ResultSet select(String table, List<String> items, String where) throws Exception {
          return sqlQuery(String.format(
                  "SELECT %s FROM %s WHERE %s",

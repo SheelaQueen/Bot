@@ -127,10 +127,6 @@ public class Utility {
         }
     }
 
-    public static long getRamUsage(Object object) {
-        return 0L;
-    }
-
     public static String formatBytes(long bytes) {
         for (int index = 0; index < BYTE_MEASURE_UNITS.length; index ++) {
             int n = BYTE_MEASURE_UNITS[index];

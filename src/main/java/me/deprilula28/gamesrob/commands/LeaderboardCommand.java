@@ -56,7 +56,6 @@ public class LeaderboardCommand {
 
         context.send(builder -> {
             builder.append(Language.transl(context, "command.leaderboard.response", overallBuilder, gameWinners));
-            Log.info(overallBuilder.toString(), gameWinners.toString());
             builder.setEmbed(new EmbedBuilder().setColor(Utility.getEmbedColor(context.getGuild()))
                 .setTitle(Language.transl(context, "command.leaderboard.websiteLink"),
                         Constants.GAMESROB_DOMAIN + "/serverLeaderboard/" + context.getGuild().getId() + "/").build());

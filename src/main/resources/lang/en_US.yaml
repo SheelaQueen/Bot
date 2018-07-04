@@ -14,7 +14,7 @@ genericMessages:
   invalidLanguage: "Not a valid language."
   notEnoughTokens: 
     beggining: "You don't have enough tokens to do that (Need %s more)."
-    upvote: "\nGet more tokens by winning games and upvoting the bot on %s."
+    tokensCommand: "\nLearn how to get more tokens with `g*tokens`."
 
   nth1: "st"
   nth2: "nd"
@@ -179,14 +179,28 @@ command:
     all: "all"
     description: "Gamble your tokens in a slots game! Totally not rigged trust me"
 
+  achievements:
+    noAchievements: "No achievements are available for you right now! :wink:"
+    beginning: "Here are the achievements you can complete:\n\n"
+
+    description: "View your progress in achievements"
+
+  baltop:
+    server: "The users with most tokens in **%s**:\n"
+    global: "The users with most tokens on GamesROB globally:\n"
+    footer: "\nShowing %s entries per page | Page %s\nView another page with `%sbaltop %s<page>`."
+    globalView: "\nTo view the global leaderboard, try `%sbaltop global`."
+    invalidPage: "That page is invalid!"
+
+    description: "Shows the token leaderboard."
+
   tokens:
     other: "%s has 🔸 %s tokens"
     own: "You have 🔸 %s tokens\nHere are some ways to get more:"
     winningMatches: "**Winning matches**"
     upvoteCan: "**Upvoting the bot** (%s days in a row = + 🔸 %s tokens!)"
     upvoteLater: "~~Upvoting the bot~~ (You can do it again in %s)"
-    achievements: "**Completing achievements:**\n"
-    noAchievements: "~~Completing achievements~~ (No achievements left to complete)"
+    achievements2: "**Completing achievements**: View them with `%sachievements`!"
     gamblingTokens: "**Gambling with** `g*slots`"
     gamblingNoTokens: "~~Gambling~~ (Negative or zero balance)"
 

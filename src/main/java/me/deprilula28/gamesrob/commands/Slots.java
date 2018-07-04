@@ -68,13 +68,13 @@ public class Slots {
                         int earntAmount = (int) (multiplier * betting);
                         if (multiplier != 0) profile.setTokens(profile.getTokens() + earntAmount);
 
-                        Consumer<MessageBuilder> messageGen = generateMessage(Language.transl(context, "command.slots.matchEnd",
-                                earntAmount == 0 ? Language.transl(context, "command.slots.lost") :
-                                        Language.transl(context, "command.slots.earnt"), Math.abs(earntAmount)),
-                                items);
                         context.edit(it -> {
                             String language = Constants.getLanguage(context);
 
+                            it.append(generateMessage(Language.transl(context, "command.slots.matchEnd",
+                                    earntAmount == 0 ? Language.transl(context, "command.slots.lost") :
+                                            Language.transl(context, "command.slots.earnt"), Math.abs(earntAmount)),
+                                    items));
                             AchievementType.GAMBLE_TOKENS.addAmount(false, betting, it, context.getAuthor(), language);
                             if (earntAmount > 0) AchievementType.WIN_TOKENS_GAMBLING.addAmount(false, earntAmount - betting, it, context.getAuthor(), language);
                             else AchievementType.LOSE_TOKENS_GAMBLING.addAmount(false, betting, it, context.getAuthor(), language);

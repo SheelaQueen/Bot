@@ -35,7 +35,6 @@ public class Language {
         Map<String, String> keys = new HashMap<>();
         recReadTree(yaml.load(text), "", keys);
 
-        Log.info("Read language " + language + ", " + Utility.formatBytes(Utility.getRamUsage(keys)));
         languages.put(language, keys);
         languageList.add(language);
     }

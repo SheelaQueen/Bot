@@ -24,9 +24,6 @@ import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
 
 public class ProfileCommands {
-    private static final int BAR_LENGTH = 5;
-    private static final String BAR_CHAR = "=";
-
     public static String profile(CommandContext context) {
         GuildProfile board = GuildProfile.get(context.getGuild());
         User profileOf = context.opt(context::nextUser).orElse(context.getAuthor());
@@ -71,84 +68,6 @@ public class ProfileCommands {
     }
 
     private static Pattern emotePattern = Pattern.compile("(<:.*:[0-9]{18}>)");
-
-    public static String tokens(CommandContext context) {
-        User target = context.opt(context::nextUser).orElse(context.getAuthor());
-        UserProfile profile = UserProfile.get(target);
-        int tokens = profile.getTokens();
-        String prefix = Constants.getPrefix(context.getGuild());
-
-        if (target.equals(context.getAuthor())) {
-            context.send(message -> {
-                EmbedBuilder embed = new EmbedBuilder().setTitle(Language.transl(context, "command.tokens.guide"),
-                        Constants.GAMESROB_DOMAIN + "/help/currency").setColor(Utility.getEmbedColor(context.getGuild()));
-
-                message.append("→ ");
-                Map<String, Boolean> winMethods = new HashMap<>();
-                winMethods.put(Language.transl(context, "command.tokens.winningMatches"), true);
-
-                boolean positiveBalance = tokens > 0;
-                winMethods.put(Language.transl(context, positiveBalance ? "command.tokens.gamblingTokens" : "command.tokens.gamblingNoTokens"), positiveBalance);
-
-                // Upvoting
-                long timeSinceUpvote = System.currentTimeMillis() - profile.getLastUpvote();
-                if (timeSinceUpvote > TimeUnit.DAYS.toMillis(1)) {
-                    int row = timeSinceUpvote < TimeUnit.DAYS.toMillis(2) ? profile.getUpvotedDays() : 0;
-
-                    winMethods.put(Language.transl(context, "command.tokens.upvoteCan", row, 125 + row * 50), true);
-                    embed.setDescription(Language.transl(context, "command.tokens.embedUpvote",
-                            Constants.getDboURL(context.getJda()) + "/vote"));
-                } else winMethods.put(Language.transl(context, "command.tokens.upvoteLater", Utility.formatPeriod
-                                ((profile.getLastUpvote() + TimeUnit.DAYS.toMillis(1)) - System.currentTimeMillis())),
-                        false);
-
-                // Achievements
-                Map<Achievement, Integer> toComplete = new HashMap<>();
-
-                for (AchievementType type : AchievementType.values()) {
-                    if (type == AchievementType.OTHER) continue;
-                    int amount = type.getAmount(context.getAuthor());
-                    Arrays.stream(Achievements.values()).filter(it -> type.equals(it.getAchievement().getType()))
-                            .map(Achievements::getAchievement).filter(it -> it.getAmount() > amount)
-                            .min(Comparator.comparingInt(Achievement::getAmount)).ifPresent(achievement ->
-                            toComplete.put(achievement, amount));
-                }
-
-                if (toComplete.isEmpty()) winMethods.put(Language.transl(context, "command.tokens.noAchievements"), false);
-                else {
-                    StringBuilder builder = new StringBuilder(Language.transl(context, "command.tokens.achievements"));
-                    String language = Constants.getLanguage(context);
-                    toComplete.forEach((achievement, amount) -> {
-                        double percent = (double) amount / (double) achievement.getAmount();
-                        StringBuilder bar = new StringBuilder();
-                        for (int i = 0; i < BAR_LENGTH; i ++) {
-                            if ((double) i / (double) BAR_LENGTH < percent) bar.append(BAR_CHAR);
-                            else bar.append("   ");
-                        }
-
-                        builder.append(String.format(
-                                "%s: *%s*\n`%s [%s] %s` (+\uD83D\uDD38 %s tokens)\n",
-                                achievement.getName(language), achievement.getDescription(language),
-                                amount, bar.toString(), achievement.getAmount(), achievement.getTokens()
-                        ));
-                    });
-
-                    winMethods.put(builder.toString(), true);
-                }
-
-                message.append(Language.transl(context, "command.tokens.own", tokens)).append("\n");
-                message.setEmbed(embed.build());
-                winMethods.forEach((text, check) -> {
-                    message.append(String.format(
-                            "- %s %s\n",
-                            check ? "<:check:314349398811475968>" : "<:xmark:314349398824058880>", text
-                    ));
-                });
-            });
-
-            return null;
-        } else return Language.transl(context, "command.tokens.other", target.getName(), tokens);
-    }
 
     public static String emojiTile(CommandContext context) {
         Optional<String> emoteOpt = context.opt(context::next);
