@@ -2,6 +2,7 @@
 - You can now give someone tokens! `g*tokens give <person> <amount>`
 - Tokens command now shows the amount of tokens each task/achievement grants you, and a link to the Tokens Guide.
 - Achievements have been separated from the tokens command to `g*achievements`.
+- Added the russian `ru_RU` translation by ipdan4ik#3389 and alexcancker#0135. Try it out with `g*lang ru_RU`.
 
 - Fixed the setprefix description.
 - Fixed the slots command.
