@@ -237,7 +237,8 @@ public class BootupProcedure {
             GamesROB.getTextChannelById(Constants.changelogChannel.get()).ifPresent(channel ->
                     channel.sendMessage("<@&389918430733664256>\n<:update:264184209617321984> **GamesROB v" + GamesROB.VERSION + " is available!**" +
                         "\n\nChangelog:\n" + changelog + "\n\n*Updates are usually scheduled for every friday, " +
-                        "making the next update " + Utility.formatTime(Utility.predictNextUpdate()) + ".*")
+                        "making the next update " + Utility.formatTime(Utility.predictNextUpdate()) + ".*\n" +
+                            "If you don't want to receive these messages, run `!unsubscribe` in <#389921363093356554>.")
                         .queue());
         }
     };
