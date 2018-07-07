@@ -14,7 +14,7 @@ genericMessages:
   invalidLanguage: "Not a valid language."
   notEnoughTokens: 
     beggining: "You don't have enough tokens to do that (Need %s more)."
-    tokensCommand: "\nLearn how to get more tokens with `g*tokens`."
+    tokensCommand: "\nLearn how to get more tokens with `%stokens`."
 
   nth1: "st"
   nth2: "nd"
@@ -126,6 +126,7 @@ game:
 
   achievement:
     got: "Achievement Get: **%s**!\n*%s*\n+🔸 %s tokens"
+    runAchievements: "Use `%sachievements` to view progress in achievements!"
 
     # Types
     playGames: "Play %s games"
@@ -135,6 +136,7 @@ game:
     loseTokensGambling: "Lose %s tokens gambling"
     reachPlaceLeaderboard: "Reach %sst place in the leaderboard"
     reachTokens: "Get %s tokens"
+    upvote: "Upvote GamesROB on DBL %s times"
 
     # Achievements
     realPlayer: "Real Player"
@@ -166,6 +168,10 @@ game:
     richBoi: "Rich boii"
     billGates: "Literally Bill Gates"
 
+    supporter: "Supporter"
+    votingWeek: "Voting Week!"
+    votingMonth: "Voting Month..?"
+
 command:
   permissionLock: "⛔ You can't use this command!"
 
@@ -184,13 +190,14 @@ command:
     beginning: "Here are the achievements you can complete:\n\n"
 
     description: "View your progress in achievements"
+    upvote: "Upvote the bot in DBL"
 
   baltop:
     server: "The users with most tokens in **%s**:\n"
     global: "The users with most tokens on GamesROB globally:\n"
-    footer: "\nShowing %s entries per page | Page %s\nView another page with `%sbaltop %s<page>`."
+    footer: "\nShowing %s entries per page | Page %s/%s\nView another page with `%sbaltop %s<page>`."
     globalView: "\nTo view the global leaderboard, try `%sbaltop global`."
-    invalidPage: "That page is invalid!"
+    invalidPage: "Please choose a page from %s to %s."
 
     description: "Shows the token leaderboard."
 
@@ -198,7 +205,7 @@ command:
     other: "%s has 🔸 %s tokens"
     own: "You have 🔸 %s tokens\nHere are some ways to get more:"
     winningMatches: "**Winning matches**"
-    upvoteCan: "**Upvoting the bot** (%s days in a row = + 🔸 %s tokens!)"
+    upvoteCan: "**Upvoting the bot** (%s days in a row =  🔸 %s tokens!)"
     upvoteLater: "~~Upvoting the bot~~ (You can do it again in %s)"
     achievements2: "**Completing achievements**: View them with `%sachievements`!"
     gamblingTokens: "**Gambling with** `g*slots`"
@@ -212,6 +219,8 @@ command:
     add: "Added %s tokens to %s's balance (Current balance: %s)."
     remove: "Removed %s tokens from %s's balance (Current balance: %s)."
     set: "Set %2$s's balance to %1$s (Current balance: %s)."
+
+    baltop: "\nRanked **%s** in this guild and **%s** globally! `%sbaltop`"
 
     description: "View how many tokens you or someone else has, and view your progress in achievements"
   join:

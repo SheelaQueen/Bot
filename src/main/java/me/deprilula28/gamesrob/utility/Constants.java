@@ -60,6 +60,7 @@ public class Constants {
             .create();
 
     public static String getPrefix(Guild guild) {
+        if (guild == null) return DEFAULT_PREFIX;
         String value = GuildProfile.get(guild).getGuildPrefix();
         return value == null ? DEFAULT_PREFIX : value;
     }
@@ -98,9 +99,7 @@ public class Constants {
     public static String getNotEnoughTokensMessage(CommandContext context, int amount) {
         UserProfile profile = UserProfile.get(context.getAuthor());
         return Language.transl(context, "genericMessages.notEnoughTokens.beggining", amount - profile.getTokens())
-                + (System.currentTimeMillis() - profile.getLastUpvote() > TimeUnit.DAYS.toMillis(1) ?
-                Language.transl(context, "genericMessages.notEnoughTokens.upvote",
-                        Constants.getDboURL(context.getJda()) + "/vote") : "");
+                + Language.transl(context, "genericMessages.notEnoughTokens.tokensCommand", Constants.getPrefix(context.getGuild()));
     }
 
     public static final long EMOTE_GUILD_ID = 361592912095739904L;

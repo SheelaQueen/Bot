@@ -14,7 +14,7 @@ genericMessages:
   invalidLanguage: "Essa linguagem é inválida."
   notEnoughTokens:
     beggining: "Você não tem tokens suficientes para fazer isso (Precisa de mais %s)."
-    upvote: "\nGanhe mais tokens vencendo partidas e votando para o bot em %s."
+    tokensCommand: "\nSaiba de maneiras para ganhar tokens com `%stokens`."
 
   nth1: "º"
   nth2: "º"
@@ -55,7 +55,7 @@ gameFramework:
   next: " - **Próximo**"
   turn: "Vez de %s"
 
-  upvoteMessage: "\nSe está gostando do bot, considere dar um voto para ele(a?) para ganhar tokens!"
+  upvoteMessage: "\nSe está gostando do bot, considere dar um voto para ele(a?) e ganhe uns tokens!"
   upvoteEmbedTitle: "Votar"
 
   rematch: "Clique no :arrows_counterclockwise: para jogar novamente!"
@@ -124,7 +124,8 @@ game:
     noOneAnswered: "Ninguém conseguiu responder aquela pergunta! A resposta era \"**%s**\"."
 
   achievement:
-    got: "Conquista completa: **%s**!\n*%s*\n+🔸 %s tokens"
+    got: "Conquista Desbloqueada: **%s**!\n*%s*\n+🔸 %s tokens"
+    runAchievements: "Use `%sachievements` para ver seu progresso com conquistas!"
 
     # Types
     playGames: "Jogue %s partidas"
@@ -134,6 +135,7 @@ game:
     loseTokensGambling: "Perca %s tokens apostando"
     reachPlaceLeaderboard: "Chegue no %sº lugar do placar"
     reachTokens: "Alcançe %s tokens"
+    upvote: "Vote para GamesROB no DBL %s vezes"
 
     # Achievements
     realPlayer: "Jogador de Verdade"
@@ -165,6 +167,10 @@ game:
     richBoi: "Riquinho"
     billGates: "Bill Gates"
 
+    supporter: "Suportador"
+    votingWeek: "Semana de Votação!"
+    votingMonth: "Mês de Votação..?"
+
 command:
   permissionLock: "⛔ Você não tem permissão para usar esse comando!"
 
@@ -181,15 +187,16 @@ command:
   achievements:
     noAchievements: "Não há conquistas disponíveis para você agora! :wink:"
     beginning: "Aqui estão conquistas que você pode desbloquear:\n\n"
+    upvote: "Dê um voto para o bot no DBL"
 
     description: "Veja seu progresso em conquistas"
 
   baltop:
     server: "Os usuários com mais tokens em **%s**:\n"
     global: "Os usuários com mais tokens globalmente:\n"
-    footer: "\nMostarndo %s usuários por página | Página %s\nVeja outra página com `%sbaltop %s<página>`."
+    footer: "\nMostarndo %s usuários por página | Página %s de %s\nVeja outra página com `%sbaltop %s<página>`."
     globalView: "\nPara ver o placar global, tente `%sbaltop global`."
-    invalidPage: "Essa página não existe!"
+    invalidPage: "Por favor, escolha uma página entre %s e %s."
 
     description: "Mostra o placar de tokens."
 
@@ -197,7 +204,7 @@ command:
     other: "%s tem 🔸 %s tokens"
     own: "Você tem 🔸 %s tokens\nGanhe mais:"
     winningMatches: "**Vencendo Partidas**"
-    upvoteCan: "**Votando para o bot** (%s dias seguidos = + 🔸 %s tokens!)"
+    upvoteCan: "**Votando para o bot** (%s dias seguidos =  🔸 %s tokens!)"
     upvoteLater: "~~Votando para o bot~~ (Você poderá fazê-lo novamente em %s)"
     achievements2: "**Completando conquistas**: Veja seu progresso com `%sachievements`!"
     gamblingTokens: "**Apostando com** `g*slots`"
@@ -207,6 +214,8 @@ command:
     embedUpvote: "Ou [Clique aqui](%s) para votar para o bot"
     give: "%s deu + 🔶 %$3s tokens para %s$2!"
     giveInvalidAmount: "Você só pode dar de %s à %s tokens."
+
+    baltop: "\nRanqueado **%s** nesse servidor e **%s** globalmente! `%sbaltop`"
 
     description: "Veja quantos tokens você e outros têm, e veja seu progresso em conquistas"
   join:

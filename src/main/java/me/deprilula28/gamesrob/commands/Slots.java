@@ -75,10 +75,10 @@ public class Slots {
                                     earntAmount == 0 ? Language.transl(context, "command.slots.lost") :
                                             Language.transl(context, "command.slots.earnt"), Math.abs(earntAmount)),
                                     items));
-                            AchievementType.GAMBLE_TOKENS.addAmount(false, betting, it, context.getAuthor(), language);
-                            if (earntAmount > 0) AchievementType.WIN_TOKENS_GAMBLING.addAmount(false, earntAmount - betting, it, context.getAuthor(), language);
-                            else AchievementType.LOSE_TOKENS_GAMBLING.addAmount(false, betting, it, context.getAuthor(), language);
-                            AchievementType.REACH_TOKENS.addAmount(false, earntAmount, it, context.getAuthor(), language);
+                            AchievementType.GAMBLE_TOKENS.addAmount(false, betting, it, context.getAuthor(), context.getGuild(), language);
+                            if (earntAmount > 0) AchievementType.WIN_TOKENS_GAMBLING.addAmount(false, earntAmount - betting, it, context.getAuthor(), context.getGuild(), language);
+                            else AchievementType.LOSE_TOKENS_GAMBLING.addAmount(false, betting, it, context.getAuthor(), context.getGuild(), language);
+                            AchievementType.REACH_TOKENS.addAmount(false, earntAmount, it, context.getAuthor(), context.getGuild(), language);
                         });
                     } else {
                         context.edit(generateMessage(Language.transl(context, "command.slots.matchHeader", betting), items));

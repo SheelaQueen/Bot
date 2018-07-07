@@ -330,7 +330,7 @@ public class Match extends Thread {
 
         players.forEach(cur -> cur.ifPresent(user -> {
             if (addAchievement.containsKey(user)) addAchievement.get(user).forEach((type, amount) ->
-                type.addAmount(true, amount, gameOver, user, language));
+                type.addAmount(true, amount, gameOver, user, channelIn.getGuild(), language));
         }));
 
         ACTIVE_GAMES.get(channelIn.getJDA()).remove(this);

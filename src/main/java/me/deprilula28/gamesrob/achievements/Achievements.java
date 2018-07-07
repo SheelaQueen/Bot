@@ -39,7 +39,12 @@ public enum Achievements {
     mediumClass(new Achievement("mediumClass", 200, AchievementType.REACH_TOKENS, 3000)),
     upperClass(new Achievement("upperClass", 500, AchievementType.REACH_TOKENS, 6000)),
     richBoi(new Achievement("richBoi", 800, AchievementType.REACH_TOKENS, 10000)),
-    billGates(new Achievement("billGates", 2000, AchievementType.REACH_TOKENS, 20000));
+    billGates(new Achievement("billGates", 2000, AchievementType.REACH_TOKENS, 20000)),
+
+    // Upvotes
+    supporter(new Achievement("supporter", 250, AchievementType.UPVOTE, 2)),
+    votingWeek(new Achievement("votingWeek", 1500, AchievementType.UPVOTE, 7)),
+    votingMonth(new Achievement("votingMonth", 10000, AchievementType.UPVOTE, 30));
 
     @Getter private Achievement achievement;
 }

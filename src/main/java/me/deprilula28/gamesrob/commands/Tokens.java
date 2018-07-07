@@ -7,11 +7,13 @@ import me.deprilula28.gamesrob.achievements.AchievementType;
 import me.deprilula28.gamesrob.achievements.Achievements;
 import me.deprilula28.gamesrob.data.SQLDatabaseManager;
 import me.deprilula28.gamesrob.data.UserProfile;
+import me.deprilula28.gamesrob.utility.Cache;
 import me.deprilula28.gamesrob.utility.Constants;
 import me.deprilula28.gamesrob.utility.Log;
 import me.deprilula28.gamesrob.utility.Utility;
 import me.deprilula28.jdacmdframework.CommandContext;
 import net.dv8tion.jda.core.EmbedBuilder;
+import net.dv8tion.jda.core.MessageBuilder;
 import net.dv8tion.jda.core.entities.User;
 
 import java.sql.ResultSet;
@@ -37,8 +39,8 @@ public class Tokens {
         }
 
         if (toComplete.isEmpty()) return Language.transl(context, "command.achievements.noAchievements");
-        else {
-            StringBuilder builder = new StringBuilder(Language.transl(context, "command.achievements.beginning"));
+        else context.send(builder -> {
+            builder.append(Language.transl(context, "command.achievements.beginning"));
             String language = Constants.getLanguage(context);
             int maxAmount = toComplete.values().stream().mapToInt(it -> String.valueOf(it).length()).max().orElse(1);
 
@@ -59,8 +61,13 @@ public class Tokens {
                 ));
             });
 
-            return builder.toString();
-        }
+            builder.setEmbed(new EmbedBuilder().setTitle(Language.transl(context, "command.achievements.upvote"),
+                    Constants.getDboURL(context.getJda()) + "/vote")
+                .setColor(Utility.getEmbedColor(context.getGuild()))
+                .build());
+        });
+
+        return null;
     }
 
     public static String tokens(CommandContext context) {
@@ -96,7 +103,6 @@ public class Tokens {
 
                 winMethods.put(Language.transl(context, "command.tokens.achievements2", Constants.getPrefix(context.getGuild())), true);
 
-
                 message.append(Language.transl(context, "command.tokens.own", tokens)).append("\n");
                 message.setEmbed(embed.build());
                 winMethods.forEach((text, check) -> {
@@ -105,6 +111,24 @@ public class Tokens {
                             check ? "<:check:314349398811475968>" : "<:xmark:314349398824058880>", text
                     ));
                 });
+
+                GamesROB.database.ifPresent(db -> Log.wrapException("Getting positions in SQL", () -> {
+                    ResultSet globalPosSet = db.sqlFileQuery("selectRanked.sql", statement -> Log.wrapException("Getting SQL position",
+                            () -> statement.setString(1, context.getAuthor().getId())));
+                    ResultSet guildPosSet = db.sqlFileQuery("selectRankedGuild.sql", statement -> Log.wrapException("Getting Guild SQL Position",
+                            () -> statement.setString(1, context.getAuthor().getId())), context.getGuild()
+                            .getMembers().stream().map(it -> "userid = '" + it.getUser().getId() + "'")
+                            .collect(Collectors.joining(" OR ")));
+                    int guildPos = guildPosSet.next() ? guildPosSet.getInt("rank") : -1;
+                    int globalPos = globalPosSet.next() ? globalPosSet.getInt("rank") : -1;
+                    guildPosSet.close();
+                    globalPosSet.close();
+
+                    message.append(Language.transl(context, "command.tokens.baltop",
+                            guildPos + Utility.formatNth(Constants.getLanguage(context), guildPos),
+                            globalPos + Utility.formatNth(Constants.getLanguage(context), globalPos),
+                            Constants.getPrefix(context.getGuild())));
+                }));
             });
 
             return null;
@@ -117,41 +141,73 @@ public class Tokens {
         Optional<String> next = context.opt(context::next);
         boolean global = next.map(it -> it.equalsIgnoreCase("global")).orElse(false);
         int page = (global ? context.opt(context::nextInt) : next.map(Integer::parseInt)).orElse(1);
-        if (page <= 0) return Language.transl(context, "command.baltop.invalidPage");
 
         if (GamesROB.database.isPresent()) {
-            try {
-                SQLDatabaseManager db = GamesROB.database.get();
+            String key = "baltop_" + page + "_" + Constants.getLanguage(context);
+            return Cache.get(global ? key + "_global" : key + "_" + context.getGuild().getId(), n -> {
+                try {
+                    SQLDatabaseManager db = GamesROB.database.get();
 
-                ResultSet set = global
-                    ? db.select("userData", Arrays.asList("tokens", "userid"), "tokens", true, page * ENTRIES_PAGE, (page + 1) * ENTRIES_PAGE)
-                    : db.select("userData", Arrays.asList("tokens", "userid"), context.getGuild().getMembers().stream()
-                        .map(it -> "userid = '" + it.getUser().getId() + "'").collect(Collectors.joining(" OR ")),
-                        "tokens", true, page * ENTRIES_PAGE, (page + 1) * ENTRIES_PAGE);
+                    int elements = db.getAmount("guilddata");
+                    int pages = (elements / ENTRIES_PAGE) + 1;
+                    if (page <= 0 || page > pages) return Language.transl(context, "command.baltop.invalidPage", 1, pages);
 
-                StringBuilder builder = new StringBuilder(global
-                        ? Language.transl(context, "command.baltop.global")
-                        : Language.transl(context, "command.baltop.server", context.getGuild().getName()));
-                int index = 1;
-                while (set.next()) {
-                    int pos = ((page - 1) * ENTRIES_PAGE) + index;
-                    builder.append(String.format(
-                            "%s: **%s** [%s \uD83D\uDD38 tokens]\n",
-                            pos + Utility.formatNth(Constants.getLanguage(context), pos),
-                            GamesROB.getUserById(set.getString("userid")).map(User::getName).orElse("not found"),
-                            set.getInt("tokens")
-                    ));
-                    index ++;
+                    String whereGuild = context.getGuild().getMembers().stream()
+                            .map(it -> "userid = '" + it.getUser().getId() + "'").collect(Collectors.joining(" OR "));
+                    ResultSet set = global
+                            ? db.select("userData", Arrays.asList("tokens", "userid"), "tokens", true, page * ENTRIES_PAGE, (page - 1) * ENTRIES_PAGE)
+                            : db.select("userData", Arrays.asList("tokens", "userid"), whereGuild,
+                            "tokens", true, page * ENTRIES_PAGE, (page - 1) * ENTRIES_PAGE);
+
+                    StringBuilder builder = new StringBuilder(global
+                            ? Language.transl(context, "command.baltop.global")
+                            : Language.transl(context, "command.baltop.server", context.getGuild().getName()));
+                    int index = 1;
+                    boolean hasUser = false;
+                    while (set.next()) {
+                        int pos = ((page - 1) * ENTRIES_PAGE) + index;
+                        String userId = set.getString("userid");
+                        append(builder, pos, Constants.getLanguage(context), GamesROB.getUserById(userId), set.getInt("tokens"));
+                        if (userId.equals(context.getAuthor().getId())) hasUser = true;
+                        index ++;
+                    }
+                    set.close();
+
+                    if (!hasUser) {
+                        ResultSet positionSet = global
+                                ? db.sqlFileQuery("selectRanked.sql", statement -> Log.wrapException("Getting SQL position",
+                                () -> statement.setString(1, context.getAuthor().getId())))
+                                : db.sqlFileQuery("selectRankedGuild.sql", statement -> Log.wrapException("Getting Guild SQL Position",
+                                () -> statement.setString(1, context.getAuthor().getId())), whereGuild);
+
+                        if (positionSet.next()) {
+                            int position = positionSet.getInt("rank");
+                            if (position > page * ENTRIES_PAGE) {
+                                builder.append("...\n");
+                                append(builder, position, Constants.getLanguage(context), Optional.of(context.getAuthor()),
+                                        UserProfile.get(context.getAuthor()).getTokens());
+                            }
+                        }
+                        positionSet.close();
+                    }
+
+                    builder.append(Language.transl(context, "command.baltop.footer", ENTRIES_PAGE, page, pages,
+                            Constants.getPrefix(context.getGuild()), global ? "global " : ""));
+                    if (!global) builder.append(Language.transl(context, "command.baltop.globalView",
+                            Constants.getPrefix(context.getGuild())));
+
+                    return builder.toString();
+                } catch (Exception e) {
+                    throw new RuntimeException(e);
                 }
-                builder.append(Language.transl(context, "command.baltop.footer", ENTRIES_PAGE, page,
-                        Constants.getPrefix(context.getGuild()), global ? "global " : ""));
-                if (!global) builder.append(Language.transl(context, "command.baltop.globalView",
-                        Constants.getPrefix(context.getGuild())));
-
-                return builder.toString();
-            } catch (Exception e) {
-                throw new RuntimeException(e);
-            }
+            });
         } else return null;
+    }
+
+    private static void append(StringBuilder builder, int rank, String language, Optional<User> user, int tokens) {
+        builder.append(String.format(
+                "%s: **%s** [%s \uD83D\uDD38 tokens]\n",
+                rank + Utility.formatNth(language, rank), user.map(User::getName).orElse("not found"), tokens
+        ));
     }
 }

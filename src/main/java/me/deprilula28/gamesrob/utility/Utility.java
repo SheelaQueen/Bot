@@ -192,15 +192,17 @@ public class Utility {
     }
 
     public static String readResource(String path) {
-        Scanner scann = new Scanner(Language.class.getResourceAsStream(path));
-        StringBuilder builder = new StringBuilder();
+        return Cache.get("path_" + path, n -> {
+            Scanner scann = new Scanner(Language.class.getResourceAsStream(path));
+            StringBuilder builder = new StringBuilder();
 
-        while (scann.hasNextLine()) {
-            if (builder.length() > 0) builder.append("\n");
-            builder.append(scann.nextLine());
-        }
+            while (scann.hasNextLine()) {
+                if (builder.length() > 0) builder.append("\n");
+                builder.append(scann.nextLine());
+            }
 
-        return builder.toString();
+            return builder.toString();
+        });
     }
 
 

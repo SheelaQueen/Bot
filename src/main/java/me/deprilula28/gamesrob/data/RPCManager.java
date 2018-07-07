@@ -267,7 +267,7 @@ public class RPCManager extends WebSocketClient {
             MessageBuilder builder = new MessageBuilder();
             String lang = Optional.ofNullable(profile.getLanguage()).orElse("en_US");
             builder.append(Language.transl(lang, "genericMessages.upvoteMessage", "+" + amount + " \uD83D\uDD38 tokens", days));
-            AchievementType.REACH_TOKENS.addAmount(false, amount, builder, user, lang);
+            AchievementType.REACH_TOKENS.addAmount(false, amount, builder, user, null, lang);
             pm.sendMessage(builder.build()).queue();
 
             profile.addTokens(amount);
