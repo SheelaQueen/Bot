@@ -113,7 +113,7 @@ public class Log {
         System.err.println(ts);
         System.out.println("Saving error information...");
 
-        return GamesROB.debug ? Trello.addErrorDump(exceptionName, finalBasics, additiveInfo) : Optional.empty();
+        return GamesROB.debug ? Optional.empty() : Trello.addErrorDump(exceptionName, finalBasics, additiveInfo);
     }
 
     private static void appendThrowable(Throwable error, StringBuilder builder, boolean githubLinks) {

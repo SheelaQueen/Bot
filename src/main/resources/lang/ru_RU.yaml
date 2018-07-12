@@ -227,7 +227,7 @@ command:
     description: "Смена языка по умолчанию для гильдии."
 
   help:
-    beginning: "**<:GamesROBNew:456913958457049109> GamesROB v%s** *by deprilula28*\n\n"
+    beginning: "**<:GamesROBNew:456913958457049109> GamesROB v%s** *by deprilula28*\n"
     subCategory: "Используйте `%%PREFIX%%help категория/команда` для получения информации о команде или о категории (например: `%%PREFIX%%help profilecomamnds` или `%%PREFIX%%help slots`)"
     gameString: "%s `%%PREFIX%%%s` - %s"
     commandInfo: "`%s%s`: %s\nАльтернативные команды: %s\nКатегория: %s"

@@ -18,7 +18,7 @@ public interface MatchHandler {
     void receivedDM(String contents, User from, Message reference);
     void receivedMessage(String contents, User author, Message reference);
 
-    public static interface ImageMatchHandler {
+    public static interface ImageMatchHandler extends MatchHandler {
         byte[] getImage();
     }
 }

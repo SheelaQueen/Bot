@@ -17,6 +17,7 @@ import net.dv8tion.jda.core.MessageBuilder;
 import net.dv8tion.jda.core.entities.User;
 
 import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
@@ -57,7 +58,7 @@ public class Tokens {
                 builder.append(String.format(
                         "%s: *%s*\n`%s [%s] %s` (\uD83D\uDD38 %s tokens)\n",
                         achievement.getName(language), achievement.getDescription(language),
-                        name.toString(), bar.toString(), achievement.getAmount(), achievement.getTokens()
+                        name.toString(), bar.toString(), achievement.getAmount(), Utility.addNumberDelimitors(achievement.getTokens())
                 ));
             });
 
@@ -75,6 +76,32 @@ public class Tokens {
         UserProfile profile = UserProfile.get(target);
         int tokens = profile.getTokens();
         String prefix = Constants.getPrefix(context.getGuild());
+        String baltopMessage;
+
+        if (GamesROB.database.isPresent()) {
+            int guildPos;
+            int globalPos;
+            try {
+                SQLDatabaseManager db = GamesROB.database.get();
+                ResultSet globalPosSet = db.sqlFileQuery("selectRanked.sql", statement -> Log.wrapException("Getting SQL position",
+                        () -> statement.setString(1, target.getId())));
+                ResultSet guildPosSet = db.sqlFileQuery("selectRankedGuild.sql", statement -> Log.wrapException("Getting Guild SQL Position",
+                        () -> statement.setString(1, target.getId())), context.getGuild()
+                        .getMembers().stream().map(it -> "userid = '" + it.getUser().getId() + "'")
+                        .collect(Collectors.joining(" OR ")));
+                guildPos = guildPosSet.next() ? guildPosSet.getInt("rank") : -1;
+                globalPos = globalPosSet.next() ? globalPosSet.getInt("rank") : -1;
+                guildPosSet.close();
+                globalPosSet.close();
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+
+            baltopMessage = Language.transl(context, "command.tokens.baltop",
+                    guildPos + Utility.formatNth(Constants.getLanguage(context), guildPos),
+                    globalPos + Utility.formatNth(Constants.getLanguage(context), globalPos),
+                    Constants.getPrefix(context.getGuild()));
+        } else baltopMessage = null;
 
         if (target.equals(context.getAuthor())) {
             context.send(message -> {
@@ -94,7 +121,7 @@ public class Tokens {
                 if (timeSinceUpvote > TimeUnit.DAYS.toMillis(1)) {
                     int row = timeSinceUpvote < TimeUnit.DAYS.toMillis(2) ? profile.getUpvotedDays() : 0;
 
-                    winMethods.put(Language.transl(context, "command.tokens.upvoteCan", row, 125 + row * 50), true);
+                    winMethods.put(Language.transl(context, "command.tokens.upvoteCan", row, Utility.addNumberDelimitors(125 + row * 50)), true);
                     embed.setDescription(Language.transl(context, "command.tokens.embedUpvote",
                             Constants.getDboURL(context.getJda()) + "/vote"));
                 } else winMethods.put(Language.transl(context, "command.tokens.upvoteLater", Utility.formatPeriod
@@ -103,7 +130,7 @@ public class Tokens {
 
                 winMethods.put(Language.transl(context, "command.tokens.achievements2", Constants.getPrefix(context.getGuild())), true);
 
-                message.append(Language.transl(context, "command.tokens.own", tokens)).append("\n");
+                message.append(Language.transl(context, "command.tokens.own", Utility.addNumberDelimitors(tokens))).append("\n");
                 message.setEmbed(embed.build());
                 winMethods.forEach((text, check) -> {
                     message.append(String.format(
@@ -112,27 +139,11 @@ public class Tokens {
                     ));
                 });
 
-                GamesROB.database.ifPresent(db -> Log.wrapException("Getting positions in SQL", () -> {
-                    ResultSet globalPosSet = db.sqlFileQuery("selectRanked.sql", statement -> Log.wrapException("Getting SQL position",
-                            () -> statement.setString(1, context.getAuthor().getId())));
-                    ResultSet guildPosSet = db.sqlFileQuery("selectRankedGuild.sql", statement -> Log.wrapException("Getting Guild SQL Position",
-                            () -> statement.setString(1, context.getAuthor().getId())), context.getGuild()
-                            .getMembers().stream().map(it -> "userid = '" + it.getUser().getId() + "'")
-                            .collect(Collectors.joining(" OR ")));
-                    int guildPos = guildPosSet.next() ? guildPosSet.getInt("rank") : -1;
-                    int globalPos = globalPosSet.next() ? globalPosSet.getInt("rank") : -1;
-                    guildPosSet.close();
-                    globalPosSet.close();
-
-                    message.append(Language.transl(context, "command.tokens.baltop",
-                            guildPos + Utility.formatNth(Constants.getLanguage(context), guildPos),
-                            globalPos + Utility.formatNth(Constants.getLanguage(context), globalPos),
-                            Constants.getPrefix(context.getGuild())));
-                }));
+                message.append(baltopMessage);
             });
 
             return null;
-        } else return Language.transl(context, "command.tokens.other", target.getName(), tokens);
+        } else return Language.transl(context, "command.tokens.other", target.getName(), Utility.addNumberDelimitors(tokens)) + baltopMessage;
     }
 
     private static final int ENTRIES_PAGE = 10;
@@ -155,9 +166,10 @@ public class Tokens {
                     String whereGuild = context.getGuild().getMembers().stream()
                             .map(it -> "userid = '" + it.getUser().getId() + "'").collect(Collectors.joining(" OR "));
                     ResultSet set = global
-                            ? db.select("userData", Arrays.asList("tokens", "userid"), "tokens", true, page * ENTRIES_PAGE, (page - 1) * ENTRIES_PAGE)
+                            ? db.select("userData", Arrays.asList("tokens", "userid"), "tokens", true,
+                                ENTRIES_PAGE, (page - 1) * ENTRIES_PAGE)
                             : db.select("userData", Arrays.asList("tokens", "userid"), whereGuild,
-                            "tokens", true, page * ENTRIES_PAGE, (page - 1) * ENTRIES_PAGE);
+                            "tokens", true, ENTRIES_PAGE, (page - 1) * ENTRIES_PAGE);
 
                     StringBuilder builder = new StringBuilder(global
                             ? Language.transl(context, "command.baltop.global")
@@ -207,7 +219,7 @@ public class Tokens {
     private static void append(StringBuilder builder, int rank, String language, Optional<User> user, int tokens) {
         builder.append(String.format(
                 "%s: **%s** [%s \uD83D\uDD38 tokens]\n",
-                rank + Utility.formatNth(language, rank), user.map(User::getName).orElse("not found"), tokens
+                rank + Utility.formatNth(language, rank), user.map(User::getName).orElse("not found"), Utility.addNumberDelimitors(tokens)
         ));
     }
 }

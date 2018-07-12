@@ -19,10 +19,13 @@ import net.dv8tion.jda.core.events.message.guild.react.GuildMessageReactionAddEv
 import org.trello4j.TrelloImpl;
 import redis.clients.jedis.Jedis;
 
+import java.awt.*;
 import java.io.File;
 import java.io.FileReader;
 import java.util.*;
+import java.util.List;
 import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
@@ -105,15 +108,33 @@ public class BootupProcedure {
         }
     };
 
+    private static final String[] ERROR_MESSAGES = {
+            "So um... This is awkard...", "Oof...", "Sorry :c", "This ~~happens~~ *doesn't happen* very often you know?",
+            "Roses are red,\nViolets are blue.\nDep is bad at coding,\nSo I bring this message for you!"
+    };
+    private static final String[] GIFS = {
+            "https://media2.giphy.com/media/dRgcwKJaGgWgo/giphy.gif",
+            "https://media1.giphy.com/media/ucqzuPUJSrTvW/giphy.gif",
+            "https://media2.giphy.com/media/3ztfAWk2M2msM/giphy.gif",
+            "https://media.giphy.com/media/sXICOpe3B2cc8/giphy.gif",
+            "https://media.giphy.com/media/11H1vD2IrZxg9G/giphy.gif",
+            "https://this.is-la.me/c82a77.png"
+    };
+
     private static final BootupTask frameworkLoad = args -> {
         CommandFramework f = new CommandFramework(GamesROB.shards, Settings.builder()
                 .loggerFunction(Log::info).removeCommandMessages(false).protectMentionEveryone(true)
-                .async(true).threadPool(new ThreadPoolExecutor(10, 100, 5, TimeUnit.MINUTES,
+                .prefix("").async(true).threadPool(new ThreadPoolExecutor(10, 100, 5, TimeUnit.MINUTES,
                         new LinkedBlockingQueue<>())).prefixGetter(Constants::getPrefix).joinQuotedArgs(true)
                 .commandExceptionFunction((context, exception) -> {
                     Optional<String> trelloUrl = Log.exception("Command: " + context.getMessage().getContentRaw(), exception, context);
-                    context.send("⛔ I ran into an error attempting to run that command!\nYou can send this: " +
-                            trelloUrl.orElse("*No trello info found*") + " to our support server at https://discord.gg/gJKQPkN !");
+                    context.send(new EmbedBuilder()
+                        .setTitle("Failed to run that command!", trelloUrl.orElse("https://discord.gg/gJKQPkN"))
+                        .setDescription(ERROR_MESSAGES[ThreadLocalRandom.current().nextInt(ERROR_MESSAGES.length)]
+                                + "\n\nFeel free to [click here](https://discord.gg/gJKQPkN) to join our support server and report this:\n"
+                                + trelloUrl.orElse("*No trello info*")
+                        ).setColor(Color.decode("#D50000"))
+                        .setThumbnail(GIFS[ThreadLocalRandom.current().nextInt(GIFS.length)]));
                 }).genericExceptionFunction((message, exception) -> Log.exception(message, exception))
                 .caseIndependent(true)
                 .build());

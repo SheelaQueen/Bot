@@ -47,13 +47,10 @@ public abstract class DataManager<A, R> {
                     return createNew(from);
                 }
             }, it -> {
-                saveToSQL(db.get(), (R) it).then(n -> {
-                    Log.trace("Saved to SQL:", it);
-                    jedisOpt.ifPresent(jedis -> {
-                        jedis.set(file.getAbsolutePath(), Constants.GSON.toJson(it));
-                        jedis.expire(file.getAbsolutePath(), 120);
-                    });
-                });
+                if (!((R) it).equals(createNew(from))) saveToSQL(db.get(), (R) it).then(n -> jedisOpt.ifPresent(jedis -> {
+                    jedis.set(file.getAbsolutePath(), Constants.GSON.toJson(it));
+                    jedis.expire(file.getAbsolutePath(), 120);
+                }));
             });
         }
         else return Cache.get(from, n -> {

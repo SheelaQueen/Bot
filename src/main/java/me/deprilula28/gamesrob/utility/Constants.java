@@ -98,7 +98,7 @@ public class Constants {
 
     public static String getNotEnoughTokensMessage(CommandContext context, int amount) {
         UserProfile profile = UserProfile.get(context.getAuthor());
-        return Language.transl(context, "genericMessages.notEnoughTokens.beggining", amount - profile.getTokens())
+        return Language.transl(context, "genericMessages.notEnoughTokens.beggining", Utility.addNumberDelimitors(amount - profile.getTokens()))
                 + Language.transl(context, "genericMessages.notEnoughTokens.tokensCommand", Constants.getPrefix(context.getGuild()));
     }
 

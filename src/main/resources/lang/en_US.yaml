@@ -26,10 +26,11 @@ genericMessages:
   blacklistedNoInfo: "⛔ You were blacklisted from using GamesROB."
 
 gameFramework:
-  singleplayerMatch: "**%s Singleplayer Match!**\n%s\n\n"
-  multiplayerMatch: "**%s Multiplayer Match!**\n%s\n\n"
+  singleplayerMatch: "**Single-player %s Match**\n%s\n\n"
+  multiplayerMatch: "**Multi-player %s Match**\n%s\n\n"
   joinToPlay: "🚪 Type `%sjoin` or click the door below to play! (%s/%s)"
   joinToPlayNoReaction: "🚪 Type `%sjoin` to play! (%s/%s)"
+  playSingle: "Or click 🕹 to play single-player %s"
   betting: "💰 Betting %s 🔸 tokens!"
   begin: "**It's on!**\n**%s**\n%s\n\n"
   join: "%s has joined the match! %s/%s"
@@ -58,6 +59,15 @@ gameFramework:
   rematch: "Click in :arrows_counterclockwise: for a rematch!"
 
 game:
+  uno:
+    name: "Uno"
+    shortDescription: "Try to get the same color or number on one of your cards, until they're over!"
+    longDescription: "Everyone gets 7 cards, which are DM'd to you. On each round, you can use a card.\nIf you have a card with the same color or number as the last color used, you can use it.\nOtherwise, you'll have to draw two cards."
+
+    deckDm: "You can play on %s.\nOn your turn, send the number on top of the card you want to use.\nIf it's a wildcard (black color) you can pick the color we'll be playing next with `number color` (i.e. `3 blue`).\nYour deck:"
+
+    chooseCard: "%s: Send the number of the card in your deck you want to use here!\nYour deck is in our DMs.\n"
+    game: "Top Card\n%s\n\n"
   roulette:
     name: "Russian Roulette"
     shortDescription: "Flip the barrel, don't get hit!"
@@ -175,6 +185,12 @@ game:
 command:
   permissionLock: "⛔ You can't use this command!"
 
+  idlerpg:
+    message: "IdleRPG is a bot with shop system, characters, classes, dungeons, items, PvP, economy, gambling, marriage, music, guilds and much more!"
+    checkItOut: "Check it out"
+
+    description: "Learn more about our partnered bot IdleRPG!"
+
   slots:
     matchHeader: "Rolling for 🔸 %s tokens..."
     matchEnd: "You %s 🔸 %s tokens!"
@@ -222,7 +238,7 @@ command:
 
     baltop: "\nRanked **%s** in this guild and **%s** globally! `%sbaltop`"
 
-    description: "View how many tokens you or someone else has, and view your progress in achievements"
+    description: "View how many tokens you or someone else has"
   join:
     alreadyOnMatch: "You're already on the match!"
     full: "The match is full!"
@@ -264,17 +280,19 @@ command:
     description: "Change the default language for the guild."
 
   help:
-    beginning: "**<:GamesROBNew:456913958457049109> GamesROB v%s** *by deprilula28*\n\n"
-    subCategory: "Use `%%PREFIX%%help category/command` to get information about a command or a category (e.g. `%%PREFIX%%help profilecomamnds` or `%%PREFIX%%help slots`)"
-    gameString: "%s `%%PREFIX%%%s` - %s"
+    beginning: "**<:GamesROBNew:456913958457049109> GamesROB v%s** *by deprilula28*\n"
+    subCategory2: "\nUse `%%PREFIX%%help command` to get information about a command (e.g. `%%PREFIX%%help slots`).\nReact with a category's emote to view all its commands.\nArguments `<in these>` are obligatory, while arguments `[in these]` are optional. You don't actually use them in the command (e.g. `%%PREFIX%%slots 10`)"
     commandInfo: "`%s%s`: %s\nAliases: %s\nCategory: %s"
     gameInfo: "`%s%s`: %s\n\n**Long Description**\n%s\n\nAliases: %s\nMore information: %s"
+    recentUpdate: "<:update:264184209617321984> The bot has recently received an update! `v%s`\nCheck out the changes with `%schangelog`."
     categories:
       games: "Games"
       profilecommands: "Profile"
       servercommands: "Server"
       matchcommands: "Match"
       infocommands: "Information"
+      partnercommands: "Partners"
+      tokencommands: "Tokens"
     other: "%s others"
 
     websiteTitle: "Check out our website!"

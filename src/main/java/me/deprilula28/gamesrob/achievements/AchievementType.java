@@ -8,6 +8,7 @@ import me.deprilula28.gamesrob.Language;
 import me.deprilula28.gamesrob.data.UserProfile;
 import me.deprilula28.gamesrob.utility.Constants;
 import me.deprilula28.gamesrob.utility.Log;
+import me.deprilula28.gamesrob.utility.Utility;
 import me.deprilula28.jdacmdframework.CommandContext;
 import net.dv8tion.jda.core.MessageBuilder;
 import net.dv8tion.jda.core.entities.Guild;
@@ -54,22 +55,23 @@ public enum AchievementType {
     }
 
     public void addAmount(boolean tagName, int amount, MessageBuilder builder, User user, Guild guild, String language) {
+        String type = toString();
         GamesROB.database.ifPresent(db -> {
             UserProfile profile = UserProfile.get(user);
             db.save("achievements", Arrays.asList("type", "amount", "userid"),
-                    "userid = '" + profile.getUserId() + "'", set -> false,
+                    "userid = '" + profile.getUserId() + "' AND type = '" + type + "'", set -> false,
                     (set, statement) -> Log.wrapException("Storing achievement amount", () -> {
                 int prevAmount = set.map(it -> {
                     try {
                         return it.getInt("amount");
                     } catch (Exception e) {
                         Log.exception("Getting achievements", e);
-                        return null;
+                        return 0;
                     }
                 }).orElse(0);
                 int newAmount = prevAmount + amount;
 
-                statement.setString(1, toString());
+                statement.setString(1, type);
                 statement.setInt(2, newAmount);
                 statement.setString(3, profile.getUserId());
 
@@ -82,7 +84,7 @@ public enum AchievementType {
                         builder.append(ACHIEVEMENT_GOT_EMOTES[ThreadLocalRandom.current().nextInt(ACHIEVEMENT_GOT_EMOTES.length)])
                                 .append(Language.transl(language, "game.achievement.got",
                                         achievement.getName(language), achievement.getDescription(language),
-                                        achievement.getTokens()))
+                                        Utility.addNumberDelimitors(achievement.getTokens())))
                                 .append("\n").append(Language.transl(language, "game.achievement.runAchievements",
                                     Constants.getPrefix(guild)));
 

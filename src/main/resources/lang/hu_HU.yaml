@@ -111,7 +111,7 @@ command:
     description: "Alapértelmezett nyelv megváltoztatása a szerver számára"
 
   help:
-    beginning: "**<:GamesROBNew:456913958457049109> GamesROB v%s** *by deprilula28*\n\n"
+    beginning: "**<:GamesROBNew:456913958457049109> GamesROB v%s** *by deprilula28*\n"
     gameString: "%s `%%PREFIX%%%s` - %s"
     moreCustomizability: "🔧 **Egyéb testreszabhatóságok**\nA játék beállításai megváltoztathatóak a `<beállítás neve>=<beállításhoz tartozó érték>` parancs végi hozzáadásával! Példa: `%sminesweeper bombs=10`\nA játékosok számának megadása szintén a parancs végén lehetséges! Például: `%sconnect4 3`"
     description: "Ez a leírás"

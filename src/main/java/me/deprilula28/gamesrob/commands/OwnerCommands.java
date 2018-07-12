@@ -1,5 +1,6 @@
 package me.deprilula28.gamesrob.commands;
 
+import com.google.gson.JsonPrimitive;
 import jdk.nashorn.api.scripting.ClassFilter;
 import jdk.nashorn.api.scripting.NashornScriptEngineFactory;
 import lombok.AllArgsConstructor;
@@ -7,11 +8,9 @@ import lombok.Data;
 import me.deprilula28.gamesrob.BootupProcedure;
 import me.deprilula28.gamesrob.GamesROB;
 import me.deprilula28.gamesrob.Language;
+import me.deprilula28.gamesrob.data.RPCManager;
 import me.deprilula28.gamesrob.data.UserProfile;
-import me.deprilula28.gamesrob.utility.Constants;
-import me.deprilula28.gamesrob.utility.Log;
-import me.deprilula28.gamesrob.utility.TransferUtility;
-import me.deprilula28.gamesrob.utility.Utility;
+import me.deprilula28.gamesrob.utility.*;
 import me.deprilula28.jdacmdframework.Command;
 import me.deprilula28.jdacmdframework.CommandContext;
 import me.deprilula28.jdacmdframework.CommandFramework;
@@ -20,6 +19,7 @@ import net.dv8tion.jda.core.entities.User;
 import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
 import java.io.*;
+import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLConnection;
 import java.sql.ResultSet;
@@ -222,7 +222,7 @@ public class OwnerCommands {
         if (!GamesROB.owners.contains(context.getAuthor().getIdLong())) return Language.transl(context,
                 "genericMessages.ownersOnly");
 
-        String updateURL = context.next();
+        String updateURL = context.opt(context::next).orElseGet(() -> context.getMessage().getAttachments().get(0).getUrl());
         context.send("<a:updating:403035325242540032> Beginning download...");
 
         try {
@@ -242,10 +242,19 @@ public class OwnerCommands {
         if (!output.getParentFile().exists()) output.getParentFile().mkdirs();
         output.createNewFile();
 
-        URLConnection conn = new URL(url).openConnection();
+        HttpURLConnection conn = (HttpURLConnection) new URL(url).openConnection();
+        conn.setRequestMethod("GET");
+        conn.setRequestProperty("User-Agent", Constants.USER_AGENT);
+        conn.setUseCaches(false);
+
         OutputStream os = new FileOutputStream(output);
         long begin = System.currentTimeMillis();
         AtomicLong lastSecond = new AtomicLong(0L);
+
+        GamesROB.rpc.ifPresent(rpc -> {
+            rpc.request(RPCManager.RequestType.BOT_UDPATED, new JsonPrimitive(url));
+            Log.info("Sent bot update to other clusters.");
+        });
 
         TransferUtility.download(conn, os, step -> {
             long downloaded = step.getDownloaded();
@@ -269,7 +278,7 @@ public class OwnerCommands {
                 TransferUtility.download(new FileInputStream(output), new FileOutputStream(gamesrobJar),
                         output.length(), step -> {}, n -> {
                             output.delete();
-                            messageUpdater.accept("<a:updating:403035325242540032> Restarting...");
+                            messageUpdater.accept("Restarting...");
                             Log.wrapException("Waiting on update", () -> Thread.sleep(500L));
                             System.exit(-1);
                         }, error -> {

@@ -1,10 +1,11 @@
-- Slots token limit was removed! Go wild! You can also use `g*gamble all` to gamble it all in.
-- You can now give someone tokens! `g*tokens give <person> <amount>`
-- Tokens command now shows the amount of tokens each task grants you, and a link to the new Tokens Guide.
-- Achievements have been separated from the tokens command to `g*achievements`.
-- Added the russian `ru_RU` translation by ipdan4ik#3389 and alexcancker#0135. Try it out with `g*lang ru_RU`.
-- Added a balance top command! `g*baltop` or for global `g*baltop global`.
+- Tokens are now formatted fancily.
+- Minesweeper (and perhaps future hybrid games) will now be multiplayer by default, requiring a reaction to be played alone.
+- Help command now has a different category for tokens, which slots is also a part of.
 
-- Fixed the setprefix description.
-- Fixed the slots command.
+- New game added: Uno!
+You get 7 cards, which are DM'd to you. On each round, you can use a card.
+If you have a card with the same color or number as the last color used, you can use it.
+Otherwise, you'll have to draw two cards.
+
+- Fixed the slots command's message.
 Enjoy! ~ deprilula28

@@ -20,10 +20,17 @@ import net.dv8tion.jda.core.JDA;
 import net.dv8tion.jda.core.MessageBuilder;
 import net.dv8tion.jda.core.Permission;
 import net.dv8tion.jda.core.entities.*;
+import net.dv8tion.jda.core.events.Event;
 
+import java.awt.event.HierarchyBoundsAdapter;
 import java.util.*;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Consumer;
+
+/*
+THIS CLASS IS A MESS HELP
+ */
 
 @Data
 public class Match extends Thread {
@@ -43,6 +50,7 @@ public class Match extends Thread {
     private User creator;
     private transient MatchHandler matchHandler;
 
+
     private int targetPlayerCount;
     private transient RequestPromise<Message> matchMessage;
 
@@ -54,6 +62,7 @@ public class Match extends Thread {
     private boolean multiplayer;
     public int iteration;
     private boolean allowRematch;
+    private Map<String, Integer> settings = new HashMap<>();
 
     public Match(GamesInstance game, User creator, TextChannel channel, int targetPlayerCount, List<Optional<User>> players,
                  Map<String, String> options, int matchesPlayed) {
@@ -61,7 +70,8 @@ public class Match extends Thread {
         String guildLang = GuildProfile.get(channel.getGuild()).getLanguage();
         language = guildLang == null ? Constants.DEFAULT_LANGUAGE : guildLang;
         channelIn = channel;
-        canReact = canReact();
+        Member member = channelIn.getGuild().getMember(channelIn.getJDA().getSelfUser());
+        canReact = Utility.hasPermission(channelIn, member, Permission.MESSAGE_ADD_REACTION);
 
         this.creator = creator;
         this.players = players;
@@ -101,7 +111,8 @@ public class Match extends Thread {
         String guildLang = GuildProfile.get(channel.getGuild()).getLanguage();
         language = guildLang == null ? Constants.DEFAULT_LANGUAGE : guildLang;
         channelIn = channel;
-        canReact = canReact();
+        Member member = channelIn.getGuild().getMember(channelIn.getJDA().getSelfUser());
+        canReact = Utility.hasPermission(channelIn, member, Permission.MESSAGE_ADD_REACTION);
         players.add(Optional.of(creator));
 
         this.betting = betting;
@@ -129,9 +140,10 @@ public class Match extends Thread {
         multiplayer = false;
         String guildLang = GuildProfile.get(channel.getGuild()).getLanguage();
         String userLang = UserProfile.get(creator).getLanguage();
-        language = userLang == null ?  guildLang == null ? Constants.DEFAULT_LANGUAGE : guildLang : userLang;
+        language = userLang == null ? guildLang == null ? Constants.DEFAULT_LANGUAGE : guildLang : userLang;
         channelIn = channel;
-        canReact = canReact();
+        Member member = channelIn.getGuild().getMember(channelIn.getJDA().getSelfUser());
+        canReact = Utility.hasPermission(channelIn, member, Permission.MESSAGE_ADD_REACTION);
         players.add(Optional.of(creator));
 
         this.creator = creator;
@@ -160,17 +172,7 @@ public class Match extends Thread {
         start();
     }
 
-    private byte[] getImage(int iteration) {
-        if (this.iteration != iteration) throw new RuntimeException("Invalid iteration.");
-        if (!(matchHandler instanceof MatchHandler.ImageMatchHandler)) throw new RuntimeException("Not an image game.");
-        return Cache.get(matchHandler.hashCode() + "_" + iteration, n -> ((MatchHandler.ImageMatchHandler) matchHandler).getImage());
-    }
-
-    private boolean canReact() {
-        Member member = channelIn.getGuild().getMember(channelIn.getJDA().getSelfUser());
-        return Utility.hasPermission(channelIn, member, Permission.MESSAGE_ADD_REACTION);
-    }
-
+    // Game Timeout
     @Override
     public void run() {
         while (gameState != GameState.POST_MATCH)
@@ -189,6 +191,12 @@ public class Match extends Thread {
         } catch (InterruptedException e) {}
     }
 
+    private byte[] getImage(int iteration) {
+        if (this.iteration != iteration) throw new RuntimeException("Invalid iteration.");
+        if (!(matchHandler instanceof MatchHandler.ImageMatchHandler)) throw new RuntimeException("Not an image game.");
+        return Cache.get(matchHandler.hashCode() + "_" + iteration, n -> ((MatchHandler.ImageMatchHandler) matchHandler).getImage());
+    }
+
     private void updateSettings(Map<String, String> options) {
         CommandManager.matchHandlerSettings.get(game.getMatchHandlerClass()).forEach(cur -> {
             String name = cur.getField().getName();
@@ -201,17 +209,13 @@ public class Match extends Thread {
             });
 
             try {
-                cur.getField().set(matchHandler, intOpt.orElse(cur.getAnnotation().defaultValue()));
+                int setting = intOpt.orElse(cur.getAnnotation().defaultValue());
+                cur.getField().set(matchHandler, setting);
+                settings.put(name, setting);
             } catch (Exception e) {
                 throw new RuntimeException("Failed to set value for setting", e);
             }
         });
-    }
-
-    public void achievement(User user, AchievementType type, int amount) {
-        if (!addAchievement.containsKey(user)) addAchievement.put(user, new HashMap<>());
-        if (!addAchievement.get(user).containsKey(type)) addAchievement.get(user).put(type, 0);
-        addAchievement.get(user).put(type, amount + addAchievement.get(user).get(type));
     }
 
     private String getPregameText() {
@@ -226,13 +230,25 @@ public class Match extends Thread {
                 Constants.getPrefix(channelIn.getGuild()), players.size(), targetPlayerCount + 1
         ));
 
+        if (game.getGameType().equals(GameType.HYBRID))
+            builder.append("\n").append(Language.transl(language, "gameFramework.playSingle", game.getName(language)));
+
         return builder.toString();
     }
 
     private void updatePreMessage() {
-        if (matchMessage != null) matchMessage.then(it -> it.delete().queue());
-        matchMessage = RequestPromise.forAction(channelIn.sendMessage(getPregameText()));
-        if (canReact) matchMessage.then(msg -> msg.addReaction("\uD83D\uDEAA").queue());
+        if (matchMessage == null) matchMessage = RequestPromise.forAction(channelIn.sendMessage(getPregameText()));
+        else matchMessage.then(it -> it.editMessage(getPregameText()).queue());
+        if (canReact) {
+            matchMessage.then(msg -> msg.addReaction("\uD83D\uDEAA").queue());
+            if (game.getGameType().equals(GameType.HYBRID)) matchMessage.then(msg -> msg.addReaction("\uD83D\uDD79").queue());
+        }
+    }
+
+    public void achievement(User user, AchievementType type, int amount) {
+        if (!addAchievement.containsKey(user)) addAchievement.put(user, new HashMap<>());
+        if (!addAchievement.get(user).containsKey(type)) addAchievement.get(user).put(type, 0);
+        addAchievement.get(user).put(type, amount + addAchievement.get(user).get(type));
     }
 
     public void joined(User user) {
@@ -258,6 +274,27 @@ public class Match extends Thread {
             players.size(), targetPlayerCount + 1
         )).queue();
     }
+    /*
+    Reactions
+     */
+    public void playAloneReaction(CommandContext context) {
+        if (!gameState.equals(GameState.PRE_GAME) || !game.getGameType().equals(GameType.HYBRID) || players.size() > 1) {
+            throw new InvalidCommandSyntaxException();
+        }
+
+        multiplayer = false;
+        matchMessage.then(it -> it.delete().queue());
+        Statistics.get().registerGame(game);
+
+        matchHandler.begin(this, no -> {
+            MessageBuilder builder = new MessageBuilder().append(Language.transl(language, "gameFramework.singleplayerMatch",
+                    game.getName(language), game.getLongDescription(language)
+            ));
+            matchHandler.updatedMessage(false, builder);
+            return matchMessage = RequestPromise.forAction(channelIn.sendMessage(builder.build())).then(no2 -> gameState = GameState.MATCH);
+        });
+        players.stream().filter(Optional::isPresent).forEach(it -> achievement(it.get(), AchievementType.PLAY_GAMES, 1));
+    }
 
     public void joinReaction(CommandContext context) {
         if (Match.PLAYING.containsKey(context.getAuthor()) || getPlayers().contains(Optional.of(context.getAuthor()))
@@ -279,6 +316,10 @@ public class Match extends Thread {
                 .matchesPlayed = matchesPlayed + 1;
         else new Match(game, creator, channelIn, targetPlayerCount, players, options, matchesPlayed + 1);
         interrupt();
+    }
+
+    public <T extends Event> void on(String name, Consumer<T> handler) {
+
     }
 
     public void onEnd(Optional<User> winner) {
@@ -383,9 +424,8 @@ public class Match extends Thread {
                 if (!UserProfile.get(context.getAuthor()).transaction(amount)) return Constants.getNotEnoughTokensMessage(context, amount);
             } else if (game.isRequireBetting()) return Language.transl(context, "gameFramework.requireBetting");
 
-            int targetPlayers = players.map(it -> it - 1).orElse(game.getGameType() == GameType.MULTIPLAYER ? game.getMinTargetPlayers() : 0);
-            if (targetPlayers == 0 && game.getGameType() == GameType.HYBRID) new Match(game, context.getAuthor(), context.getChannel(), settings);
-            else if(targetPlayers > game.getMaxTargetPlayers() || targetPlayers < game.getMinTargetPlayers())
+            int targetPlayers = players.map(it -> it - 1).orElseGet(game::getMinTargetPlayers);
+            if(targetPlayers > game.getMaxTargetPlayers() || targetPlayers < game.getMinTargetPlayers())
                 return Language.transl(context, "gameFramework.playersOutOfRange",
                         game.getMinTargetPlayers() + 1, game.getMaxTargetPlayers() + 1
                 );

@@ -20,7 +20,7 @@ import java.util.concurrent.ThreadLocalRandom;
 public class Minesweeper implements MatchHandler {
     public static final GamesInstance GAME = new GamesInstance(
             "minesweeper", "minesweeper minsw miner ms",
-            0, 3, GameType.HYBRID, false,
+            1, 3, GameType.HYBRID, false,
             Minesweeper::new, Minesweeper.class
     );
     private static final Map<String, String> EMOTE_ID_MAP = new HashMap<>();

@@ -27,9 +27,10 @@ genericMessages:
 
 gameFramework:
   singleplayerMatch: "**Partida Solo de %s!**\n%s\n\n"
-  multiplayerMatch: "**Partida Multijogador de %s!**\n%s\n\n"
+  multiplayerMatch: "**Partida Multi-jogador de %s!**\n%s\n\n"
   joinToPlay: "🚪 Digite `%sjoin` ou clique na porta abaixo para jogar! (%s/%s)"
   joinToPlayNoReaction: "🚪 Digite `%sjoin` para jogar! (%s/%s)"
+  playSingle: "Ou clique em 🕹 para jogar %s sozinho"
   betting: "💰 Apostando %s 🔸 tokens!"
   begin: "**Começou!**\n**%s**\n%s\n\n"
   join: "%s entrou na partida! %s/%s"
@@ -61,6 +62,15 @@ gameFramework:
   rematch: "Clique no :arrows_counterclockwise: para jogar novamente!"
 
 game:
+  uno:
+    name: "Uno"
+    shortDescription: "Tente achar a mesma cor ou número da sua carta, até elas acabarem!"
+    longDescription: "Todos ganham 7 cartas, enviadas no privado. Em cada partida, você pode usar uma carta.\nSe você tiver uma carta da mesma cor ou número da última usada, você pode colocá-la.\nCaso o contrário, você deverá comprar 2 cartas."
+
+    deckDm: "Você pode jogar em %s.\nNa sua rodada, mande o número acima da carta que quer usar.\nSe é uma carta preta, você pode escolher a cor enviando `número cor` (ex. `3 blue`).\nSua mão:"
+
+    chooseCard: "%s: Envie o número da carta na sua mão que você quer usar aqui!\nSua mão está em nossa conversa privada.\n"
+    game: "Última Carta\n%s\n\n"
   roulette:
     name: "Roleta Russa"
     shortDescription: "Vire o barril, não seja acertado!"
@@ -174,6 +184,9 @@ game:
 command:
   permissionLock: "⛔ Você não tem permissão para usar esse comando!"
 
+  idlerpg:
+    description: "Saiba mais sobre nosso parceiro IdleRPG!"
+
   slots:
     matchHeader: "Apostando 🔸 %s tokens..."
     matchEnd: "Você %s 🔸 %s tokens!"
@@ -258,8 +271,8 @@ command:
     description: "Altere a linguagem padrão para o servidor."
 
   help:
-    beginning: "**<:GamesROBNew:456913958457049109> GamesROB v%s** *por deprilula28*\n\n"
-    subCategory: "Use `%%PREFIX%%help categoria/comando` para receber informações sobre um comando ou categoria (ex. `%%PREFIX%%help profile` ou `%%PREFIX%%help slots`)"
+    beginning: "**<:GamesROBNew:456913958457049109> GamesROB v%s** *por deprilula28*\n"
+    subCategory2: "\nUse `%%PREFIX%%help command` para receber mais informações sobre um comando (e.g. `%%PREFIX%%help slots`).\nClique nas reações abaixo de uma categoria para ver os comandos da categoria.\nArgumentos `<assim>` são requiridos, enquanto arugmentos `[assim]` são opcionais. Você não precisa incluir os `[` e `<` no comando (ex. `%%PREFIX%%slots 10`)"
     gameString: "%s `%%PREFIX%%%s` - %s"
     commandInfo: "`%s%s`: %s\nAliases: %s\nCategoria: %s"
     gameInfo: "`%s%s`: %s\n\n**Descrição Longa**\n%s\n\nAliases: %s\nMais informações: %s"
@@ -269,6 +282,8 @@ command:
       servercommands: "Servidor"
       matchcommands: "Partida"
       infocommands: "Informações"
+      partnercommands: "Parceiros"
+      tokencommands: "Tokens"
     other: "%s outros"
 
     websiteTitle: "Veja nosso site!"

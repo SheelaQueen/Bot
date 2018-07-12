@@ -77,7 +77,7 @@ public class RPCManager extends WebSocketClient {
     public static enum RequestType {
         // Server -> Client
         WEBHOOK_NOTIFICATION, GET_USER_BY_ID, GET_GUILD_BY_ID, GET_MUTUAL_SERVERS, GET_SHARDS_INFO, OWNER_LIST_UPDATED,
-        BOT_UDPATED,
+        BOT_UDPATED, IS_OWNER,
 
         // Client -> Server
         GET_ALL_SHARDS_INFO, BOT_UPDATE, OWNER_LIST_UPDATE
@@ -210,6 +210,7 @@ public class RPCManager extends WebSocketClient {
         handlerMap.put(RequestType.WEBHOOK_NOTIFICATION, this::webhookNotification);
         handlerMap.put(RequestType.GET_MUTUAL_SERVERS, this::getMutualServers);
         handlerMap.put(RequestType.GET_SHARDS_INFO, n -> GamesROB.getShardsInfo());
+        handlerMap.put(RequestType.IS_OWNER, id -> GamesROB.owners.contains(Long.parseLong(id.getAsString())));
 
         handlerMap.put(RequestType.OWNER_LIST_UPDATED, owners -> {
             List<Long> newOwners = new ArrayList<>();
@@ -268,6 +269,7 @@ public class RPCManager extends WebSocketClient {
             String lang = Optional.ofNullable(profile.getLanguage()).orElse("en_US");
             builder.append(Language.transl(lang, "genericMessages.upvoteMessage", "+" + amount + " \uD83D\uDD38 tokens", days));
             AchievementType.REACH_TOKENS.addAmount(false, amount, builder, user, null, lang);
+            AchievementType.UPVOTE.addAmount(false, 1, builder, user, null, lang);
             pm.sendMessage(builder.build()).queue();
 
             profile.addTokens(amount);

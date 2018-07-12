@@ -96,7 +96,7 @@ public class GenericCommands {
     public static String changelog(CommandContext context) {
         return Language.transl(context, "command.changelog.text", GamesROB.VERSION,
                 Utility.formatTime(Statistics.get().getLastUpdateLogSentTime()), BootupProcedure.changelog,
-                Utility.formatTime(Utility.predictNextUpdate()), Constants.GAMESROB_DOMAIN + "/server?from=changelog");
+                Utility.formatTime(Utility.predictNextUpdate()), "discord.gg/xajeDYR");
     }
 
     private static String getEmoteForStatus(String status) {

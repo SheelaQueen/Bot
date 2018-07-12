@@ -228,7 +228,7 @@ command:
     description: "Άλλαξε την προκαθορισμένη γλώσσα για αυτόν το server."
 
   help:
-    beginning: "**<:GamesROBNew:456913958457049109> GamesROB v%s** *από τον deprilula28*\n\n"
+    beginning: "**<:GamesROBNew:456913958457049109> GamesROB v%s** *από τον deprilula28*\n"
     subCategory: "Χρησιμοποίησε `%%PREFIX%%help κατηγορία/εντολή` για περισσότερες πληροφορίες σχετικά με μία κατηγορία ή εντολή (π.χ. `%%PREFIX%%help profilecomamnds` or `%%PREFIX%%help slots`)"
     gameString: "%s `%%PREFIX%%%s` - %s"
     commandInfo: "`%s%s`: %s\nΨευδώνυμα: %s\nΚατηγορία: %s"

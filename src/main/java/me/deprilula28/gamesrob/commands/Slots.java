@@ -5,6 +5,7 @@ import me.deprilula28.gamesrob.achievements.AchievementType;
 import me.deprilula28.gamesrob.data.UserProfile;
 import me.deprilula28.gamesrob.utility.Constants;
 import me.deprilula28.gamesrob.utility.Log;
+import me.deprilula28.gamesrob.utility.Utility;
 import me.deprilula28.jdacmdframework.CommandContext;
 import net.dv8tion.jda.core.MessageBuilder;
 
@@ -71,17 +72,19 @@ public class Slots {
                         context.edit(it -> {
                             String language = Constants.getLanguage(context);
 
-                            it.append(generateMessage(Language.transl(context, "command.slots.matchEnd",
-                                    earntAmount == 0 ? Language.transl(context, "command.slots.lost") :
-                                            Language.transl(context, "command.slots.earnt"), Math.abs(earntAmount)),
-                                    items));
+                            generateMessage(Language.transl(context, "command.slots.matchEnd", earntAmount == 0
+                                    ? Language.transl(context, "command.slots.lost") : Language.transl(context, "command.slots.earnt"),
+                                    Utility.addNumberDelimitors(Math.abs(earntAmount - betting))), items).accept(it);
+
+                            if (earntAmount > 0) {
+                                AchievementType.REACH_TOKENS.addAmount(false, earntAmount, it, context.getAuthor(), context.getGuild(), language);
+                                AchievementType.WIN_TOKENS_GAMBLING.addAmount(false, earntAmount - betting, it, context.getAuthor(), context.getGuild(), language);
+                            } else AchievementType.LOSE_TOKENS_GAMBLING.addAmount(false, betting, it, context.getAuthor(), context.getGuild(), language);
+
                             AchievementType.GAMBLE_TOKENS.addAmount(false, betting, it, context.getAuthor(), context.getGuild(), language);
-                            if (earntAmount > 0) AchievementType.WIN_TOKENS_GAMBLING.addAmount(false, earntAmount - betting, it, context.getAuthor(), context.getGuild(), language);
-                            else AchievementType.LOSE_TOKENS_GAMBLING.addAmount(false, betting, it, context.getAuthor(), context.getGuild(), language);
-                            AchievementType.REACH_TOKENS.addAmount(false, earntAmount, it, context.getAuthor(), context.getGuild(), language);
                         });
                     } else {
-                        context.edit(generateMessage(Language.transl(context, "command.slots.matchHeader", betting), items));
+                        context.edit(generateMessage(Language.transl(context, "command.slots.matchHeader", Utility.addNumberDelimitors(betting)), items));
                     }
                     edits --;
                 }

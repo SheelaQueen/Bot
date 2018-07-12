@@ -178,7 +178,7 @@ command:
     description: "Schimbă limba implicită pentru acest Server."
 
   help:
-    beginning: "**<:GamesROBNew:456913958457049109> GamesROB v%s** *de deprilula28*\n\n"
+    beginning: "**<:GamesROBNew:456913958457049109> GamesROB v%s** *de deprilula28*\n"
     subCategory: "Folosește `%%PREFIX%%help categorie/comandă` pentru a lua informații despre o comandă sau o categorie (ex. `%%PREFIX%%help profile` sau `%%PREFIX%%help slots`)"
     gameString: "%s `%%PREFIX%%%s` - %s"
     commandInfo: "`%s%s`: %s\nPseudonime: %s\nCategorie: %s"

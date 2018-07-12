@@ -18,6 +18,7 @@ import me.deprilula28.jdacmdframework.CommandFramework;
 import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.Permission;
 import net.dv8tion.jda.core.entities.Guild;
+import net.dv8tion.jda.core.entities.MessageEmbed;
 import net.dv8tion.jda.core.entities.User;
 import net.dv8tion.jda.core.events.message.guild.react.GuildMessageReactionAddEvent;
 
@@ -28,6 +29,7 @@ import java.sql.SQLException;
 import java.util.*;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -45,17 +47,19 @@ public class CommandManager {
     }
 
     private static final String[] CATEGORIES = {
-            "games", "profilecommands", "servercommands", "matchcommands", "infocommands"
+            "games", "tokencommands", "profilecommands", "servercommands", "matchcommands", "infocommands", "partnercommands"
     };
     private static final String[] EMOTES = {
-            "\uD83C\uDFB2", "\uD83D\uDC65", "\uD83D\uDCDF", "\uD83C\uDFAE", "\uD83D\uDCCB"
+            "\uD83C\uDFB2", "\uD83D\uDD38", "\uD83D\uDC65", "\uD83D\uDCDF", "\uD83C\uDFAE", "\uD83D\uDCCB", "\uD83E\uDD1D"
     };
+    private static final List<String> PREFERRED_CATEGORIES = Arrays.asList(
+            "games", "tokencommands"
+    );
     private static final List<String> EMOTE_LIST = Arrays.asList(EMOTES);
     private static final Map<String, List<Command>> perCategory = new HashMap<>();
 
     public static void registerCommands(CommandFramework f) {
         // Games
-        f.command("slots gamble gmb casino c", Slots::slotsGame).attr("category", "games").setUsage("slots <amount>");
         Arrays.stream(GamesROB.ALL_GAMES).forEach(cur -> {
             Command command = f.command(cur.getAliases(), Match.createCommand(cur)).attr("category", "games").attr("gameCode", cur.getLanguageCode());
             if (cur.getGameType() == GameType.MULTIPLAYER) command.setUsage(command.getName().toLowerCase() + " [Players] [Betting] [Settings]");
@@ -66,9 +70,20 @@ public class CommandManager {
             matchHandlerSettings.put(cur.getMatchHandlerClass(), settings);
         });
 
-        // Profile
+        // Partners
+        f.command("idlerpg idle rpg idlerpgbot partners partner getpartner viewpartner", context -> {
+            context.send(it -> {
+                it.append(Language.transl(context, "command.idlerpg.message"));
+                it.setEmbed(new EmbedBuilder().setTitle(Language.transl(context, "command.idlerpg.checkItOut"), "https://idlerpg.fun/")
+                    .setColor(Utility.getEmbedColor(context.getGuild())).build());
+            });
+            return null;
+        }).attr("category", "partnercommands");
+
+        // Tokens
+        f.command("slots gamble gmb casino c", Slots::slotsGame).attr("category", "tokencommands").setUsage("slots <amount/all>");
         f.command("tokens tk tks tok toks t viewtokens viewtk viewtks viewtok viewtoks viewt gettokens gettk gettks " +
-                "gettok gettoks gett tokenamount tkamount tokamount tamount bal balance viewbalance",
+                "gettok gettoks gett tokenamount tkamount tokamount tamount bal balance viewbalance daily",
                 Tokens::tokens, cmd -> {
             // Moderator currency management
             cmd.sub("add + cheat a", OwnerCommands.tokenCommand(UserProfile::addTokens, "command.tokens.add"));
@@ -87,16 +102,17 @@ public class CommandManager {
 
                 return Language.transl(context, "command.tokens.give", context.getAuthor().getAsMention(), target.getAsMention(), amount);
             }).setUsage("g*token give <user> <amount>");
-        }).attr("category", "profilecommands");
+        }).attr("category", "tokencommands").setUsage("tokens [user]");
 
         f.command("achievements achieve achieved achieves ach " +
                 "viewachievements viewachieve viewachieved viewachieves viewach accomplishments accomplished viewaccomplishments " +
                 "viewaccomplished tasks task viewtasks viewtask missions mission viewmissions viewmission",
-                Tokens::achievements).attr("category", "profilecommands");
+                Tokens::achievements).attr("category", "tokencommands");
 
         f.command("baltop balancetop topbalance rich tokensleaderboard tokenslb tklb", Tokens::baltop)
-                .attr("category", "profilecommands");
+                .attr("category", "tokencommands").setUsage("baltop [global] [page]");
 
+        // Profile Commands
         f.command("profile prof getprofile getprof viewprofile viewprof user usr getuser getusr viewuser viewusr " +
                 "player getplayer viewplayers rank", ProfileCommands::profile).attr("category", "profilecommands");
 
@@ -220,7 +236,6 @@ public class CommandManager {
         f.command("sql postgres postgresql sqlexecute runsql", OwnerCommands::sql);
         f.command("announce announcement br broadcast", OwnerCommands::announce);
         f.command("blacklist bl l8r adios cya pce peace later bye rekt dab", OwnerCommands::blacklist);
-        f.command("gengif gifgen xdxdxdlmao", Gengif::gen);
         OwnerCommands.owners(f);
 
         f.before(it -> {
@@ -245,6 +260,13 @@ public class CommandManager {
                     return Language.transl(it, "genericMessages.blacklistedNoInfo");
                 }
             }
+            GamesROB.database.ifPresent(db -> db.insert("commandexecutions", Arrays.asList("command", "alias", "userid", "time"),
+                    statement -> Log.wrapException("Inserting command execution log", () -> {
+                statement.setString(1, it.getCurrentCommand().getName());
+                statement.setString(2, it.getArgs().get(0));
+                statement.setString(3, it.getAuthor().getId());
+                statement.setLong(4, System.currentTimeMillis());
+            })));
 
             commandStart.put(it.getAuthor().getId(), System.nanoTime());
             return null;
@@ -261,9 +283,12 @@ public class CommandManager {
             return null;
         });
 
-        // Door
+        // Reactions
         f.reactionHandler("\uD83D\uDEAA", context -> {
             if (Match.GAMES.containsKey(context.getChannel())) Match.GAMES.get(context.getChannel()).joinReaction(context);
+        });
+        f.reactionHandler("\uD83D\uDD79", context -> {
+            if (Match.GAMES.containsKey(context.getChannel())) Match.GAMES.get(context.getChannel()).playAloneReaction(context);
         });
         f.reactionHandler("\uD83D\uDD04", context -> {
             if (Match.REMATCH_GAMES.containsKey(context.getChannel())) Match.REMATCH_GAMES.get(context.getChannel()).rematchReaction(context);
@@ -290,28 +315,32 @@ public class CommandManager {
 
         for (int i = 0; i < CATEGORIES.length; i++) {
             String category = CATEGORIES[i];
-            help.append(EMOTES[i]).append(" ").append(Language.transl(language, "command.help.categories." + category));
-            if (category.equals("games")) {
+            boolean preferred = PREFERRED_CATEGORIES.contains(category);
+            help.append(EMOTES[i]).append(preferred ? " **" : "").append(Language.transl(language, "command.help.categories." + category))
+                .append(preferred ? "**" : "");
+            if (preferred) {
                 help.append("\n");
                 perCategory.get(category).forEach(cur -> {
                     String gameCode = cur.attr("gameCode");
                     help.append(gameCode == null
-                        ? Language.transl(language, "command.help.gameString",
-                            "", cur.getName(),
+                        ? String.format("%s `%%PREFIX%%%s` - %s",
+                            cur.getName(), cur.getUsage(),
                             Language.transl(language, "command." + cur.getName() + ".description"))
-                        : Language.transl(language, "command.help.gameString",
-                                Language.transl(language, "game." + gameCode + ".name"),
-                                cur.getAliases().get(0),
+                        : String.format("%s `%%PREFIX%%%s` - %s",
+                            Language.transl(language, "game." + gameCode + ".name"),
+                            cur.getAliases().get(0),
                             Language.transl(language, "game." + gameCode + ".shortDescription")
                         ))
                     .append("\n");
                 });
             } else {
-                help.append(" `").append(category).append("` (");
+                help.append(" (");
                 List<Command> catCommands = perCategory.get(category);
-                if (catCommands.size() <= 3) help.append(catCommands.stream().map(Command::getName).collect(Collectors.joining(", ")));
+                if (catCommands.size() <= 5) help.append(catCommands.stream().map(it -> String.format("`%s`",
+                        it.getName())).collect(Collectors.joining(", ")));
                 else {
-                    List<String> strings = catCommands.stream().limit(2).map(Command::getName).collect(Collectors.toList());
+                    List<String> strings = catCommands.stream().limit(4).map(it -> String.format("`%s`", it.getName()))
+                        .collect(Collectors.toList());
                     strings.add(Language.transl(language, "command.help.other", catCommands.size() - 2));
                     help.append(String.join(", ", strings));
                 }
@@ -320,13 +349,17 @@ public class CommandManager {
             help.append("\n");
         }
 
-        help.append("\n").append(Language.transl(language, "command.help.subCategory"));
+        help.append(Language.transl(language, "command.help.subCategory2"));
         languageHelpMessages.put(language, help.toString());
     }
 
     public static String help(CommandContext context) {
         EmbedBuilder embed = new EmbedBuilder().setColor(Utility.getEmbedColor(context.getGuild()))
                 .setTitle(Language.transl(context, "command.help.websiteTitle"), Constants.GAMESROB_DOMAIN);
+
+        if (System.currentTimeMillis() - Statistics.get().getLastUpdateLogSentTime() <= TimeUnit.DAYS.toMillis(1))
+            embed.appendDescription(Language.transl(Constants.getLanguage(context), "command.help.recentUpdate",
+                    GamesROB.VERSION, Constants.getPrefix(context.getGuild()))).appendDescription("\n");
         OwnerCommands.getAnnouncement().ifPresent(announcement -> {
             User announcer = announcement.getAnnouncer();
 
