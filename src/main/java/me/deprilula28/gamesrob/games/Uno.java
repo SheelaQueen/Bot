@@ -157,7 +157,12 @@ public class Uno extends TurnMatchHandler {
     @Override
     protected void handleInvalidTurn() {
         if (!getTurn().isPresent()) handleAIPlay();
-        else draw(getTurn(), 2);
+        else {
+            User user = getTurn().get();
+            dmMessages.get(user).then(it -> it.editMessage(getDmMessage(user)).queue());
+            user.openPrivateChannel().queue(it -> it.sendMessage(Language.transl(match.getLanguage(), "game.uno.drawCard")).queue());
+            draw(getTurn(), 1);
+        }
     }
 
     @Override
@@ -193,8 +198,6 @@ public class Uno extends TurnMatchHandler {
 
         return builder.toString();
     }
-
-    private static final int AI_MAX_LAYERS = 8;
 
     @Override
     public void handleAIPlay() {

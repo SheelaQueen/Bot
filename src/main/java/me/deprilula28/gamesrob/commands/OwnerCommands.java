@@ -79,6 +79,9 @@ public class OwnerCommands {
                 "genericMessages.ownersOnly");
 
         User blacklisting = context.nextUser();
+        if (GamesROB.owners.contains(blacklisting.getIdLong()) || BootupProcedure.getOwners().contains(blacklisting.getIdLong()))
+            return "Nope.";
+
         String reason = String.join(" ", context.remaining());
         GamesROB.database.ifPresent(db -> {
             db.insert("blacklist", Arrays.asList("userid", "botownerid", "reason", "time"),
@@ -320,8 +323,7 @@ public class OwnerCommands {
                 return "Removed them from the owner list.";
             });
             cmd.sub("clear", context -> {
-                if (!GamesROB.owners.contains(context.getAuthor().getIdLong())) return Language.transl(context,
-                        "genericMessages.ownersOnly");
+                if (!BootupProcedure.getOwners().contains(context.getAuthor().getIdLong())) return "Only hardcoded owners can use this.";
 
                 GamesROB.owners = BootupProcedure.getOwners();
                 return "Cleared owners.";

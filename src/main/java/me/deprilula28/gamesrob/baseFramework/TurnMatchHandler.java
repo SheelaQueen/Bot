@@ -40,7 +40,7 @@ public abstract class TurnMatchHandler implements MatchHandler {
     }
 
     public Optional<User> seekTurn() {
-        return getPlayers().get(turn + 1 % getPlayers().size());
+        return getPlayers().get((turn + 1) % (getPlayers().size() - 1));
     }
 
     public void nextTurn() {

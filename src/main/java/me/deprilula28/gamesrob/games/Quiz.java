@@ -28,7 +28,7 @@ public class Quiz implements MatchHandler {
     private static String[] ITEMS;
     public static final GamesInstance GAME = new GamesInstance(
             "quiz", "quiz trivia quizzes qz",
-            1, 11, GameType.MULTIPLAYER, false,
+            1, 11, GameType.HYBRID, false,
             Quiz::new, Quiz.class
     );
 

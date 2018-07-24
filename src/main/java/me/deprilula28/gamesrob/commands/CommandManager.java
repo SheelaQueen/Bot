@@ -58,6 +58,7 @@ public class CommandManager {
     private static final List<String> EMOTE_LIST = Arrays.asList(EMOTES);
     private static final Map<String, List<Command>> perCategory = new HashMap<>();
 
+    private static String finMessage = "";
     public static void registerCommands(CommandFramework f) {
         // Games
         Arrays.stream(GamesROB.ALL_GAMES).forEach(cur -> {
@@ -236,6 +237,18 @@ public class CommandManager {
         f.command("sql postgres postgresql sqlexecute runsql", OwnerCommands::sql);
         f.command("announce announcement br broadcast", OwnerCommands::announce);
         f.command("blacklist bl l8r adios cya pce peace later bye rekt dab", OwnerCommands::blacklist);
+
+        f.command("error", (Command.Executor) context -> {
+            throw new RuntimeException("meme");
+        });
+        f.command("fin", context -> finMessage, command -> {
+            command.sub("set", context -> {
+                if (!GamesROB.owners.contains(context.getAuthor().getIdLong())) return Language.transl(context,
+                        "genericMessages.ownersOnly");
+                finMessage = String.join(" ", context.remaining());
+                return "msg set";
+            });
+        });
         OwnerCommands.owners(f);
 
         f.before(it -> {

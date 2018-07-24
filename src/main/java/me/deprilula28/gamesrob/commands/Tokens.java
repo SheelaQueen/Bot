@@ -118,14 +118,16 @@ public class Tokens {
 
                 // Upvoting
                 long timeSinceUpvote = System.currentTimeMillis() - profile.getLastUpvote();
-                if (timeSinceUpvote > TimeUnit.DAYS.toMillis(1)) {
+                if (timeSinceUpvote > TimeUnit.HOURS.toMillis(12)) {
                     int row = timeSinceUpvote < TimeUnit.DAYS.toMillis(2) ? profile.getUpvotedDays() : 0;
+                    boolean weekend = Utility.isWeekendMultiplier();
 
-                    winMethods.put(Language.transl(context, "command.tokens.upvoteCan", row, Utility.addNumberDelimitors(125 + row * 50)), true);
+                    winMethods.put(Language.transl(context, weekend ? "command.tokens.upvoteWeekend" : "command.tokens.upvoteCan",
+                            row, Utility.addNumberDelimitors((125 + row * 50) * (weekend ? 2 : 1))), true);
                     embed.setDescription(Language.transl(context, "command.tokens.embedUpvote",
                             Constants.getDboURL(context.getJda()) + "/vote"));
                 } else winMethods.put(Language.transl(context, "command.tokens.upvoteLater", Utility.formatPeriod
-                                ((profile.getLastUpvote() + TimeUnit.DAYS.toMillis(1)) - System.currentTimeMillis())),
+                                ((profile.getLastUpvote() + TimeUnit.HOURS.toMillis(12)) - System.currentTimeMillis())),
                         false);
 
                 winMethods.put(Language.transl(context, "command.tokens.achievements2", Constants.getPrefix(context.getGuild())), true);

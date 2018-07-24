@@ -255,8 +255,8 @@ public class RPCManager extends WebSocketClient {
     }
 
     private Object webhookNotification(JsonElement upvoteInfo) {
-        Log.info("Received upvote: ", upvoteInfo);
-        Statistics.get().setUpvotes(Statistics.get().getUpvotes() + 1);
+        boolean weekend = Utility.isWeekendMultiplier();
+        Statistics.get().setUpvotes(Statistics.get().getUpvotes() + (weekend ? 2 : 1));
         GamesROB.getUserById(upvoteInfo.getAsJsonObject().get("user").getAsLong()).ifPresent(user -> user.openPrivateChannel().queue(pm -> {
             UserProfile profile = UserProfile.get(user.getId());
             if (System.currentTimeMillis() - profile.getLastUpvote() < TimeUnit.DAYS.toMillis(2))
@@ -264,10 +264,16 @@ public class RPCManager extends WebSocketClient {
             else profile.setUpvotedDays(0);
             int days = profile.getUpvotedDays();
             int amount = 125 + days * 50;
+            if (weekend) amount *= 2;
 
             MessageBuilder builder = new MessageBuilder();
             String lang = Optional.ofNullable(profile.getLanguage()).orElse("en_US");
-            builder.append(Language.transl(lang, "genericMessages.upvoteMessage", "+" + amount + " \uD83D\uDD38 tokens", days));
+
+            builder.append(Language.transl(lang, "genericMessages.upvote.header", amount));
+            if (weekend) builder.append(Language.transl(lang, "genericMessages.upvote.weekend"));
+            if (days > 0) builder.append(Language.transl(lang, "genericMessages.upvote.streak", days));
+            builder.append(Language.transl(lang, "genericMessages.upvote.footer"));
+
             AchievementType.REACH_TOKENS.addAmount(false, amount, builder, user, null, lang);
             AchievementType.UPVOTE.addAmount(false, 1, builder, user, null, lang);
             pm.sendMessage(builder.build()).queue();

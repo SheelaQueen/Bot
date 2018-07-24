@@ -1,11 +1,20 @@
-- Tokens are now formatted fancily.
-- Minesweeper (and perhaps future hybrid games) will now be multiplayer by default, requiring a reaction to be played alone.
-- Help command now has a different category for tokens, which slots is also a part of.
-
 - New game added: Uno!
 You get 7 cards, which are DM'd to you. On each round, you can use a card.
 If you have a card with the same color or number as the last color used, you can use it.
 Otherwise, you'll have to draw two cards.
 
+I will be improving this game in the future.
+
+- Spanish language was added! `es_ES` by <@413776809730113536>
+Try it out with `g*lang es_ES`
+
+- Tokens are now formatted fancily.
+- Quiz is now playable single player!
+- Hybrid games (minesweeper and quiz) will now be multiplayer by default, requiring a reaction to be played alone.
+- Help command now has a different category for tokens, which slots is also a part of. The message has been overhauled overall.
+- The bot will now give you twice the amount of tokens during weekends, and the bot will now properly tell you the 12 hour cooldown.
+- Languages have been updated and improved. I'm sure non english speakers will enjoy.
+
 - Fixed the slots command's message.
+- Fixed quiz overflowing.
 Enjoy! ~ deprilula28

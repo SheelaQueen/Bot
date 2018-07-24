@@ -25,6 +25,12 @@ genericMessages:
   blacklisted: "⛔ You were blacklisted from using GamesROB by %s (%s).\nReason: %s"
   blacklistedNoInfo: "⛔ You were blacklisted from using GamesROB."
 
+  upvote:
+    header: "**Thank you for voting for GamesROB!**\nRewards:\n+ 🔸 %s tokens!"
+    streak: " (%s days in a row)"
+    weekend: " **Weekend multiplier: 2x!**"
+    footer: "\n\nYou can upvote again in 12 hours.\nVoting more days in a row increases the amount of tokens gained."
+
 gameFramework:
   singleplayerMatch: "**Single-player %s Match**\n%s\n\n"
   multiplayerMatch: "**Multi-player %s Match**\n%s\n\n"
@@ -65,6 +71,7 @@ game:
     longDescription: "Everyone gets 7 cards, which are DM'd to you. On each round, you can use a card.\nIf you have a card with the same color or number as the last color used, you can use it.\nOtherwise, you'll have to draw two cards."
 
     deckDm: "You can play on %s.\nOn your turn, send the number on top of the card you want to use.\nIf it's a wildcard (black color) you can pick the color we'll be playing next with `number color` (i.e. `3 blue`).\nYour deck:"
+    drawCard: "You've drawn a card because you had run out."
 
     chooseCard: "%s: Send the number of the card in your deck you want to use here!\nYour deck is in our DMs.\n"
     game: "Top Card\n%s\n\n"
@@ -221,7 +228,8 @@ command:
     other: "%s has 🔸 %s tokens"
     own: "You have 🔸 %s tokens\nHere are some ways to get more:"
     winningMatches: "**Winning matches**"
-    upvoteCan: "**Upvoting the bot** (%s days in a row =  🔸 %s tokens!)"
+    upvoteCan: "**Upvoting the bot** (%s days in a row = 🔸 %s tokens!)"
+    upvoteWeekend: "**Upvoting the bot** (%s days in a row + 2x weekend multiplier = 🔸 %s tokens!)"
     upvoteLater: "~~Upvoting the bot~~ (You can do it again in %s)"
     achievements2: "**Completing achievements**: View them with `%sachievements`!"
     gamblingTokens: "**Gambling with** `g*slots`"

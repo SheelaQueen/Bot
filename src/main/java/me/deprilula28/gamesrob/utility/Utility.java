@@ -344,6 +344,11 @@ public class Utility {
 
     private static long nextUpdatePredictment = -1;
 
+    public static boolean isWeekendMultiplier() {
+        int day = Calendar.getInstance().get(Calendar.DAY_OF_WEEK);
+        return day == Calendar.SUNDAY || day >= Calendar.FRIDAY;
+    }
+
     public static long predictNextUpdate() {
         if (nextUpdatePredictment != -1) return nextUpdatePredictment;
 
