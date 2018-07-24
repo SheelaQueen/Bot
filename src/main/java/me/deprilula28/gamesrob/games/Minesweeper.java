@@ -20,7 +20,7 @@ import java.util.concurrent.ThreadLocalRandom;
 public class Minesweeper implements MatchHandler {
     public static final GamesInstance GAME = new GamesInstance(
             "minesweeper", "minesweeper minsw miner ms",
-            0, 3, GameType.HYBRID, false,
+            1, 3, GameType.HYBRID, false,
             Minesweeper::new, Minesweeper.class
     );
     private static final Map<String, String> EMOTE_ID_MAP = new HashMap<>();
@@ -55,7 +55,6 @@ public class Minesweeper implements MatchHandler {
 
     private Map<Optional<User>, List<List<MinesweeperTile>>> board = new HashMap<>(); // List of columns (X axis)
     private List<Optional<User>> playing = new ArrayList<>();
-    private RequestPromise<Message> message;
     private Match match;
     private int messages = 0;
 
@@ -76,7 +75,7 @@ public class Minesweeper implements MatchHandler {
 
         ensureLoaded();
         this.match = match;
-        message = initialMessage.invoke(null);
+        match.setMatchMessage(initialMessage.invoke(null));
     }
 
     @Override
@@ -131,7 +130,7 @@ public class Minesweeper implements MatchHandler {
 
         MessageBuilder builder = new MessageBuilder();
         updatedMessage(false, builder);
-        message = GameUtil.editSend(match.getChannelIn(), messages, message, builder.build());
+        match.setMatchMessage(GameUtil.editSend(match.getChannelIn(), messages, match.getMatchMessage(), builder.build()));
         if (messages > Constants.MESSAGES_SINCE_THRESHOLD) messages = 0;
         match.interrupt();
     }

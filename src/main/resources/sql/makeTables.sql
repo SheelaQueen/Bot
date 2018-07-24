@@ -23,7 +23,7 @@ CREATE TABLE IF NOT EXISTS leaderboardEntries (
     losses INT,
     gamesplayed INT
 );
-CREATE TABLE IF NOT EXISTS statsPlots (
+CREATE TABLE IF NOT EXISTS statsplots (
     shardsOnline INT,
     avgCommandDelay BIGINT,
     totalCommandsExecuted BIGINT,
@@ -36,6 +36,12 @@ CREATE TABLE IF NOT EXISTS statsPlots (
     ramUsage BIGINT,
     upvotes BIGINT,
 
+    time BIGINT
+);
+CREATE TABLE IF NOT EXISTS commandexecutions (
+    command TEXT,
+    alias TEXT,
+    userid TEXT,
     time BIGINT
 );
 CREATE TABLE IF NOT EXISTS achievements (

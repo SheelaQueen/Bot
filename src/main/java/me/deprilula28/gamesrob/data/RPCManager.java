@@ -9,6 +9,7 @@ import lombok.Data;
 import me.deprilula28.gamesrob.GamesROB;
 import me.deprilula28.gamesrob.Language;
 import me.deprilula28.gamesrob.achievements.AchievementType;
+import me.deprilula28.gamesrob.commands.OwnerCommands;
 import me.deprilula28.gamesrob.utility.Constants;
 import me.deprilula28.gamesrob.utility.Log;
 import me.deprilula28.gamesrob.utility.Utility;
@@ -75,10 +76,11 @@ public class RPCManager extends WebSocketClient {
 
     public static enum RequestType {
         // Server -> Client
-        WEBHOOK_NOTIFICATION, GET_USER_BY_ID, GET_GUILD_BY_ID, GET_MUTUAL_SERVERS, GET_SHARDS_INFO,
+        WEBHOOK_NOTIFICATION, GET_USER_BY_ID, GET_GUILD_BY_ID, GET_MUTUAL_SERVERS, GET_SHARDS_INFO, OWNER_LIST_UPDATED,
+        BOT_UDPATED, IS_OWNER,
 
         // Client -> Server
-        GET_ALL_SHARDS_INFO
+        GET_ALL_SHARDS_INFO, BOT_UPDATE, OWNER_LIST_UPDATE
     }
 
     public RPCManager(String ip, int shardIdFrom, int shardIdTo, int totalShards) throws Exception {
@@ -208,6 +210,21 @@ public class RPCManager extends WebSocketClient {
         handlerMap.put(RequestType.WEBHOOK_NOTIFICATION, this::webhookNotification);
         handlerMap.put(RequestType.GET_MUTUAL_SERVERS, this::getMutualServers);
         handlerMap.put(RequestType.GET_SHARDS_INFO, n -> GamesROB.getShardsInfo());
+        handlerMap.put(RequestType.IS_OWNER, id -> GamesROB.owners.contains(Long.parseLong(id.getAsString())));
+
+        handlerMap.put(RequestType.OWNER_LIST_UPDATED, owners -> {
+            List<Long> newOwners = new ArrayList<>();
+            owners.getAsJsonArray().forEach(it -> newOwners.add(Long.parseLong(it.getAsString())));
+            GamesROB.owners = newOwners;
+            Log.info("Owner list has been updated.");
+
+            return null;
+        });
+
+        handlerMap.put(RequestType.BOT_UDPATED, url -> {
+            Log.wrapException("Updating bot from RPC request", () -> OwnerCommands.update(url.getAsString(), Log::info));
+            return null;
+        });
     }
 
     private WebsiteGuild getGuildById(JsonElement el) {
@@ -233,13 +250,13 @@ public class RPCManager extends WebSocketClient {
                 "/serverLeaderboard/" + it.getId() + "/",
                 it.getIconUrl() == null
                         ? "https://discordapp.com/assets/dd4dbc0016779df1378e7812eabaa04d.png"
-                        : it.getIconUrl().replaceAll("\\.jpg", ".png"),
+                        : it.getIconUrl().replace(".jpg", ".png"),
                 it.getName())).collect(Collectors.toList());
     }
 
     private Object webhookNotification(JsonElement upvoteInfo) {
-        Log.info("Received upvote: ", upvoteInfo);
-        Statistics.get().setUpvotes(Statistics.get().getUpvotes() + 1);
+        boolean weekend = Utility.isWeekendMultiplier();
+        Statistics.get().setUpvotes(Statistics.get().getUpvotes() + (weekend ? 2 : 1));
         GamesROB.getUserById(upvoteInfo.getAsJsonObject().get("user").getAsLong()).ifPresent(user -> user.openPrivateChannel().queue(pm -> {
             UserProfile profile = UserProfile.get(user.getId());
             if (System.currentTimeMillis() - profile.getLastUpvote() < TimeUnit.DAYS.toMillis(2))
@@ -247,11 +264,18 @@ public class RPCManager extends WebSocketClient {
             else profile.setUpvotedDays(0);
             int days = profile.getUpvotedDays();
             int amount = 125 + days * 50;
+            if (weekend) amount *= 2;
 
             MessageBuilder builder = new MessageBuilder();
             String lang = Optional.ofNullable(profile.getLanguage()).orElse("en_US");
-            builder.append(Language.transl(lang, "genericMessages.upvoteMessage", "+" + amount + " \uD83D\uDD38 tokens", days));
-            AchievementType.REACH_TOKENS.addAmount(false, amount, builder, user, lang);
+
+            builder.append(Language.transl(lang, "genericMessages.upvote.header", amount));
+            if (weekend) builder.append(Language.transl(lang, "genericMessages.upvote.weekend"));
+            if (days > 0) builder.append(Language.transl(lang, "genericMessages.upvote.streak", days));
+            builder.append(Language.transl(lang, "genericMessages.upvote.footer"));
+
+            AchievementType.REACH_TOKENS.addAmount(false, amount, builder, user, null, lang);
+            AchievementType.UPVOTE.addAmount(false, 1, builder, user, null, lang);
             pm.sendMessage(builder.build()).queue();
 
             profile.addTokens(amount);

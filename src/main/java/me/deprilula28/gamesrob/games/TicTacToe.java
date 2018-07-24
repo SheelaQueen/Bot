@@ -87,7 +87,6 @@ public class TicTacToe extends TurnMatchHandler {
             }
             reorganized.add(row);
         }
-        Log.info(reorganized);
 
         return GameUtil.detectVictory(reorganized, boardSize - 1, boardSize - 1,
                 1, connectTiles - 2);

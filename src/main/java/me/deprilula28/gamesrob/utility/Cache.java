@@ -20,7 +20,8 @@ public class Cache {
     }
 
     public static long getRAMUsage() {
-        return Utility.getRamUsage(cachedMap);
+        Runtime rt = Runtime.getRuntime();
+        return rt.totalMemory() - rt.freeMemory();
     }
 
     static {
@@ -44,7 +45,8 @@ public class Cache {
 
                     if (removed > 0) {
                         allCleaned += removed;
-                        Log.info("(GC) Cleaned " + removed + ", " + Utility.addNumberDelimitors(allCleaned) + "total.");
+                        Log.info("GamesROB garbage cleaner removed " + removed + " (" + Utility.formatBytes(after - before) + "), "
+                                + Utility.addNumberDelimitors(allCleaned) + " total.");
                     }
                 } catch (Exception ex) {
                     Log.exception("Running cache GC task", ex);

@@ -37,7 +37,6 @@ public class Hangman implements MatchHandler {
     }
 
     @Setting(min = 1, max = 16, defaultValue = 4) public int tries;
-    private RequestPromise<Message> lastMessage = null;
     private Optional<String> word = Optional.empty();
     private List<Character> guessedLetters = new ArrayList<>();
     private Map<Optional<User>, PlayerInfo> playerInfoMap = new HashMap<>();
@@ -67,7 +66,7 @@ public class Hangman implements MatchHandler {
                     pm.sendMessage("What's the word gonna be?").queue());
             });
         });
-        lastMessage = initialMessage.invoke(null);
+        match.setMatchMessage(initialMessage.invoke(null));
     }
 
     @Override
@@ -120,7 +119,7 @@ public class Hangman implements MatchHandler {
     private void updateMessage() {
         MessageBuilder builder = new MessageBuilder();
         updatedMessage(false, builder);
-        lastMessage = GameUtil.editSend(match.getChannelIn(), messages, lastMessage, builder.build());
+        match.setMatchMessage(GameUtil.editSend(match.getChannelIn(), messages, match.getMatchMessage(), builder.build()));
         if (messages > Constants.MESSAGES_SINCE_THRESHOLD) messages = 0;
     }
 

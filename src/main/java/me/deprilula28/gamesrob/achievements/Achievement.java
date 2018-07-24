@@ -18,7 +18,6 @@ public class Achievement {
     }
 
     public String getDescription(String language) {
-        Log.info(toString());
         return type == AchievementType.OTHER
                 ? Language.transl(language, "game.achievement." + langCode + ".description")
                 : Language.transl(language, "game.achievement." + type.getLanguageCode(), amount);

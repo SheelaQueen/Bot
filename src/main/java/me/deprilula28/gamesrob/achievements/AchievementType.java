@@ -8,6 +8,7 @@ import me.deprilula28.gamesrob.Language;
 import me.deprilula28.gamesrob.data.UserProfile;
 import me.deprilula28.gamesrob.utility.Constants;
 import me.deprilula28.gamesrob.utility.Log;
+import me.deprilula28.gamesrob.utility.Utility;
 import me.deprilula28.jdacmdframework.CommandContext;
 import net.dv8tion.jda.core.MessageBuilder;
 import net.dv8tion.jda.core.entities.Guild;
@@ -24,7 +25,7 @@ import java.util.function.Consumer;
 public enum AchievementType {
     PLAY_GAMES("playGames"), WIN_GAMES("winGames"), GAMBLE_TOKENS("gambleTokens"), WIN_TOKENS_GAMBLING("winTokensGambling"),
     LOSE_TOKENS_GAMBLING("loseTokensGambling"), REACH_PLACE_LEADERBOARD("reachPlaceLeaderboard"),
-    REACH_TOKENS("reachTokens"), OTHER("other");
+    REACH_TOKENS("reachTokens"), UPVOTE("upvote"), OTHER("other");
 
     private static final String[] ACHIEVEMENT_GOT_EMOTES = {
         "\uD83D\uDC83", "\uD83D\uDC51", "\uD83D\uDCAB", "<:rules_header:456960990559338497>", "\uD83C\uDF20", "\uD83C\uDF89"
@@ -35,7 +36,7 @@ public enum AchievementType {
     public void addAmount(int amount, CommandContext context, Consumer<MessageBuilder> before) {
         context.send(builder -> {
             before.accept(builder);
-            addAmount(false, amount, builder, context.getAuthor(), Constants.getLanguage(context));
+            addAmount(false, amount, builder, context.getAuthor(), context.getGuild(), Constants.getLanguage(context));
         });
     }
 
@@ -53,23 +54,24 @@ public enum AchievementType {
         }
     }
 
-    public void addAmount(boolean tagName, int amount, MessageBuilder builder, User user, String language) {
+    public void addAmount(boolean tagName, int amount, MessageBuilder builder, User user, Guild guild, String language) {
+        String type = toString();
         GamesROB.database.ifPresent(db -> {
             UserProfile profile = UserProfile.get(user);
             db.save("achievements", Arrays.asList("type", "amount", "userid"),
-                    "userid = '" + profile.getUserId() + "'", set -> true, (set, statement) ->
-                            Log.wrapException("Storing achievement amount", () -> {
+                    "userid = '" + profile.getUserId() + "' AND type = '" + type + "'", set -> false,
+                    (set, statement) -> Log.wrapException("Storing achievement amount", () -> {
                 int prevAmount = set.map(it -> {
                     try {
                         return it.getInt("amount");
                     } catch (Exception e) {
                         Log.exception("Getting achievements", e);
-                        return null;
+                        return 0;
                     }
                 }).orElse(0);
                 int newAmount = prevAmount + amount;
 
-                statement.setString(1, toString());
+                statement.setString(1, type);
                 statement.setInt(2, newAmount);
                 statement.setString(3, profile.getUserId());
 
@@ -82,10 +84,12 @@ public enum AchievementType {
                         builder.append(ACHIEVEMENT_GOT_EMOTES[ThreadLocalRandom.current().nextInt(ACHIEVEMENT_GOT_EMOTES.length)])
                                 .append(Language.transl(language, "game.achievement.got",
                                         achievement.getName(language), achievement.getDescription(language),
-                                        achievement.getTokens()));
+                                        Utility.addNumberDelimitors(achievement.getTokens())))
+                                .append("\n").append(Language.transl(language, "game.achievement.runAchievements",
+                                    Constants.getPrefix(guild)));
 
                         profile.addTokens(achievement.getTokens());
-                        REACH_TOKENS.addAmount(tagName, achievement.getTokens(), builder, user, language);
+                        REACH_TOKENS.addAmount(tagName, achievement.getTokens(), builder, user, guild, language);
                     }
                 });
             }));

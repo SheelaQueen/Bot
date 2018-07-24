@@ -106,10 +106,7 @@ public class Utility {
     private static final SimpleDateFormat REGULAR_DATE_FORMAT = new SimpleDateFormat("EEE, d/M/yyyy hh:mm a");
     
     public static String addNumberDelimitors(long number) {
-        if (number < 1000L) return String.valueOf(number);
-        else if (number < 1000000L) return new BigDecimal((double) number / 1000.0).setScale(1, BigDecimal.ROUND_HALF_UP).toString() + "K";
-        else if (number < 1000000000L) return new BigDecimal((double) number / 1000000.0).setScale(2, BigDecimal.ROUND_HALF_UP).toString() + "M";
-        return new BigDecimal((double) number / 1000000000.0).setScale(4, BigDecimal.ROUND_HALF_UP).toString() + "B";
+        return new DecimalFormat(",###").format(number);
     }
 
     public static String addNumberDelimitors(int number) {
@@ -128,10 +125,6 @@ public class Utility {
             playerItems.put(user, emote);
             itemPlayers.put(emote, user);
         }
-    }
-
-    public static long getRamUsage(Object object) {
-        return 0L;
     }
 
     public static String formatBytes(long bytes) {
@@ -199,15 +192,17 @@ public class Utility {
     }
 
     public static String readResource(String path) {
-        Scanner scann = new Scanner(Language.class.getResourceAsStream(path));
-        StringBuilder builder = new StringBuilder();
+        return Cache.get("path_" + path, n -> {
+            Scanner scann = new Scanner(Language.class.getResourceAsStream(path));
+            StringBuilder builder = new StringBuilder();
 
-        while (scann.hasNextLine()) {
-            if (builder.length() > 0) builder.append("\n");
-            builder.append(scann.nextLine());
-        }
+            while (scann.hasNextLine()) {
+                if (builder.length() > 0) builder.append("\n");
+                builder.append(scann.nextLine());
+            }
 
-        return builder.toString();
+            return builder.toString();
+        });
     }
 
 
@@ -251,7 +246,8 @@ public class Utility {
     }
 
     public static String formatNth(String language, int i) {
-        int mod = Math.max(Math.min(i % 10, 4), 1);
+        int mod = Math.max(Math.min(i % 10, 4), 0);
+        if (mod == 0) mod = 4;
         return Language.transl(language, "genericMessages.nth" + mod);
     }
 
@@ -347,6 +343,11 @@ public class Utility {
     }
 
     private static long nextUpdatePredictment = -1;
+
+    public static boolean isWeekendMultiplier() {
+        int day = Calendar.getInstance().get(Calendar.DAY_OF_WEEK);
+        return day == Calendar.SUNDAY || day >= Calendar.FRIDAY;
+    }
 
     public static long predictNextUpdate() {
         if (nextUpdatePredictment != -1) return nextUpdatePredictment;

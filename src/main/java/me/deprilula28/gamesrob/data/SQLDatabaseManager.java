@@ -1,20 +1,15 @@
 package me.deprilula28.gamesrob.data;
 
 import javafx.util.Pair;
-import me.deprilula28.gamesrob.GamesROB;
 import me.deprilula28.gamesrob.utility.Log;
 import me.deprilula28.gamesrob.utility.Utility;
-import me.deprilula28.jdacmdframework.RequestPromise;
 import org.postgresql.util.PSQLException;
 
 import java.sql.*;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.ThreadPoolExecutor;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
@@ -50,10 +45,9 @@ public class SQLDatabaseManager {
     private Utility.Promise<Void> sqlExecute(String sql, Consumer<PreparedStatement> cons) {
         Utility.Promise<Void> promise = new Utility.Promise<>();
         asyncExecutor.execute(() -> Log.wrapException("SQL Execute " + sql, () -> {
-            PreparedStatement preparedStatement = connection.prepareStatement(sql);
-            cons.accept(preparedStatement);
-            Log.trace(preparedStatement);
-            preparedStatement.close();
+            PreparedStatement statement = connection.prepareStatement(sql);
+            cons.accept(statement);
+            statement.close();
 
             promise.done(null);
         }));
@@ -79,6 +73,31 @@ public class SQLDatabaseManager {
             Log.exception("Saving SQL Data", e);
             return null;
         }
+    }
+
+    public ResultSet select(String table, List<String> items, String where, String orderBy, boolean desc, int limit, int offset) throws Exception {
+        return sqlQuery(String.format(
+                "SELECT %s FROM %s WHERE %s ORDER BY %s%s LIMIT %s OFFSET %s",
+                items.stream().collect(Collectors.joining(", ")),
+                table, where, orderBy, desc ? " DESC" : "", limit, offset
+        ));
+    }
+
+    public ResultSet select(String table, List<String> items, String orderBy, boolean desc, int limit, int offset) throws Exception {
+        return sqlQuery(String.format(
+                "SELECT %s FROM %s ORDER BY %s%s LIMIT %s OFFSET %s",
+                items.stream().collect(Collectors.joining(", ")),
+                table, orderBy, desc ? " DESC" : "", limit, offset
+        ));
+    }
+
+    public int getAmount(String table) throws Exception {
+        ResultSet set = sqlQuery(String.format(
+                "SELECT COUNT(*) FROM %s",
+                table
+        ));
+        if (set.next()) return set.getInt("count");
+        else return 0;
     }
 
     public ResultSet select(String table, List<String> items, String where) throws Exception {
@@ -126,13 +145,24 @@ public class SQLDatabaseManager {
        }));
     }
 
-    private void registerTables() {
-        asyncExecutor.execute(() -> Log.wrapException("Creating SQL Table", () -> {
-            String command = Utility.readResource("/makeTables.sql");
-            Statement statement = connection.createStatement();
-            statement.executeUpdate(command);
+    public void sqlFileExecute(String path, Consumer<PreparedStatement> cons) {
+        asyncExecutor.execute(() -> Log.wrapException("Executing SQL file", () -> {
+            PreparedStatement statement = connection.prepareStatement(Utility.readResource("/sql/" + path));
+
+            cons.accept(statement);
+            statement.executeUpdate();
             statement.close();
-            Log.trace("Ran make tables command.");
         }));
+    }
+
+    public ResultSet sqlFileQuery(String path, Consumer<PreparedStatement> cons, Object... format) throws Exception {
+        PreparedStatement statement = connection.prepareStatement(String.format(Utility.readResource("/sql/" + path), (Object[]) format));
+        cons.accept(statement);
+
+        return statement.executeQuery();
+    }
+
+    private void registerTables() {
+        sqlFileExecute("makeTables.sql", st -> {});
     }
 }

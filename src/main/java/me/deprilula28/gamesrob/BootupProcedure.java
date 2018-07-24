@@ -1,5 +1,6 @@
 package me.deprilula28.gamesrob;
 
+import lombok.Getter;
 import me.deprilula28.gamesrob.baseFramework.GameState;
 import me.deprilula28.gamesrob.baseFramework.Match;
 import me.deprilula28.gamesrob.commands.CommandManager;
@@ -18,10 +19,13 @@ import net.dv8tion.jda.core.events.message.guild.react.GuildMessageReactionAddEv
 import org.trello4j.TrelloImpl;
 import redis.clients.jedis.Jedis;
 
+import java.awt.*;
 import java.io.File;
 import java.io.FileReader;
 import java.util.*;
+import java.util.List;
 import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
@@ -55,6 +59,7 @@ public class BootupProcedure {
     public static String secret;
     public static String changelog;
     public static boolean useRedis;
+    @Getter private static List<Long> owners;
 
     private static final BootupTask loadArguments = args -> {
         List<Optional<String>> pargs = Utility.matchValues(args, "token", "dblToken", "shards", "ownerID",
@@ -65,6 +70,7 @@ public class BootupProcedure {
         shardTo = pargs.get(2).map(Integer::parseInt).orElse(1);
         GamesROB.owners = Collections.unmodifiableList(pargs.get(3).map(it -> Arrays.stream(it.split(",")).map(Long::parseLong).collect(Collectors.toList()))
                 .orElse(Arrays.asList(197448151064379393L, 386945522608373785L)));
+        owners = GamesROB.owners;
         GamesROB.database = pargs.get(4).map(SQLDatabaseManager::new);
         GamesROB.debug = pargs.get(5).map(Boolean::parseBoolean).orElse(false);
         GamesROB.twitchUserIDListen = pargs.get(6).map(Long::parseLong).orElse(-1L);
@@ -85,7 +91,6 @@ public class BootupProcedure {
 
         DataManager.jedisOpt = pargs.get(12).flatMap(it -> (Boolean.valueOf(it) ? Optional.of(new Jedis("localhost")) : Optional.empty()));
         Trello.optTrello = pargs.get(13).map(it -> new TrelloImpl(Constants.TRELLO_API_KEY, it));
-        Log.info(pargs);
     };
 
     private static final BootupTask connectDiscord = args -> {
@@ -103,14 +108,33 @@ public class BootupProcedure {
         }
     };
 
+    private static final String[] ERROR_MESSAGES = {
+            "So um... This is awkard...", "Oof...", "Sorry :c", "This ~~happens~~ *doesn't happen* very often you know?",
+            "Roses are red,\nViolets are blue.\nDep is bad at coding,\nSo I bring this message for you!"
+    };
+    private static final String[] GIFS = {
+            "https://media2.giphy.com/media/dRgcwKJaGgWgo/giphy.gif",
+            "https://media1.giphy.com/media/ucqzuPUJSrTvW/giphy.gif",
+            "https://media2.giphy.com/media/3ztfAWk2M2msM/giphy.gif",
+            "https://media.giphy.com/media/sXICOpe3B2cc8/giphy.gif",
+            "https://media.giphy.com/media/11H1vD2IrZxg9G/giphy.gif",
+            "https://this.is-la.me/c82a77.png"
+    };
+
     private static final BootupTask frameworkLoad = args -> {
         CommandFramework f = new CommandFramework(GamesROB.shards, Settings.builder()
                 .loggerFunction(Log::info).removeCommandMessages(false).protectMentionEveryone(true)
-                .async(true).threadPool(new ThreadPoolExecutor(10, 100, 5, TimeUnit.MINUTES,
+                .prefix("").async(true).threadPool(new ThreadPoolExecutor(10, 100, 5, TimeUnit.MINUTES,
                         new LinkedBlockingQueue<>())).prefixGetter(Constants::getPrefix).joinQuotedArgs(true)
                 .commandExceptionFunction((context, exception) -> {
-                    context.send("⛔ An error has occured! It has been reported to devs. My bad...");
-                    Log.exception("Command: " + context.getMessage().getRawContent(), exception, context);
+                    Optional<String> trelloUrl = Log.exception("Command: " + context.getMessage().getContentRaw(), exception, context);
+                    context.send(new EmbedBuilder()
+                        .setTitle("Failed to run that command!", trelloUrl.orElse("https://discord.gg/gJKQPkN"))
+                        .setDescription(ERROR_MESSAGES[ThreadLocalRandom.current().nextInt(ERROR_MESSAGES.length)]
+                                + "\n\nFeel free to [click here](https://discord.gg/gJKQPkN) to join our support server and report this:\n"
+                                + trelloUrl.orElse("*No trello info*")
+                        ).setColor(Color.decode("#D50000"))
+                        .setThumbnail(GIFS[ThreadLocalRandom.current().nextInt(GIFS.length)]));
                 }).genericExceptionFunction((message, exception) -> Log.exception(message, exception))
                 .caseIndependent(true)
                 .build());
@@ -125,13 +149,14 @@ public class BootupProcedure {
 
                 if (game.getGameState() == GameState.MATCH)
                     try {
-                        if (event.getGuild() == null) game.getMatchHandler().receivedDM(event.getMessage().getRawContent(),
+                        if (event.getGuild() == null) game.getMatchHandler().receivedDM(event.getMessage().getContentRaw(),
                                 event.getAuthor(), event.getMessage());
-                        else game.getMatchHandler().receivedMessage(event.getMessage().getRawContent(),
+                        else game.getMatchHandler().receivedMessage(event.getMessage().getContentRaw(),
                                     event.getAuthor(), event.getMessage());
                     } catch (Exception e) {
-                        Log.exception("Game of " + game.getGame().getName(Constants.DEFAULT_LANGUAGE) + " had an error", e);
-                        game.onEnd("⛔ An error occurred causing the game to end.\nMy bad :c", false);
+                        Optional<String> trelloUrl = Log.exception("Game of " + game.getGame().getName(Constants.DEFAULT_LANGUAGE) + " had an error", e);
+                        game.onEnd("⛔ Oops! Something spoopy happened and I had to stop this game.\n" +
+                                "You can send this: " + trelloUrl.orElse("*No trello info found*") + " to our support server at https://discord.gg/gJKQPkN !", false);
                     }
             }
         });
@@ -192,6 +217,7 @@ public class BootupProcedure {
 
             GamesROB.dboAPI = Optional.of(dbo);
             GamesROB.owners = Collections.unmodifiableList(GamesROB.dboAPI.get().getBot().getOwners().stream().map(Long::parseLong).collect(Collectors.toList()));
+            owners = GamesROB.owners;
     });
 
     private static final BootupTask presenceTask = args -> {
@@ -232,7 +258,8 @@ public class BootupProcedure {
             GamesROB.getTextChannelById(Constants.changelogChannel.get()).ifPresent(channel ->
                     channel.sendMessage("<@&389918430733664256>\n<:update:264184209617321984> **GamesROB v" + GamesROB.VERSION + " is available!**" +
                         "\n\nChangelog:\n" + changelog + "\n\n*Updates are usually scheduled for every friday, " +
-                        "making the next update " + Utility.formatTime(Utility.predictNextUpdate()) + ".*")
+                        "making the next update " + Utility.formatTime(Utility.predictNextUpdate()) + ".*\n" +
+                            "If you don't want to receive these messages, run `!unsubscribe` in <#389921363093356554>.")
                         .queue());
         }
     };

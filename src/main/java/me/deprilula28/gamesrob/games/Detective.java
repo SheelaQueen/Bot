@@ -21,7 +21,6 @@ public class Detective implements MatchHandler {
             Detective::new, Detective.class
     );
 
-    private RequestPromise<Message> lastMessage = null;
     private Optional<User> killer = Optional.empty();
     private List<Optional<User>> alive = new ArrayList<>();
     private String lastNotification;
@@ -41,7 +40,7 @@ public class Detective implements MatchHandler {
             else pm.sendMessage(Language.transl(match.getLanguage(), "game.detective.dmCitizen")).queue();
         })));
         lastNotification = Language.transl(match.getLanguage(), "game.detective.sleep");
-        lastMessage = initialMessage.invoke(null);
+        match.setMatchMessage(initialMessage.invoke(null));
     }
 
     @Override
@@ -88,7 +87,7 @@ public class Detective implements MatchHandler {
                     updateMessage();
                 });
                 votes.clear();
-            } else lastMessage.then(it -> {
+            } else match.getMatchMessage().then(it -> {
                 MessageBuilder builder = new MessageBuilder();
                 updatedMessage(false, builder);
                 it.editMessage(builder.build()).queue();
@@ -134,7 +133,7 @@ public class Detective implements MatchHandler {
     private void updateMessage() {
         MessageBuilder builder = new MessageBuilder();
         updatedMessage(false, builder);
-        lastMessage = GameUtil.editSend(match.getChannelIn(), messages, lastMessage, builder.build());
+        match.setMatchMessage(GameUtil.editSend(match.getChannelIn(), messages, match.getMatchMessage(), builder.build()));
         if (messages > Constants.MESSAGES_SINCE_THRESHOLD) messages = 0;
     }
 

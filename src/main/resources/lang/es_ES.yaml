@@ -1,0 +1,289 @@
+# To translators: Start on genericMessages
+languageProperties:
+  code: "es_ES"
+  language: "Spanish"
+  country: "España"
+  flag: "🇪🇸"
+  languageName: "Español"
+  translators: "Bsc#1436"
+  version: "1.6.3"
+
+genericMessages:
+  alreadyPlaying: "Ya estás jugando otro juego en %s!\nEscribe `%sstop` para detener esa partida."
+  noGamesInChannel: "No hay juegos actualmente en este canal.\nPuedes escribir `%shelp` para elegir y empezar un juego!"
+  invalidLanguage: "No es un lenguage válido."
+  notEnoughTokens: 
+    beggining: "No tienes suficientes fichas para hacer eso (Necesitas %s más)."
+    upvote: "\nConsigue más fichas ganando juegos y votando positivamente por el bot en %s."
+
+  nth1: "st"
+  nth2: "nd"
+  nth3: "rd"
+  nth4: "th"
+  upvoteMessage: "Gracias por votar positivamente por GamesROB!\nHas ganado:\n**%s**\nRacha de votos positivos: **%s días**\nSiga votando positivamente cada día para obtener más recompensas!"
+  ownersOnly: "Este comando solo es accesible para los dueños."
+  blacklisted: "⛔ Fuiste bloqueado para usar GamesROB por %s (%s).\nRazón: %s"
+  blacklistedNoInfo: "⛔ Fuiste bloqueado para usar GamesROB."
+
+gameFramework:
+  singleplayerMatch: "**%s Partida de un solo jugador!**\n%s\n\n"
+  multiplayerMatch: "**%s Partida multijugador!**\n%s\n\n"
+  joinToPlay: "🚪 Escribe `%sjoin` o clickea la puerta de abajo para jugar! (%s/%s)"
+  joinToPlayNoReaction: "🚪 Escribe `%sjoin` para jugar! (%s/%s)"
+  betting: "💰 Apostando %s 🔸 fichas!"
+  begin: "**Encendido!**\n**%s**\n%s\n\n"
+  join: "%s se ha unido a la partida! %s/%s"
+  left: "%s ha abandonado la partida!"
+
+  requireBetting: "Este juego requiere apostar!\nAgrega `bet=amount` al final del comando para elegir cuántos fichas deberían ser apostados."
+  settingOutOfRange: "Esta configuración `%s` debe estar entre %s y %s!"
+  activeGame: "Ya hay otro juego en este canal."
+  viewPlayers: "Mira a los jugadores con `%slistplayers`."
+  viewPlayersStop: "Mira a los jugadores con `%slistplayers` y detiene con `%sstop`."
+  typeToJoin: "Puedes escribir `%sjoin` para unirte."
+  playersOutOfRange: "Solo puedes tener entre %s y %s jugadores en este juego!"
+
+  gameOver: "**Fin del juego!**\n%s\n\n"
+  winner: "¡%s ha ganado!"
+  draw: "Es un empate!"
+  timeout: "La partida ha caducado después de **%s**."
+  creatorQuit: "La %s partida ha sido cancelada porque su creador se fue."
+  everyoneQuit: "La partida ha sido cancelada porque todos se salieron."
+
+  now: " - **Ahora**"
+  next: " - **Siguiente**"
+  turn: "Es el turno de %s"
+
+  rematch: "Clickea en :arrows_counterclockwise: para la revancha!"
+
+game:
+  roulette:
+    name: "Ruleta rusa"
+    shortDescription: "¡Dale la vuelta al tambor, que no te dispare!"
+    longDescription: "Una bala, 8 recámaras.\nDale la vuelta al tambor con la fuerza que quieras, y espera lo mejor cuando apretes el gatillo!"
+    chooseStrength: "🔫 ¿Qué tan fuerte vas a voltear el tambor?\nEnvía un número de %s a %s."
+    shot: "%s aprieta el gatillo y recibe el disparo! Qué mala suerte."
+    survive: "%s aprieta el gatillo y se alivia por la falta de sonido."
+  connectFour:
+    name: "Conecta 4 / 4 en línea"
+    shortDescription: "¡Coloca fichas para conectar 4 de tu color!"
+    longDescription: "¡Tienes que conectar 4 fichas de tu color de forma vertical, horizontal o diagonal!\nEnvía en el chat el número de la fila que desea colocarla (ej.: 3)"
+  hangman:
+    name: "Ahorcado"
+    shortDescription: "¡Intenta adivinar la palabra enviada por el creador de la partida!"
+    longDescription: "El creador de la partida envía una palabra secreta al bot en mensaje privado.\nDespués de eso, los otros jugadores intentan adivinarlo, ¡letra por letra!"
+    sendWord: "Antes que nada, %s: Envía la palabra que quieres en privado!"
+    wordSet: "**¡Palabra establecida!**\nPuedes volver a %s."
+    wordPicked: "¡La palabra fue elegida!"
+    invalidGuess: "%s sugirió %s, y estaba mal!"
+    validGuess: "%s acertó la letra %s!"
+    outOfLimbs: "%s se quedó sin extremidades! ¡Buen intento!"
+  minesweeper:
+    name: "Busca minas"
+    shortDescription: "¡El buscaminas original! No te hagas explotar!"
+    longDescription: "Envía el lugar en el que quieres excavar (ej. c4), se mostrará el número de bombas cercanas.\nNo excaves en una bomba! Puedes marcar con una bandera agregando el sufijo F (ej. e1F)"
+    bomb: "¡Has cavado una bomba!"
+    left: "El jugador se fue"
+  tictactoe:
+    name: "TaTeTí / 3 en línea"
+    shortDescription: "¡Ponga 3 de sus fichas en una línea dentro del tablero!"
+    longDescription: "¡Ya sabes cómo funciona el TaTeTí!\nSimplemente envía la letra en la que deseas colocar tu ficha (ej. a)."
+  detective:
+    name: "Detective"
+    shortDescription: "Uno de ustedes es un asesino. Echalos antes de que sea demasiado tarde."
+    longDescription: "El asesino matará a alguien todas las noches.\nLos ciudadanos expulsarán a alguien todos los días.\nIntenta echar al asesino antes de que sea demasiado tarde."
+    invalidUser: "Ese usuario no está jugando o ya ha muerto/ha sido expulsado."
+    assassinKicked: "¡El asesino ha sido expulsado! Finalmente, la ciudad puede dormir en paz."
+
+    murderReveal: "%s era el asesino!"
+    sleep: "🌇 La ciudad se va a dormir."
+    sleepIndecisive: "🌇 La ciudad se va a dormir e indecisamente no echan a nadie. ¿Cómo resultará eso?"
+    sleepKicked: "🌇 La ciudad se va a dormir, expulsando confiados de la ciudad a %s por intento de asesinato.\nPoco saben ellos, no era a quien buscaban..."
+
+    chooseKick: "\nColectivamente, la ciudad debe decidir quién se está saliendo con la suya en esta horrible hecho, así que podemos expulsarlos para siempre..\nEnvía la letra para quién crees que debería ser expulsado:\n"
+    wakeFirst: "🌆 La ciudad se despierta, sorprendida cuando se encuentran con que %s ha sido apuñalado en su propia casa. ¿Por qué alguien haría eso?"
+    wakeSecond: "🌆 La ciudad se despierta, esta vez extrañando a %s, quien ha sido apuñalado, nuevamente, en su casa. Dicen que dos veces es solo una coincidencia, ¿verdad?"
+    wakeThird: "🌆 La ciudad se despierta. Definitivamente estamos frente a un \"patrón\" con el apuñalamiento de %s."
+    wakeFourthPlus: "🌆 La ciudad se despierta, con un ciudadano menos en nuestro reino, y ese sería %s. ¿Cuándo se detendrá esto?"
+    dmCitizen: "🏙 Eres un ciudadano"
+    dmAssassin: "🗡 ¡Eres el asesino!\n¿Quién será el primer desafortunado? (Escribe su nombre aquí)"
+    dmAssassinRecursive: "¿Quién será esta noche? (Escribe su nombre aquí)"
+  quiz:
+    name: "Concurso de preguntas y respuestas"
+    shortDescription: "¿Conoces todas las respuestas?"
+    longDescription: "¿Quién puede responder las preguntas primero?\nEnvía la letra que creas que es la respuesta correcta en un mensaje.\n¡Quien tenga más puntos al final ganará!"
+    revealAnswer: "%s\nLa respuesta era: %s\n"
+    cantPlay: "%s: ¡Has adivinado demasiadas veces! Espera para jugar en la próxima ronda."
+    answer: "%s (+%s puntos) respondió correctamente!"
+    noOneAnswered: "¡Nadie punto responder eso! La respuesta era \"**%s**\"."
+  achievement:
+    got: "Logro conseguido: **%s**!\n*%s*\n+🔸 %s fichas"
+
+    # Types
+    playGames: "Juega %s juegos"
+    winGames: "Gana %s juegos"
+    gambleTokens: "Apuesta %s fichas"
+    winTokensGambling: "Gana %s fichas apostando"
+    loseTokensGambling: "Pierde %s fichas apostando"
+    reachPlaceLeaderboard: "Alcanza %s veces el 1er lugar en la tabla de clasificación"
+    reachTokens: "Consigue %s fichas"
+
+    # Achievements
+    realPlayer: "Real Player"
+    intensePlayer: "Intense Player"
+    proPlayer: "Pro Player"
+    tooManyGames: "too Many Games"
+
+    crowned: "#Crowned"
+    master: "Master"
+    tooGood: "Too Good"
+    tryhard: "Tryhard"
+
+    gambler: "Gambler"
+    addicted: "Addicted"
+    highRoller: "High Roller"
+
+    onARoll: "On a Roll"
+    lucky: "Lucky"
+    rigged: "Rigged!!"
+
+    unfair: "This is unfair!"
+    overconfident: "Overconfident"
+    stubborn: "Stubborn"
+
+    winnerWinnerChickenDinner: "Winner winner chicken dinner"
+
+    mediumClass: "Medium Class"
+    upperClass: "Upper Class"
+    richBoi: "Rich boii"
+    billGates: "Literally Bill Gates"
+
+command:
+  permissionLock: "⛔ ¡No puedes usar este comando!"
+
+  slots:
+    matchHeader: "Girando for 🔸 %s fichas..."
+    matchEnd: "Tu has %s 🔸 %s fichas!"
+    earnt: "ganado"
+    lost: "perdido"
+
+    invalidTokens: "Solo puedes apostar %s a %s fichas."
+    description: "Gamble your tokens in a slots game! Totally not rigged trust me"
+
+  tokens:
+    other: "%s tiene 🔸 %s fichas"
+    own: "Tienes 🔸 %s fichas\nAquí hay algunas maneras de obtener más:"
+    winningMatches: "**Ganando partidas**"
+    upvoteCan: "Votando positivamente al bot (%s días consecutivos = + 🔸 %s fichas!)"
+    upvoteLater: "~~Votando positivamente al bot~~ (Puedes hacerlo nuevamente en %s)"
+    achievements: "**Completando logros:**\n"
+    noAchievements: "~~Completando logros~~ (No quedan logros para completar)"
+
+    description: "Mira cuántas fichas tienes tú u otra persona, y mira su progreso en logros"
+  join:
+    alreadyOnMatch: "¡Ya estás en la partida!"
+    full: "La partida está llena!"
+    gameStarted: "¡Este juego ya ha comenzado!"
+    description: "Unirse a una partida en el canal actual"
+  stop:
+    matchStopped: "⏹ Partida detenida por %s"
+    description: "Fuerza que se detenga la partida actual"
+  listplayers:
+    header: "**%s Partida**\n%s\n\n"
+    description: "Muestra los jugadores en la partida actual en el canal actual"
+  leaderboard:
+    unknownUser: "*usuario desconocido*"
+    playerRatings: " (**%s** victorias)"
+    noWinner: "~aún sin ganadores~"
+    response: "**En general**\n%s\n**Juegos:**\n%s"
+    websiteLink: "Mira todo en nuestro sitio"
+    description: "Mira la tabla de clasificación!"
+  profile:
+    playerStats: "Estadísticas de **%s**:\n"
+    overall: "%s **Estadísticas generales**: %s\n\n"
+    statsString: "%s%s Victorias, %s Derrotas (%s V/D proporción), %s Juegos Jugados"
+    place: "puesto"
+    description: "Mira tu perfil, o el de alguien más!"
+    notRanked: "Sin clasificación"
+  emote:
+    set: "Se ha establecido tu emoji! %s"
+    reset: "Se ha reiniciado tu emoji!"
+    cannotUse: "No puedo usar ese emoticón! Intenta ponerlo en este servidor."
+    invalid: "Lo siento, pero ese no es un emoticón válido..."
+    description: "Cambia el emoji que te representará en las partidas!"
+  userlang:
+    set: "Tu idioma persona fue configurado a %s"
+    description: "Cambia tu propio idioma."
+  guildlang: 
+    set: "El idioma predeterminado para este servidor se estableció en %s"
+    description: "Cambia el idioma predeterminado para el servidor."
+  help:
+    beginning: "**<:GamesROBNew:456913958457049109> GamesROB v%s** *by deprilula28*\n\n"
+    subCategory: "Usa `%%PREFIX%%help categoría/comando` para obtener información sobre un comando o una categoría (ej. `%%PREFIX%%help profilecomamnds` o `%%PREFIX%%help slots`)"
+    gameString: "%s `%%PREFIX%%%s` - %s"
+    commandInfo: "`%s%s`: %s\nAlias: %s\nCategoría: %s"
+    gameInfo: "`%s%s`: %s\n\n**Descripción larga**\n%s\n\nAlias: %s\nMás información: %s"
+    categories:
+      games: "Juegos"
+      profilecommands: "Perfil"
+      servercommands: "Servidor"
+      matchcommands: "Partida"
+      infocommands: "Información"
+    other: "%s otros"
+    websiteTitle: "¡Echa un vistazo a nuestro sitio web!"
+    description: "Te da algo de ayuda!"
+  invite:
+    embed:
+      title: "Clickea para invitar a GamesROB!"
+      description: "Necesitarás el permiso de Administración de servidor en el servidor al que deseas agregarlo."
+    description: "Invita al bot!"
+  info:
+    embed2:
+      description: "**El bot para jugar divertidos juegos de chat en tu Discord!**"
+      statistics:
+        title: "📟 Estadísticas"
+        description: "📶 **%s** servidores\n👥 **%s** usuarios\n🗨 **%s** canales de texto\n🎮 **%s** juegos (**%s** activos)\n❗ **%s** comandos\n📈 **%s** votos en DBL"
+      versions:
+        title: "📁 Versiones"
+        description: "GamesROB Version: **%s**\nJava Version: **%s**\n[JDA](%s) Version: **%s**\n[JDA Framework](%s) Version: **%s**\nShard Uptime: **%s**"
+      system:
+        title: "💻 Systema"
+        description: "RAM: **%s**\nOS: **%s**\nShard: **%s/%s** (**%s**)"
+      links:
+        title: "🔗 Links útiles"
+        description: "🌐 [Nuestro sitio web](%s)\n➕ [Agregar un bot al servidor](%s)\n🗒 [Ver el código fuente](%s)\nℹ [Únete a nuestro servidor de soporte](%s)\n❤ [Creditos](%s)\n⬆ [Vota positivamente el bot en DBL](%s)"
+    description: "Ver estadísticas e información"
+  raminfo:
+    message: ":computer: Información RAM Usada \nEn general: **%s**\nFramework de comando: **%s**\nShards: **%s**\nCache: **%s**\nGames: **%s**"
+    description: "🗄 *Debug* Ver un reporte completo del uso de RAM"
+  ping:
+    message: "🏓 Pong!\nBot -> Discord: %s\nTú -> Bot: %s\nWebsocket: %s\nTiempo promedio de procesamiento del comando: %s"
+    description: "🗄 *Debug* Ver la latencia del bot"
+  shardinfo:
+    title: "**Información de Shard:**\n```prolog\n%s\n```"
+    newTitle: "**Estadísticas e Información del Bot:**\n"
+    singleShard: "%s **Shard %s**: %s servidores (%s%% carga), %s canales, %s usuarios, %s ping and %s juegos."
+    shard: "Shard"
+    guilds: "Servidores"
+    users: "Usuarios"
+    channels: "Canales"
+    status: "Estados"
+    ping: "Ping"
+    games: "Juegos"
+    ram: "Uso de RAM"
+    description: "🗄 *Debug* Ver un montón de Información shard"
+  changelog:
+    text: "**GamesROB v%s**\nDe %s\n\n%s\n\n*Las actualizaciones están programadas usualmente para cada viernes, haciendo la próxima actualización %s.*\n*Puedes sugerir características y que se arreglen bugs en nuestro servidor: %s*"
+    description: "Mostrar todos los cambios de la última actualización."
+
+  perm:
+    invalidPerm: "¡Permiso inválido!"
+    noRole: "¡No pude encontrar un rol con ese nombre!"
+    set: "🔨 Establecer el permiso a %s juegos a miembros con el rol (o roles mayores a) `%s`"
+    reset: "🔨 El permiso %s ha sido reseteado!"
+    description: "Cambia un permiso"
+  setprefix:
+    message: "Cambia el prefijo del bot para este servidor!"
+    description: "Establecer el prefijo de comando para tu servidor!"
+
+achievements:

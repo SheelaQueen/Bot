@@ -22,7 +22,6 @@ import java.util.function.Supplier;
 @Data
 @AllArgsConstructor
 public class GuildProfile {
-    private final LeaderboardHandler leaderboard;
     private String guildId;
 
     private String guildPrefix;
@@ -42,6 +41,10 @@ public class GuildProfile {
 
         return out || context.getAuthorMember().isOwner() || context.getAuthorMember().hasPermission(Permission.ADMINISTRATOR)
                 || GamesROB.owners.contains(context.getAuthor().getIdLong());
+    }
+
+    public LeaderboardHandler getLeaderboard() {
+        return new LeaderboardHandler(guildId);
     }
 
     public boolean canStart(CommandContext context) {
@@ -93,7 +96,7 @@ public class GuildProfile {
 
         private Optional<GuildProfile> fromResultSet(String from, ResultSet select) {
             try {
-                return Optional.of(new GuildProfile(new LeaderboardHandler(from), from,
+                return Optional.of(new GuildProfile(from,
                         select.getString("prefix"), select.getString("permStartgame"),
                         select.getString("permstopgame"), select.getString("language"),
                         select.getInt("shardid")));
@@ -129,8 +132,7 @@ public class GuildProfile {
 
         @Override
         public GuildProfile createNew(String from) {
-            return new GuildProfile(new LeaderboardHandler(from), from,
-                    "g*", null, null, Constants.DEFAULT_LANGUAGE,
+            return new GuildProfile(from, "g*", null, null, Constants.DEFAULT_LANGUAGE,
                     GamesROB.getGuildById(from).map(it -> it.getJDA().getShardInfo().getShardId()).orElse(0));
         }
 

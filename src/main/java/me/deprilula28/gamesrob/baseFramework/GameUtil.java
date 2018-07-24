@@ -2,10 +2,13 @@ package me.deprilula28.gamesrob.baseFramework;
 
 import javafx.util.Pair;
 import me.deprilula28.gamesrob.GamesROB;
+import me.deprilula28.gamesrob.utility.Cache;
 import me.deprilula28.gamesrob.utility.Constants;
 import me.deprilula28.gamesrob.utility.Log;
 import me.deprilula28.jdacmdframework.RequestPromise;
 import net.dv8tion.jda.core.MessageBuilder;
+import net.dv8tion.jda.core.entities.Emote;
+import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.TextChannel;
 
@@ -15,6 +18,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.function.Supplier;
 
 public class GameUtil {
     public static Optional<Integer> safeParseInt(String contents) {
@@ -36,8 +40,13 @@ public class GameUtil {
     }
 
     public static Optional<String> getEmote(String of) {
-        return GamesROB.getGuildById(Constants.EMOTE_GUILD_ID).map(it -> it.getEmotesByName(of, false)
-                .get(0).getAsMention());
+        return Cache.get("emote_" + of, n -> Optional.of(findEmote(Constants.EMOTE_GUILD_ID, of,
+                findEmote(Constants.SERVER_ID, of, null)).get()));
+    }
+
+    private static Supplier<String> findEmote(long guild, String of, Supplier<String> backup) {
+        return () -> GamesROB.getGuildById(guild).map(it -> it.getEmotesByName(of, false).stream().findFirst().map(Emote::getAsMention)
+                .orElseGet(backup)).orElse("unknown");
     }
 
     public static String detectVictory(List<List<Optional<String>>> board, int rows, int columns, int requiredLeft,

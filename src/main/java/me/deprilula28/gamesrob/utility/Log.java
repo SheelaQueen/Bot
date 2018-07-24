@@ -80,7 +80,7 @@ public class Log {
 
     }
 
-    public static void exception(String occurence, Exception exception, Object... objects) {
+    public static Optional<String> exception(String occurence, Exception exception, Object... objects) {
         Date time = Calendar.getInstance().getTime();
         StringBuilder builder = new StringBuilder();
 
@@ -113,25 +113,7 @@ public class Log {
         System.err.println(ts);
         System.out.println("Saving error information...");
 
-        if (!GamesROB.debug) Trello.addErrorDump(exceptionName, finalBasics, additiveInfo);
-        /*
-        FileWriter writer = null;
-        try {
-            File file = new File(Constants.LOGS_FOLDER, FILE_DATE_FORMAT.format(time) + ".txt");
-            if (file.exists()) file.delete();
-            if (!file.getParentFile().exists()) file.getParentFile().mkdirs();
-            file.createNewFile();
-
-            writer = new FileWriter(file);
-            writer.write(ts);
-            writer.close();
-            System.out.println("Saved error to " + file.getAbsolutePath());
-        } catch (Exception e) {
-            if (writer != null) Utility.quietlyClose(writer);
-            System.err.println("Failed to save error!");
-            e.printStackTrace();
-        }
-        */
+        return GamesROB.debug ? Optional.empty() : Trello.addErrorDump(exceptionName, finalBasics, additiveInfo);
     }
 
     private static void appendThrowable(Throwable error, StringBuilder builder, boolean githubLinks) {

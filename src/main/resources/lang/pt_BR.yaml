@@ -14,7 +14,7 @@ genericMessages:
   invalidLanguage: "Essa linguagem é inválida."
   notEnoughTokens:
     beggining: "Você não tem tokens suficientes para fazer isso (Precisa de mais %s)."
-    upvote: "\nGanhe mais tokens vencendo partidas e votando para o bot em %s."
+    tokensCommand: "\nSaiba de maneiras para ganhar tokens com `%stokens`."
 
   nth1: "º"
   nth2: "º"
@@ -27,9 +27,10 @@ genericMessages:
 
 gameFramework:
   singleplayerMatch: "**Partida Solo de %s!**\n%s\n\n"
-  multiplayerMatch: "**Partida Multijogador de %s!**\n%s\n\n"
+  multiplayerMatch: "**Partida Multi-jogador de %s!**\n%s\n\n"
   joinToPlay: "🚪 Digite `%sjoin` ou clique na porta abaixo para jogar! (%s/%s)"
   joinToPlayNoReaction: "🚪 Digite `%sjoin` para jogar! (%s/%s)"
+  playSingle: "Ou clique em 🕹 para jogar %s sozinho"
   betting: "💰 Apostando %s 🔸 tokens!"
   begin: "**Começou!**\n**%s**\n%s\n\n"
   join: "%s entrou na partida! %s/%s"
@@ -45,6 +46,7 @@ gameFramework:
 
   gameOver: "**Fim de Jogo!**\n%s\n\n"
   winner: "%s venceu!"
+  winnerTokens: "(+ 🔸 %s tokens, veja seu dinheiro com `g*bal`)"
   draw: "Empate!"
   timeout: "A partida expirou após de **%s**."
   creatorQuit: "A partida de %s foi cancelada porque o(a) criador(a) saiu."
@@ -54,12 +56,21 @@ gameFramework:
   next: " - **Próximo**"
   turn: "Vez de %s"
 
-  upvoteMessage: "\nSe está gostando do bot, considere dar um voto para ele(a?) para ganhar tokens!"
+  upvoteMessage: "\nSe está gostando do bot, considere dar um voto para ele(a?) e ganhe uns tokens!"
   upvoteEmbedTitle: "Votar"
 
   rematch: "Clique no :arrows_counterclockwise: para jogar novamente!"
 
 game:
+  uno:
+    name: "Uno"
+    shortDescription: "Tente achar a mesma cor ou número da sua carta, até elas acabarem!"
+    longDescription: "Todos ganham 7 cartas, enviadas no privado. Em cada partida, você pode usar uma carta.\nSe você tiver uma carta da mesma cor ou número da última usada, você pode colocá-la.\nCaso o contrário, você deverá comprar 2 cartas."
+
+    deckDm: "Você pode jogar em %s.\nNa sua rodada, mande o número acima da carta que quer usar.\nSe é uma carta preta, você pode escolher a cor enviando `número cor` (ex. `3 blue`).\nSua mão:"
+
+    chooseCard: "%s: Envie o número da carta na sua mão que você quer usar aqui!\nSua mão está em nossa conversa privada.\n"
+    game: "Última Carta\n%s\n\n"
   roulette:
     name: "Roleta Russa"
     shortDescription: "Vire o barril, não seja acertado!"
@@ -123,7 +134,8 @@ game:
     noOneAnswered: "Ninguém conseguiu responder aquela pergunta! A resposta era \"**%s**\"."
 
   achievement:
-    got: "Conquista completa: **%s**!\n*%s*\n+🔸 %s tokens"
+    got: "Conquista Desbloqueada: **%s**!\n*%s*\n+🔸 %s tokens"
+    runAchievements: "Use `%sachievements` para ver seu progresso com conquistas!"
 
     # Types
     playGames: "Jogue %s partidas"
@@ -133,6 +145,7 @@ game:
     loseTokensGambling: "Perca %s tokens apostando"
     reachPlaceLeaderboard: "Chegue no %sº lugar do placar"
     reachTokens: "Alcançe %s tokens"
+    upvote: "Vote para GamesROB no DBL %s vezes"
 
     # Achievements
     realPlayer: "Jogador de Verdade"
@@ -164,8 +177,15 @@ game:
     richBoi: "Riquinho"
     billGates: "Bill Gates"
 
+    supporter: "Suportador"
+    votingWeek: "Semana de Votação!"
+    votingMonth: "Mês de Votação..?"
+
 command:
   permissionLock: "⛔ Você não tem permissão para usar esse comando!"
+
+  idlerpg:
+    description: "Saiba mais sobre nosso parceiro IdleRPG!"
 
   slots:
     matchHeader: "Apostando 🔸 %s tokens..."
@@ -174,16 +194,41 @@ command:
     lost: "perdeu"
 
     invalidTokens: "Você só pode apostar de %s á %s tokens."
+    all: "todos os seus"
     description: "Aposte seus tokens em um jogo de cassino! Totalmente não roubado, confie em mim"
+
+  achievements:
+    noAchievements: "Não há conquistas disponíveis para você agora! :wink:"
+    beginning: "Aqui estão conquistas que você pode desbloquear:\n\n"
+    upvote: "Dê um voto para o bot no DBL"
+
+    description: "Veja seu progresso em conquistas"
+
+  baltop:
+    server: "Os usuários com mais tokens em **%s**:\n"
+    global: "Os usuários com mais tokens globalmente:\n"
+    footer: "\nMostarndo %s usuários por página | Página %s de %s\nVeja outra página com `%sbaltop %s<página>`."
+    globalView: "\nPara ver o placar global, tente `%sbaltop global`."
+    invalidPage: "Por favor, escolha uma página entre %s e %s."
+
+    description: "Mostra o placar de tokens."
 
   tokens:
     other: "%s tem 🔸 %s tokens"
     own: "Você tem 🔸 %s tokens\nGanhe mais:"
     winningMatches: "**Vencendo Partidas**"
-    upvoteCan: "Votando para o bot (%s dias seguidos = + 🔸 %s tokens!)"
+    upvoteCan: "**Votando para o bot** (%s dias seguidos =  🔸 %s tokens!)"
     upvoteLater: "~~Votando para o bot~~ (Você poderá fazê-lo novamente em %s)"
-    achievements: "**Completando conquistas:**\n"
-    noAchievements: "~~Completando conquistas~~ (Nenhuma conquista para completar)"
+    achievements2: "**Completando conquistas**: Veja seu progresso com `%sachievements`!"
+    gamblingTokens: "**Apostando com** `g*slots`"
+    gamblingNoTokens: "~~Apostando~~ (Balança menor ou igual a zero)"
+
+    guide: "Clique aqui para saber mais sobre tokens com nosso guia"
+    embedUpvote: "Ou [Clique aqui](%s) para votar para o bot"
+    give: "%s deu + 🔶 %$3s tokens para %s$2!"
+    giveInvalidAmount: "Você só pode dar de %s à %s tokens."
+
+    baltop: "\nRanqueado **%s** nesse servidor e **%s** globalmente! `%sbaltop`"
 
     description: "Veja quantos tokens você e outros têm, e veja seu progresso em conquistas"
   join:
@@ -226,8 +271,8 @@ command:
     description: "Altere a linguagem padrão para o servidor."
 
   help:
-    beginning: "**<:GamesROBNew:456913958457049109> GamesROB v%s** *por deprilula28*\n\n"
-    subCategory: "Use `%%PREFIX%%help categoria/comando` para receber informações sobre um comando ou categoria (ex. `%%PREFIX%%help profile` ou `%%PREFIX%%help slots`)"
+    beginning: "**<:GamesROBNew:456913958457049109> GamesROB v%s** *por deprilula28*\n"
+    subCategory2: "\nUse `%%PREFIX%%help command` para receber mais informações sobre um comando (e.g. `%%PREFIX%%help slots`).\nClique nas reações abaixo de uma categoria para ver os comandos da categoria.\nArgumentos `<assim>` são requiridos, enquanto arugmentos `[assim]` são opcionais. Você não precisa incluir os `[` e `<` no comando (ex. `%%PREFIX%%slots 10`)"
     gameString: "%s `%%PREFIX%%%s` - %s"
     commandInfo: "`%s%s`: %s\nAliases: %s\nCategoria: %s"
     gameInfo: "`%s%s`: %s\n\n**Descrição Longa**\n%s\n\nAliases: %s\nMais informações: %s"
@@ -237,6 +282,8 @@ command:
       servercommands: "Servidor"
       matchcommands: "Partida"
       infocommands: "Informações"
+      partnercommands: "Parceiros"
+      tokencommands: "Tokens"
     other: "%s outros"
 
     websiteTitle: "Veja nosso site!"

@@ -26,13 +26,13 @@ import java.util.stream.Collectors;
 
 public class GamesROB {
     public static final GamesInstance[] ALL_GAMES = {
-            Connect4.GAME, TicTacToe.GAME, Minesweeper.GAME, Hangman.GAME, Detective.GAME, Roulette.GAME, Quiz.GAME
+            Connect4.GAME, TicTacToe.GAME, Minesweeper.GAME, Hangman.GAME, Detective.GAME, Roulette.GAME, Quiz.GAME, Uno.GAME
     };
 
     public static final long UP_SINCE = System.currentTimeMillis();
     private static final int MAJOR = 1;
-    private static final int MINOR = 6;
-    private static final int PATCH = 3;
+    private static final int MINOR = 7;
+    private static final int PATCH = 0;
     public static final String VERSION = String.format("%s.%s.%s", MAJOR, MINOR, PATCH);
 
     public static Optional<DiscordBotsOrg> dboAPI = Optional.empty();
@@ -120,7 +120,6 @@ public class GamesROB {
                     .body(), StreamData.class);
             if (data.getStream().isJsonNull() && twitchPresence) defaultPresence();
             else if (!data.getStream().isJsonNull()) {
-                Log.trace("Updated streaming status");
                 JsonObject obj = data.getStream().getAsJsonObject();
                 String title = obj.get("title").getAsString() + " to " + obj.get("viewers").getAsInt() + " viewers";
                 String url = obj.get("channel").getAsJsonObject().get("url").getAsString();
@@ -140,8 +139,8 @@ public class GamesROB {
     public static void defaultPresence() {
         shards.forEach(cur -> {
             cur.getPresence().setStatus(OnlineStatus.ONLINE);
-            cur.getPresence().setGame(Game.watching("gamesrob.com - @" + cur.getSelfUser().getName() + "#" +
-                cur.getSelfUser().getDiscriminator()));
+            cur.getPresence().setGame(Game.listening("@" + cur.getSelfUser().getName() + "#" +
+                cur.getSelfUser().getDiscriminator() + " | gamesrob.com"));
         });
         Log.wrapException("Setting avatar", () -> shards.get(0).getSelfUser().getManager()
                 .setAvatar(Icon.from(GamesROB.class.getResourceAsStream("/avatar/GamesROB New.png")))

@@ -14,7 +14,7 @@ genericMessages:
   invalidLanguage: "Not a valid language."
   notEnoughTokens: 
     beggining: "You don't have enough tokens to do that (Need %s more)."
-    upvote: "\nGet more tokens by winning games and upvoting the bot on %s."
+    tokensCommand: "\nLearn how to get more tokens with `%stokens`."
 
   nth1: "st"
   nth2: "nd"
@@ -25,11 +25,18 @@ genericMessages:
   blacklisted: "⛔ You were blacklisted from using GamesROB by %s (%s).\nReason: %s"
   blacklistedNoInfo: "⛔ You were blacklisted from using GamesROB."
 
+  upvote:
+    header: "**Thank you for voting for GamesROB!**\nRewards:\n+ 🔸 %s tokens!"
+    streak: " (%s days in a row)"
+    weekend: " **Weekend multiplier: 2x!**"
+    footer: "\n\nYou can upvote again in 12 hours.\nVoting more days in a row increases the amount of tokens gained."
+
 gameFramework:
-  singleplayerMatch: "**%s Singleplayer Match!**\n%s\n\n"
-  multiplayerMatch: "**%s Multiplayer Match!**\n%s\n\n"
+  singleplayerMatch: "**Single-player %s Match**\n%s\n\n"
+  multiplayerMatch: "**Multi-player %s Match**\n%s\n\n"
   joinToPlay: "🚪 Type `%sjoin` or click the door below to play! (%s/%s)"
   joinToPlayNoReaction: "🚪 Type `%sjoin` to play! (%s/%s)"
+  playSingle: "Or click 🕹 to play single-player %s"
   betting: "💰 Betting %s 🔸 tokens!"
   begin: "**It's on!**\n**%s**\n%s\n\n"
   join: "%s has joined the match! %s/%s"
@@ -45,6 +52,7 @@ gameFramework:
 
   gameOver: "**Game Over!**\n%s\n\n"
   winner: "%s has won!"
+  winnerTokens: "(+ 🔸 %s tokens, view your balance with `%sbal`)"
   draw: "It's a draw!"
   timeout: "The match has timed out after **%s**."
   creatorQuit: "The %s match has been cancelled because its creator quit."
@@ -57,6 +65,16 @@ gameFramework:
   rematch: "Click in :arrows_counterclockwise: for a rematch!"
 
 game:
+  uno:
+    name: "Uno"
+    shortDescription: "Try to get the same color or number on one of your cards, until they're over!"
+    longDescription: "Everyone gets 7 cards, which are DM'd to you. On each round, you can use a card.\nIf you have a card with the same color or number as the last color used, you can use it.\nOtherwise, you'll have to draw two cards."
+
+    deckDm: "You can play on %s.\nOn your turn, send the number on top of the card you want to use.\nIf it's a wildcard (black color) you can pick the color we'll be playing next with `number color` (i.e. `3 blue`).\nYour deck:"
+    drawCard: "You've drawn a card because you had run out."
+
+    chooseCard: "%s: Send the number of the card in your deck you want to use here!\nYour deck is in our DMs.\n"
+    game: "Top Card\n%s\n\n"
   roulette:
     name: "Russian Roulette"
     shortDescription: "Flip the barrel, don't get hit!"
@@ -124,7 +142,8 @@ game:
     noOneAnswered: "No one could answer that! The answer was \"**%s**\"."
 
   achievement:
-    got: "Achievement got: **%s**!\n*%s*\n+🔸 %s tokens"
+    got: "Achievement Get: **%s**!\n*%s*\n+🔸 %s tokens"
+    runAchievements: "Use `%sachievements` to view progress in achievements!"
 
     # Types
     playGames: "Play %s games"
@@ -134,6 +153,7 @@ game:
     loseTokensGambling: "Lose %s tokens gambling"
     reachPlaceLeaderboard: "Reach %sst place in the leaderboard"
     reachTokens: "Get %s tokens"
+    upvote: "Upvote GamesROB on DBL %s times"
 
     # Achievements
     realPlayer: "Real Player"
@@ -165,8 +185,18 @@ game:
     richBoi: "Rich boii"
     billGates: "Literally Bill Gates"
 
+    supporter: "Supporter"
+    votingWeek: "Voting Week!"
+    votingMonth: "Voting Month..?"
+
 command:
   permissionLock: "⛔ You can't use this command!"
+
+  idlerpg:
+    message: "IdleRPG is a bot with shop system, characters, classes, dungeons, items, PvP, economy, gambling, marriage, music, guilds and much more!"
+    checkItOut: "Check it out"
+
+    description: "Learn more about our partnered bot IdleRPG!"
 
   slots:
     matchHeader: "Rolling for 🔸 %s tokens..."
@@ -175,18 +205,48 @@ command:
     lost: "lost"
 
     invalidTokens: "You can only gamble %s to %s tokens."
+    all: "all"
     description: "Gamble your tokens in a slots game! Totally not rigged trust me"
+
+  achievements:
+    noAchievements: "No achievements are available for you right now! :wink:"
+    beginning: "Here are the achievements you can complete:\n\n"
+
+    description: "View your progress in achievements"
+    upvote: "Upvote the bot in DBL"
+
+  baltop:
+    server: "The users with most tokens in **%s**:\n"
+    global: "The users with most tokens on GamesROB globally:\n"
+    footer: "\nShowing %s entries per page | Page %s/%s\nView another page with `%sbaltop %s<page>`."
+    globalView: "\nTo view the global leaderboard, try `%sbaltop global`."
+    invalidPage: "Please choose a page from %s to %s."
+
+    description: "Shows the token leaderboard."
 
   tokens:
     other: "%s has 🔸 %s tokens"
     own: "You have 🔸 %s tokens\nHere are some ways to get more:"
     winningMatches: "**Winning matches**"
-    upvoteCan: "Upvoting the bot (%s days in a row = + 🔸 %s tokens!)"
+    upvoteCan: "**Upvoting the bot** (%s days in a row = 🔸 %s tokens!)"
+    upvoteWeekend: "**Upvoting the bot** (%s days in a row + 2x weekend multiplier = 🔸 %s tokens!)"
     upvoteLater: "~~Upvoting the bot~~ (You can do it again in %s)"
-    achievements: "**Completing achievements:**\n"
-    noAchievements: "~~Completing achievements~~ (No achievements left to complete)"
+    achievements2: "**Completing achievements**: View them with `%sachievements`!"
+    gamblingTokens: "**Gambling with** `g*slots`"
+    gamblingNoTokens: "~~Gambling~~ (Negative or zero balance)"
 
-    description: "View how many tokens you or someone else has, and view your progress in achievements"
+    guide: "Click here to learn more about tokens in our guide"
+    embedUpvote: "Or [Click here](%s) to upvote the bot"
+    give: "%s gave %s + 🔶 %s tokens!"
+    giveInvalidAmount: "You can only give %s to %s tokens."
+
+    add: "Added %s tokens to %s's balance (Current balance: %s)."
+    remove: "Removed %s tokens from %s's balance (Current balance: %s)."
+    set: "Set %2$s's balance to %1$s (Current balance: %s)."
+
+    baltop: "\nRanked **%s** in this guild and **%s** globally! `%sbaltop`"
+
+    description: "View how many tokens you or someone else has"
   join:
     alreadyOnMatch: "You're already on the match!"
     full: "The match is full!"
@@ -228,17 +288,19 @@ command:
     description: "Change the default language for the guild."
 
   help:
-    beginning: "**<:GamesROBNew:456913958457049109> GamesROB v%s** *by deprilula28*\n\n"
-    subCategory: "Use `%%PREFIX%%help category/command` to get information about a command or a category (e.g. `%%PREFIX%%help profilecomamnds` or `%%PREFIX%%help slots`)"
-    gameString: "%s `%%PREFIX%%%s` - %s"
+    beginning: "**<:GamesROBNew:456913958457049109> GamesROB v%s** *by deprilula28*\n"
+    subCategory2: "\nUse `%%PREFIX%%help command` to get information about a command (e.g. `%%PREFIX%%help slots`).\nReact with a category's emote to view all its commands.\nArguments `<in these>` are obligatory, while arguments `[in these]` are optional. You don't actually use them in the command (e.g. `%%PREFIX%%slots 10`)"
     commandInfo: "`%s%s`: %s\nAliases: %s\nCategory: %s"
     gameInfo: "`%s%s`: %s\n\n**Long Description**\n%s\n\nAliases: %s\nMore information: %s"
+    recentUpdate: "<:update:264184209617321984> The bot has recently received an update! `v%s`\nCheck out the changes with `%schangelog`."
     categories:
       games: "Games"
       profilecommands: "Profile"
       servercommands: "Server"
       matchcommands: "Match"
       infocommands: "Information"
+      partnercommands: "Partners"
+      tokencommands: "Tokens"
     other: "%s others"
 
     websiteTitle: "Check out our website!"

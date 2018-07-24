@@ -1,29 +1,35 @@
 package me.deprilula28.gamesrob.commands;
 
+import com.google.gson.JsonPrimitive;
+import jdk.nashorn.api.scripting.ClassFilter;
+import jdk.nashorn.api.scripting.NashornScriptEngineFactory;
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import me.deprilula28.gamesrob.BootupProcedure;
 import me.deprilula28.gamesrob.GamesROB;
 import me.deprilula28.gamesrob.Language;
-import me.deprilula28.gamesrob.utility.Constants;
-import me.deprilula28.gamesrob.utility.Log;
-import me.deprilula28.gamesrob.utility.TransferUtility;
-import me.deprilula28.gamesrob.utility.Utility;
+import me.deprilula28.gamesrob.data.RPCManager;
+import me.deprilula28.gamesrob.data.UserProfile;
+import me.deprilula28.gamesrob.utility.*;
+import me.deprilula28.jdacmdframework.Command;
 import me.deprilula28.jdacmdframework.CommandContext;
+import me.deprilula28.jdacmdframework.CommandFramework;
 import net.dv8tion.jda.core.entities.User;
 
 import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
 import java.io.*;
+import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLConnection;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.function.BiConsumer;
+import java.util.function.Consumer;
+import java.util.stream.Collectors;
 
 public class OwnerCommands {
     private static ScriptEngine scriptEngine = new ScriptEngineManager().getEngineByName("nashorn");
@@ -36,6 +42,19 @@ public class OwnerCommands {
         private long time;
         private String message;
         private User announcer;
+    }
+
+    public static Command.Executor tokenCommand(BiConsumer<UserProfile, Integer> profileUser, String langCode) {
+        return context -> {
+            if (!GamesROB.owners.contains(context.getAuthor().getIdLong())) return Language.transl(context,
+                    "genericMessages.ownersOnly");
+            User user = context.nextUser();
+            int amount = context.nextInt();
+            UserProfile profile = UserProfile.get(user);
+            profileUser.accept(profile, amount);
+
+            return Language.transl(context, langCode, amount, user.getName(), profile.getTokens());
+        };
     }
 
     public static Optional<Announcement> getAnnouncement() {
@@ -55,14 +74,14 @@ public class OwnerCommands {
         return "Announcement set. It will now show in `g*help`.";
     }
 
-    // nitro is gay
-    // wanna know what else is gay
-    // fin
     public static String blacklist(CommandContext context) {
         if (!GamesROB.owners.contains(context.getAuthor().getIdLong())) return Language.transl(context,
                 "genericMessages.ownersOnly");
 
         User blacklisting = context.nextUser();
+        if (GamesROB.owners.contains(blacklisting.getIdLong()) || BootupProcedure.getOwners().contains(blacklisting.getIdLong()))
+            return "Nope.";
+
         String reason = String.join(" ", context.remaining());
         GamesROB.database.ifPresent(db -> {
             db.insert("blacklist", Arrays.asList("userid", "botownerid", "reason", "time"),
@@ -191,6 +210,7 @@ public class OwnerCommands {
         double time = (double) (System.nanoTime() - begin) / 1000000000.0;
 
         String text = response == null ? "null" : (response instanceof String ? (String) response : response.toString());
+        text = text.replaceAll(context.getJda().getToken(), "no u");
         String message = (success
                 ? "<:check:314349398811475968> Output took " + Utility.formatPeriod(time)
                 : "<:xmark:314349398824058880> Failed in " + Utility.formatPeriod(time)) + ":\n" +
@@ -201,65 +221,113 @@ public class OwnerCommands {
         return null;
     }
 
-    public static Object update(CommandContext context) {
+    public static Object updateCommand(CommandContext context) {
         if (!GamesROB.owners.contains(context.getAuthor().getIdLong())) return Language.transl(context,
                 "genericMessages.ownersOnly");
 
-        String updateURL = context.next();
-        context.send("Beginning download...");
+        String updateURL = context.opt(context::next).orElseGet(() -> context.getMessage().getAttachments().get(0).getUrl());
+        context.send("<a:updating:403035325242540032> Beginning download...");
 
         try {
-            File output = new File(Constants.TEMP_FOLDER, "update_download");
-
-            if (output.exists()) output.delete();
-            if (!output.getParentFile().exists()) output.getParentFile().mkdirs();
-            output.createNewFile();
-
-            URLConnection conn = new URL(updateURL).openConnection();
-            OutputStream os = new FileOutputStream(output);
-            long begin = System.currentTimeMillis();
-            AtomicLong lastSecond = new AtomicLong(0L);
-
-            TransferUtility.download(conn, os, step -> {
-                long downloaded = step.getDownloaded();
-                long now = System.currentTimeMillis();
-                lastSecond.set(downloaded);
-
-                context.edit(String.format(
-                        "<a:updating:403035325242540032> Downloading: %s/%s @%s/s (ETA %s)",
-                        Utility.formatBytes(downloaded), Utility.formatBytes(step.getContentSize()),
-                        Utility.formatBytes((downloaded - lastSecond.get()) / TransferUtility.UPDATE_MESSAGE_PERIOD),
-                        Utility.formatPeriod(Utility.calculateETA(now - begin, downloaded, step.getContentSize()))
-                ));
-            }, success -> {
-                context.edit("<a:updating:403035325242540032> Finished download, saving file...");
-
-                try {
-                    File gamesrobJar = new File("gamesrob.jar");
-                    if (gamesrobJar.exists()) gamesrobJar.delete();
-                    gamesrobJar.createNewFile();
-
-                    TransferUtility.download(new FileInputStream(output), new FileOutputStream(gamesrobJar),
-                            output.length(), step -> {}, n -> {
-                                output.delete();
-                                context.edit("<a:updating:403035325242540032> Restarting... *fin was here*").then(m -> System.exit(-1));
-                            }, error -> {
-                                context.send("Failed to install update: " + error.getClass().getName() + ": " + error.getMessage());
-                                Log.exception("Failed to install update from " + updateURL, error);
-                            });
-                } catch (Exception e) {
-                    context.send("Failed to update: " + e.getClass().getName() + ": " + e.getMessage());
-                    Log.exception("Failed to update", e);
-                }
-            }, error -> {
-                context.send("Failed to download: " + error.getClass().getName() + ": " + error.getMessage());
-                Log.exception("Failed to download from " + updateURL, error);
-            });
+            update(updateURL, it -> context.edit("<a:updating:403035325242540032> " + it));
         } catch (Exception e) {
             context.send("Couldn't begin download: " + e.getClass().getName() + ": " + e.getMessage());
             Log.exception("Failed to begin download from " + updateURL, e);
         }
 
         return null;
+    }
+
+    public static void update(String url, Consumer<String> messageUpdater) throws Exception {
+        File output = new File(Constants.TEMP_FOLDER, "update_download");
+
+        if (output.exists()) output.delete();
+        if (!output.getParentFile().exists()) output.getParentFile().mkdirs();
+        output.createNewFile();
+
+        HttpURLConnection conn = (HttpURLConnection) new URL(url).openConnection();
+        conn.setRequestMethod("GET");
+        conn.setRequestProperty("User-Agent", Constants.USER_AGENT);
+        conn.setUseCaches(false);
+
+        OutputStream os = new FileOutputStream(output);
+        long begin = System.currentTimeMillis();
+        AtomicLong lastSecond = new AtomicLong(0L);
+
+        GamesROB.rpc.ifPresent(rpc -> {
+            rpc.request(RPCManager.RequestType.BOT_UDPATED, new JsonPrimitive(url));
+            Log.info("Sent bot update to other clusters.");
+        });
+
+        TransferUtility.download(conn, os, step -> {
+            long downloaded = step.getDownloaded();
+            long now = System.currentTimeMillis();
+            lastSecond.set(downloaded);
+
+            messageUpdater.accept(String.format(
+                    "Downloading: %s/%s @%s/s (ETA %s)",
+                    Utility.formatBytes(downloaded), Utility.formatBytes(step.getContentSize()),
+                    Utility.formatBytes((downloaded - lastSecond.get()) / TransferUtility.UPDATE_MESSAGE_PERIOD),
+                    Utility.formatPeriod(Utility.calculateETA(now - begin, downloaded, step.getContentSize()))
+            ));
+        }, success -> {
+            messageUpdater.accept("Finished download, saving file...");
+
+            try {
+                File gamesrobJar = new File("gamesrob.jar");
+                if (gamesrobJar.exists()) gamesrobJar.delete();
+                gamesrobJar.createNewFile();
+
+                TransferUtility.download(new FileInputStream(output), new FileOutputStream(gamesrobJar),
+                        output.length(), step -> {}, n -> {
+                            output.delete();
+                            messageUpdater.accept("Restarting...");
+                            Log.wrapException("Waiting on update", () -> Thread.sleep(500L));
+                            System.exit(-1);
+                        }, error -> {
+                            messageUpdater.accept("Failed to install update: " + error.getClass().getName() + ": " + error.getMessage());
+                            Log.exception("Failed to install update from " + url, error);
+                        });
+            } catch (Exception e) {
+                messageUpdater.accept("Failed to update: " + e.getClass().getName() + ": " + e.getMessage());
+                Log.exception("Failed to update from " + url, e);
+            }
+        }, error -> {
+            messageUpdater.accept("Failed to download: " + error.getClass().getName() + ": " + error.getMessage());
+            Log.exception("Failed to download from " + url, error);
+        });
+    }
+
+    public static void owners(CommandFramework f) {
+        f.command("owners getowners viewowners", context -> "Owners:\n" + GamesROB.owners.stream().map(it ->
+                GamesROB.getUserById(it).map(user -> user.getName() + "#" + user.getDiscriminator()).orElse("unknown"))
+                    .collect(Collectors.joining("\n")), cmd -> {
+            cmd.sub("add +", context -> {
+                if (!GamesROB.owners.contains(context.getAuthor().getIdLong())) return Language.transl(context,
+                        "genericMessages.ownersOnly");
+
+                List<Long> owners = new ArrayList<>(GamesROB.owners);
+                owners.add(context.nextUser().getIdLong());
+                GamesROB.owners = Collections.unmodifiableList(owners);
+
+                return "Added them to the owner list.";
+            });
+            cmd.sub("remove -", context -> {
+                if (!GamesROB.owners.contains(context.getAuthor().getIdLong())) return Language.transl(context,
+                        "genericMessages.ownersOnly");
+
+                List<Long> owners = new ArrayList<>(GamesROB.owners);
+                owners.remove(context.nextUser().getIdLong());
+                GamesROB.owners = Collections.unmodifiableList(owners);
+
+                return "Removed them from the owner list.";
+            });
+            cmd.sub("clear", context -> {
+                if (!BootupProcedure.getOwners().contains(context.getAuthor().getIdLong())) return "Only hardcoded owners can use this.";
+
+                GamesROB.owners = BootupProcedure.getOwners();
+                return "Cleared owners.";
+            });
+        });
     }
 }

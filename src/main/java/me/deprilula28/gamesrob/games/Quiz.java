@@ -28,7 +28,7 @@ public class Quiz implements MatchHandler {
     private static String[] ITEMS;
     public static final GamesInstance GAME = new GamesInstance(
             "quiz", "quiz trivia quizzes qz",
-            1, 11, GameType.MULTIPLAYER, false,
+            1, 11, GameType.HYBRID, false,
             Quiz::new, Quiz.class
     );
 
@@ -52,7 +52,6 @@ public class Quiz implements MatchHandler {
 
     private Optional<String> lastNotification = Optional.empty();
     private OpenTDBResponse.QuizQuestion curQuestion;
-    private RequestPromise<Message> lastMessage = null;
     private List<String> orderedOptions;
     private int messages;
     private int roundsDone = 0;
@@ -121,7 +120,7 @@ public class Quiz implements MatchHandler {
         Utility.populateItems(match.getPlayers(), ITEMS, playerItems, new HashMap<>());
 
         Log.wrapException("Failed to get quiz question", this::newQuizQuestion);
-        lastMessage = initialMessage.invoke(null);
+        match.setMatchMessage(initialMessage.invoke(null));
     }
 
     @Override
@@ -179,7 +178,7 @@ public class Quiz implements MatchHandler {
     private void updateMessage() {
         MessageBuilder builder = new MessageBuilder();
         updatedMessage(false, builder);
-        lastMessage = GameUtil.editSend(match.getChannelIn(), messages, lastMessage, builder.build());
+        match.setMatchMessage(GameUtil.editSend(match.getChannelIn(), messages, match.getMatchMessage(), builder.build()));
         if (messages > Constants.MESSAGES_SINCE_THRESHOLD) messages = 0;
     }
 
