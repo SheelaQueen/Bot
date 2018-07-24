@@ -5,8 +5,11 @@ Otherwise, you'll have to draw two cards.
 
 I will be improving this game in the future.
 
-- Spanish language was added! `es_ES` by <@413776809730113536>
+- Spanish language was added! `es_ES` by Bsc#1436
 Try it out with `g*lang es_ES`
+
+- UK English language was added! `en_UK` by Late Trender#3625
+Try it out with `g*lang en_UK`
 
 - Tokens are now formatted fancily.
 - Quiz is now playable single player!
