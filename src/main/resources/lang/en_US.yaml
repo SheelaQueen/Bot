@@ -34,6 +34,7 @@ genericMessages:
 gameFramework:
   singleplayerMatch: "**Single-player %s Match**\n%s\n\n"
   multiplayerMatch: "**Multi-player %s Match**\n%s\n\n"
+  collectiveMatch: "**%s Game**\n%s\nClick 👥 to allow other people to play!\n\n"
   joinToPlay: "🚪 Type `%sjoin` or click the door below to play! (%s/%s)"
   joinToPlayNoReaction: "🚪 Type `%sjoin` to play! (%s/%s)"
   playSingle: "Or click 🕹 to play single-player %s"
@@ -75,6 +76,9 @@ game:
 
     chooseCard: "%s: Send the number of the card in your deck you want to use here!\nYour deck is in our DMs.\n"
     game: "Top Card\n%s\n\n"
+    noColor: "You need to choose a color to use a wildcard (e.g. `3 blue`)."
+    invalidColor: "That's not a valid color."
+    won: "You won the game!"
   roulette:
     name: "Russian Roulette"
     shortDescription: "Flip the barrel, don't get hit!"
@@ -251,6 +255,8 @@ command:
     alreadyOnMatch: "You're already on the match!"
     full: "The match is full!"
     gameStarted: "This game has already started!"
+    collectiveMatch: "This is a collective match, you can just go ahead and play!"
+
     description: "Joins a match on the current channel"
   stop:
     matchStopped: "⏹ Match stopped by %s"

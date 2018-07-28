@@ -13,11 +13,9 @@ import me.deprilula28.gamesrob.utility.Log;
 import me.deprilula28.gamesrob.utility.Utility;
 import me.deprilula28.jdacmdframework.CommandContext;
 import net.dv8tion.jda.core.EmbedBuilder;
-import net.dv8tion.jda.core.MessageBuilder;
 import net.dv8tion.jda.core.entities.User;
 
 import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
@@ -156,65 +154,77 @@ public class Tokens {
         int page = (global ? context.opt(context::nextInt) : next.map(Integer::parseInt)).orElse(1);
 
         if (GamesROB.database.isPresent()) {
-            String key = "baltop_" + page + "_" + Constants.getLanguage(context);
-            return Cache.get(global ? key + "_global" : key + "_" + context.getGuild().getId(), n -> {
-                try {
-                    SQLDatabaseManager db = GamesROB.database.get();
+            try {
+                String key = "baltop_" + page + "_" + Constants.getLanguage(context);
 
-                    int elements = db.getAmount("guilddata");
-                    int pages = (elements / ENTRIES_PAGE) + 1;
-                    if (page <= 0 || page > pages) return Language.transl(context, "command.baltop.invalidPage", 1, pages);
+                StringBuilder fb = new StringBuilder(global
+                        ? Language.transl(context, "command.baltop.global")
+                        : Language.transl(context, "command.baltop.server", context.getGuild().getName()));
+                SQLDatabaseManager db = GamesROB.database.get();
 
-                    String whereGuild = context.getGuild().getMembers().stream()
-                            .map(it -> "userid = '" + it.getUser().getId() + "'").collect(Collectors.joining(" OR "));
-                    ResultSet set = global
-                            ? db.select("userData", Arrays.asList("tokens", "userid"), "tokens", true,
+                int elements = db.getSize("guilddata");
+                int pages = (elements / ENTRIES_PAGE) + 1;
+                if (page <= 0 || page > pages) return Language.transl(context, "command.baltop.invalidPage", 1, pages);
+
+                String whereGuild = context.getGuild().getMembers().stream()
+                        .map(it -> "userid = '" + it.getUser().getId() + "'").collect(Collectors.joining(" OR "));
+
+                fb.append((String) /* idk intellij is gay */ Cache.get(global ? key + "_global" : key + "_" + context.getGuild().getId(), n -> {
+                    try {
+                        StringBuilder builder = new StringBuilder();
+                        ResultSet set = global
+                                ? db.select("userData", Arrays.asList("tokens", "userid"), "tokens", true,
                                 ENTRIES_PAGE, (page - 1) * ENTRIES_PAGE)
-                            : db.select("userData", Arrays.asList("tokens", "userid"), whereGuild,
-                            "tokens", true, ENTRIES_PAGE, (page - 1) * ENTRIES_PAGE);
+                                : db.select("userData", Arrays.asList("tokens", "userid"), whereGuild,
+                                "tokens", true, ENTRIES_PAGE, (page - 1) * ENTRIES_PAGE);
 
-                    StringBuilder builder = new StringBuilder(global
-                            ? Language.transl(context, "command.baltop.global")
-                            : Language.transl(context, "command.baltop.server", context.getGuild().getName()));
-                    int index = 1;
-                    boolean hasUser = false;
-                    while (set.next()) {
-                        int pos = ((page - 1) * ENTRIES_PAGE) + index;
-                        String userId = set.getString("userid");
-                        append(builder, pos, Constants.getLanguage(context), GamesROB.getUserById(userId), set.getInt("tokens"));
-                        if (userId.equals(context.getAuthor().getId())) hasUser = true;
-                        index ++;
+                        int index = 1;
+                        while (set.next()) {
+                            int pos = ((page - 1) * ENTRIES_PAGE) + index;
+                            String userId = set.getString("userid");
+                            append(builder, pos, Constants.getLanguage(context), GamesROB.getUserById(userId), set.getInt("tokens"));
+                            index ++;
+                        }
+                        set.close();
+
+                        return builder.toString();
+                    } catch (Exception e) {
+                        throw new RuntimeException(e);
                     }
-                    set.close();
+                }));
 
-                    if (!hasUser) {
-                        ResultSet positionSet = global
+                int position = Cache.get("usersqlpos_" + context.getAuthor().getId(), n -> {
+                    try {
+                        ResultSet set = global
                                 ? db.sqlFileQuery("selectRanked.sql", statement -> Log.wrapException("Getting SQL position",
                                 () -> statement.setString(1, context.getAuthor().getId())))
                                 : db.sqlFileQuery("selectRankedGuild.sql", statement -> Log.wrapException("Getting Guild SQL Position",
                                 () -> statement.setString(1, context.getAuthor().getId())), whereGuild);
 
-                        if (positionSet.next()) {
-                            int position = positionSet.getInt("rank");
-                            if (position > page * ENTRIES_PAGE) {
-                                builder.append("...\n");
-                                append(builder, position, Constants.getLanguage(context), Optional.of(context.getAuthor()),
-                                        UserProfile.get(context.getAuthor()).getTokens());
-                            }
-                        }
-                        positionSet.close();
+                        int pos = set.next() ? set.getInt("rank") : -1;
+                        set.close();
+
+                        return pos;
+                    } catch (Exception e) {
+                        throw new RuntimeException(e);
                     }
+                });
 
-                    builder.append(Language.transl(context, "command.baltop.footer", ENTRIES_PAGE, page, pages,
-                            Constants.getPrefix(context.getGuild()), global ? "global " : ""));
-                    if (!global) builder.append(Language.transl(context, "command.baltop.globalView",
-                            Constants.getPrefix(context.getGuild())));
-
-                    return builder.toString();
-                } catch (Exception e) {
-                    throw new RuntimeException(e);
+                if (position != -1 && position > page * ENTRIES_PAGE) {
+                    fb.append("...\n");
+                    append(fb, position, Constants.getLanguage(context), Optional.of(context.getAuthor()),
+                            UserProfile.get(context.getAuthor()).getTokens());
                 }
-            });
+
+                fb.append(Language.transl(context, "command.baltop.footer", ENTRIES_PAGE, page, pages,
+                        Constants.getPrefix(context.getGuild()), global ? "global " : ""));
+                if (!global) fb.append(Language.transl(context, "command.baltop.globalView",
+                        Constants.getPrefix(context.getGuild())));
+
+                return fb.toString();
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
         } else return null;
     }
 

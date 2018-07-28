@@ -7,6 +7,7 @@ import me.deprilula28.gamesrob.utility.Constants;
 import me.deprilula28.gamesrob.utility.Log;
 import me.deprilula28.gamesrob.utility.Utility;
 import me.deprilula28.jdacmdframework.CommandContext;
+import me.deprilula28.jdacmdframework.exceptions.InvalidCommandSyntaxException;
 import net.dv8tion.jda.core.MessageBuilder;
 
 import java.util.*;
@@ -26,7 +27,7 @@ public class Slots {
         Random random = new Random(System.currentTimeMillis());
         String next = context.next();
         int betting = next.equalsIgnoreCase("all") ? UserProfile.get(context.getAuthor()).getTokens()
-            : Integer.parseInt(next);
+            : me.deprilula28.jdacmdframework.Utility.rethrow(n -> new InvalidCommandSyntaxException(), n -> Integer.parseInt(next));
         if (betting < MIN_TOKENS) return Language.transl(context, "command.slots.invalidTokens",
                 MIN_TOKENS, Language.transl(context, "command.slots.all"));
 

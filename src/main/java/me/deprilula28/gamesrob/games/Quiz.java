@@ -13,6 +13,7 @@ import me.deprilula28.jdacmdframework.RequestPromise;
 import net.dv8tion.jda.core.MessageBuilder;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.User;
+import net.dv8tion.jda.core.exceptions.PermissionException;
 
 import javax.xml.ws.Provider;
 import java.net.URL;
@@ -28,7 +29,7 @@ public class Quiz implements MatchHandler {
     private static String[] ITEMS;
     public static final GamesInstance GAME = new GamesInstance(
             "quiz", "quiz trivia quizzes qz",
-            1, 11, GameType.HYBRID, false,
+            1, 11, GameType.COLLECTIVE, false,
             Quiz::new, Quiz.class
     );
 
@@ -39,9 +40,11 @@ public class Quiz implements MatchHandler {
     }
 
     @Setting(min = 1, max = 20, defaultValue = 5) public int rounds;
-    private static final long MAX_TIME = TimeUnit.MINUTES.toMillis(5);
-    private static final int MAX_SCORE = 100;
-    private static final int MIN_SCORE = 50;
+    private static final double MAX_TIME = (double) TimeUnit.MINUTES.toMillis(5);
+    private static final double MAX_SCORE = 30.0;
+    private static final double MIN_SCORE = 10.0;
+    private static final double MEDIUM_MULTIPLIER = 1.25;
+    private static final double HARD_MULTIPLIER = 1.5;
 
     private Match match;
 
@@ -129,44 +132,64 @@ public class Quiz implements MatchHandler {
         if (contents.length() == 1) {
             int letter = Utility.inputLetter(contents);
             if (letter < 0 || letter >= orderedOptions.size()) return;
+            if (!match.getPlayers().contains(Optional.of(author))) match.joined(author);
 
             Optional<User> player = Optional.of(author);
             if (attempts.containsKey(player) && attempts.get(player) >= orderedOptions.size() / 2) {
-                reference.addReaction("⛔").queue();
+                try {
+                    reference.addReaction("⛔").queue();
+                } catch (PermissionException e) {
+                    Log.warn("Not enough perm to add reaction!");
+                }
                 return;
             }
 
             String option = orderedOptions.get(letter);
             if (curQuestion.getCorrectAnswer().equals(option)) {
-                double score = Math.min((1 - ((double) (System.currentTimeMillis() - questionAsked) / (double) MAX_TIME)) * MAX_SCORE, MIN_SCORE);
+                double score = MIN_SCORE + ((1.0 - (double) (System.currentTimeMillis() - questionAsked)) / MAX_TIME) * (MAX_SCORE - MIN_SCORE);
+                if (curQuestion.difficulty.equals("hard")) score *= HARD_MULTIPLIER;
+                else if (curQuestion.difficulty.equals("medium")) score *= MEDIUM_MULTIPLIER;
+
                 scoreboard.put(player, scoreboard.containsKey(player) ? scoreboard.get(player) + score : score);
 
-                if (roundsDone == rounds) {
-                    match.onEnd(scoreboard.entrySet().stream()
-                            .sorted(Comparator.comparingDouble(it -> (double) ((Map.Entry) it).getValue()).reversed())
-                            .map(Map.Entry::getKey).findFirst().orElse(Optional.empty()));
-                } else {
+                if (roundsDone >= rounds) onEnd();
+                else {
                     attempts.clear();
                     Log.wrapException("Failed to get quiz question", this::newQuizQuestion);
                     lastNotification = Optional.of(Language.transl(match.getLanguage(), "game.quiz.answer",
                             author.getAsMention(), Math.round(score)) + "\n");
                     updateMessage();
                 }
-                reference.addReaction("<:check:314349398811475968>").queue();
             } else {
                 attempts.put(player, attempts.containsKey(player) ? attempts.get(player) + 1 : 1);
                 if (attempts.get(player) >= orderedOptions.size() / 2) {
                     if (match.getPlayers().stream().allMatch(it -> attempts.containsKey(it) && attempts.get(it) >= orderedOptions.size() / 2)) {
-                        attempts.clear();
-                        lastNotification = Optional.of(Language.transl(match.getLanguage(), "game.quiz.noOneAnswered",
-                                curQuestion.getCorrectAnswer()) + "\n");
-                        Log.wrapException("Failed to get quiz question", this::newQuizQuestion);
-                        updateMessage();
+                        if (roundsDone >= rounds) onEnd();
+                        else {
+                            attempts.clear();
+                            lastNotification = Optional.of(Language.transl(match.getLanguage(), "game.quiz.noOneAnswered",
+                                    curQuestion.getCorrectAnswer()) + "\n");
+                            Log.wrapException("Failed to get quiz question", this::newQuizQuestion);
+                            updateMessage();
+                        }
                     } else match.getChannelIn().sendMessage(Language.transl(match.getLanguage(),
                             "game.quiz.cantPlay", player.map(User::getAsMention).orElse("**AI**"))).queue();
-                } else reference.addReaction("<:xmark:314349398824058880>").queue();
+                } else {
+                    try {
+                        reference.addReaction("❌").queue();
+                    } catch (PermissionException e) {
+                        Log.warn("Not enough perm to add reaction!");
+                    }
+                }
             }
         }
+    }
+
+    private void onEnd() {
+        if (match.getPlayers().size() == 1) match.onEnd((int) Math.round(scoreboard.get(match.getPlayers().get(0))));
+        else match.onEnd(scoreboard.entrySet().stream()
+                .sorted(Comparator.comparingDouble(it -> (double) ((Map.Entry) it).getValue()).reversed())
+                .map(Map.Entry::getKey).findFirst().orElse(Optional.empty()));
     }
 
     @Override
