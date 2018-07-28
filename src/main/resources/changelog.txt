@@ -1,23 +1,18 @@
-- New game added: Uno!
-You get 7 cards, which are DM'd to you. On each round, you can use a card.
-If you have a card with the same color or number as the last color used, you can use it.
-Otherwise, you'll have to draw two cards.
+- Increased cached time. This will (hopefully) make commands more snappy.
+- On single player quiz, the amount of tokens earnt is how many points you had.
+- Quiz points were reworked, now you can gain from 40 to 10 tokens depending on the time it takes to answer, and harder questions have multipliers.
+- Added the collective game type, where anyone can just play along with you.
+This is currently limited to Quiz.
+You need to click the 👥 emoji to enable that.
+- Uno's emojis are now proper emojis!!!
 
-I will be improving this game in the future.
-
-- Spanish language was added! `es_ES` by Bsc#1436
-Try it out with `g*lang es_ES`
-
-- UK English language was added! `en_UK` by Late Trender#3625
-Try it out with `g*lang en_UK`
-
-- Tokens are now formatted fancily.
-- Quiz is now playable single player!
-- Hybrid games (minesweeper and quiz) will now be multiplayer by default, requiring a reaction to be played alone.
-- Help command now has a different category for tokens, which slots is also a part of. The message has been overhauled overall.
-- The bot will now give you twice the amount of tokens during weekends, and the bot will now properly tell you the 12 hour cooldown.
-- Languages have been updated and improved. I'm sure non english speakers will enjoy.
-
-- Fixed the slots command's message.
-- Fixed quiz overflowing.
+- Fixed winning Uno.
+- Added a proper message for wildcard colors in Uno.
+- Added a proper message for invalid numbers in slots.
+- Fixed quiz reaction emojis.
+- Fixed quiz overflowing, but actually this time
+- Fixed baltop caching. Now it's properly localized and doesn't show the last user's name.
+- Fixed detective never ending sometimes.
+- Fixed play games achievement when you're not the match creator.
+- Fixed get categories.
 Enjoy! ~ deprilula28

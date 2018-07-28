@@ -6,6 +6,7 @@ import me.deprilula28.gamesrob.GamesROB;
 import javax.xml.ws.Provider;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 
 public class Cache {
@@ -28,7 +29,7 @@ public class Cache {
         Thread cleaner = new Thread(() -> {
             while (true) {
                 try {
-                    Thread.sleep(GamesROB.debug ? 5 * 1000 : 30 * 1000);
+                    Thread.sleep(TimeUnit.SECONDS.toMillis(GamesROB.debug ? 2 : 120));
                     long time = System.currentTimeMillis();
                     int removed = 0;
 

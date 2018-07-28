@@ -55,3 +55,10 @@ CREATE TABLE IF NOT EXISTS blacklist (
     reason TEXT,
     time BIGINT
 );
+CREATE TABLE IF NOT EXISTS transactions (
+    userid TEXT,
+    transactionid BIGINT,
+    amount INT,
+    time BIGINT,
+    message SMALLINT
+);

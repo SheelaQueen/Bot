@@ -110,7 +110,7 @@ public class Detective implements MatchHandler {
                 if (user.equals(from)) return;
 
                 alive.remove(Optional.of(user));
-                if (alive.size() == 1) {
+                if (alive.size() <= 2) {
                     match.onEnd(killer);
                     return;
                 }

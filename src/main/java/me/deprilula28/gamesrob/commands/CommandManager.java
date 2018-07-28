@@ -50,7 +50,7 @@ public class CommandManager {
             "games", "tokencommands", "profilecommands", "servercommands", "matchcommands", "infocommands", "partnercommands"
     };
     private static final String[] EMOTES = {
-            "\uD83C\uDFB2", "\uD83D\uDD38", "\uD83D\uDC65", "\uD83D\uDCDF", "\uD83C\uDFAE", "\uD83D\uDCCB", "\uD83E\uDD1D"
+            "\uD83C\uDFB2", "\uD83D\uDD38", "\uD83D\uDC64", "\uD83D\uDCDF", "\uD83C\uDFAE", "\uD83D\uDCCB", "\uD83E\uDD1D"
     };
     private static final List<String> PREFERRED_CATEGORIES = Arrays.asList(
             "games", "tokencommands"
@@ -63,7 +63,8 @@ public class CommandManager {
         // Games
         Arrays.stream(GamesROB.ALL_GAMES).forEach(cur -> {
             Command command = f.command(cur.getAliases(), Match.createCommand(cur)).attr("category", "games").attr("gameCode", cur.getLanguageCode());
-            if (cur.getGameType() == GameType.MULTIPLAYER) command.setUsage(command.getName().toLowerCase() + " [Players] [Betting] [Settings]");
+            if (cur.getGameType() == GameType.MULTIPLAYER || cur.getGameType() == GameType.HYBRID)
+                command.setUsage(command.getName().toLowerCase() + " [Players] [Betting] [Settings]");
 
             List<GameSettingValue> settings = new ArrayList<>();
             Arrays.stream(cur.getMatchHandlerClass().getDeclaredFields()).filter(it -> it.isAnnotationPresent(Setting.class))
@@ -238,9 +239,6 @@ public class CommandManager {
         f.command("announce announcement br broadcast", OwnerCommands::announce);
         f.command("blacklist bl l8r adios cya pce peace later bye rekt dab", OwnerCommands::blacklist);
 
-        f.command("error", (Command.Executor) context -> {
-            throw new RuntimeException("meme");
-        });
         f.command("fin", context -> finMessage, command -> {
             command.sub("set", context -> {
                 if (!GamesROB.owners.contains(context.getAuthor().getIdLong())) return Language.transl(context,
@@ -303,6 +301,9 @@ public class CommandManager {
         f.reactionHandler("\uD83D\uDD79", context -> {
             if (Match.GAMES.containsKey(context.getChannel())) Match.GAMES.get(context.getChannel()).playAloneReaction(context);
         });
+        f.reactionHandler("\uD83D\uDC65", context -> {
+            if (Match.GAMES.containsKey(context.getChannel())) Match.GAMES.get(context.getChannel()).collectiveReacion(context);
+        });
         f.reactionHandler("\uD83D\uDD04", context -> {
             if (Match.REMATCH_GAMES.containsKey(context.getChannel())) Match.REMATCH_GAMES.get(context.getChannel()).rematchReaction(context);
         });
@@ -317,8 +318,8 @@ public class CommandManager {
     private static String categoryMessage(String language, Guild guild, String category) {
         String prefix = Constants.getPrefixHelp(guild);
         return Language.transl(language, "command.help.categories." + category) + "\n"
-                + perCategory.get(category).stream().map(it -> Language.transl(language, "command.help.gameString",
-                "", it.getName(),
+                + perCategory.get(category).stream().map(it -> String.format("%s `%s%s` - %s",
+                it.getName(), prefix, it.getUsage(),
                 Language.transl(language, "command." + it.getName() + ".description")
         )).collect(Collectors.joining("\n")).replaceAll("%PREFIX%", prefix);
     }

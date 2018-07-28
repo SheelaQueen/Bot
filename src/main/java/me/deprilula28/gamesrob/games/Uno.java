@@ -17,7 +17,10 @@ import java.util.stream.Collectors;
 
 public class Uno extends TurnMatchHandler {
     private static final String[] ITEMS = {
-            "⭕", "❌", "❗", "❓", "🍆"
+        "<:blue1:465782607318351894>", "<:red2:465782607854960640>", "<:green3:465782607909486602>",
+        "<:yellow4:465782608291168256>", "<:blue5:465782607716679680>", "<:red6:465782607922200586>",
+        "<:green7:465782607590981633>", "<:yellow8:465782608207282177>", "<:blue9:465782607691644928>",
+        "<:redinvert:465782607947497482>", "<:greenblock:465782607670673409>", "<:yellowplus2:465782608194830337>"
     };
     public static final GamesInstance GAME = new GamesInstance(
             "uno", "uno unogame 1",
@@ -139,7 +142,17 @@ public class Uno extends TurnMatchHandler {
             this.card = card;
             UnoCard.UnoCardColor oldColor = color;
             color = card.color;
-            if (card.color.equals(UnoCard.UnoCardColor.SPECIAL)) color = UnoCard.UnoCardColor.valueOf(values[1].toUpperCase());
+            if (card.color.equals(UnoCard.UnoCardColor.SPECIAL)) {
+                boolean doreturn = true;
+                if (values.length == 1) match.getChannelIn().sendMessage(Language.transl(match.getLanguage(), "game.uno.noColor")).queue();
+                else try {
+                    color = UnoCard.UnoCardColor.valueOf(values[1].toUpperCase());
+                    doreturn = false;
+                } catch (Exception e) {
+                    match.getChannelIn().sendMessage(Language.transl(match.getLanguage(), "game.uno.invalidColor")).queue();
+                }
+                if (doreturn) return;
+            }
 
             if (!color.equals(oldColor)) match.getPlayers().forEach(player -> player.ifPresent(user ->
                     dmMessages.get(user).then(it -> it.editMessage(getDmMessage(user)).queue())));
@@ -176,6 +189,8 @@ public class Uno extends TurnMatchHandler {
 
     private String getDmMessage(User user) {
         List<UnoCard> deck = decks.get(Optional.of(user));
+        if (deck.isEmpty()) return Language.transl(match.getLanguage(), "game.uno.won");
+
         StringBuilder options = new StringBuilder();
         for (int i = 0; i < deck.size(); i ++) {
             if (deck.get(i).canUse(card, color)) options.append(Utility.getNumberEmote(i));

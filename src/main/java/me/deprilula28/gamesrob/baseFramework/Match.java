@@ -21,6 +21,7 @@ import net.dv8tion.jda.core.MessageBuilder;
 import net.dv8tion.jda.core.Permission;
 import net.dv8tion.jda.core.entities.*;
 import net.dv8tion.jda.core.events.Event;
+import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 
 import java.awt.event.HierarchyBoundsAdapter;
 import java.util.*;
@@ -63,7 +64,9 @@ public class Match extends Thread {
     public int iteration;
     private boolean allowRematch;
     private Map<String, Integer> settings = new HashMap<>();
+    public boolean playMore = false;
 
+    // Rematch multiplayer
     public Match(GamesInstance game, User creator, TextChannel channel, int targetPlayerCount, List<Optional<User>> players,
                  Map<String, String> options, int matchesPlayed) {
         multiplayer = true;
@@ -105,6 +108,48 @@ public class Match extends Thread {
         });
     }
 
+    // Collective
+    public Match(GamesInstance game, User creator, TextChannel channel, Map<String, String> options, Optional<Integer> betting) {
+        multiplayer = true;
+        String guildLang = GuildProfile.get(channel.getGuild()).getLanguage();
+        language = guildLang == null ? Constants.DEFAULT_LANGUAGE : guildLang;
+        channelIn = channel;
+        Member member = channelIn.getGuild().getMember(channelIn.getJDA().getSelfUser());
+        canReact = Utility.hasPermission(channelIn, member, Permission.MESSAGE_ADD_REACTION);
+        players.add(Optional.of(creator));
+
+        this.betting = betting;
+        this.creator = creator;
+        this.game = game;
+        this.options = options;
+        matchHandler = game.getMatchHandlerSupplier().get();
+        gameState = GameState.MATCH;
+        updateSettings(options);
+
+        GAMES.put(channel, this);
+        PLAYING.put(creator, this);
+        achievement(creator, AchievementType.PLAY_GAMES, 1);
+        ACTIVE_GAMES.get(channel.getJDA()).add(this);
+
+        Statistics.get().registerGame(game);
+
+        matchHandler.begin(this, no -> {
+            MessageBuilder builder = new MessageBuilder().append(Language.transl(language, "gameFramework.collectiveMatch",
+                    game.getName(language), game.getLongDescription(language)
+            ));
+            matchHandler.updatedMessage(false, builder);
+            matchMessage = RequestPromise.forAction(channel.sendMessage(builder.build()));
+            matchMessage.then(message -> message.addReaction("\uD83D\uDC65").queue());
+
+            return matchMessage;
+        });
+
+        setName("Game timeout thread for " + game.getName(language));
+        setDaemon(true);
+        start();
+    }
+
+    // Hybrid/Multiplayer
     public Match(GamesInstance game, User creator, TextChannel channel, int targetPlayerCount, Map<String, String> options,
                  Optional<Integer> betting) {
         multiplayer = true;
@@ -136,6 +181,7 @@ public class Match extends Thread {
         start();
     }
 
+    // Rematch Singleplayer
     public Match(GamesInstance game, User creator, TextChannel channel, Map<String, String> options) {
         multiplayer = false;
         String guildLang = GuildProfile.get(channel.getGuild()).getLanguage();
@@ -251,10 +297,24 @@ public class Match extends Thread {
         addAchievement.get(user).put(type, amount + addAchievement.get(user).get(type));
     }
 
+    public void messageEvent(MessageReceivedEvent event) {
+        try {
+            if (event.getGuild() == null) getMatchHandler().receivedDM(event.getMessage().getContentRaw(),
+                    event.getAuthor(), event.getMessage());
+            else getMatchHandler().receivedMessage(event.getMessage().getContentRaw(),
+                    event.getAuthor(), event.getMessage());
+        } catch (Exception e) {
+            Optional<String> trelloUrl = Log.exception("Game of " + getGame().getName(Constants.DEFAULT_LANGUAGE) + " had an error", e);
+            onEnd("⛔ Oops! Something spoopy happened and I had to stop this game.\n" +
+                    "You can send this: " + trelloUrl.orElse("*No trello info found*") + " to our support server at https://discord.gg/gJKQPkN !", false);
+        }
+    }
+
     public void joined(User user) {
         interrupt(); // Keep the match alive
         PLAYING.put(user, this);
         players.add(Optional.of(user));
+        achievement(user, AchievementType.PLAY_GAMES, 1);
         if (gameState == GameState.PRE_GAME) {
             if (players.size() == targetPlayerCount + 1) {
                 matchMessage.then(it -> it.delete().queue());
@@ -269,7 +329,7 @@ public class Match extends Thread {
                 });
                 players.stream().filter(Optional::isPresent).forEach(it -> achievement(it.get(), AchievementType.PLAY_GAMES, 1));
             } else updatePreMessage();
-        } else channelIn.sendMessage(Language.transl(language, "gameFramework.join",
+        } else if (game.getGameType() != GameType.COLLECTIVE) channelIn.sendMessage(Language.transl(language, "gameFramework.join",
             user.getAsMention(),
             players.size(), targetPlayerCount + 1
         )).queue();
@@ -277,6 +337,17 @@ public class Match extends Thread {
     /*
     Reactions
      */
+    public void collectiveReacion(CommandContext context) {
+        if (game.getGameType().equals(GameType.COLLECTIVE) && context.getAuthor().equals(creator)) {
+            playMore = true;
+            matchMessage.then(it -> it.getReactions().stream().filter(reaction -> reaction.getReactionEmote().getName().equals("\uD83D\uDC65"))
+                    .findFirst().ifPresent(joystick -> joystick.removeReaction(joystick.getJDA().getSelfUser()).queue()));
+            MessageBuilder builder = new MessageBuilder();
+            matchHandler.updatedMessage(false, builder);
+            matchMessage.then(it -> it.editMessage(builder.build()).queue());
+        }
+    }
+
     public void playAloneReaction(CommandContext context) {
         if (!gameState.equals(GameState.PRE_GAME) || !game.getGameType().equals(GameType.HYBRID) || players.size() > 1) {
             throw new InvalidCommandSyntaxException();
@@ -322,7 +393,15 @@ public class Match extends Thread {
 
     }
 
+    public void onEnd(int tokens) {
+        onEnd(getPlayers().get(0), tokens);
+    }
+
     public void onEnd(Optional<User> winner) {
+        onEnd(winner, Constants.MATCH_WIN_TOKENS);
+    }
+
+    public void onEnd(Optional<User> winner, int tokens) {
         players.forEach(cur ->
             cur.ifPresent(user -> {
                 UserProfile userProfile = UserProfile.get(user);
@@ -330,7 +409,7 @@ public class Match extends Thread {
                 userProfile.registerGameResult(channelIn.getGuild(), user, victory, !victory, game);
 
                 if (winner.equals(cur)) {
-                    int won = betting.map(it -> it * players.size()).orElse(Constants.MATCH_WIN_TOKENS);
+                    int won = betting.map(it -> it * players.size()).orElse(tokens);
                     userProfile.addTokens(won);
                     achievement(user, AchievementType.REACH_TOKENS, won);
                 }
@@ -340,7 +419,7 @@ public class Match extends Thread {
 
         onEnd(Language.transl(language, "gameFramework.winner", winner.map(User::getAsMention).orElse("**AI**"))
                 + Language.transl(language, "gameFramework.winnerTokens", betting.map(it -> it * players.size())
-                        .orElse(Constants.MATCH_WIN_TOKENS), Constants.getPrefix(channelIn.getGuild())), false);
+                        .orElse(tokens), Constants.getPrefix(channelIn.getGuild())), false);
     }
 
     public void onEnd(String reason, boolean registerPoints) {
@@ -415,21 +494,25 @@ public class Match extends Thread {
             });
 
             Optional<Integer> bet = settings.containsKey("bet") ? GameUtil.safeParseInt(settings.get("bet")) : Optional.empty();
-            Optional<Integer> players = settings.containsKey("players") ? GameUtil.safeParseInt(settings.get("players")) : Optional.empty();
+            if (game.getGameType() == GameType.COLLECTIVE) new Match(game, context.getAuthor(), context.getChannel(), settings, bet);
+            else {
+                Optional<Integer> players = settings.containsKey("players") ? GameUtil.safeParseInt(settings.get("players")) : Optional.empty();
 
-            if (bet.isPresent()) {
-                int amount = bet.get();
-                if (amount < MIN_BET || amount > MAX_BET) return Language.transl(context,
-                        "command.slots.invalidTokens", MIN_BET, MAX_BET);
-                if (!UserProfile.get(context.getAuthor()).transaction(amount)) return Constants.getNotEnoughTokensMessage(context, amount);
-            } else if (game.isRequireBetting()) return Language.transl(context, "gameFramework.requireBetting");
+                if (bet.isPresent()) {
+                    int amount = bet.get();
+                    if (amount < MIN_BET || amount > MAX_BET) return Language.transl(context,
+                            "command.slots.invalidTokens", MIN_BET, MAX_BET);
+                    if (!UserProfile.get(context.getAuthor()).transaction(amount))
+                        return Constants.getNotEnoughTokensMessage(context, amount);
+                } else if (game.isRequireBetting()) return Language.transl(context, "gameFramework.requireBetting");
 
-            int targetPlayers = players.map(it -> it - 1).orElseGet(game::getMinTargetPlayers);
-            if(targetPlayers > game.getMaxTargetPlayers() || targetPlayers < game.getMinTargetPlayers())
-                return Language.transl(context, "gameFramework.playersOutOfRange",
-                        game.getMinTargetPlayers() + 1, game.getMaxTargetPlayers() + 1
-                );
-            else new Match(game, context.getAuthor(), context.getChannel(), targetPlayers, settings, bet);
+                int targetPlayers = players.map(it -> it - 1).orElseGet(game::getMinTargetPlayers);
+                if (targetPlayers > game.getMaxTargetPlayers() || targetPlayers < game.getMinTargetPlayers())
+                    return Language.transl(context, "gameFramework.playersOutOfRange",
+                            game.getMinTargetPlayers() + 1, game.getMaxTargetPlayers() + 1
+                    );
+                else new Match(game, context.getAuthor(), context.getChannel(), targetPlayers, settings, bet);
+            }
 
             return null;
         }, ctx -> GuildProfile.get(ctx.getGuild()).canStart(ctx));

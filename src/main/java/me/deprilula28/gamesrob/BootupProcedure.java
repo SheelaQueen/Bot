@@ -2,6 +2,7 @@ package me.deprilula28.gamesrob;
 
 import lombok.Getter;
 import me.deprilula28.gamesrob.baseFramework.GameState;
+import me.deprilula28.gamesrob.baseFramework.GameType;
 import me.deprilula28.gamesrob.baseFramework.Match;
 import me.deprilula28.gamesrob.commands.CommandManager;
 import me.deprilula28.gamesrob.data.*;
@@ -147,17 +148,11 @@ public class BootupProcedure {
             if (Match.PLAYING.containsKey(event.getAuthor())) {
                 Match game = Match.PLAYING.get(event.getAuthor());
 
-                if (game.getGameState() == GameState.MATCH)
-                    try {
-                        if (event.getGuild() == null) game.getMatchHandler().receivedDM(event.getMessage().getContentRaw(),
-                                event.getAuthor(), event.getMessage());
-                        else game.getMatchHandler().receivedMessage(event.getMessage().getContentRaw(),
-                                    event.getAuthor(), event.getMessage());
-                    } catch (Exception e) {
-                        Optional<String> trelloUrl = Log.exception("Game of " + game.getGame().getName(Constants.DEFAULT_LANGUAGE) + " had an error", e);
-                        game.onEnd("⛔ Oops! Something spoopy happened and I had to stop this game.\n" +
-                                "You can send this: " + trelloUrl.orElse("*No trello info found*") + " to our support server at https://discord.gg/gJKQPkN !", false);
-                    }
+                if (game.getGameState() == GameState.MATCH) game.messageEvent(event);
+            } else if (!event.getAuthor().isBot() && event.getGuild() != null && Match.GAMES.containsKey(event.getTextChannel())) {
+                Match game = Match.GAMES.get(event.getTextChannel());
+                if (game.getGame().getGameType() != GameType.COLLECTIVE || !game.playMore) return;
+                game.messageEvent(event);
             }
         });
 

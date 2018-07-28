@@ -91,7 +91,7 @@ public class SQLDatabaseManager {
         ));
     }
 
-    public int getAmount(String table) throws Exception {
+    public int getSize(String table) throws Exception {
         ResultSet set = sqlQuery(String.format(
                 "SELECT COUNT(*) FROM %s",
                 table
