@@ -370,7 +370,7 @@ public class Match extends Thread {
     public void joinReaction(CommandContext context) {
         if (Match.PLAYING.containsKey(context.getAuthor()) || getPlayers().contains(Optional.of(context.getAuthor()))
                 || getPlayers().size() == getTargetPlayerCount() + 1 || (betting.isPresent() &&
-                !UserProfile.get(context.getAuthor()).transaction(betting.get())) || gameState != GameState.PRE_GAME) {
+                !UserProfile.get(context.getAuthor()).transaction(betting.get(), "transactions.betting")) || gameState != GameState.PRE_GAME) {
             throw new InvalidCommandSyntaxException();
         }
 
@@ -410,7 +410,7 @@ public class Match extends Thread {
 
                 if (winner.equals(cur)) {
                     int won = betting.map(it -> it * players.size()).orElse(tokens);
-                    userProfile.addTokens(won);
+                    userProfile.addTokens(won, "transactions.winGamePrize");
                     achievement(user, AchievementType.REACH_TOKENS, won);
                 }
             })
@@ -428,7 +428,7 @@ public class Match extends Thread {
                 if (registerPoints) {
                     UserProfile.get(user).registerGameResult(channelIn.getGuild(), user, false, false, game);
                     betting.ifPresent(amount -> {
-                        UserProfile.get(user).addTokens(amount);
+                        UserProfile.get(user).addTokens(amount, "transactions.winGamePrize");
                         achievement(user, AchievementType.REACH_TOKENS, amount);
                     });
                 }
@@ -502,7 +502,7 @@ public class Match extends Thread {
                     int amount = bet.get();
                     if (amount < MIN_BET || amount > MAX_BET) return Language.transl(context,
                             "command.slots.invalidTokens", MIN_BET, MAX_BET);
-                    if (!UserProfile.get(context.getAuthor()).transaction(amount))
+                    if (!UserProfile.get(context.getAuthor()).transaction(amount, "transactions.betting"))
                         return Constants.getNotEnoughTokensMessage(context, amount);
                 } else if (game.isRequireBetting()) return Language.transl(context, "gameFramework.requireBetting");
 

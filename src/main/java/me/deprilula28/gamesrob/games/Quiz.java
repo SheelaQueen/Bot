@@ -186,7 +186,8 @@ public class Quiz implements MatchHandler {
     }
 
     private void onEnd() {
-        if (match.getPlayers().size() == 1) match.onEnd((int) Math.round(scoreboard.get(match.getPlayers().get(0))));
+        if (match.getPlayers().size() == 1) match.onEnd(scoreboard.containsKey(match.getPlayers().get(0))
+                ? (int) Math.round(scoreboard.get(match.getPlayers().get(0))) : 0);
         else match.onEnd(scoreboard.entrySet().stream()
                 .sorted(Comparator.comparingDouble(it -> (double) ((Map.Entry) it).getValue()).reversed())
                 .map(Map.Entry::getKey).findFirst().orElse(Optional.empty()));

@@ -13,13 +13,12 @@ import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.JDA;
 import net.dv8tion.jda.core.JDAInfo;
 import net.dv8tion.jda.core.entities.MessageEmbed;
-import net.dv8tion.jda.core.entities.User;
+import net.dv8tion.jda.core.events.message.guild.react.GuildMessageReactionAddEvent;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -54,8 +53,7 @@ public class GenericCommands {
     public static MessageEmbed info(CommandContext context) {
         GamesROB.getAllShards().then(shards -> {
             Statistics stats = Statistics.get();
-
-            context.send(new EmbedBuilder()
+            MessageEmbed embed = new EmbedBuilder()
                     .setAuthor("deprilula28#3609", null, "https://i.imgur.com/PPa4OzQ.png")
                     .setTitle("\uD83C\uDFAE GamesROB", Constants.GAMESROB_DOMAIN)
                     .setColor(Utility.getEmbedColor(context.getGuild()))
@@ -69,12 +67,13 @@ public class GenericCommands {
                                     Utility.addNumberDelimitors(shards.stream().mapToInt(GamesROB.ShardStatus::getActiveGames).sum()),
                                     Utility.addNumberDelimitors(stats.getCommandCount()),
                                     Utility.addNumberDelimitors(stats.getUpvotes())
-                            ), true)
+                            ) + Language.transl(context, "command.info.embed2.statistics.month",
+                                    Statistics.get().getMonthUpvotes()), true)
                     .addField(Language.transl(context, "command.info.embed2.links.title"),
                             Language.transl(context, "command.info.embed2.links.description",
                                     Constants.GAMESROB_DOMAIN, Constants.getInviteURL(context.getJda()),
                                     "https://github.com/GamesROB/Bot", "https://discord.gg/8EZ7BEz",
-                                    Constants.GAMESROB_DOMAIN + "/help/credits", Constants.getDboURL(context.getJda()) + "/vote"
+                                    Constants.GAMESROB_DOMAIN + "/help/credits", Constants.getDblVoteUrl(context.getJda(), "info")
                             ), true)
                     .addField(Language.transl(context, "command.info.embed2.versions.title"),
                             Language.transl(context, "command.info.embed2.versions.description",
@@ -88,7 +87,10 @@ public class GenericCommands {
                                     Utility.getRAM(), System.getProperty("os.name"), context.getJda().getShardInfo().getShardId() + 1,
                                     context.getJda().getShardInfo().getShardTotal(), Utility.formatPeriod(context.getJda().getPing())
                             ), true)
-                    .build());
+                    .build();
+
+            if (context.getEvent() instanceof GuildMessageReactionAddEvent) context.edit(embed);
+            else context.send(embed).then(it -> it.addReaction("\uD83D\uDD01").queue());
         });
         return null;
     }

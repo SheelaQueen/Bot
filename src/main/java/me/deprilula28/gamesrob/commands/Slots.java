@@ -32,7 +32,7 @@ public class Slots {
                 MIN_TOKENS, Language.transl(context, "command.slots.all"));
 
         UserProfile profile = UserProfile.get(context.getAuthor());
-        if (!profile.transaction(betting))
+        if (!profile.transaction(betting, "transactions.slots"))
             return Constants.getNotEnoughTokensMessage(context, betting);
 
         double percentBet = (double) (betting - MIN_TOKENS) / (double) (ALL_ITEMS - MIN_TOKENS);

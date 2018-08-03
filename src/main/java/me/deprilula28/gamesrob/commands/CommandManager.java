@@ -16,20 +16,21 @@ import me.deprilula28.jdacmdframework.Command;
 import me.deprilula28.jdacmdframework.CommandContext;
 import me.deprilula28.jdacmdframework.CommandFramework;
 import net.dv8tion.jda.core.EmbedBuilder;
+import net.dv8tion.jda.core.MessageBuilder;
 import net.dv8tion.jda.core.Permission;
 import net.dv8tion.jda.core.entities.Guild;
-import net.dv8tion.jda.core.entities.MessageEmbed;
 import net.dv8tion.jda.core.entities.User;
 import net.dv8tion.jda.core.events.message.guild.react.GuildMessageReactionAddEvent;
+import net.dv8tion.jda.core.exceptions.PermissionException;
 
 import java.lang.reflect.Field;
-import java.security.acl.Owner;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.*;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -87,20 +88,20 @@ public class CommandManager {
         f.command("tokens tk tks tok toks t viewtokens viewtk viewtks viewtok viewtoks viewt gettokens gettk gettks " +
                 "gettok gettoks gett tokenamount tkamount tokamount tamount bal balance viewbalance daily",
                 Tokens::tokens, cmd -> {
-            // Moderator currency management
-            cmd.sub("add + cheat a", OwnerCommands.tokenCommand(UserProfile::addTokens, "command.tokens.add"));
-            cmd.sub("remove - rem r", OwnerCommands.tokenCommand((profile, tokens) -> profile.addTokens(-tokens), "command.tokens.remove"));
+            cmd.sub("add + cheat a", OwnerCommands.tokenCommand((profile, tokens) -> profile.addTokens(tokens, "transactions.cheater"), "command.tokens.add"));
+            cmd.sub("remove - rem r", OwnerCommands.tokenCommand((profile, tokens) -> profile.addTokens(-tokens, "transactions.cheater"), "command.tokens.remove"));
             cmd.sub("set", OwnerCommands.tokenCommand(UserProfile::setTokens, "command.tokens.set"));
 
+            cmd.sub("transactions tr t transactts payments bought history salary view", Tokens::transactions);
             // Giving tokens
             cmd.sub("give pay repay giveto", context -> {
                 User target = context.nextUser();
                 int amount = context.nextInt();
                 if (amount < 10 || amount > 5000) return Language.transl(context,"command.tokens.giveInvalidAmount", 10, 5000);
 
-                if (!UserProfile.get(context.getAuthor()).transaction(amount))
+                if (!UserProfile.get(context.getAuthor()).transaction(amount, "transactions.give"))
                     return Constants.getNotEnoughTokensMessage(context, amount);
-                UserProfile.get(target).addTokens(amount);
+                UserProfile.get(target).addTokens(amount, "transactions.got");
 
                 return Language.transl(context, "command.tokens.give", context.getAuthor().getAsMention(), target.getAsMention(), amount);
             }).setUsage("g*token give <user> <amount>");
@@ -160,7 +161,9 @@ public class CommandManager {
         f.command("invite invitebot invitegrob invitegamesrob add addbot addgrob addgamesrob get getbot getgrob " +
                 "getgamesrob getgood getgud", GenericCommands::invite).attr("category", "infocommands");
 
-        f.command("info information botinfo botinformation helpbutwithdetails", GenericCommands::info).attr("category", "infocommands");
+        f.command("info information botinfo botinformation helpbutwithdetails", GenericCommands::info,
+                it -> it.sub("reload", GenericCommands::info)).reactSub("\uD83D\uDD01", "reload")
+                .attr("category", "infocommands");
 
         f.command("changelog getchangelog viewchangelog log getlog viewlog clog getclog viewclog changes getchanges " +
                 "viewchanges version getversion viewversion ver getver viewver additions getaddions viewadditions whatsnew g" +
@@ -180,18 +183,11 @@ public class CommandManager {
 
         f.command("help halp games what wat uwot uwotm8 uwotm9  wtf tf ... ivefallenandicantgetup whatisgoingon " +
                 "imscared commands cmds ?", CommandManager::help, cmd -> {
-            /*
-            cmd.sub("developers developer dev devs d", context -> "My Developers are deprilula28#3609 and Fin#1337.");
-            cmd.sub("discordstaff staff discstaff disc discs s", context -> "The staff in the GamesROB Discord are deprilula28#3609, Fin#1337, dirtify#3776, Not Hamel#5995, diniboy#0998, and Jazzy Spazzy#0691");
-            cmd.sub("translators translator t", context -> "My translators are deprilula28#3609 (pt_BR), diniboy#0998 (hu_HU), Niekold#9410 (de_DE), Ephysios#1912 (fr_FR), and 0211#موهاماد هيف (ar_SA).");
-            cmd.sub("libraries lib libs library frameworks fws fw framew rwork fworks framework dependancies dependancy f", context -> "We use the following frameworks/dependancies; Lombok, DepsJDAFramework, SLF4j, emoji-java, sqlite-driver (JDBC), snakeyaml, sparkjava, markdown4j, jade4j, Materialize, and JQuery.");
-            cmd.sub("api apis", context -> "We use the Discord Developer API, Twitch API, and Discord Bot List's API.");
-            cmd.sub("prgm programs prgms progrm progrms software sw softw sware", context -> "The programs we use for the bot's development are; JetBrains' IntelliJ IDEA, Git, and of course, Discord (More specifically; Discord Canary)");
-            cmd.sub("webapps wapps wa was webapp services srvcs srvc service", context -> "We use OVH.");
-            */
+            cmd.sub("back", CommandManager::help);
 
             for (String category : CATEGORIES) {
                 if (!category.equals("games")) cmd.sub(category, context -> {
+                    try { context.getMessage().addReaction("⬅").queue(); } catch (PermissionException e) {}
                     return categoryMessage(Constants.getLanguage(context), context.getGuild(), category);
                 });
             }
@@ -217,12 +213,7 @@ public class CommandManager {
             });
 
             for (int i = 1; i < EMOTE_LIST.size(); i++) cmd.reactSub(EMOTE_LIST.get(i), CATEGORIES[i]);
-
-            cmd.sub("why dep_lied why_dep -_- really_dep really rlly dep_why", context -> "So dep said that he " +
-                    "didn't want to hardcode owners, but I just now searched the bot code for his User ID, and found he " +
-                    "hardcoded himself and not me. If you found this message, please DM dep and ask him why he did this " +
-                    "and that he needs to stop abusing me, thank you.");
-        }).attr("category", "infocommands");
+        }).reactSub("⬅", "back").attr("category", "infocommands");
 
         f.getCommands().forEach(cur -> {
             String category = cur.attr("category");
@@ -238,6 +229,8 @@ public class CommandManager {
         f.command("sql postgres postgresql sqlexecute runsql", OwnerCommands::sql);
         f.command("announce announcement br broadcast", OwnerCommands::announce);
         f.command("blacklist bl l8r adios cya pce peace later bye rekt dab", OwnerCommands::blacklist);
+        f.command("cache", OwnerCommands::cache);
+        f.command("servercount srvcount svc", OwnerCommands::servercount);
 
         f.command("fin", context -> finMessage, command -> {
             command.sub("set", context -> {
@@ -271,13 +264,6 @@ public class CommandManager {
                     return Language.transl(it, "genericMessages.blacklistedNoInfo");
                 }
             }
-            GamesROB.database.ifPresent(db -> db.insert("commandexecutions", Arrays.asList("command", "alias", "userid", "time"),
-                    statement -> Log.wrapException("Inserting command execution log", () -> {
-                statement.setString(1, it.getCurrentCommand().getName());
-                statement.setString(2, it.getArgs().get(0));
-                statement.setString(3, it.getAuthor().getId());
-                statement.setLong(4, System.currentTimeMillis());
-            })));
 
             commandStart.put(it.getAuthor().getId(), System.nanoTime());
             return null;
@@ -385,14 +371,16 @@ public class CommandManager {
             embed.setTimestamp(time.toInstant());
         });
 
-        context.send(builder -> builder.append(languageHelpMessages.get(Constants.getLanguage(context))
+        Consumer<MessageBuilder> messageBuilder = builder -> builder.append(languageHelpMessages.get(Constants.getLanguage(context))
                 .replaceAll("%PREFIX%", Constants.getPrefixHelp(context.getGuild()))).setEmbed(
-                embed.build()))
-            .then(message -> {
-                for (int i = 0; i < EMOTES.length; i++) {
-                    if (!CATEGORIES[i].equals("games")) message.addReaction(EMOTES[i]).queue();
-                }}
-            );
+                embed.build());
+
+        if (context.getEvent() instanceof GuildMessageReactionAddEvent) context.edit(messageBuilder).then(it ->
+                it.getReactions().stream().filter(react -> react.getReactionEmote().getName().equals("⬅")).findFirst()
+                .ifPresent(react -> react.removeReaction().queue()));
+        else context.send(messageBuilder).then(it -> {
+            for (int i = 0; i < EMOTES.length; i++) if (!CATEGORIES[i].equals("games")) it.addReaction(EMOTES[i]).queue();
+        });
         return null;
     }
 

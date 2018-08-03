@@ -207,7 +207,7 @@ command:
   baltop:
     server: "Os usuários com mais tokens em **%s**:\n"
     global: "Os usuários com mais tokens globalmente:\n"
-    footer: "\nMostarndo %s usuários por página | Página %s de %s\nVeja outra página com `%sbaltop %s<página>`."
+    footer: "\nMostrando %s usuários por página | Página %s de %s\nVeja outra página com `%sbaltop %s<página>`."
     globalView: "\nPara ver o placar global, tente `%sbaltop global`."
     invalidPage: "Por favor, escolha uma página entre %s e %s."
 
@@ -222,6 +222,10 @@ command:
     achievements2: "**Completando conquistas**: Veja seu progresso com `%sachievements`!"
     gamblingTokens: "**Apostando com** `g*slots`"
     gamblingNoTokens: "~~Apostando~~ (Balança menor ou igual a zero)"
+    viewTransactions: "\nPara ver suas transações recentes, tente `%stokens transactions`."
+    transactions:
+      title: "**Suas transações recentes:**\n"
+      footer: "\n\nBalanço = 🔶 %s tokens\nMostrando %s usuários por página | Página %s de %s\nVeja outra página com `%stokens transactions <página>`."
 
     guide: "Clique aqui para saber mais sobre tokens com nosso guia"
     embedUpvote: "Ou [Clique aqui](%s) para votar para o bot"
@@ -298,7 +302,8 @@ command:
       description: "**O bot para jogar jogos de chat divertidos no seu Discord!**"
       statistics:
         title: "📟 Estatísticas"
-        description: "📶 **%s** servidores\n👥 **%s** usuários\n🗨 **%s** canais de texto\n🎮 **%s** partidas (**%s** ativas)\n❗ **%s** comandos\n📈 **%s** votos no DBL"
+        description: "📶 **%s** servidores\n👥 **%s** usuários\n🗨 **%s** canais de texto\n🎮 **%s** partidas (**%s** ativas)\n❗ **%s** comandos\n📈 **%s** votos"
+        month: " (**%s** esse mês)"
       versions:
         title: "📁 Versões"
         description: "Versão do GamesROB: **%s**\nVersão do Java: **%s**\nVersão do [JDA](%s): **%s**\nVersão do [JDA Framework](%s): **%s**\nTempo de Atividade: **%s**"
@@ -339,3 +344,14 @@ command:
   setprefix:
     message: "Alterado prefix do bot para esse servidor!"
     description: "Altere o prefix do bot para seu servidor!"
+
+transactions:
+  upvote: "Votando para o bot no DBL"
+  completeAchievement: "Completando uma conquista"
+  cheater: "Trapaceiro"
+  give: "Você deu tokens"
+  got: "Te deram tokens"
+  winGamePrize: "Por ter ganho uma partida"
+  betting: "Usado para apostar em uma partida"
+  slots: "Usado para apostar em uma máquina de cassino"
+  changingEmote: "Alterando seu emoji"

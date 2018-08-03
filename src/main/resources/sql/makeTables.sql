@@ -38,12 +38,6 @@ CREATE TABLE IF NOT EXISTS statsplots (
 
     time BIGINT
 );
-CREATE TABLE IF NOT EXISTS commandexecutions (
-    command TEXT,
-    alias TEXT,
-    userid TEXT,
-    time BIGINT
-);
 CREATE TABLE IF NOT EXISTS achievements (
     type TEXT,
     userid TEXT,
@@ -57,7 +51,6 @@ CREATE TABLE IF NOT EXISTS blacklist (
 );
 CREATE TABLE IF NOT EXISTS transactions (
     userid TEXT,
-    transactionid BIGINT,
     amount INT,
     time BIGINT,
     message SMALLINT
