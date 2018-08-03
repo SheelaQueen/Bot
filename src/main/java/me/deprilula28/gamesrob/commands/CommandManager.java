@@ -284,11 +284,11 @@ public class CommandManager {
         f.reactionHandler("\uD83D\uDEAA", context -> {
             if (Match.GAMES.containsKey(context.getChannel())) Match.GAMES.get(context.getChannel()).joinReaction(context);
         });
-        f.reactionHandler("\uD83D\uDD79", context -> {
-            if (Match.GAMES.containsKey(context.getChannel())) Match.GAMES.get(context.getChannel()).playAloneReaction(context);
-        });
         f.reactionHandler("\uD83D\uDC65", context -> {
             if (Match.GAMES.containsKey(context.getChannel())) Match.GAMES.get(context.getChannel()).collectiveReacion(context);
+        });
+        f.reactionHandler("▶", context -> {
+            if (Match.GAMES.containsKey(context.getChannel())) Match.GAMES.get(context.getChannel()).startReaction(context);
         });
         f.reactionHandler("\uD83D\uDD04", context -> {
             if (Match.REMATCH_GAMES.containsKey(context.getChannel())) Match.REMATCH_GAMES.get(context.getChannel()).rematchReaction(context);

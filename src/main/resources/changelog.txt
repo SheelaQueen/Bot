@@ -2,6 +2,7 @@
 - Added a refresh button to info.
 - Added a back reaction on `g*help` (only shows when you enter a category).
 - The server count of the bot is now posted on DBots and BotsForDiscord.
+- Changed how multiplayer works! Now you can join with the maximum amount of people until you click the play button to start the match.
 
 - Added a system to store transactions.
 Check out all your tokens transactions after the update with `g*tokens transactions`!

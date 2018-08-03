@@ -37,7 +37,7 @@ gameFramework:
   collectiveMatch: "**%s Game**\n%s\nClick 👥 to allow other people to play!\n\n"
   joinToPlay: "🚪 Type `%sjoin` or click the door below to play! (%s/%s)"
   joinToPlayNoReaction: "🚪 Type `%sjoin` to play! (%s/%s)"
-  playSingle: "Or click 🕹 to play single-player %s"
+  playButton: "Click :arrow_forward: to start %s!"
   betting: "💰 Betting %s 🔸 tokens!"
   begin: "**It's on!**\n**%s**\n%s\n\n"
   join: "%s has joined the match! %s/%s"
