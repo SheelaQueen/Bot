@@ -257,7 +257,7 @@ public class RPCManager extends WebSocketClient {
     private Object webhookNotification(JsonElement upvoteInfo) {
         boolean weekend = Utility.isWeekendMultiplier();
         Statistics.get().setUpvotes(Statistics.get().getUpvotes() + (weekend ? 2 : 1));
-        Statistics.get().setMonthUpvotes(Statistics.get().getUpvotes() + (weekend ? 2 : 1));
+        Statistics.get().setMonthUpvotes(Statistics.get().getMonthUpvotes() + (weekend ? 2 : 1));
         GamesROB.getUserById(upvoteInfo.getAsJsonObject().get("user").getAsLong()).ifPresent(user -> user.openPrivateChannel().queue(pm -> {
             UserProfile profile = UserProfile.get(user.getId());
             if (System.currentTimeMillis() - profile.getLastUpvote() < TimeUnit.DAYS.toMillis(2))

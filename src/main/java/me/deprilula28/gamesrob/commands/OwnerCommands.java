@@ -75,13 +75,19 @@ public class OwnerCommands {
     }
 
     public static String servercount(CommandContext context) {
+        if (!GamesROB.owners.contains(context.getAuthor().getIdLong())) return Language.transl(context,
+                "genericMessages.ownersOnly");
+
         return "Last server count posts:\n" +
-                "<:dbl:464238305488404490> `DBL`: " + BootupProcedure.getLastDblRequest() + "\n" +
-                "<:botsfordiscord:381674669985759232> `BotsForDiscord`: " + BootupProcedure.getLastBfdRequest() + "\n" +
-                "<:discord:314003252830011395> `Discord Bots`: " + BootupProcedure.getLastDbotsRequest();
+                "`DBL`: " + BootupProcedure.getLastDblRequest() + "\n" +
+                "`BotsForDiscord`: " + BootupProcedure.getLastBfdRequest() + "\n" +
+                "`Discord Bots`: " + BootupProcedure.getLastDbotsRequest();
     }
 
     public static String cache(CommandContext context) {
+        if (!GamesROB.owners.contains(context.getAuthor().getIdLong())) return Language.transl(context,
+                "genericMessages.ownersOnly");
+
         String cache = Cache.getCachedMap().entrySet().stream().filter(it -> it.getKey() != null && it.getValue() != null
                 && it.getValue().getResult() != null).map(it -> {
             String result = it.getValue().getResult().toString();

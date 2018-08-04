@@ -41,6 +41,7 @@ public class Match extends Thread {
     public static final Map<JDA, List<Match>> ACTIVE_GAMES = new HashMap<>();
     public static final Map<User, Match> PLAYING = new HashMap<>();
     private static final long MATCH_TIMEOUT_PERIOD = TimeUnit.MINUTES.toMillis(5);
+    private static final long JOIN_TIMEOUT_PERIOD = TimeUnit.SECONDS.toMillis(20);
     private static final long REMATCH_TIMEOUT_PERIOD = TimeUnit.MINUTES.toMillis(1);
 
     protected TextChannel channelIn;
@@ -181,10 +182,14 @@ public class Match extends Thread {
     public void run() {
         while (gameState != GameState.POST_MATCH)
             try {
-                Thread.sleep(MATCH_TIMEOUT_PERIOD);
-                if (gameState != GameState.POST_MATCH)
+                if (gameState == GameState.MATCH) {
+                    Thread.sleep(MATCH_TIMEOUT_PERIOD);
                     onEnd(Language.transl(language, "gameFramework.timeout", Utility.formatPeriod(MATCH_TIMEOUT_PERIOD)),
                             true);
+                } else {
+                    Thread.sleep(JOIN_TIMEOUT_PERIOD);
+                    gameStart();
+                }
             } catch (InterruptedException e) {}
         try {
             Thread.sleep(REMATCH_TIMEOUT_PERIOD);
@@ -335,6 +340,7 @@ public class Match extends Thread {
     }
 
     public void gameStart() {
+        interrupt();
         matchMessage.then(it -> it.delete().queue());
         Statistics.get().registerGame(game);
 
@@ -353,9 +359,7 @@ public class Match extends Thread {
                 !players.stream().filter(Optional::isPresent).map(Optional::get).allMatch(context.getReactionUsers()::contains)) return;
         matchMessage.then(it -> it.delete().queue());
 
-        if (game.getGameType().equals(GameType.HYBRID)) new Match(game, creator, channelIn, options)
-                .matchesPlayed = matchesPlayed + 1;
-        else new Match(game, creator, channelIn, players, options, matchesPlayed + 1);
+        new Match(game, creator, channelIn, players, options, matchesPlayed + 1);
         interrupt();
     }
 

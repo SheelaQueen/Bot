@@ -55,3 +55,13 @@ CREATE TABLE IF NOT EXISTS transactions (
     time BIGINT,
     message SMALLINT
 );
+CREATE TABLE IF NOT EXISTS translationsuggestions (
+    language TEXT,
+    key TEXT,
+    translation TEXT,
+    time BIGINT,
+    userid TEXT,
+    anonymous BOOLEAN,
+    rating INT,
+    m TEXT[]
+);
