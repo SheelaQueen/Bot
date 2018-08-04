@@ -88,7 +88,7 @@ public enum AchievementType {
                                 .append("\n").append(Language.transl(language, "game.achievement.runAchievements",
                                     Constants.getPrefix(guild)));
 
-                        profile.addTokens(achievement.getTokens());
+                        profile.addTokens(achievement.getTokens(), "transactions.completeAchievement");
                         REACH_TOKENS.addAmount(tagName, achievement.getTokens(), builder, user, guild, language);
                     }
                 });

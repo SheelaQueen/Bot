@@ -37,7 +37,7 @@ gameFramework:
   collectiveMatch: "**%s Game**\n%s\nClick 👥 to allow other people to play!\n\n"
   joinToPlay: "🚪 Type `%sjoin` or click the door below to play! (%s/%s)"
   joinToPlayNoReaction: "🚪 Type `%sjoin` to play! (%s/%s)"
-  playSingle: "Or click 🕹 to play single-player %s"
+  playButton: "Click :arrow_forward: to start %s!"
   betting: "💰 Betting %s 🔸 tokens!"
   begin: "**It's on!**\n**%s**\n%s\n\n"
   join: "%s has joined the match! %s/%s"
@@ -238,6 +238,10 @@ command:
     achievements2: "**Completing achievements**: View them with `%sachievements`!"
     gamblingTokens: "**Gambling with** `g*slots`"
     gamblingNoTokens: "~~Gambling~~ (Negative or zero balance)"
+    viewTransactions: "\nTo view your recent transactions, try `%stokens transactions`."
+    transactions:
+      title: "**Your recent transactions:**\n"
+      footer: "\n\nBalance = 🔶 %s tokens\nShowing %s entries per page | Page %s/%s\nView another page with `%stokens transactions <page>`."
 
     guide: "Click here to learn more about tokens in our guide"
     embedUpvote: "Or [Click here](%s) to upvote the bot"
@@ -321,7 +325,8 @@ command:
       description: "**The bot for playing fun chat games in your Discord!**"
       statistics:
         title: "📟 Statistics"
-        description: "📶 **%s** servers\n👥 **%s** users\n🗨 **%s** text channels\n🎮 **%s** games (**%s** active)\n❗ **%s** commands\n📈 **%s** votes on DBL"
+        description: "📶 **%s** servers\n👥 **%s** users\n🗨 **%s** text channels\n🎮 **%s** games (**%s** active)\n❗ **%s** commands\n📈 **%s** votes"
+        month: " (**%s** this month)"
       versions:
         title: "📁 Versions"
         description: "GamesROB Version: **%s**\nJava Version: **%s**\n[JDA](%s) Version: **%s**\n[JDA Framework](%s) Version: **%s**\nShard Uptime: **%s**"
@@ -365,4 +370,13 @@ command:
     message: "Changed the bot's prefix for this guild!"
     description: "Set the command prefix for your guild!"
 
-achievements:
+transactions:
+  upvote: "Voting for the bot on DBL"
+  completeAchievement: "Completing an achievement"
+  cheater: "Cheater"
+  give: "You gave tokens"
+  got: "You were given tokens"
+  winGamePrize: "Prize for winning a match"
+  betting: "Used for gambling in matches"
+  slots: "Used for gambling in the slots machine"
+  changingEmote: "Changing your emoji tile"

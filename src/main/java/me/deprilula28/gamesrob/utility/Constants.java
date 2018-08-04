@@ -92,8 +92,8 @@ public class Constants {
         return DEFAULT_LANGUAGE;
     }
 
-    public static String getDboURL(JDA jda) {
-        return VANITY_DBL_URL.orElse("https://discordbots.org/bot/" + jda.getSelfUser().getId());
+    public static String getDblVoteUrl(JDA jda, String ref) {
+        return VANITY_DBL_URL.orElse("https://discordbots.org/bot/" + jda.getSelfUser().getId()) + "/vote?ref=" + ref;
     }
 
     public static String getNotEnoughTokensMessage(CommandContext context, int amount) {

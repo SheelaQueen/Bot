@@ -88,7 +88,7 @@ public abstract class DataManager<A, R> {
             writer.write(json);
             jedisOpt.ifPresent(jedis -> {
                 jedis.set(file.getAbsolutePath(), json);
-                jedis.expire(file.getAbsolutePath(), 120);
+                jedis.expire(file.getAbsolutePath(), 600);
             });
         } catch (Exception e) {
             Log.exception("Saving data", e);

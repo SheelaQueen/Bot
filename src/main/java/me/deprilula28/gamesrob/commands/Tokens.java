@@ -61,7 +61,7 @@ public class Tokens {
             });
 
             builder.setEmbed(new EmbedBuilder().setTitle(Language.transl(context, "command.achievements.upvote"),
-                    Constants.getDboURL(context.getJda()) + "/vote")
+                    Constants.getDblVoteUrl(context.getJda(), "achievements"))
                 .setColor(Utility.getEmbedColor(context.getGuild()))
                 .build());
         });
@@ -123,7 +123,7 @@ public class Tokens {
                     winMethods.put(Language.transl(context, weekend ? "command.tokens.upvoteWeekend" : "command.tokens.upvoteCan",
                             row, Utility.addNumberDelimitors((125 + row * 50) * (weekend ? 2 : 1))), true);
                     embed.setDescription(Language.transl(context, "command.tokens.embedUpvote",
-                            Constants.getDboURL(context.getJda()) + "/vote"));
+                            Constants.getDblVoteUrl(context.getJda(), "tokens")));
                 } else winMethods.put(Language.transl(context, "command.tokens.upvoteLater", Utility.formatPeriod
                                 ((profile.getLastUpvote() + TimeUnit.HOURS.toMillis(12)) - System.currentTimeMillis())),
                         false);
@@ -140,6 +140,8 @@ public class Tokens {
                 });
 
                 message.append(baltopMessage);
+                message.append(Language.transl(context, "command.tokens.viewTransactions",
+                        Constants.getPrefix(context.getGuild())));
             });
 
             return null;
@@ -226,6 +228,24 @@ public class Tokens {
                 throw new RuntimeException(e);
             }
         } else return null;
+    }
+
+    public static String transactions(CommandContext context) {
+        UserProfile profile = UserProfile.get(context.getAuthor());
+        int page = context.opt(context::nextInt).orElse(1);
+        int elements = profile.getTransactionAmount();
+        int pages = (elements / ENTRIES_PAGE) + 1;
+        if (page <= 0 || page > pages) return Language.transl(context, "command.baltop.invalidPage", 1, pages);
+
+        return Language.transl(context, "command.tokens.transactions.title") +
+                profile.getTransactions(ENTRIES_PAGE, (page - 1) * ENTRIES_PAGE).stream().map(it -> String.format(
+                        "%s\uD83D\uDD36 %s tokens `%s` (%s)",
+                        it.getAmount() >= 0 ? "+" : "-", Utility.addNumberDelimitors(Math.abs(it.getAmount())),
+                        Language.transl(context, it.getMessage()), Utility.formatTime(it.getTime())
+                )).collect(Collectors.joining("\n")) +
+                Language.transl(context, "command.tokens.transactions.footer",
+            Utility.addNumberDelimitors(profile.getTokens()), ENTRIES_PAGE,
+            page, pages, Constants.getPrefix(context.getGuild()));
     }
 
     private static void append(StringBuilder builder, int rank, String language, Optional<User> user, int tokens) {

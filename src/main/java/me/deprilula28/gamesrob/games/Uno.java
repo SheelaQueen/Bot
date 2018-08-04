@@ -154,10 +154,10 @@ public class Uno extends TurnMatchHandler {
                 if (doreturn) return;
             }
 
-            if (!color.equals(oldColor)) match.getPlayers().forEach(player -> player.ifPresent(user ->
-                    dmMessages.get(user).then(it -> it.editMessage(getDmMessage(user)).queue())));
-            else dmMessages.get(cur).then(it -> it.editMessage(getDmMessage(cur)).queue());
             if (card.action != null) card.action.handler.accept(this, cur);
+            if (!color.equals(oldColor) || card.action != null) match.getPlayers().forEach(player ->
+                    player.ifPresent(user -> dmMessages.get(user).then(it -> it.editMessage(getDmMessage(user)).queue())));
+            else dmMessages.get(cur).then(it -> it.editMessage(getDmMessage(cur)).queue());
             if (!detectVictory()) nextTurn();
         });
     }

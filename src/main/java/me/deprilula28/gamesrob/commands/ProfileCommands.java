@@ -73,7 +73,7 @@ public class ProfileCommands {
         Optional<String> emoteOpt = context.opt(context::next);
         if (emoteOpt.isPresent()) {
             String emote = emoteOpt.get();
-            if (!UserProfile.get(context.getAuthor()).transaction(150))
+            if (!UserProfile.get(context.getAuthor()).transaction(150, "transactions.changingEmote"))
                 return Constants.getNotEnoughTokensMessage(context, 150);
 
             if (EmojiManager.isEmoji(emote)) {

@@ -33,9 +33,7 @@ public class MatchCommands {
         if (game.getGameState() != GameState.PRE_GAME) return Language.transl(context, "command.join.gameStarted");
         if (game.getPlayers().contains(Optional.of(context.getAuthor())))
             return Language.transl(context, "command.join.alreadyOnMatch");
-        if (game.getPlayers().size() == game.getTargetPlayerCount() + 1)
-            return Language.transl(context, "command.join.full");
-        if (game.getBetting().isPresent() && !UserProfile.get(context.getAuthor()).transaction(game.getBetting().get()))
+        if (game.getBetting().isPresent() && !UserProfile.get(context.getAuthor()).transaction(game.getBetting().get(), "transactions.betting"))
             return Constants.getNotEnoughTokensMessage(context, game.getBetting().get());
 
         game.joined(context.getAuthor());

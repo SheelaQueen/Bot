@@ -28,6 +28,7 @@ public class Statistics {
     private Map<String, Integer> perGameCount;
     private long commandCount;
     private long upvotes;
+    private long monthUpvotes;
 
     public long getTotalUptime() {
         return totalTime + (System.currentTimeMillis() - GamesROB.UP_SINCE);
@@ -83,7 +84,7 @@ public class Statistics {
                 return null;
             } else return new Statistics(
                     0L, 0L, System.currentTimeMillis(), null, 0,
-                    new HashMap<>(), 0, 0L
+                    new HashMap<>(), 0, 0L, 0L
             );
         }, object -> ((Statistics) object).save());
     }

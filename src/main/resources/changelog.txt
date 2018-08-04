@@ -1,18 +1,13 @@
-- Increased cached time. This will (hopefully) make commands more snappy.
-- On single player quiz, the amount of tokens earnt is how many points you had.
-- Quiz points were reworked, now you can gain from 40 to 10 tokens depending on the time it takes to answer, and harder questions have multipliers.
-- Added the collective game type, where anyone can just play along with you.
-This is currently limited to Quiz.
-You need to click the 👥 emoji to enable that.
-- Uno's emojis are now proper emojis!!!
+- Info now shows total upvotes and month upvotes.
+- Added a refresh button to info.
+- Added a back reaction on `g*help` (only shows when you enter a category).
+- The server count of the bot is now posted on DBots and BotsForDiscord.
+- Changed how multiplayer works! Now you can join with the maximum amount of people until you click the play button to start the match.
 
-- Fixed winning Uno.
-- Added a proper message for wildcard colors in Uno.
-- Added a proper message for invalid numbers in slots.
-- Fixed quiz reaction emojis.
-- Fixed quiz overflowing, but actually this time
-- Fixed baltop caching. Now it's properly localized and doesn't show the last user's name.
-- Fixed detective never ending sometimes.
-- Fixed play games achievement when you're not the match creator.
-- Fixed get categories.
+- Added a system to store transactions.
+Check out all your tokens transactions after the update with `g*tokens transactions`!
+
+- Fixed a bug that turned bombs into nothing when you flag them. How did this take so long?
+- Fixed quizzes glitching when nobody scores.
+- Fixed Uno not updating messages properly.
 Enjoy! ~ deprilula28

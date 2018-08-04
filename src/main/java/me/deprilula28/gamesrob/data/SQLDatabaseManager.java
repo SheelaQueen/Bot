@@ -91,10 +91,27 @@ public class SQLDatabaseManager {
         ));
     }
 
+    public ResultSet select(String table, List<String> items, String where, int limit, int offset) throws Exception {
+        return sqlQuery(String.format(
+                "SELECT %s FROM %s WHERE %s LIMIT %s OFFSET %s",
+                items.stream().collect(Collectors.joining(", ")),
+                table, where, limit, offset
+        ));
+    }
+
     public int getSize(String table) throws Exception {
         ResultSet set = sqlQuery(String.format(
                 "SELECT COUNT(*) FROM %s",
                 table
+        ));
+        if (set.next()) return set.getInt("count");
+        else return 0;
+    }
+
+    public int getSize(String table, String where) throws Exception {
+        ResultSet set = sqlQuery(String.format(
+                "SELECT COUNT(*) FROM %s WHERE %s",
+                table, where
         ));
         if (set.next()) return set.getInt("count");
         else return 0;

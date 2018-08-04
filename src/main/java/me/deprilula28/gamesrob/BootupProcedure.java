@@ -1,5 +1,9 @@
 package me.deprilula28.gamesrob;
 
+import com.github.kevinsawicki.http.HttpRequest;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonPrimitive;
 import lombok.Getter;
 import me.deprilula28.gamesrob.baseFramework.GameState;
 import me.deprilula28.gamesrob.baseFramework.GameType;
@@ -16,13 +20,10 @@ import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.events.guild.GuildJoinEvent;
 import net.dv8tion.jda.core.events.guild.GuildLeaveEvent;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
-import net.dv8tion.jda.core.events.message.guild.react.GuildMessageReactionAddEvent;
 import org.trello4j.TrelloImpl;
 import redis.clients.jedis.Jedis;
 
 import java.awt.*;
-import java.io.File;
-import java.io.FileReader;
 import java.util.*;
 import java.util.List;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -54,6 +55,8 @@ public class BootupProcedure {
 
     private static String token;
     public static Optional<String> optDblToken;
+    public static Optional<String> optDBotsToken;
+    public static Optional<String> optBfdToken;
     private static int shardTo;
     public static int shardFrom;
     private static int totalShards;
@@ -65,7 +68,7 @@ public class BootupProcedure {
     private static final BootupTask loadArguments = args -> {
         List<Optional<String>> pargs = Utility.matchValues(args, "token", "dblToken", "shards", "ownerID",
                 "sqlDatabase", "debug", "twitchUserID", "clientSecret", "twitchClientID", "rpcServerIP",
-                "shardId", "totalShards", "useRedis", "trelloToken");
+                "shardId", "totalShards", "useRedis", "trelloToken", "dbotsToken", "botsfordiscordToken");
         token = pargs.get(0).orElseThrow(() -> new RuntimeException("You need to provide a token!"));
         optDblToken = pargs.get(1);
         shardTo = pargs.get(2).map(Integer::parseInt).orElse(1);
@@ -92,6 +95,8 @@ public class BootupProcedure {
 
         DataManager.jedisOpt = pargs.get(12).flatMap(it -> (Boolean.valueOf(it) ? Optional.of(new Jedis("localhost")) : Optional.empty()));
         Trello.optTrello = pargs.get(13).map(it -> new TrelloImpl(Constants.TRELLO_API_KEY, it));
+        optDBotsToken = pargs.get(14);
+        optBfdToken = pargs.get(15);
     };
 
     private static final BootupTask connectDiscord = args -> {
@@ -111,7 +116,9 @@ public class BootupProcedure {
 
     private static final String[] ERROR_MESSAGES = {
             "So um... This is awkard...", "Oof...", "Sorry :c", "This ~~happens~~ *doesn't happen* very often you know?",
-            "Roses are red,\nViolets are blue.\nDep is bad at coding,\nSo I bring this message for you!"
+            "Roses are red,\nViolets are blue.\nDep is bad at coding,\nSo I bring this message for you!",
+            "uHhHh tHiS iS a StAbLe BoT oK?",
+            ""
     };
     private static final String[] GIFS = {
             "https://media2.giphy.com/media/dRgcwKJaGgWgo/giphy.gif",
@@ -202,8 +209,7 @@ public class BootupProcedure {
                     .botID(GamesROB.shards.get(0).getSelfUser().getId()).shardCount(totalShards).token(dblToken)
                     .build();
 
-            GamesROB.getAllShards().then(shards -> dbo.setStats(shards.stream().map(GamesROB.ShardStatus::getGuilds)
-                    .collect(Collectors.toList())));
+            if (shardFrom <= 0) GamesROB.getAllShards().then(BootupProcedure::postAllShards);
 
             GamesROB.commandFramework.handleEvent(GuildJoinEvent.class, event -> dbo.setStats(event.getJDA().getShardInfo().getShardId(),
                     event.getJDA().getGuilds().size()));
@@ -214,6 +220,79 @@ public class BootupProcedure {
             GamesROB.owners = Collections.unmodifiableList(GamesROB.dboAPI.get().getBot().getOwners().stream().map(Long::parseLong).collect(Collectors.toList()));
             owners = GamesROB.owners;
     });
+    private static final String DBL_URL_ROOT = "https://discordbots.org/api/";
+    private static final String DBOTS_URL_ROOT = "https://bots.discord.pw/api/";
+    private static final String BFD_URL_ROOT = "https://botsfordiscord.com/api/v1/";
+
+    @Getter private static String lastDblRequest;
+    @Getter private static String lastDbotsRequest;
+    @Getter private static String lastBfdRequest;
+
+    private static void postAllShards(List<GamesROB.ShardStatus> shards) {
+        String id = GamesROB.shards.get(0).getSelfUser().getId();
+
+        JsonObject dblJson = new JsonObject();
+        JsonArray dblShardsArray = new JsonArray();
+        shards.forEach(it -> {
+            dblShardsArray.add(new JsonPrimitive(it.getGuilds()));
+
+            JsonObject dbotsJson = new JsonObject();
+            dbotsJson.add("shard_id", new JsonPrimitive(Integer.parseInt(it.getId())));
+            dbotsJson.add("shard_count", new JsonPrimitive(shards.size()));
+            dbotsJson.add("server_count", new JsonPrimitive(it.getGuilds()));
+
+            optDBotsToken.ifPresent(dbotsToken -> {
+                lastDbotsRequest = HttpRequest.post(DBOTS_URL_ROOT + "bots/" + id + "/stats")
+                        .userAgent(Constants.USER_AGENT).authorization(dbotsToken).acceptJson().contentType("application/json")
+                        .send(Constants.GSON.toJson(dbotsJson)).body();
+            });
+        });
+
+        dblJson.add("shards", dblShardsArray);
+        optDblToken.ifPresent(dblToken -> {
+            lastDblRequest = HttpRequest.post(DBL_URL_ROOT + "bots/" + id + "/stats")
+                    .userAgent(Constants.USER_AGENT).authorization(dblToken).acceptJson().contentType("application/json")
+                    .send(Constants.GSON.toJson(dblJson)).body();
+        });
+
+        JsonObject bfdJson = new JsonObject();
+        bfdJson.add("count", new JsonPrimitive(shards.stream().mapToInt(GamesROB.ShardStatus::getGuilds).sum()));
+        optBfdToken.ifPresent(bfdToken -> {
+            lastBfdRequest = HttpRequest.post(BFD_URL_ROOT + "bots/" + id)
+                    .userAgent(Constants.USER_AGENT).authorization(bfdToken).acceptJson().contentType("application/json")
+                    .send(Constants.GSON.toJson(bfdJson)).body();
+        });
+    }
+
+    private static void postUpdatedShard(JDA jda) {
+        String id = jda.getSelfUser().getId();
+
+        JsonObject json = new JsonObject();
+        json.add("shard_id", new JsonPrimitive(jda.getShardInfo().getShardId()));
+        json.add("shard_count", new JsonPrimitive(jda.getShardInfo().getShardTotal()));
+        json.add("server_count", new JsonPrimitive(jda.getGuilds().size()));
+
+        optDBotsToken.ifPresent(dbotsToken -> {
+            lastDbotsRequest = HttpRequest.post(DBOTS_URL_ROOT + "bots/" + id + "/stats")
+                    .userAgent(Constants.USER_AGENT).authorization(dbotsToken).acceptJson().contentType("application/json")
+                    .send(Constants.GSON.toJson(json)).body();
+        });
+        optDblToken.ifPresent(dblToken -> {
+            lastDblRequest = HttpRequest.post(DBL_URL_ROOT + "bots/" + id + "/stats")
+                    .userAgent(Constants.USER_AGENT).authorization(dblToken).acceptJson().contentType("application/json")
+                    .send(Constants.GSON.toJson(json)).body();
+        });
+
+        GamesROB.getAllShards().then(shards -> {
+            JsonObject bfdJson = new JsonObject();
+            bfdJson.add("count", new JsonPrimitive(shards.stream().mapToInt(GamesROB.ShardStatus::getGuilds).sum()));
+            optBfdToken.ifPresent(bfdToken -> {
+                lastBfdRequest = HttpRequest.post(BFD_URL_ROOT + "bots/" + id)
+                        .userAgent(Constants.USER_AGENT).authorization(bfdToken).acceptJson().contentType("application/json")
+                        .send(Constants.GSON.toJson(bfdJson)).body();
+            });
+        });
+    }
 
     private static final BootupTask presenceTask = args -> {
         Thread presenceThread = new Thread(() -> {

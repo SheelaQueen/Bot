@@ -1,20 +1,25 @@
 package me.deprilula28.gamesrob.utility;
 
 import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.Getter;
 import me.deprilula28.gamesrob.GamesROB;
 
 import javax.xml.ws.Provider;
 import java.util.Map;
+import java.util.Random;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 
 public class Cache {
-    private static Map<Object, CachedObjectData> cachedMap = new ConcurrentHashMap<>();
+    @Getter private static final Map<Object, CachedObjectData> cachedMap = new ConcurrentHashMap<>();
     private static long allCleaned = 0;
 
     @AllArgsConstructor
-    private static class CachedObjectData {
+    @Data
+    public static class CachedObjectData {
         Object result;
         long added;
         Consumer<Object> onRemove;
@@ -29,7 +34,15 @@ public class Cache {
         Thread cleaner = new Thread(() -> {
             while (true) {
                 try {
-                    Thread.sleep(TimeUnit.SECONDS.toMillis(GamesROB.debug ? 2 : 120));
+                    Random random = ThreadLocalRandom.current();
+                    long begin = System.nanoTime();
+
+                    // Fin's ~~shitty~~ amazing formula
+                    double thing = (45 + (Math.sqrt(random.nextInt(120 - 90) + 90 + ((System.currentTimeMillis() * 0.0000000001)
+                                    + (Math.sqrt(Math.pow(random.nextDouble() * (256 - 248) + 248, 2)) -
+                                    random.nextDouble() * (4.20 - 0.69) + 0.69)))));
+
+                    Thread.sleep(Math.round(thing * 1000));
                     long time = System.currentTimeMillis();
                     int removed = 0;
 

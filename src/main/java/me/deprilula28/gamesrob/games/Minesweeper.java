@@ -103,7 +103,7 @@ public class Minesweeper implements MatchHandler {
             return;
         }
         curBoard.get(x).set(y, length == 3
-                ? new MinesweeperTile(MinesweeperTileType.UNCOVERED, true)
+                ? new MinesweeperTile(tile.type, true)
                 : new MinesweeperTile(MinesweeperTileType.DUG, false));
 
         if (!hiddenBombs) {

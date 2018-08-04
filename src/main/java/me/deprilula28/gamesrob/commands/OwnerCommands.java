@@ -74,6 +74,33 @@ public class OwnerCommands {
         return "Announcement set. It will now show in `g*help`.";
     }
 
+    public static String servercount(CommandContext context) {
+        if (!GamesROB.owners.contains(context.getAuthor().getIdLong())) return Language.transl(context,
+                "genericMessages.ownersOnly");
+
+        return "Last server count posts:\n" +
+                "`DBL`: " + BootupProcedure.getLastDblRequest() + "\n" +
+                "`BotsForDiscord`: " + BootupProcedure.getLastBfdRequest() + "\n" +
+                "`Discord Bots`: " + BootupProcedure.getLastDbotsRequest();
+    }
+
+    public static String cache(CommandContext context) {
+        if (!GamesROB.owners.contains(context.getAuthor().getIdLong())) return Language.transl(context,
+                "genericMessages.ownersOnly");
+
+        String cache = Cache.getCachedMap().entrySet().stream().filter(it -> it.getKey() != null && it.getValue() != null
+                && it.getValue().getResult() != null).map(it -> {
+            String result = it.getValue().getResult().toString();
+
+            return  "\"" + it.getKey().toString() + "\" = " + (result.length() > 100 ? result.substring(0, 100) + "..." : result)
+                    + " (added " + Utility.formatTime(it.getValue().getAdded()) + (it.getValue().getOnRemove() == null ? ")"
+                    : " | has on remove)");
+        }).collect(Collectors.joining("\n"));
+
+        return "**Cache**\n```java\n" + (cache.length() > 1800 ? cache.substring(0, 1800) + "..." : cache)
+                + "\n```";
+    }
+
     public static String blacklist(CommandContext context) {
         if (!GamesROB.owners.contains(context.getAuthor().getIdLong())) return Language.transl(context,
                 "genericMessages.ownersOnly");
