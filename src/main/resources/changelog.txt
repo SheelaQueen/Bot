@@ -1,13 +1,14 @@
-- Info now shows total upvotes and month upvotes.
-- Added a refresh button to info.
-- Added a back reaction on `g*help` (only shows when you enter a category).
-- The server count of the bot is now posted on DBots and BotsForDiscord.
-- Changed how multiplayer works! Now you can join with the maximum amount of people until you click the play button to start the match.
+- Added aditional game modes!
+You can play these by adding `mode=<mode>` to the end of a game command (example: `g*connect4 mode=reverse`)
+These are the currently implemented modes:
 
-- Added a system to store transactions.
-Check out all your tokens transactions after the update with `g*tokens transactions`!
+\* Reverse `reverse` for Tic-Tac-Toe and Connect4, where if you match you're out of the game, and the last player wins.
+\* House `house` for Minesweeper, where the number of the mines you dig doesn't count the bottom, left and right tiles.
+\* Knight Paths `knightpaths` for Minesweeper, where the number of the mines you dig doesn't count the surrounding 8 tiles, but rather tiles in knight paths (chess knights :^)) from it.
 
-- Fixed a bug that turned bombs into nothing when you flag them. How did this take so long?
-- Fixed quizzes glitching when nobody scores.
-- Fixed Uno not updating messages properly.
+- Fixed server count uploading.
+- Fixed matches starting after 20 seconds with no players. Twice, may I add.
+- Fixed rematch on single player games.
+
+Earlier update because I'm gonna be away for a bit. Next update is next friday.
 Enjoy! ~ deprilula28

@@ -7,10 +7,7 @@ import me.deprilula28.gamesrob.utility.Constants;
 import me.deprilula28.gamesrob.utility.Log;
 import me.deprilula28.jdacmdframework.RequestPromise;
 import net.dv8tion.jda.core.MessageBuilder;
-import net.dv8tion.jda.core.entities.Emote;
-import net.dv8tion.jda.core.entities.Guild;
-import net.dv8tion.jda.core.entities.Message;
-import net.dv8tion.jda.core.entities.TextChannel;
+import net.dv8tion.jda.core.entities.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -27,6 +24,18 @@ public class GameUtil {
         } catch (Exception e) {
             return Optional.empty();
         }
+    }
+
+    public static boolean gameEnd(boolean reverse, Optional<User> matcherPlayer, List<Optional<User>> alive, Match match) {
+        if (reverse) {
+            alive.remove(matcherPlayer);
+            if (alive.size() == 1) {
+                match.onEnd(alive.get(0));
+                return true;
+            }
+            return false;
+        } else match.onEnd(matcherPlayer);
+        return false;
     }
 
     public static RequestPromise<Message> editSend(TextChannel channel, int messagesSince, RequestPromise<Message> oldMessage, Message message) {

@@ -30,7 +30,7 @@ public class Quiz implements MatchHandler {
     public static final GamesInstance GAME = new GamesInstance(
             "quiz", "quiz trivia quizzes qz",
             1, 11, GameType.COLLECTIVE, false,
-            Quiz::new, Quiz.class
+            Quiz::new, Quiz.class, Collections.emptyList()
     );
 
     private static void ensureLoaded() {

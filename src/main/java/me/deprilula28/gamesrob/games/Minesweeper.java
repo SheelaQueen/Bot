@@ -21,7 +21,9 @@ public class Minesweeper implements MatchHandler {
     public static final GamesInstance GAME = new GamesInstance(
             "minesweeper", "minesweeper minsw miner ms",
             1, 3, GameType.HYBRID, false,
-            Minesweeper::new, Minesweeper.class
+            Minesweeper::new, Minesweeper.class, Arrays.asList(
+                new GamesInstance.GameMode("knightpaths", "knightpaths knightspaths knightpath kp knpath"),
+                new GamesInstance.GameMode("house", "house hs onlytopandcorners topcorners"))
     );
     private static final Map<String, String> EMOTE_ID_MAP = new HashMap<>();
     private static boolean loaded = false;
@@ -34,7 +36,6 @@ public class Minesweeper implements MatchHandler {
             String name = "bombs" + i;
             GameUtil.getEmote(name).ifPresent(it -> EMOTE_ID_MAP.put(name, it));
         }
-        Log.info(EMOTE_ID_MAP);
     }
 
     @Setting(min = 4, max = 6, defaultValue = 6) public int rows; // Y axis
@@ -189,12 +190,35 @@ public class Minesweeper implements MatchHandler {
 
     private int getNearbyBombs(List<List<MinesweeperTile>> curBoard, int x, int y) {
         int count = 0;
-        for (int searchX = x - 1; searchX <= x + 1; searchX ++) {
+
+        int[] scroll;
+        if (!match.getMode().isPresent()) for (int searchX = x - 1; searchX <= x + 1; searchX ++) {
             for (int searchY = y - 1; searchY <= y + 1; searchY ++) {
                 if (searchX < 0 || searchX > columns || searchY < 0 || searchY > rows) continue;
-
                 if (curBoard.get(searchX).get(searchY).getType() == MinesweeperTileType.BOMB) count ++;
             }
+        } else switch (match.getMode().get().getLanguageCode()) {
+            case "knightpaths":
+                final int[] X_ARRAY = { -2, -2, -1, -1, 1, 1, 2, 2 };
+                final int[] Y_ARRAY = { -1, 1, -2, 2, -2, 2, -1, 1 };
+
+                for (int i = 0; i < X_ARRAY.length; i ++) {
+                    int searchX = x + X_ARRAY[i];
+                    int searchY = y + Y_ARRAY[i];
+                    if (searchX < 0 || searchX > columns || searchY < 0 || searchY > rows) continue;
+                    if (curBoard.get(searchX).get(searchY).getType() == MinesweeperTileType.BOMB) count ++;
+                }
+                break;
+            case "house":
+                for (int searchX = x - 1; searchX <= x + 1; searchX ++) {
+                    for (int searchY = y - 1; searchY <= y + 1; searchY ++) {
+                        if (searchX < 0 || searchX > columns || searchY < 0 || searchY > rows
+                                || ((searchX == x - 1 || searchX == x + 1) && searchY == y) // left & right
+                                || (searchY == y + 1 && searchX == x) /* bottom */) continue;
+                        if (curBoard.get(searchX).get(searchY).getType() == MinesweeperTileType.BOMB) count ++;
+                    }
+                }
+                break;
         }
 
         return count;

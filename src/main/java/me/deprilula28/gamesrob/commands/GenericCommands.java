@@ -68,7 +68,7 @@ public class GenericCommands {
                                     Utility.addNumberDelimitors(stats.getCommandCount()),
                                     Utility.addNumberDelimitors(stats.getUpvotes())
                             ) + Language.transl(context, "command.info.embed2.statistics.month",
-                                    Statistics.get().getMonthUpvotes()), true)
+                                    Utility.addNumberDelimitors(Statistics.get().getMonthUpvotes())), true)
                     .addField(Language.transl(context, "command.info.embed2.links.title"),
                             Language.transl(context, "command.info.embed2.links.description",
                                     Constants.GAMESROB_DOMAIN, Constants.getInviteURL(context.getJda()),

@@ -35,13 +35,15 @@ gameFramework:
   singleplayerMatch: "**Single-player %s Match**\n%s\n\n"
   multiplayerMatch: "**Multi-player %s Match**\n%s\n\n"
   collectiveMatch: "**%s Game**\n%s\nClick 👥 to allow other people to play!\n\n"
-  joinToPlay: "🚪 Type `%sjoin` or click the door below to play! (%s/%s)"
-  joinToPlayNoReaction: "🚪 Type `%sjoin` to play! (%s/%s)"
+  joinToPlay2: "🚪 Type `%sjoin` or click the door below to play!"
+  joinToPlayNoReaction2: "🚪 Type `%sjoin` to play!"
+  waiting: "⏰ Waiting\n"
   playButton: "Click :arrow_forward: to start %s!"
   betting: "💰 Betting %s 🔸 tokens!"
   begin: "**It's on!**\n**%s**\n%s\n\n"
   join: "%s has joined the match! %s/%s"
   left: "%s has left the match!"
+  mode: "\n**%s Mode:** %s"
 
   requireBetting: "This game requires betting!\nAdd `bet=amount` in the end of the command to choose how many tokens should be gambled."
   settingOutOfRange: "The setting `%s` needs to be between %s and %s!"
@@ -192,6 +194,19 @@ game:
     supporter: "Supporter"
     votingWeek: "Voting Week!"
     votingMonth: "Voting Month..?"
+  mode:
+    reversec4:
+      name: "Inverted"
+      description: "It's reverse day! Don't connect four!"
+    reversettt:
+      name: "Inverted"
+      description: "It's reverse day! You were probably going to tie anyway, see if this helps."
+    knightpaths:
+      name: "Knight Paths"
+      description: "The number shown in the tiles you dig actually show what's from knight paths (Chess) from it!"
+    house:
+      name: "House"
+      description: "The number shown in the tiles you dig won't count the left, bottom and right tiles."
 
 command:
   permissionLock: "⛔ You can't use this command!"

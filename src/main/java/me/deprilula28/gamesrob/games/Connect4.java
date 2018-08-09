@@ -17,8 +17,8 @@ public class Connect4 extends TurnMatchHandler {
     public static final GamesInstance GAME = new GamesInstance(
             "connectFour", "connect4 connectfour lig4 ligquatro con4 confour c4",
             1, ITEMS.length - 1, GameType.MULTIPLAYER, false,
-            Connect4::new, Connect4.class
-    );
+            Connect4::new, Connect4.class, Collections.singletonList(new GamesInstance.GameMode(
+                    "reversec4", "reverse rev reversed inverted dontconnect4")));
 
     @Setting(min = 3, max = 6, defaultValue = 4) public int tiles;
     @Setting(min = 1, max = 6, defaultValue = 6) public int rows; // Y axis
@@ -27,6 +27,7 @@ public class Connect4 extends TurnMatchHandler {
     private Map<Optional<User>, String> playerItems = new HashMap<>();
     private Map<String, Optional<User>> itemPlayers = new HashMap<>();
     private List<List<Optional<String>>> board = new ArrayList<>(); // List of rows (Y axis)
+    private List<Optional<User>> alive = new ArrayList<>();
 
     @Override
     public void begin(Match match, Provider<RequestPromise<Message>> initialMessage) {
@@ -38,6 +39,7 @@ public class Connect4 extends TurnMatchHandler {
     public void receivedMessage(String contents, User author, Message reference) {
         messages ++;
         getTurn().ifPresent(cur -> {
+            if (!alive.contains(Optional.of(cur))) return;
             if (cur != author) return;
             Optional<Integer> numb = GameUtil.safeParseInt(contents);
             if (!numb.isPresent()) return;
@@ -68,10 +70,12 @@ public class Connect4 extends TurnMatchHandler {
             return true;
         }
 
-        String winner = GameUtil.detectVictory(board, rows, columns - 1, 1, tiles - 2);
-        if (winner == null) return false;
-        match.onEnd(itemPlayers.get(winner));
-        return true;
+        String matcher = GameUtil.detectVictory(board, rows, columns - 1, 1, tiles - 2);
+        if (matcher == null) return false;
+
+        boolean reverse = match.getMode().isPresent() && match.getMode().get().getLanguageCode().equals("reversec4");
+        Optional<User> matcherPlayer = itemPlayers.get(matcher);
+        return GameUtil.gameEnd(reverse, matcherPlayer, alive, match);
     }
 
     @Override

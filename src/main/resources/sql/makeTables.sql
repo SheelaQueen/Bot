@@ -13,7 +13,8 @@ CREATE TABLE IF NOT EXISTS userData (
     lastupvote BIGINT,
     upvoteddays INT,
     shardid INT,
-    userid TEXT
+    userid TEXT,
+    websitesession TEXT
 );
 CREATE TABLE IF NOT EXISTS leaderboardEntries (
     userid TEXT,
@@ -63,5 +64,5 @@ CREATE TABLE IF NOT EXISTS translationsuggestions (
     userid TEXT,
     anonymous BOOLEAN,
     rating INT,
-    m TEXT[]
+    raters TEXT[]
 );

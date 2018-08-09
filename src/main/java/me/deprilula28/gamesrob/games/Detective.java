@@ -18,7 +18,7 @@ public class Detective implements MatchHandler {
     public static final GamesInstance GAME = new GamesInstance(
             "detective", "detective assassin clue murder murderer detetive det dt",
             3, 11, GameType.MULTIPLAYER, false,
-            Detective::new, Detective.class
+            Detective::new, Detective.class, Collections.emptyList()
     );
 
     private Optional<User> killer = Optional.empty();

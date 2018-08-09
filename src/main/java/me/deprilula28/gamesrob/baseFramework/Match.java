@@ -45,6 +45,7 @@ public class Match extends Thread {
     private static final long REMATCH_TIMEOUT_PERIOD = TimeUnit.MINUTES.toMillis(1);
 
     protected TextChannel channelIn;
+    private Optional<GamesInstance.GameMode> mode = Optional.empty();
     private final Map<User, Map<AchievementType, Integer>> addAchievement = new HashMap<>();
     private GamesInstance game;
     private GameState gameState;
@@ -67,8 +68,7 @@ public class Match extends Thread {
     // Rematch multiplayer
     public Match(GamesInstance game, User creator, TextChannel channel, List<Optional<User>> players,
                  Map<String, String> options, int matchesPlayed) {
-
-        multiplayer = true;
+        multiplayer = players.size() > 1;
         String guildLang = GuildProfile.get(channel.getGuild()).getLanguage();
         language = guildLang == null ? Constants.DEFAULT_LANGUAGE : guildLang;
         channelIn = channel;
@@ -148,7 +148,7 @@ public class Match extends Thread {
     }
 
     // Hybrid/Multiplayer
-    public Match(GamesInstance game, User creator, TextChannel channel, Map<String, String> options, Optional<Integer> bet) {
+    public Match(GamesInstance game, User creator, TextChannel channel, Map<String, String> options, Optional<GamesInstance.GameMode> mode, Optional<Integer> bet) {
         multiplayer = true;
         String guildLang = GuildProfile.get(channel.getGuild()).getLanguage();
         language = guildLang == null ? Constants.DEFAULT_LANGUAGE : guildLang;
@@ -157,6 +157,7 @@ public class Match extends Thread {
         canReact = Utility.hasPermission(channelIn, member, Permission.MESSAGE_ADD_REACTION);
         players.add(Optional.of(creator));
 
+        this.mode = mode;
         this.betting = betting;
         this.creator = creator;
         this.game = game;
@@ -182,7 +183,7 @@ public class Match extends Thread {
     public void run() {
         while (gameState != GameState.POST_MATCH)
             try {
-                if (gameState == GameState.MATCH) {
+                if (gameState == GameState.MATCH || players.size() < game.getMinTargetPlayers() + 1) {
                     Thread.sleep(MATCH_TIMEOUT_PERIOD);
                     onEnd(Language.transl(language, "gameFramework.timeout", Utility.formatPeriod(MATCH_TIMEOUT_PERIOD)),
                             true);
@@ -229,14 +230,18 @@ public class Match extends Thread {
 
     private String getPregameText() {
         StringBuilder builder = new StringBuilder(Language.transl(language, "gameFramework.multiplayerMatch",
-                game.getName(language), game.getShortDescription(language)
+                game.getName(language), game.getShortDescription(language) + mode.map(it ->
+                        Language.transl(language, "gameFramework.mode", it.getName(language), it.getDescription(language)))
+                    .orElse("")
         ));
-        players.forEach(cur -> builder.append(cur.map(it -> "☑ **" + it.getName() + "**").orElse("AI")).append("\n"));
-        for (int i = players.size(); i <= game.getMinTargetPlayers(); i ++) builder.append("⏰ Waiting\n\n");
 
+        players.forEach(cur -> builder.append(cur.map(it -> "☑ **" + it.getName() + "**").orElse("AI")).append("\n"));
+        for (int i = players.size(); i <= game.getMinTargetPlayers(); i ++) builder.append(Language.transl(language, "gameFramework.waiting"));
+
+        builder.append("\n");
         betting.ifPresent(amount -> builder.append(Language.transl(language, "gameFramework.betting", amount)).append("\n"));
-        builder.append(Language.transl(language, canReact ? "gameFramework.joinToPlay" : "gameFramework.joinToPlayNoReaction",
-                Constants.getPrefix(channelIn.getGuild()), players.size(), game.getMaxTargetPlayers()
+        builder.append(Language.transl(language, canReact ? "gameFramework.joinToPlay2" : "gameFramework.joinToPlayNoReaction2",
+                Constants.getPrefix(channelIn.getGuild())
         ));
 
         if (game.getGameType() == GameType.HYBRID || getPlayers().size() >= game.getMinTargetPlayers() + 1)
@@ -326,7 +331,9 @@ public class Match extends Thread {
 
             matchHandler.begin(this, no -> {
                 MessageBuilder builder = new MessageBuilder().append(Language.transl(language, "gameFramework.singleplayerMatch",
-                        game.getName(language), game.getLongDescription(language)
+                        game.getName(language), game.getLongDescription(language) + mode.map(it ->
+                                Language.transl(language, "gameFramework.mode", it.getName(language), it.getDescription(language)))
+                            .orElse("")
                 ));
                 matchHandler.updatedMessage(false, builder);
                 return matchMessage = RequestPromise.forAction(channelIn.sendMessage(builder.build())).then(no2 -> gameState = GameState.MATCH);
@@ -346,7 +353,9 @@ public class Match extends Thread {
 
         matchHandler.begin(this, no -> {
             MessageBuilder builder = new MessageBuilder().append(Language.transl(language, "gameFramework.begin",
-                    game.getName(language), game.getLongDescription(language)
+                    game.getName(language), game.getLongDescription(language) + mode.map(it ->
+                            Language.transl(language, "gameFramework.mode", it.getName(language), it.getDescription(language)))
+                            .orElse("")
             ));
             matchHandler.updatedMessage(false, builder);
             return matchMessage = RequestPromise.forAction(channelIn.sendMessage(builder.build())).then(no2 -> gameState = GameState.MATCH);
@@ -361,10 +370,6 @@ public class Match extends Thread {
 
         new Match(game, creator, channelIn, players, options, matchesPlayed + 1);
         interrupt();
-    }
-
-    public <T extends Event> void on(String name, Consumer<T> handler) {
-
     }
 
     public void onEnd(int tokens) {
@@ -472,6 +477,9 @@ public class Match extends Thread {
             }
 
             Optional<Integer> bet = settings.containsKey("bet") ? GameUtil.safeParseInt(settings.get("bet")) : Optional.empty();
+            Optional<GamesInstance.GameMode> mode = settings.containsKey("mode") && !game.getModes().isEmpty() ? game.getModes().stream()
+                    .filter(curMode -> Arrays.stream(curMode.getAliases().split(" ")).anyMatch(it -> it.equals(settings.get("mode"))))
+                    .findAny() : Optional.empty();
 
             if (bet.isPresent()) {
                 int amount = bet.get();
@@ -481,7 +489,7 @@ public class Match extends Thread {
                     return Constants.getNotEnoughTokensMessage(context, amount);
             } else if (game.isRequireBetting()) return Language.transl(context, "gameFramework.requireBetting");
 
-            new Match(game, context.getAuthor(), context.getChannel(), settings, bet);
+            new Match(game, context.getAuthor(), context.getChannel(), settings, mode, bet);
             return null;
         }, ctx -> GuildProfile.get(ctx.getGuild()).canStart(ctx));
     }

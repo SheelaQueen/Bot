@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import me.deprilula28.gamesrob.Language;
 
+import java.util.List;
 import java.util.function.Supplier;
 
 @Data
@@ -20,6 +21,8 @@ public class GamesInstance {
     private transient Supplier<MatchHandler> matchHandlerSupplier;
     private transient Class<? extends MatchHandler> matchHandlerClass;
 
+    private List<GameMode> modes;
+
     public String getName(String language) {
         return Language.transl(language, "game." + getLanguageCode() + ".name");
     }
@@ -30,5 +33,20 @@ public class GamesInstance {
 
     public String getLongDescription(String language) {
         return Language.transl(language, "game." + getLanguageCode() + ".longDescription");
+    }
+
+    @Data
+    @AllArgsConstructor
+    public static class GameMode {
+        private String languageCode;
+        private String aliases;
+
+        public String getName(String language) {
+            return Language.transl(language, "game.mode." + languageCode + ".name");
+        }
+
+        public String getDescription(String language) {
+            return Language.transl(language, "game.mode." + getLanguageCode() + ".description");
+        }
     }
 }

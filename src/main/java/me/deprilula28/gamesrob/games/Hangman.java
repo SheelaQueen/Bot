@@ -19,7 +19,7 @@ public class Hangman implements MatchHandler {
     public static final GamesInstance GAME = new GamesInstance(
             "hangman", "hangman hgm hm forca",
             1, 5, GameType.MULTIPLAYER, false,
-            Hangman::new, Hangman.class
+            Hangman::new, Hangman.class, Collections.emptyList()
     );
 
     private static final String[] FACES = {
