@@ -18,8 +18,7 @@ public class TicTacToe extends TurnMatchHandler {
     public static final GamesInstance GAME = new GamesInstance(
             "tictactoe", "tictactoe ttt",
             1, ITEMS.length - 1, GameType.MULTIPLAYER, false,
-            TicTacToe::new, TicTacToe.class
-    );
+            TicTacToe::new, TicTacToe.class, Collections.singletonList(new GamesInstance.GameMode("reversettt", "reverse rev reversed inverted donttictactoe")));
     private int tiles = 9;
     @Setting(min = 2, max = 5, defaultValue = 3) public int boardSize;
     @Setting(min = 2, max = 10, defaultValue = 3) public int connectTiles;
@@ -27,10 +26,12 @@ public class TicTacToe extends TurnMatchHandler {
     private List<Optional<String>> board = new ArrayList<>();
     private Map<Optional<User>, String> playerItems = new HashMap<>();
     private Map<String, Optional<User>> itemPlayers = new HashMap<>();
+    private List<Optional<User>> alive = new ArrayList<>();
 
     @Override
     public void begin(Match match, Provider<RequestPromise<Message>> initialMessage) {
         tiles = boardSize * boardSize;
+        alive = match.getPlayers();
 
         for (int i = 0; i < tiles; i ++) {
             board.add(Optional.empty());
@@ -47,6 +48,7 @@ public class TicTacToe extends TurnMatchHandler {
     public void receivedMessage(String contents, User author, Message reference) {
         messages ++;
         getTurn().ifPresent(cur -> {
+            if (!alive.contains(Optional.of(cur))) return;
             if (cur != author) return;
             if (contents.length() != 1) return;
 
@@ -63,16 +65,12 @@ public class TicTacToe extends TurnMatchHandler {
 
     @Override
     public boolean detectVictory() {
-        String winner = detectVictory(board);
-        if (winner == null) {
-            if (board.stream().allMatch(Optional::isPresent)) {
-                match.onEnd("It's a draw!", true);
-                return true;
-            }
-            return false;
-        }
-        match.onEnd(itemPlayers.get(winner));
-        return true;
+        String matcher = detectVictory(board);
+        if (matcher == null) return false;
+
+        boolean reverse = match.getMode().isPresent() && match.getMode().get().getLanguageCode().equals("reversec4");
+        Optional<User> matcherPlayer = itemPlayers.get(matcher);
+        return GameUtil.gameEnd(reverse, matcherPlayer, alive, match);
     }
 
     private String detectVictory(List<Optional<String>> board) {

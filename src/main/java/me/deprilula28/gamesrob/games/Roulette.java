@@ -19,7 +19,7 @@ public class Roulette extends TurnMatchHandler {
     public static final GamesInstance GAME = new GamesInstance(
             "roulette", "roulette russianroulette rl rr roul",
             1, 7, GameType.MULTIPLAYER, true,
-            Roulette::new, Roulette.class
+            Roulette::new, Roulette.class, Collections.emptyList()
     );
     private static final int BARREL_HOLES = 8;
     private static final int MIN_STRENGTH = 2;

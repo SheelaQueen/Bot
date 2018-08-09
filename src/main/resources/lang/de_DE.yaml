@@ -5,24 +5,41 @@ languageProperties:
   country: "Germany"
   flag: "🇩🇪"
   languageName: "German"
-  translators: "Niekold#9410"
+  translators: "Niekold | DeinSystemNET#9410"
   version: "1.4.2"
 
 genericMessages:
   alreadyPlaying: "Du spielst bereits ein Spiel in %s!\nGebe `%sleave` ein, um das Spiel zu verlassen."
   noGamesInChannel: "Es läuft kein Spiel in den Channel.\nDu kannst `%shelp` eingeben, um ein Spiel zu starten."
+  invalidLanguage: "Not a valid language."
+  notEnoughTokens: 
+    beggining: "Du hast nicht genug Tokens (benötige %s mehr)."
+    upvote: "\nBekommen mehr Token durch gewinnen von spielen oder Voten, link: %s."
+
+  nth1: "st"
+  nth2: "nd"
+  nth3: "rd"
+  nth4: "th"
+  upvoteMessage: "Danke fürs Voten bei GamesROB !\nDu bekommst:\n**%s**\nVotes Streak: **%s Tage**\nVote täglich für mehr Gewinne."
+  ownersOnly: "Diesen Befehl können nur Owner benutzen."
+  blacklisted: "⛔ Du wurdest von GamesROB gebannt. %s (%s).\nGrund: %s"
+  blacklistedNoInfo: "⛔ Du wurdest von GamesROB gebannt."
 
 gameFramework:
   singleplayerMatch: "**%s Einzelspieler Kampf!**\n%s\n\n%s"
   multilplayerMatch: "**%s Mehrspieler Kampf!**\n%s\n\n"
   joinToPlay: "🚪 Gebe `%sjoin` ein, um das Spiel zu betreten! (%s/%s)"
+  joinToPlayNoReaction: "🚪 Tippe `%sjoin` zum spielen! (%s/%s)"
+  betting: "💰 Wette mit %s 🔸 Tokens!"
   begin: "**Spiel gestartet!**\n**%s**\n%s\n\n"
   join: "%s hat das Spiel betreten! %s/%s"
   left: "%s hat das Spiel verlassen!"
 
+  requireBetting: "Dieses Spiel benötigt wetten!\nAdde `bet=amount` beim Kommand um tokens zu setzen."
   settingOutOfRange: "Die Einstellung `%s` muss zwischen %s und %s liegen!"
   activeGame: "In diesem Channel läuft bereits ein Spiel."
   viewPlayers: "Seh dir die Spieler mit `%slistplayers` an und verlasse das Spiel mit `%sleave`."
+  viewPlayersStop: "Seh dir die Spieler mit `%slistplayers` an und stoppe mit `%sstop`."
   typeToJoin: "Gebe `%sjoin` ein um das Spiel zu betreten."
   playersOutOfRange: "Du kannst nur zwischen %s und %s Spielern in diesem Spiel haben!"
 
@@ -35,53 +52,144 @@ gameFramework:
 
   now: " - **Jetz**"
   next: " - **Danach**"
+  turn: "%s's turn"
+
+  rematch: "Klicke auf :arrows_counterclockwise: für eine weitere Runde."
 
 game:
+  roulette:
+    name: "Russisches Roulette"
+    shortDescription: "Drehe das Fass um, werde nicht getroffen!"
+    longDescription: "Eine Kugel, 8 Barrel Löcher. \n Flip den Lauf in welcher Stärke du willst, und hoffen auf das Beste, wenn du den Abzug betätigsz!"
+    chooseStrength: "🔫 Wie stark willst du drehen? \nSende einen Nummer von %s bis %s."
+    shot: "%s zieht den Abzug und wird getroffen! Wie unglücklich von ihnen."
+    survive: "%s zieht den Auslöser und ist durch den fehlenden Ton erleichtert."
   connectFour:
     name: "4 Gewinnt"
     shortDescription: "Werfe scheiben, um 4 Ihrer Farbe zu verbinden!"
-    longDescription: "Du musst 4 Kacheln deiner Farbe vertikal, horizontal oder diagonal verbinden! \n Senden Sie im Chat die Nummer der Zeile an, die Sie einfügen möchten (z. B. 3)"
+    longDescription: "Du musst 4 Kacheln deiner Farbe vertikal, horizontal oder diagonal verbinden! \n Senden im Chat die Nummer der Zeile, wo du die Kachel setzen möchtest. (z. B. 3)"
   hangman:
     name: "Hangman"
     shortDescription: "Versuche das vom Ersteller des Spiels übermittelte Wort zu erraten!"
     longDescription: "Der Ersteller des Matches sendet ein geheimes Wort an den Bot in DM. \n Danach versuchen die anderen Spieler, es Buchstabe für Buchstabe zu erraten!"
-
     sendWord: "Bevor es beginnt, %s: Sende das Wort, das du wählst per PN."
     wordSet: "**Wort gesetzt!**\nDu kannst nun zurück zu %s."
     wordPicked: "Das Wort wurde gesetzt!"
     invalidGuess: "%s hat %s geraten, und es ist falsch!"
     validGuess: "%s hat den Buchstaben %s erhalten!"
+    outOfLimbs: "%s ist gestorben! Guter Versuch!"
   minesweeper:
     name: "Minensucher"
     shortDescription: "Der OG Minensucher! Lass dich nicht aufblasen!"
     longDescription: "Schicke den Ort, an dem du graben möchtest (z. B. c4), die Anzahl der Bomben in der Nähe wird angezeigt. \n Gib nicht in eine Bombe hinein! Viel Glück!"
-
     bomb: "Du hast eine Bombe geworfen"
     left: "Der Spieler hat die Runde verlassen."
   tictactoe:
     name: "TicTacToe"
     shortDescription: "Ordne 3 deiner Fliese in einer Linie innerhalb des Brettes an!"
     longDescription: "Sie wissen, wie TicTacToe funktioniert!\nSenden Sie einfach den Buchstaben ein, in den Sie Ihre Kachel einfügen möchten (z. B. a)."
+  detective:
+    name: "Detektiv"
+    shortDescription: "Einer von Ihnen ist ein Attentäter. Wirf ihn raus, bevor es zu spät ist."
+    longDescription: "Der Attentäter wird jeden Abend jemanden töten. \nBürger werden jeden Tag jemanden rausschmeißen. \nVersuchen den Mörder zu finden, bevor es zu spät ist."
+    invalidUser: "Dieser Benutzer spielt nicht oder ist bereits gestorben / wurde getreten."
+    assassinKicked: "Der Attentäter wurde getreten! Schließlich kann die Stadt in Ruhe schlafen."
+    murderReveal: "%s ist der Mörder!"
+    sleep: "🌇 Die Stadt geht schlafen."
+    sleepIndecisive: "🌇 Die Stadt schläft ein und schlägt unentwegt niemanden. Wie wird das ausgehen?"
+    sleepKicked: "🌇 Die Stadt geht schlafen und tritt %s vergeblich wegen versuchten Mordes aus der Stadt.\nWenig wissen sie, das ist nicht das, was sie wollten ..."
+    chooseKick: "\nGemeinsam muss die Stadt entscheiden, wer mit dieser schrecklichen Tat davonkommt, also können wir sie für immer besiegen. \nSende den Brief, für den du denkst, dass er gekickt werden sollte:\n"
+    wakeFirst: "🌆 Die Stadt wacht überrascht auf, als sie erfahren, dass %s in seinem eigenen Haus erstochen wurde. Warum sollte jemand das tun?"
+    wakeSecond: "🌆 Die Stadt wacht auf, es fehlt diesmal %s, Wer ist wieder in ihrem Haus erstochen worden? Sie sagen, zweimal ist nur ein Zufall, oder?"
+    wakeThird: "🌆 Die Stadt wacht auf. Wir sind definitiv in \"pattern\" Territorium rund um %s stechend."
+    wakeFourthPlus: "🌆 Die Stadt wacht auf, mit einem Bürger weniger in unserem Reich, und das wäre %s. Wann hört das auf?"
+    dmCitizen: "🏙 Du bist ein Bürger"
+    dmAssassin: "🗡 Du bist der Mörder! Wer wird zuerst das Pech haben? (Geben Sie hier einem Namen ein)"
+    dmAssassinRecursive: "Wer wird es heute Abend sein? (Geben Sie hier einen Namen ein)"
+  quiz:
+    name: "Quiz"
+    shortDescription: "Kennst du alle Antworten?"
+    longDescription: "Wer kann die Fragen zuerst beantworten? \nSenden Sie den Buchstaben, den du für die richtige Antwort in einer Nachricht halten.\nWer am Ende mehr Punkte hat, gewinnt!"
+    revealAnswer: "%s\nAntwort war: %s\n"
+    cantPlay: "%s: Du hast es zu oft geraten! Warte, um in der nächsten Runde wieder mit zu spielen."
+    answer: "%s (+%s points) hat es richtig beantwortet!"
+    noOneAnswered: "Niemand konnte das beantworten! Die Antwort war: \"**%s**\"."
+  achievement:
+    got: "Erfolg hat: **%s**!\n*%s*\n+🔸 %s Tokens"
+
+    # Types
+    playGames: "Spiele %s spiele"
+    winGames: "Gewinne %s spiele"
+    gambleTokens: "Setzte %s Tokens"
+    winTokensGambling: "Gewinne %s durch gesetzte Tokens"
+    loseTokensGambling: "Verliere %s durch gesetzte Tokens"
+    reachPlaceLeaderboard: "Sei %sst Platz im Leaderboard!"
+    reachTokens: "Habe %s Tokens"
+
+    # Achievements
+    realPlayer: "Echter Spieler"
+    intensePlayer: "Intensiver Spieler"
+    proPlayer: "Prospieler"
+    tooManyGames: "Zu viele Spiele"
+
+    crowned: "#Gekrönt"
+    master: "Meister"
+    tooGood: "Zu Gut"
+    tryhard: "Anstrengen"
+
+    gambler: "Spieler"
+    addicted: "Süchtig"
+    highRoller: "Hoher Roller"
+
+    onARoll: "Einen Höhenflug haben"
+    lucky: "Glück"
+    rigged: "Manipuliert!!"
+
+    unfair: "Das ist Unfair!"
+    overconfident: "Übermütig"
+    stubborn: "Stur"
+
+    winnerWinnerChickenDinner: "Winner winner chicken dinner"
+
+    mediumClass: "Mittlere Klasse"
+    upperClass: "Oberklasse"
+    richBoi: "Reicher Boy"
+    billGates: "Buchstäblich Bill Gates"
 
 command:
   permissionLock: "⛔ Du kannst den Kommand nicht benutzen!"
 
+  slots:
+    matchHeader: "Rollen für 🔸 %s tokens..."
+    matchEnd: "Du %s 🔸 %s Tokens!"
+    earnt: "gewinnst"
+    lost: "verlierst"
+
+    invalidTokens: "Du kannst nur von %s bist %s Tokens setzen."
+    description: "Spiele deine Token in einem Spielautomatenspiel! Völlig nicht manipuliert vertraue mir"
+
+  tokens:
+    other: "%s hat 🔸 %s tokens"
+    own: "Du hast 🔸 %s Tokens\nHier sind einige Möglichkeiten, mehr zu bekommen:"
+    winningMatches: "**Gewinnspiele**"
+    upvoteCan: "Vote für GamesROB (%s Tagge in folge = + 🔸 %s Tokens!)"
+    upvoteLater: "~~Vote für GamesROB~~ (du kannst erneut in %s)"
+    achievements: "**Geschaffte Erfolge:**\n"
+    noAchievements: "~~Errungenschaften abschließen~~ (Es sind keine Erfolge mehr zu vervollständigen)"
+
+    description: "Sehen Sie sich an, wie viele Token Sie oder jemand anderes hat, und sehen Sie sich Ihren Fortschritt an"
   join:
     alreadyOnMatch: "Du bist bereits in der Runde!"
     full: "Die Runde ist voll!"
     description: "Betrete das Spiel in diesem Channel"
-  leave:
-    notPlaying: "Du spielst kein Spiel.\n"
-    joinChannelGame: "Betrete das Spiel mit `%sjoin`!"
-    startGame: "Wähle und starte ein Game `%shelp`!"
-    description: "Verlasse das Spiel in diesem Channel"
-  stop:
     matchStopped: "⏹ Spiel gestoppt von %s"
     description: "Stoppt sofort das Spiel"
-  listPlayers:
+  stop:
+    matchStopped: "⏹ Spiel gestoppt von %s"
+    description: "Beende ein Spiel sofort."
+  listplayers:
     header: "**%s Kämpfe**\n%s\n\n"
     description: "Liste die Spiele in diesem Channel"
-  
   leaderboard:
     unknownUser: "*unbekannter User*"
     playerRatings: " (**%s** Siege)"
@@ -92,9 +200,9 @@ command:
     playerStats: "**%s**'s Statistiken:\n"
     overall: "%s **Insgesamte Stats**: %s\n\n"
     statsString: "%s%s Gewinne, %s Verloren (%s W/L Ratio), %s Spiele gespielt"
-    position: "%s**%s%s position** "
+    position: "%s**%s%s Position** "
     description: "Zeig dein Profil an"
-  emojiTile:
+  emote:
     upvoteShamelessPromotion: "Du musst für GameROB Voten um dein Emoji zu ändern.!\nLog dich ein und Vote \"Upvote\" hier: %s"
     set: "Dein Emoji wurde gesetzt %s"
     cannotUse: "Du kannst diesen Emoji nicht verwenden"
@@ -107,16 +215,65 @@ command:
   guildLang: 
     set: "Die Sprache wurde zu %s geändert"
     description: "Setze die defaultsprache für ein Spiel"
-
   help:
-    beginning: "**<:GamesROBNew:456913958457049109> GamesROB v%s** *by deprilula28*\n"
+    beginning: "**<:GamesROBNew:456913958457049109> GamesROB v%s** *by deprilula28*\n\n"
+    subCategory: "Nutzw `%%PREFIX%%help category/command` um Informationen über einen Befehl oder eine Kategorie zu erhalten (z.N. `%%PREFIX%%help profilecomamnds` oder `%%PREFIX%%help slots`)"
     gameString: "%s `%%PREFIX%%%s` - %s"
+    commandInfo: "`%s%s`: %s\nAliases: %s\nCategory: %s"
+    gameInfo: "`%s%s`: %s\n\n**Lange Beschreibung**\n%s\n\nAliases: %s\nMehr Informationen: %s"
+    categories:
+      games: "Games"
+      profilecommands: "Profile"
+      servercommands: "Server"
+      matchcommands: "Match"
+      infocommands: "Informationen"
+    other: "%s andere"
+    websiteTitle: "Checke unsere Webseite!"
     description: "Bekomme Hilfe"
   invite:
     embed:
       title: "🎮 Klicke um GamesROB einzuladen"
       description: "⚠ Du benötigst Manage Server Permission um den Bot einzuladen"
     description: "Lade den Bot ein"
+  info:
+    embed2:
+      description: "**Der Bot zum Spielen von lustigen Chat-Spielen in deinem Discord!**"
+      statistics:
+        title: "📟 Statistics"
+        description: "📶 **%s** servers\n👥 **%s** users\n🗨 **%s** text channels\n🎮 **%s** games (**%s** active)\n❗ **%s** commands\n📈 **%s** votes on DBL"
+      versions:
+        title: "📁 Versions"
+        description: "GamesROB Version: **%s**\nJava Version: **%s**\n[JDA](%s) Version: **%s**\n[JDA Framework](%s) Version: **%s**\nShard Uptime: **%s**"
+      system:
+        title: "💻 System"
+        description: "RAM: **%s**\nOS: **%s**\nShard: **%s/%s** (**%s**)"
+      links:
+        title: "🔗 Useful Links"
+        description: "🌐 [Our Website](%s)\n➕ [Add bot to server](%s)\n🗒 [View the source code](%s)\nℹ️ [Join our support server](%s)\n❤ [Credits](%s)\n⬆ [Upvote the bot in DBL](%s)"
+    description: "View statistics and information"
+  raminfo:
+    message: ":computer: RAM Usage Info\nOverall: **%s**\nCommand Framework: **%s**\nShards: **%s**\nCache: **%s**\nGames: **%s**"
+    description: "🗄 *Debug* View a full RAM Usage report"
+  ping:
+    message: "🏓 Pong!\nBot -> Discord: %s\nYou -> Bot: %s\nWebsocket: %s\nAvarage Command Processing Time: %s"
+    description: "🗄 *Debug* View the latency of the bot"
+  shardinfo:
+    title: "**Shard Information:**\n```prolog\n%s\n```"
+    newTitle: "**Bot Statistiken und Informationen:**\n"
+    singleShard: "%s **Shard %s**: %s guilds (%s%% load), %s Channel, %s Spieler, %s Ping und %s Spiele."
+    shard: "Shard"
+    guilds: "Guilds"
+    users: "Users"
+    channels: "Channels"
+    status: "Status"
+    ping: "Ping"
+    games: "Games"
+    ram: "RAM Usage"
+    description: "🗄 *Debug* View a shard information dump"
+  changelog:
+    text: "**GamesROB v%s**\nFrom %s\n\n%s\n\n*Updates are usually scheduled for every friday, making the next update %s.*\n*You can suggest features and bug fixes in our server: %s*"
+    description: "Shows all the changes on the latest update."
+
   perm:
     invalidPerm: "Falsche Permission"
     noRole: "Ich finde keine Rolle mit den Namen"
@@ -126,3 +283,5 @@ command:
   prefix:
     message: "Prefix geändert"
     description: "Ändere den Prefix für diesen Server"
+
+    achievements:

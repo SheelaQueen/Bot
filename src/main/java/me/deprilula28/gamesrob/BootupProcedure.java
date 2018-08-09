@@ -211,10 +211,8 @@ public class BootupProcedure {
 
             if (shardFrom <= 0) GamesROB.getAllShards().then(BootupProcedure::postAllShards);
 
-            GamesROB.commandFramework.handleEvent(GuildJoinEvent.class, event -> dbo.setStats(event.getJDA().getShardInfo().getShardId(),
-                    event.getJDA().getGuilds().size()));
-            GamesROB.commandFramework.handleEvent(GuildLeaveEvent.class, event -> dbo.setStats(event.getJDA().getShardInfo().getShardId(),
-                    event.getJDA().getGuilds().size()));
+            GamesROB.commandFramework.handleEvent(GuildJoinEvent.class, event -> postUpdatedShard(event.getJDA()));
+            GamesROB.commandFramework.handleEvent(GuildLeaveEvent.class, event -> postUpdatedShard(event.getJDA()));
 
             GamesROB.dboAPI = Optional.of(dbo);
             GamesROB.owners = Collections.unmodifiableList(GamesROB.dboAPI.get().getBot().getOwners().stream().map(Long::parseLong).collect(Collectors.toList()));

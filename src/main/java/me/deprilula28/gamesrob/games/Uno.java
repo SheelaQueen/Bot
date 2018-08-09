@@ -25,7 +25,7 @@ public class Uno extends TurnMatchHandler {
     public static final GamesInstance GAME = new GamesInstance(
             "uno", "uno unogame 1",
             1, ITEMS.length - 1, GameType.MULTIPLAYER, false,
-            Uno::new, Uno.class
+            Uno::new, Uno.class, Collections.emptyList()
     );
 
     private Map<Optional<User>, String> playerItems = new HashMap<>();

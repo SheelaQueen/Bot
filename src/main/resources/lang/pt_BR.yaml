@@ -28,13 +28,15 @@ genericMessages:
 gameFramework:
   singleplayerMatch: "**Partida Solo de %s!**\n%s\n\n"
   multiplayerMatch: "**Partida Multi-jogador de %s!**\n%s\n\n"
-  joinToPlay: "🚪 Digite `%sjoin` ou clique na porta abaixo para jogar! (%s/%s)"
-  joinToPlayNoReaction: "🚪 Digite `%sjoin` para jogar! (%s/%s)"
+  joinToPlay2: "🚪 Digite `%sjoin` ou clique na porta abaixo para jogar!"
+  joinToPlayNoReaction2: "🚪 Digite `%sjoin` para jogar!"
+  waiting: "⏰ Aguardando\n"
   playSingle: "Ou clique em 🕹 para jogar %s sozinho"
   betting: "💰 Apostando %s 🔸 tokens!"
   begin: "**Começou!**\n**%s**\n%s\n\n"
   join: "%s entrou na partida! %s/%s"
   left: "%s saiu da partida!"
+  mode: "\n**Modo %s:** %s"
 
   requireBetting: "Esse jogo precisa de uma aposta!\nAdicione `bet=quantidade` no fim do comando para escolher quantos tokens deverão ser apostados."
   settingOutOfRange: "A configuração `%s` deve ter um valor entre %s e %s!"
@@ -180,6 +182,19 @@ game:
     supporter: "Suportador"
     votingWeek: "Semana de Votação!"
     votingMonth: "Mês de Votação..?"
+  mode:
+    reversec4:
+      name: "Invertido"
+      description: "É o dia invertido! Não ligue 4!"
+    reversettt:
+      name: "Invertido"
+      description: "É o dia invertido! Nós dois sabemos que provavelmente daria velha, e isso não vai ajudar."
+    knightpaths:
+      name: "Contagem de Cavalo"
+      description: "O número mostrado no item que você cavar será as bombas em caminhos de cavalo (Xadrez) dela!"
+    house:
+      name: "Casa"
+      description: "O número mostrado no item que você cavar não contará as bombas à esquerda, direita ou baixo."
 
 command:
   permissionLock: "⛔ Você não tem permissão para usar esse comando!"
