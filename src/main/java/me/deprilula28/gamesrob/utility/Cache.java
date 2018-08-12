@@ -37,7 +37,7 @@ public class Cache {
                     Random random = ThreadLocalRandom.current();
                     long begin = System.nanoTime();
 
-                    // Fin's ~~shitty~~ amazing formula
+                    // dep no one loves you.
                     double thing = (45 + (Math.sqrt(random.nextInt(120 - 90) + 90 + ((System.currentTimeMillis() * 0.0000000001)
                                     + (Math.sqrt(Math.pow(random.nextDouble() * (256 - 248) + 248, 2)) -
                                     random.nextDouble() * (4.20 - 0.69) + 0.69)))));

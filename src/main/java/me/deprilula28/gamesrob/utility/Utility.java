@@ -31,7 +31,7 @@ public class Utility {
             24 * 60 * 60 * 1000, 60 * 60 * 1000, 60 * 1000, 1000, 1, 1.0 / 1000000.0 // days, hours, minutes, seconds, milliseconds, microseconds
     };
     private static final String[] TIME_UNIT_NAMES = {
-            "d", "h", "m", "s", "ms", "μs"
+            "d", "h", "m", "s", "ms", "μTorrents"
     };
 
     private static final int[] BYTE_MEASURE_UNITS = {

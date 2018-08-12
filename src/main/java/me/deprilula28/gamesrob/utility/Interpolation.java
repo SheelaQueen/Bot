@@ -14,7 +14,7 @@ package me.deprilula28.gamesrob.utility;
  * See the License for the specific language governing permissions and
  * limitations under the License.
  ******************************************************************************/
-
+// DEP STEALS CODE!!!!!!
 
 /** Takes a linear value in the range of 0-1 and outputs a (usually) non-linear, interpolated value.
  * @author Nathan Sweet */
