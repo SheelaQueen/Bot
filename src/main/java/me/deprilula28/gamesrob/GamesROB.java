@@ -35,7 +35,6 @@ public class GamesROB {
     private static final int PATCH = 3;
     public static final String VERSION = String.format("%s.%s.%s", MAJOR, MINOR, PATCH);
 
-    public static Optional<DiscordBotsOrg> dboAPI = Optional.empty();
     public static List<JDA> shards = new ArrayList<>();
     public static CommandFramework commandFramework;
     public static List<Long> owners;
@@ -69,16 +68,16 @@ public class GamesROB {
     public static Utility.Promise<List<ShardStatus>> getAllShards() {
         return rpc.map(it -> it.request(RPCManager.RequestType.GET_ALL_SHARDS_INFO, null)
                 .map(list -> {
-            List<ShardStatus> statuses = new ArrayList<>();
-            list.getAsJsonArray().forEach(el -> statuses.add(Constants.GSON.fromJson(el, ShardStatus.class)));
+                    List<ShardStatus> statuses = new ArrayList<>();
+                    list.getAsJsonArray().forEach(el -> statuses.add(Constants.GSON.fromJson(el, ShardStatus.class)));
 
-            return statuses;
-        })).orElse(Utility.Promise.result(getShardsInfo()));
+                    return statuses;
+                })).orElse(Utility.Promise.result(getShardsInfo()));
     }
 
     public static Optional<TextChannel> getTextChannelById(long id) {
         return shards.stream().map(it -> it.getTextChannelById(id)).filter(Objects::nonNull).findFirst();
-}
+    }
 
     public static Optional<Guild> getGuildById(long id) {
         return shards.stream().map(it -> it.getGuildById(id)).filter(Objects::nonNull).findFirst();
@@ -114,9 +113,9 @@ public class GamesROB {
     public static void setPresence() {
         if (twitchClientID.isPresent() && twitchUserIDListen != -1) {
             StreamData data = Constants.GSON.fromJson(HttpRequest
-                .get("https://api.twitch.tv/kraken/streams/" + GamesROB.twitchUserIDListen)
+                    .get("https://api.twitch.tv/kraken/streams/" + GamesROB.twitchUserIDListen)
                     .header("Accept", "application/vnd.twitchtv.v5+json")
-                    .header("Client-ID",  GamesROB.twitchClientID.get())
+                    .header("Client-ID", GamesROB.twitchClientID.get())
                     .body(), StreamData.class);
             if (data.getStream().isJsonNull() && twitchPresence) defaultPresence();
             else if (!data.getStream().isJsonNull()) {
@@ -140,14 +139,10 @@ public class GamesROB {
         shards.forEach(cur -> {
             cur.getPresence().setStatus(OnlineStatus.ONLINE);
             cur.getPresence().setGame(Game.listening("@" + cur.getSelfUser().getName() + "#" +
-                cur.getSelfUser().getDiscriminator() + " | gamesrob.com"));
+                    cur.getSelfUser().getDiscriminator() + " | gamesrob.com"));
         });
         Log.wrapException("Setting avatar", () -> shards.get(0).getSelfUser().getManager()
                 .setAvatar(Icon.from(GamesROB.class.getResourceAsStream("/avatar/GamesROB New.png")))
                 .queue());
-    }
-
-    public static boolean hasUpvoted(String id) {
-        return !dboAPI.isPresent() || dboAPI.get().getVoters().stream().filter(it -> it.getId().equals(id)).count() > 0;
     }
 }

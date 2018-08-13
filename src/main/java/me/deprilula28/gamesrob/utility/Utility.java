@@ -258,9 +258,9 @@ public class Utility {
                 .collect(Collectors.toList());
     }
 
-    public static String generateTable(List<String> titles, int rows, List<List<String>> columns) {
+    public static String generateTable(List<String> titles, int columns, List<List<String>> rows) {
         List<Integer> itemLengths = titles.stream().map(it -> Math.max(it.length(),
-                columns.get(titles.indexOf(it)).stream()
+                rows.get(titles.indexOf(it)).stream()
                         .map(String::length)
                         .max(Comparator.comparingInt(n -> n))
                         .orElse(0)))
@@ -291,10 +291,11 @@ public class Utility {
 
         // Columns
         StringBuilder line = new StringBuilder();
-        for (int row = 0; row < rows; row ++) {
-            for (int i = 0; i < titles.size(); i ++) {
-                String title = columns.get(i).get(row);
-                int desired = itemLengths.get(i);
+        for (int column = 0; column < columns; column ++) {
+            for (int row = 0; row < titles.size(); row ++) {
+                List<String> rowItems = rows.get(row);
+                String title = rowItems.size() > column ? rowItems.get(column) : "null";
+                int desired = itemLengths.get(row);
 
                 if (line.length() > 0) line.append(" | ");
                 appendTitle(title, line, desired);

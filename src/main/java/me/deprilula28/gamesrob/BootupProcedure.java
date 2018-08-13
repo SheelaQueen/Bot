@@ -205,17 +205,11 @@ public class BootupProcedure {
 
     private static final BootupTask dblLoad = args ->
         optDblToken.ifPresent(dblToken -> {
-            DiscordBotsOrg dbo = DiscordBotsOrg.builder()
-                    .botID(GamesROB.shards.get(0).getSelfUser().getId()).shardCount(totalShards).token(dblToken)
-                    .build();
-
             if (shardFrom <= 0) GamesROB.getAllShards().then(BootupProcedure::postAllShards);
 
             GamesROB.commandFramework.handleEvent(GuildJoinEvent.class, event -> postUpdatedShard(event.getJDA()));
             GamesROB.commandFramework.handleEvent(GuildLeaveEvent.class, event -> postUpdatedShard(event.getJDA()));
 
-            GamesROB.dboAPI = Optional.of(dbo);
-            GamesROB.owners = Collections.unmodifiableList(GamesROB.dboAPI.get().getBot().getOwners().stream().map(Long::parseLong).collect(Collectors.toList()));
             owners = GamesROB.owners;
     });
     private static final String DBL_URL_ROOT = "https://discordbots.org/api/";

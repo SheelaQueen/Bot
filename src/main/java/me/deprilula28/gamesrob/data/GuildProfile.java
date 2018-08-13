@@ -80,7 +80,6 @@ public class GuildProfile {
 
             if (select.next()) return fromResultSet(from, select);
             select.close();
-            Log.info("Next not found!");
 
             return Optional.empty();
         }

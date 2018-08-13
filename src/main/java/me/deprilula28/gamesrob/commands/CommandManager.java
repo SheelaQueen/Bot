@@ -108,6 +108,7 @@ public class CommandManager {
             // Giving tokens
             cmd.sub("g give pay repay giveto send sendnudes", context -> {
                 User target = context.nextUser();
+                if (getBlacklist(target.getId()).isPresent()) return Language.transl(context, "command.tokens.giveInvalidUser");
                 int amount = context.nextInt();
                 if (amount < 10 || amount > 5000) return Language.transl(context,"command.tokens.giveInvalidAmount", 10, 5000);
 
@@ -256,26 +257,12 @@ public class CommandManager {
         OwnerCommands.owners(f);
 
         f.before(it -> {
-            ResultSet set = Cache.get("bl_" + it.getAuthor().getId(), n -> {
-                try {
-                    ResultSet output = GamesROB.database.get().select("blacklist", Arrays.asList("userid", "botownerid", "reason", "time"),
-                            "userid = '" + it.getAuthor().getId() + "'");
-                    if (output.next()) return output;
-                    else return null;
-                } catch (Exception e) {
-                    Log.exception("Getting blacklisted", e);
-                    return null;
-                }
-            });
-            if (set != null) {
-                try {
-                    return Language.transl(it, "genericMessages.blacklisted",
-                            GamesROB.getUserById(set.getString("botownerid")).map(User::getName).orElse("*unknown*"),
-                            Utility.formatTime(set.getLong("time")), set.getString("reason"));
-                } catch (SQLException e) {
-                    Log.exception("Getting blacklist info", e);
-                    return Language.transl(it, "genericMessages.blacklistedNoInfo");
-                }
+            Optional<Blacklist> optBl = getBlacklist(it.getAuthor().getId());
+            if (optBl.isPresent()) {
+                Blacklist blacklist = optBl.get();
+                return Language.transl(it, "genericMessages.blacklisted",
+                        blacklist.getBotOwner().map(User::getName).orElse("*No longer an owner*"),
+                        Utility.formatTime(blacklist.getTime()), blacklist.getReason());
             }
 
             commandStart.put(it.getAuthor().getId(), System.nanoTime());
@@ -312,6 +299,31 @@ public class CommandManager {
             return languageHelpMessages.get(lang == null ? Constants.DEFAULT_LANGUAGE : lang)
                     .replaceAll("%PREFIX%", Constants.getPrefixHelp(guild));
         });
+    }
+
+    @Data
+    @AllArgsConstructor
+    public static class Blacklist {
+        private Optional<User> botOwner;
+        private String reason;
+        private long time;
+    }
+
+    public static Optional<Blacklist> getBlacklist(String userId) {
+        Blacklist set = Cache.get("bl_" + userId, n -> {
+            try {
+                ResultSet output = GamesROB.database.get().select("blacklist", Arrays.asList("userid", "botownerid", "reason", "time"),
+                        "userid = '" + userId + "'");
+                if (output.next()) return new Blacklist(
+                        GamesROB.getUserById(output.getString("botownerid")),
+                        output.getString("reason"), output.getLong("time"));
+                else return null;
+            } catch (Exception e) {
+                Log.exception("Getting blacklisted", e);
+                return null;
+            }
+        });
+        return Optional.ofNullable(set);
     }
 
     private static String categoryMessage(String language, Guild guild, String category) {

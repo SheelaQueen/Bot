@@ -5,6 +5,7 @@ import lombok.Data;
 import me.deprilula28.gamesrob.GamesROB;
 import me.deprilula28.gamesrob.achievements.AchievementType;
 import me.deprilula28.gamesrob.baseFramework.GamesInstance;
+import me.deprilula28.gamesrob.commands.CommandManager;
 import me.deprilula28.gamesrob.utility.Cache;
 import me.deprilula28.gamesrob.utility.Constants;
 import me.deprilula28.gamesrob.utility.Log;
@@ -64,6 +65,8 @@ public class UserProfile {
     );
 
     public void addTokens(int amount, String message) {
+        if (CommandManager.getBlacklist(userId).isPresent()) return;
+
         tokens += amount;
         GamesROB.database.ifPresent(it ->
             it.insert("transactions", Arrays.asList("userid", "amount", "time", "message"),

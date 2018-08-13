@@ -1,14 +1,1 @@
-- Added aditional game modes!
-You can play these by adding `mode=<mode>` to the end of a game command (example: `g*connect4 mode=reverse`)
-These are the currently implemented modes:
-
-\* Reverse `reverse` for Tic-Tac-Toe and Connect4, where if you match you're out of the game, and the last player wins.
-\* House `house` for Minesweeper, where the number of the mines you dig doesn't count the bottom, left and right tiles.
-\* Knight Paths `knightpaths` for Minesweeper, where the number of the mines you dig doesn't count the surrounding 8 tiles, but rather tiles in knight paths (chess knights :^)) from it.
-
-- Fixed server count uploading.
-- Fixed matches starting after 20 seconds with no players. Twice, may I add.
-- Fixed rematch on single player games.
-
-Earlier update because I'm gonna be away for a bit. Next update is next friday.
 Enjoy! ~ deprilula28

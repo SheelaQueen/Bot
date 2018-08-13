@@ -1,6 +1,7 @@
 package me.deprilula28.gamesrob.data;
 
 import javafx.util.Pair;
+import lombok.Getter;
 import me.deprilula28.gamesrob.utility.Log;
 import me.deprilula28.gamesrob.utility.Utility;
 import org.postgresql.util.PSQLException;
@@ -19,12 +20,7 @@ public class SQLDatabaseManager {
     private ExecutorService asyncExecutor = Executors.newFixedThreadPool(4);
     private String url;
     private Optional<Pair<String, String>> login = Optional.empty();
-    private Connection connection;
-
-    private Connection getConnection() throws SQLException {
-        if (login.isPresent()) return DriverManager.getConnection(url, login.get().getKey(), login.get().getValue());
-        else return DriverManager.getConnection(url);
-    }
+    @Getter private Connection connection;
 
     public SQLDatabaseManager(String connectionInfo) {
         String[] attribs = connectionInfo.split(",");
@@ -37,7 +33,9 @@ public class SQLDatabaseManager {
                 login = Optional.of(new Pair<>(attribs[2], attribs[3]));
                 Log.info("Login is " + attribs[2]);
             }
-            connection = getConnection();
+
+            if (login.isPresent()) connection = DriverManager.getConnection(url, login.get().getKey(), login.get().getValue());
+            else connection = DriverManager.getConnection(url);
             registerTables();
         });
     }

@@ -110,6 +110,8 @@ public class OwnerCommands {
             return "Nope.";
 
         String reason = String.join(" ", context.remaining());
+        if (reason.isEmpty()) return "But why tho";
+
         GamesROB.database.ifPresent(db -> {
             db.insert("blacklist", Arrays.asList("userid", "botownerid", "reason", "time"),
                     set -> Log.wrapException("Adding blacklist entry", () -> {
@@ -119,37 +121,52 @@ public class OwnerCommands {
                 set.setLong(4, System.currentTimeMillis());
             }));
         });
-        return "k";
+        Cache.clear("bl_" + blacklisting.getId());
+        return "Oof";
     }
 
     public static String sql(CommandContext context) {
         if (!GamesROB.owners.contains(context.getAuthor().getIdLong())) return Language.transl(context,
                 "genericMessages.ownersOnly");
 
+        String query = String.join(" ", context.remaining());
         GamesROB.database.ifPresent(db -> {
             context.send("<a:typing:393848431413559296> Querying...");
             try {
-                ResultSet set = db.sqlQuery(String.join(" ", context.remaining()));
-                ResultSetMetaData metadata = set.getMetaData();
+                if (query.startsWith("query ")) {
+                    ResultSet set = db.sqlQuery(query.substring("query ".length()));
+                    ResultSetMetaData metadata = set.getMetaData();
 
-                List<String> columns = new ArrayList<>();
-                List<List<String>> texts = new ArrayList<>();
-                int count = metadata.getColumnCount();
-                for (int i = 1; i <= count; i ++) {
-                    columns.add(metadata.getColumnName(i));
-                    texts.add(new ArrayList<>());
-                }
-
-                while (set.next())
+                    List<String> columns = new ArrayList<>();
+                    List<List<String>> texts = new ArrayList<>();
+                    int count = metadata.getColumnCount();
                     for (int i = 1; i <= count; i ++) {
-                        Object obj = set.getObject(i);
-                        String name = obj == null ? "null" : obj.toString();
-                        texts.get(i - 1).add(name);
+                        columns.add(metadata.getColumnName(i));
+                        texts.add(new ArrayList<>());
                     }
 
-                context.edit("<:check:314349398811475968> Results:\n```prolog\n" +
-                        Utility.generateTable(columns, count, texts) +
-                        "\n```");
+                    while (set.next())
+                        for (int i = 1; i <= count; i ++) {
+                            Object obj = set.getObject(i);
+                            String name = obj == null ? "null" : obj.toString();
+                            texts.get(i - 1).add(name);
+                        }
+
+                    context.edit("<:check:314349398811475968> Results:\n```prolog\n" +
+                            Utility.generateTable(columns, count, texts) +
+                            "\n```");
+                    return;
+                }
+
+                ResultSet tables = db.sqlQuery("SELECT table_name FROM information_schema.tables WHERE table_schema = 'public'");
+                StringBuilder message = new StringBuilder("<:check:314349398811475968> Tables:\n");
+                while (tables.next()) {
+                    String table = tables.getString("table_name");
+                    message.append(table).append(" - ").append(db.getSize(table)).append(" entries\n");
+                }
+
+                Log.info(message.toString());
+                context.edit(message.toString());
             } catch (Exception e) {
                 e.printStackTrace();
                 context.edit("<:xmark:314349398824058880> An error occured:\n```java\n" + e.getClass().getName() + ": " + e.getMessage() + "\n```");
