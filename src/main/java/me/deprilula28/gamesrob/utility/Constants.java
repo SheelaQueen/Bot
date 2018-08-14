@@ -37,6 +37,7 @@ public class Constants {
 
     public static final long PRESENCE_UPDATE_PERIOD = TimeUnit.SECONDS.toMillis(60);
     public static final long RAM_CACHE_TIME = TimeUnit.SECONDS.toMillis(15);
+    public static final long CACHE_TIME = TimeUnit.SECONDS.toMillis(2);
 
     public static final Optional<String> VANITY_DBL_URL = Optional.of("https://discordbots.org/bot/GamesROB");
     public static final Optional<Long> changelogChannel = Optional.of(397851392016121877L);

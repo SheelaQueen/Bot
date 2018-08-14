@@ -34,9 +34,7 @@ public class Cache {
         Thread cleaner = new Thread(() -> {
             while (true) {
                 try {
-                    Random random = ThreadLocalRandom.current();
-
-                    Thread.sleep(90);
+                    Thread.sleep(Constants.CACHE_TIME);
                     long time = System.currentTimeMillis();
                     int removed = 0;
 

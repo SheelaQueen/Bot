@@ -13,7 +13,6 @@ import me.deprilula28.gamesrob.data.*;
 import me.deprilula28.gamesrob.utility.*;
 import me.deprilula28.jdacmdframework.CommandFramework;
 import me.deprilula28.jdacmdframework.Settings;
-import me.deprilula28.jdacmdframework.discordbotsorgapi.DiscordBotsOrg;
 import net.dv8tion.jda.core.*;
 import net.dv8tion.jda.core.entities.Game;
 import net.dv8tion.jda.core.entities.TextChannel;

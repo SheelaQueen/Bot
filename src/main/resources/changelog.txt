@@ -1,1 +1,7 @@
+- You can now mention users in commands with their ID or Name#Discrim.
+- Added a message for invalid translations.
+
+- Fixed invalid numbers with `g*baltop global page`.
+- Fixed german language.
+- Fixed some things not wanting to save for some reason.
 Enjoy! ~ deprilula28

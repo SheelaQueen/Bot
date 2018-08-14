@@ -12,6 +12,7 @@ import me.deprilula28.gamesrob.utility.Constants;
 import me.deprilula28.gamesrob.utility.Log;
 import me.deprilula28.gamesrob.utility.Utility;
 import me.deprilula28.jdacmdframework.CommandContext;
+import me.deprilula28.jdacmdframework.exceptions.InvalidCommandSyntaxException;
 import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.entities.User;
 
@@ -153,7 +154,8 @@ public class Tokens {
     public static String baltop(CommandContext context) {
         Optional<String> next = context.opt(context::next);
         boolean global = next.map(it -> it.equalsIgnoreCase("global")).orElse(false);
-        int page = (global ? context.opt(context::nextInt) : next.map(Integer::parseInt)).orElse(1);
+        int page = (global ? context.opt(context::nextInt) : next.map(it -> me.deprilula28.jdacmdframework.
+                Utility.rethrow(n -> new InvalidCommandSyntaxException(), n -> Integer.parseInt(it)))).orElse(1);
 
         if (GamesROB.database.isPresent()) {
             try {
