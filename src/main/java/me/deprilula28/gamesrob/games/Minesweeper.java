@@ -108,7 +108,7 @@ public class Minesweeper implements MatchHandler {
                 : new MinesweeperTile(MinesweeperTileType.DUG, false));
 
         if (!hiddenBombs) {
-            Random rng = ThreadLocalRandom.current();
+            Random rng = GameUtil.generateRandom();
             while (bombs -- > 0) {
                 int plantX = rng.nextInt(columns);
                 int plantY = rng.nextInt(rows);

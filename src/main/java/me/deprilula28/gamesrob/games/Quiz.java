@@ -29,7 +29,7 @@ public class Quiz implements MatchHandler {
     private static String[] ITEMS;
     public static final GamesInstance GAME = new GamesInstance(
             "quiz", "quiz trivia quizzes qz",
-            1, 11, GameType.COLLECTIVE, false,
+            0, 11, GameType.COLLECTIVE, false,
             Quiz::new, Quiz.class, Collections.emptyList()
     );
 
@@ -220,13 +220,6 @@ public class Quiz implements MatchHandler {
                     orderedOptions.stream().map(it -> Utility.getLetterEmote(orderedOptions.indexOf(it)) + " " + it)
                             .collect(Collectors.joining("\n"))));
         }
-        playerItems.forEach((player, item) -> {
-            boolean contains = scoreboard.containsKey(player);
-            if (!over || contains) builder.append("\n").append(item).append(" ").append(player.map(User::getName).orElse("**AI**"));
-            if (contains) {
-                long score = Math.round(scoreboard.get(player));
-                builder.append(" (").append(score).append(" points)");
-            }
-        });
+        GameUtil.appendPlayersScore(playerItems, scoreboard, over, builder);
     }
 }

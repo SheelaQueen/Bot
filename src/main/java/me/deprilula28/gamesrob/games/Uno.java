@@ -102,7 +102,7 @@ public class Uno extends TurnMatchHandler {
 
     @Override
     public void begin(Match match, Provider<RequestPromise<Message>> initialMessage) {
-        random = new Random(System.currentTimeMillis());
+        random = GameUtil.generateRandom();
         card = randomCard(false);
         color = card.color;
         match.getPlayers().forEach(it -> {

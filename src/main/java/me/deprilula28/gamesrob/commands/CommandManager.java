@@ -84,8 +84,8 @@ public class CommandManager {
         }).attr("category", "partnercommands");
 
         // Tokens
-        f.command("c slots slot lotto lottery gamble gmb gmbl", Slots::slotsGame).attr("category", "tokencommands").setUsage("slots <amount/all>");
-        f.command("t tokens tk tks tok toks viewtokens viewtk viewtks viewtok viewtoks viewt gettokens gettk gettks " +
+        f.command("slots c slot lotto lottery gamble gmb gmbl", Slots::slotsGame).attr("category", "tokencommands").setUsage("slots <amount/all>");
+        f.command("tokens t tk tks tok toks viewtokens viewtk viewtks viewtok viewtoks viewt gettokens gettk gettks " +
                 "gettok gettoks gett tokenamount tkamount tokamount tamount bal balance viewbalance money cash $ " + 
 				"dollars dollar bucks BTC ETH XRP BCH EOS XLM TC ADA USDT XMR TRX MIOTA DASH ETC NEO BNB XEM XTZ " +
 				"ZEC OMG VET ZRX QTUM DCR BTG BCN LSK MKR BTS ZIL DGB DOGE AE ICX STEEM MOAC REP ONT SC XVG BCD " +
@@ -120,61 +120,61 @@ public class CommandManager {
             }).setUsage("g*token give <user> <amount>");
         }).attr("category", "tokencommands").setUsage("tokens [user]");
 
-        f.command("a achievements achieve achieved achieves ach " +
+        f.command("achievements a achieve achieved achieves ach " +
                 "viewachievements viewachieve viewachieved viewachieves viewach accomplishments accomplished viewaccomplishments " +
                 "viewaccomplished tasks task viewtasks viewtask missions mission viewmissions viewmission",
                 Tokens::achievements).attr("category", "tokencommands");
 
-        f.command("b baltop balancetop topbalance rich tokensleaderboard tokenslb tklb", Tokens::baltop)
+        f.command("baltop b balancetop topbalance rich tokensleaderboard tokenslb tklb", Tokens::baltop)
                 .attr("category", "tokencommands").setUsage("baltop [global] [page]");
 
         // Profile Commands
-        f.command("p profile prof getprofile getprof viewprofile viewprof user usr getuser getusr viewuser viewusr " +
+        f.command("profile p prof getprofile getprof viewprofile viewprof user usr getuser getusr viewuser viewusr " +
                 "player getplayer viewplayers rank pfp", ProfileCommands::profile).attr("category", "profilecommands");
 
-        f.command("u userlang lang language userlanguage mylang mylanguage", LanguageCommands::setUserLanguage).attr("category", "profilecommands");
+        f.command("userlang u lang language userlanguage mylang mylanguage", LanguageCommands::setUserLanguage).attr("category", "profilecommands");
 
-        f.command("e emote emoji changeemoji emojitile setemojitile setemoji emojis emoticons emoticon changeemoticon emoticontile " +
+        f.command("emojitile emote e emoji changeemoji setemojitile setemoji emojis emoticons emoticon changeemoticon emoticontile " +
                 "setemoticon setemoticontile changeemote emotetile setemote setemotetile emotes tile changetile settile " +
                 "depwhyaretheretwolinesforonecommandimscaredidkwhattodosothisisherehelphelphelphelp", ProfileCommands::emojiTile)
                 .attr("category", "profilecommands").setUsage("emojitile <Emoji>");
 
         // Server
-        f.command("l leaderboard getleaderboard viewleaderboard checkleaderboard leaderboards getleaderboards " +
+        f.command("leaderboard l getleaderboard viewleaderboard checkleaderboard leaderboards getleaderboards " +
                         "viewleaderboards checkleaderboards board getboard viewboard checkboard boards getboards checkboards " +
                         "viewboards leader getleader checkleader viewleader leaders getleaders checkleaders viewleaders lb " +
                         "getlb checklb viewlb lbs getlbs checklbs viewlbs top gettop checktop viewtop",
                 LeaderboardCommand::leaderboard).attr("category", "servercommands");
 
-        f.command("g guildlang changeguildlang setguildlang guildlanguage changeguildlanguage setguildlanguage " +
+        f.command("guildlang g changeguildlang setguildlang guildlanguage changeguildlanguage setguildlanguage " +
                         "glang changeglang setglang glanguage changeglanguage setglanguage serverlang changeserverlang " +
                         "setserverlang serverlanguage changeserverlanguage setserverlanguage slang changeslang setslang slanguage changeslanguage setslanguage",
                 permissionLock(LanguageCommands::setGuildLanguage, ctx -> ctx.getAuthorMember()
                         .hasPermission(Permission.MANAGE_SERVER))).attr("category", "servercommands");
 
-        f.command("% pr perm setperm changeperm perms setperms changeperms permission setpermission changepermission permissions " +
+        f.command("perm % pr setperm changeperm perms setperms changeperms permission setpermission changepermission permissions " +
                 "setpermissions changepermissions", permissionLock(PermissionCommands::changePerm,
                 ctx -> ctx.getAuthorMember().hasPermission(Permission.MANAGE_SERVER))).attr("category", "servercommands")
                 .setUsage("perm <command> [permission]");
 
-        f.command("* setprefix prefix changeprefix", permissionLock(GenericCommands::setPrefix,
+        f.command("setprefix * prefix changeprefix", permissionLock(GenericCommands::setPrefix,
                 ctx -> ctx.getAuthorMember().hasPermission(Permission.MANAGE_SERVER)))
                 .attr("category", "servercommands").setUsage("setprefix <Prefix>");
 
         // Match
-        f.command("j join jn joingame jg joinmatch jm", MatchCommands::join).attr("category", "matchcommands");
+        f.command("join j jn joingame jg joinmatch jm", MatchCommands::join).attr("category", "matchcommands");
 
-        f.command("s stop stopgame stopmatch stopplaying staph stahp stap nodie",
+        f.command("stop s stopgame stopmatch stopplaying staph stahp stap nodie",
                 permissionLock(MatchCommands::stop, ctx -> GuildProfile.get(ctx.getGuild()).canStop(ctx))).attr("category", "matchcommands");
 
-        f.command("& listplayers players viewplayers getplayers checkplayers playerlist viewplayerlist getplayerlist " +
+        f.command("listplayers & players viewplayers getplayers checkplayers playerlist viewplayerlist getplayerlist " +
                 "checkplayerlist", MatchCommands::listPlayers).attr("category", "matchcommands");
 
         // Information
-        f.command("i invite invitebot invitegrob invitegamesrob add addbot addgrob addgamesrob get getbot getgrob " +
+        f.command("invite i invitebot invitegrob invitegamesrob add addbot addgrob addgamesrob get getbot getgrob " +
                 "getgamesrob getgood getgud", GenericCommands::invite).attr("category", "infocommands");
 
-        f.command("? info information botinfo botinformation helpbutwithdetails", GenericCommands::info,
+        f.command("info ? information botinfo botinformation helpbutwithdetails", GenericCommands::info,
                 it -> it.sub("reload", GenericCommands::info)).reactSub("\uD83D\uDD01", "reload")
                 .attr("category", "infocommands");
 
@@ -194,9 +194,9 @@ public class CommandManager {
                 "shards getshards viewshards seeshards checkshards", GenericCommands::shardsInfo)
                 .attr("category", "infocommands");
 
-        f.command("h help halp games what wat uwot uwotm8 uwotm9  wtf tf ... ivefallenandicantgetup whatisgoingon " +
+        f.command("help h halp games what wat uwot uwotm8 uwotm9  wtf tf ... ivefallenandicantgetup whatisgoingon " +
                 "imscared commands cmds imgoingtoexplode please~~sendnudes~~*help*me ineedassistance", CommandManager::help, cmd -> {
-            cmd.sub("bbbb bbb bb b aaaa aaa aa a cccc ccc cc c kkkk kkk kk k back bac back bccc bcck " +
+            cmd.sub("back bbbb bbb bb b aaaa aaa aa a cccc ccc cc c kkkk kkk kk k bac bccc bcck " +
 			"bckk bac bak bacc bacccccccccccccc bacwith20cs", CommandManager::help);
 
             for (String category : CATEGORIES) {

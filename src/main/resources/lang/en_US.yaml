@@ -68,6 +68,37 @@ gameFramework:
   rematch: "Click in :arrows_counterclockwise: for a rematch!"
 
 game:
+  towncountryriver:
+    name: "Town, Country, River"
+    shortDescription: "Do you know words? You have 15 seconds to come up with words within a theme."
+    longDescription: "Think fast! You have 15 seconds to think of a word that starts with the given letter in the given theme.\nThe other players can vote whether or not your word is within the theme with `yes` or `no`!"
+
+    themeMessage: "\n\nQuick, tell me a %s that starts with %s!\n⏰ You have 15 seconds\n"
+    rate: "\n\n%s that starts with %s:\n%s\nSay `yes` or `no` depending on if you think it's valid!\n"
+
+    themes:
+      name: "Name"
+      object: "Object"
+      animal: "Animal"
+      adjective: "Adjective"
+      cep: "Country/State/City"
+      tv: "Movie/TV Show"
+      celebrity: "Celebrity"
+      profession: "Profession"
+      bodyPart: "Body Part"
+      company: "Company"
+      trademark: "Trademark"
+      discordBots: "Discord Bot"
+      meme: "Meme"
+      anime: "Anime"
+      movie: "Movie"
+      youtuber: "YouTuber"
+      game: "Game"
+      videoGame: "Video Game"
+      boardGame: "Board Game"
+      apps: "Apps/Programs"
+      gender: "Gender"
+      fortniteSkin: "Fortnite Skin"
   uno:
     name: "Uno"
     shortDescription: "Try to get the same color or number on one of your cards, until they're over!"

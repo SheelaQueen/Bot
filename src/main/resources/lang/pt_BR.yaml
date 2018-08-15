@@ -64,6 +64,37 @@ gameFramework:
   rematch: "Clique no :arrows_counterclockwise: para jogar novamente!"
 
 game:
+  towncountryriver:
+    name: "Stop/Adedonha"
+    shortDescription: "Conhece várias palavras? Você tem 15 segundos para pensar em palavras dentro de um tema."
+    longDescription: "Pense rápido! Você tem 15 segundos de pensar sobre uma palvra que começa com ume letra em um tema.\nOs outros jogadores podem votar se a palavra está correat ou não com `sim` ou `não`!"
+
+    themeMessage: "\n\nRápido, me diz um(a) %s que começa com %s!\n⏰ Você tem 15 segundos\n"
+    rate: "\n\n%s que começa com %s:\n%s\nDiga `sim` ou `não` de acordo com sua opinião!\n"
+
+    themes:
+      name: "Nome"
+      object: "Objeto"
+      animal: "Animal"
+      adjective: "Adjetivo"
+      cep: "CEP"
+      tv: "Filme/Série de TV"
+      celebrity: "Celebridade"
+      profession: "Profissão"
+      bodyPart: "PCH"
+      company: "Empresa"
+      trademark: "Mark"
+      discordBots: "Bot do Discord"
+      meme: "Meme"
+      anime: "Anime"
+      movie: "Filme"
+      youtuber: "YouTuber"
+      game: "Jogo"
+      videoGame: "Video Game"
+      boardGame: "Jogo de Tabuleiro"
+      apps: "Aplicativo (App) ou Programa"
+      gender: "Gênero"
+      fortniteSkin: "Skin do Fortnite"
   uno:
     name: "Uno"
     shortDescription: "Tente achar a mesma cor ou número da sua carta, até elas acabarem!"

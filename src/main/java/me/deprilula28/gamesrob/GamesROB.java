@@ -25,7 +25,8 @@ import java.util.stream.Collectors;
 
 public class GamesROB {
     public static final GamesInstance[] ALL_GAMES = {
-            Connect4.GAME, TicTacToe.GAME, Minesweeper.GAME, Hangman.GAME, Detective.GAME, Roulette.GAME, Quiz.GAME, Uno.GAME
+            Connect4.GAME, TicTacToe.GAME, Minesweeper.GAME, Hangman.GAME, Detective.GAME, Roulette.GAME, Quiz.GAME, Uno.GAME,
+            TownCountryRiver.GAME
     };
 
     public static final long UP_SINCE = System.currentTimeMillis();

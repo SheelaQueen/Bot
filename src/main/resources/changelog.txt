@@ -1,5 +1,11 @@
 - You can now mention users in commands with their ID or Name#Discrim.
 - Added a message for invalid translations.
+- Added a new RNG system that should be less repetitive.
+
+- New game: Town, Country, River! `g*towncountryriver` or `g*tcr`
+Each player is given a letter and theme in their round.
+You have to send a word that starts with that letter and fits that theme in 15 seconds.
+The player who other players voted best wins!
 
 - Fixed invalid numbers with `g*baltop global page`.
 - Fixed german language.

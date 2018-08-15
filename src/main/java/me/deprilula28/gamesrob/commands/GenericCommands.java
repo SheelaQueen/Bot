@@ -72,7 +72,7 @@ public class GenericCommands {
                     .addField(Language.transl(context, "command.info.embed2.links.title"),
                             Language.transl(context, "command.info.embed2.links.description",
                                     Constants.GAMESROB_DOMAIN, Constants.getInviteURL(context.getJda()),
-                                    "https://github.com/GamesROB/Bot", "https://discord.gg/8EZ7BEz",
+                                    "https://github.com/GamesROB/Bot", "https://discord.gg/xajeDYR",
                                     Constants.GAMESROB_DOMAIN + "/help/credits", Constants.getDblVoteUrl(context.getJda(), "info")
                             ), true)
                     .addField(Language.transl(context, "command.info.embed2.versions.title"),

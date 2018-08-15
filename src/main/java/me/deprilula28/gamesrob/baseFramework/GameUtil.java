@@ -9,10 +9,8 @@ import me.deprilula28.jdacmdframework.RequestPromise;
 import net.dv8tion.jda.core.MessageBuilder;
 import net.dv8tion.jda.core.entities.*;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
+import java.util.concurrent.ThreadLocalRandom;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
@@ -94,5 +92,22 @@ public class GameUtil {
             Optional<String> curTile = board.get(transfX).get(transfY);
             return curTile.isPresent() && curTile.get().equals(item);
         });
+    }
+
+    public static void appendPlayersScore(Map<Optional<User>, String> playerItems, Map<Optional<User>, Double> scoreboard,
+                                          boolean over, MessageBuilder builder) {
+        playerItems.forEach((player, item) -> {
+            boolean contains = scoreboard.containsKey(player);
+            if (!over || contains)
+                builder.append("\n").append(item).append(" ").append(player.map(User::getName).orElse("**AI**"));
+            if (contains) {
+                long score = Math.round(scoreboard.get(player));
+                builder.append(" (").append(score).append(" points)");
+            }
+        });
+    }
+
+    public static Random generateRandom() {
+        return new Random(ThreadLocalRandom.current().nextLong() + System.currentTimeMillis());
     }
 }

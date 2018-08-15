@@ -33,7 +33,7 @@ public class Detective implements MatchHandler {
     public void begin(Match match, Provider<RequestPromise<Message>> initialMessage) {
         this.match = match;
 
-        killer = match.getPlayers().get(ThreadLocalRandom.current().nextInt(match.getPlayers().size()));
+        killer = match.getPlayers().get(GameUtil.generateRandom().nextInt(match.getPlayers().size()));
         alive.addAll(match.getPlayers());
         match.getPlayers().stream().forEach(cur -> cur.ifPresent(user -> user.openPrivateChannel().queue(pm -> {
             if (killer.equals(cur)) pm.sendMessage(Language.transl(match.getLanguage(), "game.detective.dmAssassin")).queue();
