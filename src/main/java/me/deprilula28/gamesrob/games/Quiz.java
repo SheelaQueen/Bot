@@ -14,6 +14,7 @@ import net.dv8tion.jda.core.MessageBuilder;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.User;
 import net.dv8tion.jda.core.exceptions.PermissionException;
+import org.unbescape.html.HtmlEscape;
 
 import javax.xml.ws.Provider;
 import java.net.URL;
@@ -208,7 +209,7 @@ public class Quiz implements MatchHandler {
 
     @Override
     public void updatedMessage(boolean over, MessageBuilder builder) {
-        String decodedQuestion = curQuestion.getQuestion().replaceAll("&quot;", "\"").replaceAll("&#039;", "'");
+        String decodedQuestion = HtmlEscape.unescapeHtml(curQuestion.getQuestion());
         if (over) builder.append(Language.transl(match.getLanguage(), "game.quiz.revealAnswer", decodedQuestion,
                 curQuestion.getCorrectAnswer()));
         else {

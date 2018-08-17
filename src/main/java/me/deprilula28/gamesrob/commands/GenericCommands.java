@@ -186,7 +186,10 @@ public class GenericCommands {
     }
 
     public static String setPrefix(CommandContext context) {
-        GuildProfile.get(context.getGuild()).setGuildPrefix(context.next());
+        GuildProfile profile = GuildProfile.get(context.getGuild());
+        profile.setGuildPrefix(context.next());
+        profile.setEdited(true);
+
         return Language.transl(context, "command.setprefix.message");
     }
 }

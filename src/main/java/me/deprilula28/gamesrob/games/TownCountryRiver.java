@@ -3,10 +3,12 @@ package me.deprilula28.gamesrob.games;
 import me.deprilula28.gamesrob.Language;
 import me.deprilula28.gamesrob.baseFramework.*;
 import me.deprilula28.gamesrob.utility.Constants;
+import me.deprilula28.gamesrob.utility.Log;
 import me.deprilula28.gamesrob.utility.Utility;
 import me.deprilula28.jdacmdframework.RequestPromise;
 import net.dv8tion.jda.core.MessageBuilder;
 import net.dv8tion.jda.core.entities.Message;
+import net.dv8tion.jda.core.entities.MessageReaction;
 import net.dv8tion.jda.core.entities.User;
 
 import javax.xml.ws.Provider;
@@ -46,7 +48,7 @@ public class TownCountryRiver extends TurnMatchHandler implements Runnable {
     private int rating;
     private int curRound = 0;
 
-    public static final double BEST_SCORE = 10.0;
+    private static final double BEST_SCORE = 10.0;
 
     private static void ensureLoaded() {
         List<Integer> numbers = new ArrayList<>();
@@ -60,6 +62,7 @@ public class TownCountryRiver extends TurnMatchHandler implements Runnable {
         rated.clear();
         rating = 0;
         word = Optional.empty();
+        curRound ++;
 
         executor = Executors.newSingleThreadScheduledExecutor();
         executor.schedule(this, Constants.TCR_RESET_ROUND_TIME, TimeUnit.MILLISECONDS);
@@ -87,6 +90,16 @@ public class TownCountryRiver extends TurnMatchHandler implements Runnable {
     public void receivedDM(String contents, User from, Message reference) { }
 
     @Override
+    public void receivedReaction(User user, Message message, MessageReaction.ReactionEmote reaction) {
+        if (reaction.getName() == null) return;
+        if (reaction.getName().equals("✔")) rating ++;
+        if (!reaction.getName().equals("❌")) return;
+
+        rated.add(Optional.of(user));
+        checkRoundOver();
+    }
+
+    @Override
     public void receivedMessage(String contents, User author, Message reference) {
         messages ++;
         if (word.isPresent() && match.getPlayers().contains(Optional.of(author))) {
@@ -94,16 +107,7 @@ public class TownCountryRiver extends TurnMatchHandler implements Runnable {
             if (YES.contains(contents.toLowerCase())) rating ++;
             else if (!NO.contains(contents.toLowerCase())) return;
             rated.add(Optional.of(author));
-
-            if (rated.size() == match.getPlayers().size() - 1) {
-                double score = BEST_SCORE * ((double) rating / (double) rated.size());
-                scoreboard.put(getTurn(), scoreboard.containsKey(getTurn()) ? scoreboard.get(getTurn()) + score : score);
-
-                if (!detectVictory()) {
-                    resetRound();
-                    nextTurn();
-                }
-            }
+            checkRoundOver();
         } else getTurn().ifPresent(cur -> {
             if (cur != author) return;
             if (!contents.startsWith(String.valueOf(letter)) && !contents.startsWith(String.valueOf(Character.toUpperCase(letter)))) return;
@@ -113,11 +117,27 @@ public class TownCountryRiver extends TurnMatchHandler implements Runnable {
                     .replaceAll("@everyone", author.getAsMention())
                     .replaceAll("@here", "no this wont work either"));
 
+            if (match.isCanReact()) {
+                reference.addReaction("✔").queue();
+                reference.addReaction("❌").queue();
+            }
             MessageBuilder builder = new MessageBuilder();
             updatedMessage(false, builder);
-            GameUtil.editSend(match.getChannelIn(), messages, match.getMatchMessage(), builder.build());
+            match.setMatchMessage(GameUtil.editSend(match.getChannelIn(), messages, match.getMatchMessage(), builder.build()));
             messages = 0;
         });
+    }
+
+    private void checkRoundOver() {
+        if (rated.size() == match.getPlayers().size() - 1) {
+            double score = BEST_SCORE * ((double) rating / (double) rated.size());
+            scoreboard.put(getTurn(), scoreboard.containsKey(getTurn()) ? scoreboard.get(getTurn()) + score : score);
+
+            if (!detectVictory()) {
+                resetRound();
+                nextTurn();
+            }
+        }
     }
 
     @Override
@@ -132,22 +152,27 @@ public class TownCountryRiver extends TurnMatchHandler implements Runnable {
     @Override
     public String turnUpdatedMessage(boolean over) {
         StringBuilder builder = new StringBuilder();
-        if (!over) builder.append(Language.transl(match.getLanguage(), "gameFramework.turn", getTurn()
-                .map(User::getAsMention).orElseThrow(() -> new RuntimeException("Asked update message on AI turn."))));
+        if (!over) {
+            builder.append(Language.transl(match.getLanguage(), "gameFramework.turn", getTurn()
+                    .map(User::getAsMention).orElseThrow(() -> new RuntimeException("Asked update message on AI turn."))));
 
-        String themeStr = Language.transl(match.getLanguage(), "game.towncountryriver.themes." + theme);
-        String letterStr = String.valueOf(letter);
+            String themeStr = Language.transl(match.getLanguage(), "game.towncountryriver.themes." + theme);
+            String letterStr = String.valueOf(letter);
 
-        if (word.isPresent()) {
-            String it = word.get();
-            builder.append(Language.transl(match.getLanguage(), "game.towncountryriver.rate",
-                    themeStr, letterStr, it));
-        } else builder.append(Language.transl(match.getLanguage(),
-                "game.towncountryriver.themeMessage", themeStr, letterStr));
+            if (word.isPresent()) {
+                String it = word.get();
+                if (match.isCanReact())
+                    builder.append(Language.transl(match.getLanguage(), "game.towncountryriver.reactionRate",
+                            getTurn().map(User::getAsMention).orElseThrow(() -> new RuntimeException("uh"))));
+                else builder.append(Language.transl(match.getLanguage(), "game.towncountryriver.rate",
+                        themeStr, letterStr, it));
+            } else builder.append(Language.transl(match.getLanguage(),
+                    "game.towncountryriver.themeMessage", themeStr, letterStr));
 
-        if (!over) appendTurns(builder, playerItems, player -> scoreboard.containsKey(player)
-                ? " (" + BigDecimal.valueOf(scoreboard.get(player)).setScale(0, BigDecimal.ROUND_HALF_UP).toString()
-                + " points)" : "");
+            appendTurns(builder, playerItems, player -> scoreboard.containsKey(player)
+                    ? " (" + BigDecimal.valueOf(scoreboard.get(player)).setScale(0, BigDecimal.ROUND_HALF_UP).toString()
+                    + " points)" : "");
+        }
 
         return builder.toString();
     }

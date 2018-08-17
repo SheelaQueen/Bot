@@ -100,9 +100,16 @@ public class CommandManager {
 				"BTN BSD BRL BOB BND BIF BHD BGN BDT BBD BAM AZN AWG AUD ARS AOA ANG AMD " +
 				"ALL AFN AED сўм ரூ  රු  robux RUB R$ Kč C$ B/. ރ imjuanrichboiiiilmaoxd ",
                 Tokens::tokens, cmd -> {
-            cmd.sub("a add p addition additions additive plus insertplussignhere + U+002B hax", OwnerCommands.tokenCommand((profile, tokens) -> profile.addTokens(tokens, "transactions.cheater"), "command.tokens.add"));
-            cmd.sub("r take k d takeaway minus delete remove - rem eternal_sadness_dot_jpeg remisabadbot cheat", OwnerCommands.tokenCommand((profile, tokens) -> profile.addTokens(-tokens, "transactions.cheater"), "command.tokens.remove"));
-            cmd.sub("s set e hak", OwnerCommands.tokenCommand(UserProfile::setTokens, "command.tokens.set"));
+            cmd.sub("a add p addition additions additive plus insertplussignhere + U+002B hax",
+                    OwnerCommands.tokenCommand((profile, tokens) -> profile.addTokens(tokens, "transactions.cheater"),
+                            "command.tokens.add"));
+            cmd.sub("r take k d takeaway minus delete remove - rem eternal_sadness_dot_jpeg remisabadbot cheat",
+                    OwnerCommands.tokenCommand((profile, tokens) -> profile.addTokens(-tokens, "transactions.cheater"),
+                            "command.tokens.remove"));
+            cmd.sub("s set e hak", OwnerCommands.tokenCommand((profile, tokens) -> {
+                profile.setTokens(tokens);
+                profile.setEdited(true);
+            }, "command.tokens.set"));
 
             cmd.sub("t transactions tr taxes do_your_taxes transactts payments bought history salary view", Tokens::transactions);
             // Giving tokens
@@ -246,7 +253,7 @@ public class CommandManager {
         f.command("| cache", OwnerCommands::cache);
         f.command(". servercount srvcount svc", OwnerCommands::servercount);
 
-        f.command("0 1 2 3 4 5 6 7 8 9 $ @ ping whymustyoumentioneveryone fin finmessage finmsg fintime meme memes maymays maymay meemee dankmeme dank", context -> finMessage, command -> {
+        f.command("0 1 2 3 4 5 6 7 8 9 $ @ whymustyoumentioneveryone fin finmessage finmsg fintime meme memes maymays maymay meemee dankmeme dank", context -> finMessage, command -> {
             command.sub("set", context -> {
                 if (!GamesROB.owners.contains(context.getAuthor().getIdLong())) return Language.transl(context,
                         "genericMessages.ownersOnly");
@@ -281,14 +288,19 @@ public class CommandManager {
         });
 
         // Reactions
+        f.handleEvent(GuildMessageReactionAddEvent.class, event -> {
+            if (event.getUser().equals(event.getJDA().getSelfUser())) return;
+            if (Match.GAMES.containsKey(event.getChannel())) event.getReaction().getUsers().queue(users -> {
+                if (!users.contains(event.getJDA().getSelfUser())) return;
+                Match.GAMES.get(event.getChannel()).reactionEvent(event, users);
+            });
+        });
+
         f.reactionHandler("\uD83D\uDEAA", context -> {
             if (Match.GAMES.containsKey(context.getChannel())) Match.GAMES.get(context.getChannel()).joinReaction(context);
         });
         f.reactionHandler("\uD83D\uDC65", context -> {
             if (Match.GAMES.containsKey(context.getChannel())) Match.GAMES.get(context.getChannel()).collectiveReacion(context);
-        });
-        f.reactionHandler("▶", context -> {
-            if (Match.GAMES.containsKey(context.getChannel())) Match.GAMES.get(context.getChannel()).startReaction(context);
         });
         f.reactionHandler("\uD83D\uDD04", context -> {
             if (Match.REMATCH_GAMES.containsKey(context.getChannel())) Match.REMATCH_GAMES.get(context.getChannel()).rematchReaction(context);

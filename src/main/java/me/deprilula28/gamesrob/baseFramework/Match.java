@@ -22,6 +22,7 @@ import net.dv8tion.jda.core.Permission;
 import net.dv8tion.jda.core.entities.*;
 import net.dv8tion.jda.core.events.Event;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
+import net.dv8tion.jda.core.events.message.guild.react.GuildMessageReactionAddEvent;
 
 import java.awt.event.HierarchyBoundsAdapter;
 import java.util.*;
@@ -64,6 +65,7 @@ public class Match extends Thread {
     private boolean allowRematch;
     private Map<String, Integer> settings = new HashMap<>();
     public boolean playMore = false;
+    private boolean reacted = false;
 
     // Rematch multiplayer
     public Match(GamesInstance game, User creator, TextChannel channel, List<Optional<User>> players,
@@ -73,7 +75,8 @@ public class Match extends Thread {
         language = guildLang == null ? Constants.DEFAULT_LANGUAGE : guildLang;
         channelIn = channel;
         Member member = channelIn.getGuild().getMember(channelIn.getJDA().getSelfUser());
-        canReact = Utility.hasPermission(channelIn, member, Permission.MESSAGE_ADD_REACTION);
+        canReact = Utility.hasPermission(channelIn, member, Permission.MESSAGE_ADD_REACTION) &&
+                Utility.hasPermission(channelIn, member, Permission.MESSAGE_HISTORY);
 
         this.creator = creator;
         this.players = players;
@@ -113,7 +116,8 @@ public class Match extends Thread {
         language = guildLang == null ? Constants.DEFAULT_LANGUAGE : guildLang;
         channelIn = channel;
         Member member = channelIn.getGuild().getMember(channelIn.getJDA().getSelfUser());
-        canReact = Utility.hasPermission(channelIn, member, Permission.MESSAGE_ADD_REACTION);
+        canReact = Utility.hasPermission(channelIn, member, Permission.MESSAGE_ADD_REACTION) &&
+                Utility.hasPermission(channelIn, member, Permission.MESSAGE_HISTORY);
         players.add(Optional.of(creator));
 
         this.betting = Optional.empty();
@@ -148,13 +152,14 @@ public class Match extends Thread {
     }
 
     // Hybrid/Multiplayer
-    public Match(GamesInstance game, User creator, TextChannel channel, Map<String, String> options, Optional<GamesInstance.GameMode> mode, Optional<Integer> bet) {
+    public Match(GamesInstance game, User creator, TextChannel channel, Map<String, String> options, Optional<Integer> bet) {
         multiplayer = true;
         String guildLang = GuildProfile.get(channel.getGuild()).getLanguage();
         language = guildLang == null ? Constants.DEFAULT_LANGUAGE : guildLang;
         channelIn = channel;
         Member member = channelIn.getGuild().getMember(channelIn.getJDA().getSelfUser());
-        canReact = Utility.hasPermission(channelIn, member, Permission.MESSAGE_ADD_REACTION);
+        canReact = Utility.hasPermission(channelIn, member, Permission.MESSAGE_ADD_REACTION) &&
+                Utility.hasPermission(channelIn, member, Permission.MESSAGE_HISTORY);
         players.add(Optional.of(creator));
 
         this.mode = mode;
@@ -244,8 +249,21 @@ public class Match extends Thread {
                 Constants.getPrefix(channelIn.getGuild())
         ));
 
-        if (game.getGameType() == GameType.HYBRID || getPlayers().size() >= game.getMinTargetPlayers() + 1)
-            builder.append("\n").append(Language.transl(language, "gameFramework.playButton", game.getName(language)));
+        if (game.getGameType() == GameType.HYBRID || getPlayers().size() >= game.getMinTargetPlayers() + 1) {
+            builder.append("\n");
+            if (game.getModes().isEmpty()) builder.append(Language.transl(language,
+                    "gameFramework.playButton", game.getName(language)));
+            else {
+                builder.append(Language.transl(language, "gameFramework.modePlayButtonHeader", game.getName(language)))
+                        .append(Language.transl(language, "gameFramework.modePlayButton", Utility.getNumberEmote(0),
+                            Language.transl(language, "gameFramework.defaultMode", game.getName(language))));
+                for (int i = 0; i < game.getModes().size(); i ++) {
+                    GamesInstance.GameMode mode = game.getModes().get(i);
+                    builder.append(Language.transl(language, "gameFramework.modePlayButton",
+                            Utility.getNumberEmote(i + 1), mode.getName(language) + ": " + mode.getDescription(language)));
+                }
+            }
+        }
 
         return builder.toString();
     }
@@ -253,12 +271,18 @@ public class Match extends Thread {
     private void updatePreMessage() {
         if (matchMessage == null) matchMessage = RequestPromise.forAction(channelIn.sendMessage(getPregameText()));
         else matchMessage.then(it -> it.editMessage(getPregameText()).queue());
-        if (canReact) {
-            matchMessage.then(msg -> msg.addReaction("\uD83D\uDEAA").queue());
-            if (game.getGameType() == GameType.HYBRID || getPlayers().size() >= game.getMinTargetPlayers() + 1) matchMessage.then(it -> {
-                if (it.getReactions().stream().noneMatch(react -> react.getReactionEmote().getName().equals("▶")))
-                    it.addReaction("▶").queue();
+        if (canReact && !reacted) {
+            matchMessage.then(msg -> {
+                msg.addReaction("\uD83D\uDEAA").queue();
+                if (game.getGameType() == GameType.HYBRID || getPlayers().size() >= game.getMinTargetPlayers() + 1) {
+                    if (game.getModes().isEmpty()) msg.addReaction("▶").queue();
+                    else {
+                        msg.addReaction(Utility.getNumberEmote(0)).queue();
+                        for (int i = 0; i < game.getModes().size(); i ++) msg.addReaction(Utility.getNumberEmote(i + 1)).queue();
+                    }
+                }
             });
+            reacted = true;
         }
     }
 
@@ -266,6 +290,31 @@ public class Match extends Thread {
         if (!addAchievement.containsKey(user)) addAchievement.put(user, new HashMap<>());
         if (!addAchievement.get(user).containsKey(type)) addAchievement.get(user).put(type, 0);
         addAchievement.get(user).put(type, amount + addAchievement.get(user).get(type));
+    }
+
+    public void reactionEvent(GuildMessageReactionAddEvent event, List<User> users) {
+        try {
+            if (gameState != GameState.PRE_GAME) event.getChannel().getMessageById(event.getMessageIdLong()).queue(message ->
+                getMatchHandler().receivedReaction(event.getUser(), message, event.getReactionEmote()));
+            else {
+                String name = event.getReactionEmote().getName();
+                if (name == null) return;
+                if (name.equals("▶") && game.getModes().isEmpty()) startReaction(event.getUser());
+                else if (name.charAt(1) == '⃣') {
+                    int number = name.charAt(0) - 49;
+                    Log.info((int) name.charAt(0), number);
+                    if (game.getModes().size() < number || number < 0) return;
+
+                    if (number == 0) mode = Optional.empty();
+                    else mode = Optional.of(game.getModes().get(number - 1));
+                    startReaction(event.getUser());
+                }
+            }
+        } catch (Exception e) {
+            Optional<String> trelloUrl = Log.exception("Game of " + getGame().getName(Constants.DEFAULT_LANGUAGE) + " had an error", e);
+            onEnd("⛔ Oops! Something spoopy happened and I had to stop this game.\n" +
+                    "You can send this: " + trelloUrl.orElse("*No trello info found*") + " to our support server at https://discord.gg/gJKQPkN !", false);
+        }
     }
 
     public void messageEvent(MessageReceivedEvent event) {
@@ -294,6 +343,7 @@ public class Match extends Thread {
             players.size(), game.getMaxTargetPlayers()
         )).queue();
     }
+
     /*
     Reactions
      */
@@ -321,8 +371,8 @@ public class Match extends Thread {
         joined(context.getAuthor());
     }
 
-    public void startReaction(CommandContext context) {
-        if (!gameState.equals(GameState.PRE_GAME) || !context.getAuthor().equals(creator))
+    public void startReaction(User user) {
+        if (!gameState.equals(GameState.PRE_GAME) || !user.equals(creator))
             throw new InvalidCommandSyntaxException();
         if (game.getGameType().equals(GameType.HYBRID) && players.size() == 1) {
             multiplayer = false;
@@ -331,7 +381,7 @@ public class Match extends Thread {
 
             matchHandler.begin(this, no -> {
                 MessageBuilder builder = new MessageBuilder().append(Language.transl(language, "gameFramework.singleplayerMatch",
-                        game.getName(language), game.getLongDescription(language) + mode.map(it ->
+                        game.getName(language), game.getLongDescription(language) + this.mode.map(it ->
                                 Language.transl(language, "gameFramework.mode", it.getName(language), it.getDescription(language)))
                             .orElse("")
                 ));
@@ -477,9 +527,6 @@ public class Match extends Thread {
             }
 
             Optional<Integer> bet = settings.containsKey("bet") ? GameUtil.safeParseInt(settings.get("bet")) : Optional.empty();
-            Optional<GamesInstance.GameMode> mode = settings.containsKey("mode") && !game.getModes().isEmpty() ? game.getModes().stream()
-                    .filter(curMode -> Arrays.stream(curMode.getAliases().split(" ")).anyMatch(it -> it.equals(settings.get("mode"))))
-                    .findAny() : Optional.empty();
 
             if (bet.isPresent()) {
                 int amount = bet.get();
@@ -489,7 +536,7 @@ public class Match extends Thread {
                     return Constants.getNotEnoughTokensMessage(context, amount);
             } else if (game.isRequireBetting()) return Language.transl(context, "gameFramework.requireBetting");
 
-            new Match(game, context.getAuthor(), context.getChannel(), settings, mode, bet);
+            new Match(game, context.getAuthor(), context.getChannel(), settings, bet);
             return null;
         }, ctx -> GuildProfile.get(ctx.getGuild()).canStart(ctx));
     }

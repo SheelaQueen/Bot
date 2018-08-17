@@ -1,13 +1,14 @@
-- You can now mention users in commands with their ID or Name#Discrim.
-- Added a message for invalid translations.
-- Added a new RNG system that should be less repetitive.
+- Town Country River now says nothing when the game's over and can be played with reactions if you have them allowed.
+- Modes are now selectable more easily.
 
-- New game: Town, Country, River! `g*towncountryriver` or `g*tcr`
-Each player is given a letter and theme in their round.
-You have to send a word that starts with that letter and fits that theme in 15 seconds.
-The player who other players voted best wins!
+*And well, you asked for a bugfixes update so here you go:*
 
-- Fixed invalid numbers with `g*baltop global page`.
-- Fixed german language.
-- Fixed some things not wanting to save for some reason.
+- Minesweeper now has 6 bombs by default to have the same ratio as real minesweeper. (Fin considered this a bug, so..)
+- Fixed values not saving sometimes.
+- Fixed error message on invalid User IDs.
+- Fixed HTML escaping on some quiz questions.
+- Fixed a bug with matches when you don't give the bot message history.
+- Fixed `g*ping` (blame Fin).
+- Fixed microseconds unit to say the proper thing (blame Fin once more).
+- Fixed multiplayer minesweeper not giving bombs to one player.
 Enjoy! ~ deprilula28

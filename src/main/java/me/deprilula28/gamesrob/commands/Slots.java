@@ -69,7 +69,10 @@ public class Slots {
                         };
 
                         int earntAmount = (int) (multiplier * betting);
-                        if (multiplier != 0) profile.setTokens(profile.getTokens() + earntAmount);
+                        if (multiplier != 0) {
+                            profile.setEdited(true);
+                            profile.setTokens(profile.getTokens() + earntAmount);
+                        }
 
                         context.edit(it -> {
                             String language = Constants.getLanguage(context);

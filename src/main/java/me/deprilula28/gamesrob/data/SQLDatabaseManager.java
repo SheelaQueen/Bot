@@ -61,13 +61,8 @@ public class SQLDatabaseManager {
         try {
             ResultSet set = select(table, keys, where);
             if (set.next()) {
-                if (checkSameValue.test(set)) {
-                    Log.trace("X Same value", table, where);
-                    return Utility.Promise.result(null);
-                } else {
-                    Log.trace("C Different value", table, where);
-                    return update(table, keys, where, statement -> consumer.accept(Optional.of(set), statement));
-                }
+                if (checkSameValue.test(set)) return Utility.Promise.result(null);
+                else return update(table, keys, where, statement -> consumer.accept(Optional.of(set), statement));
             } else return insert(table, keys, statement -> consumer.accept(Optional.empty(), statement));
         } catch (PSQLException ex) {
             Log.trace(ex.getClass().getName() + ": " + ex.getMessage());

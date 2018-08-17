@@ -78,26 +78,28 @@ public class Tokens {
         String baltopMessage;
 
         if (GamesROB.database.isPresent()) {
-            int guildPos;
+            int guildPos = -1;
             int globalPos;
             try {
                 SQLDatabaseManager db = GamesROB.database.get();
                 ResultSet globalPosSet = db.sqlFileQuery("selectRanked.sql", statement -> Log.wrapException("Getting SQL position",
                         () -> statement.setString(1, target.getId())));
-                ResultSet guildPosSet = db.sqlFileQuery("selectRankedGuild.sql", statement -> Log.wrapException("Getting Guild SQL Position",
-                        () -> statement.setString(1, target.getId())), context.getGuild()
-                        .getMembers().stream().map(it -> "userid = '" + it.getUser().getId() + "'")
-                        .collect(Collectors.joining(" OR ")));
-                guildPos = guildPosSet.next() ? guildPosSet.getInt("rank") : -1;
+                if (context.getGuild().getMembers().size() <= 400) {
+                    ResultSet guildPosSet = db.sqlFileQuery("selectRankedGuild.sql", statement -> Log.wrapException("Getting Guild SQL Position",
+                            () -> statement.setString(1, target.getId())), context.getGuild()
+                            .getMembers().stream().map(it -> "userid = '" + it.getUser().getId() + "'")
+                            .collect(Collectors.joining(" OR ")));
+                    guildPos = guildPosSet.next() ? guildPosSet.getInt("rank") : -1;
+                    guildPosSet.close();
+                }
                 globalPos = globalPosSet.next() ? globalPosSet.getInt("rank") : -1;
-                guildPosSet.close();
                 globalPosSet.close();
             } catch (Exception e) {
                 throw new RuntimeException(e);
             }
 
             baltopMessage = Language.transl(context, "command.tokens.baltop",
-                    guildPos + Utility.formatNth(Constants.getLanguage(context), guildPos),
+                    guildPos < 0 ? Language.transl(context, "baltopGuildTemp") : guildPos + Utility.formatNth(Constants.getLanguage(context), guildPos),
                     globalPos + Utility.formatNth(Constants.getLanguage(context), globalPos),
                     Constants.getPrefix(context.getGuild()));
         } else baltopMessage = null;
@@ -154,6 +156,7 @@ public class Tokens {
     public static String baltop(CommandContext context) {
         Optional<String> next = context.opt(context::next);
         boolean global = next.map(it -> it.equalsIgnoreCase("global")).orElse(false);
+        if (!global && context.getGuild().getMembers().size() > 500) return Language.transl(context, "baltopGuildTemp");
         int page = (global ? context.opt(context::nextInt) : next.map(it -> me.deprilula28.jdacmdframework.
                 Utility.rethrow(n -> new InvalidCommandSyntaxException(), n -> Integer.parseInt(it)))).orElse(1);
 

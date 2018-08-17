@@ -8,6 +8,8 @@ languageProperties:
   translators: "deprilula28#3609"
   version: "1.6.3"
 
+baltopGuildTemp: "Temporarly disabled for this server."
+
 genericMessages:
   alreadyPlaying: "You are already playing another game on %s!\nType `%sstop` to stop that match."
   noGamesInChannel: "There are no games currently in this channel.\nYou can type `%shelp` to pick and start a game!"
@@ -35,10 +37,13 @@ gameFramework:
   singleplayerMatch: "**Single-player %s Match**\n%s\n\n"
   multiplayerMatch: "**Multi-player %s Match**\n%s\n\n"
   collectiveMatch: "**%s Game**\n%s\nClick 👥 to allow other people to play!\n\n"
-  joinToPlay2: "🚪 Type `%sjoin` or click the door below to play!"
-  joinToPlayNoReaction2: "🚪 Type `%sjoin` to play!"
+  joinToPlay2: "🚪 Type `%sjoin` or click the door below to join!"
+  joinToPlayNoReaction2: "🚪 Type `%sjoin` to join!"
   waiting: "⏰ Waiting\n"
   playButton: "Click :arrow_forward: to start %s!"
+  modePlayButtonHeader: "\n**Choose the %s mode:**"
+  modePlayButton: "\n%s to play %s"
+  defaultMode: "Normal %s"
   betting: "💰 Betting %s 🔸 tokens!"
   begin: "**It's on!**\n**%s**\n%s\n\n"
   join: "%s has joined the match! %s/%s"
@@ -75,6 +80,7 @@ game:
 
     themeMessage: "\n\nQuick, tell me a %s that starts with %s!\n⏰ You have 15 seconds\n"
     rate: "\n\n%s that starts with %s:\n%s\nSay `yes` or `no` depending on if you think it's valid!\n"
+    reactionRate: "\n\nVote in %s's message depending on if you think it's valid!\n"
 
     themes:
       name: "Name"

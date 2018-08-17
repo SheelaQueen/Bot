@@ -26,9 +26,11 @@ public class PermissionCommands {
             Role role = roles.get(0);
 
             perm.getSetter().accept(profile, role.getId());
+            profile.setEdited(true);
             return Language.transl(context, "command.perm.set", perm.toString().toLowerCase(), role.getName());
         } else {
             perm.getSetter().accept(profile, null);
+            profile.setEdited(true);
             return Language.transl(context, "command.perm.reset", perm.toString().toLowerCase());
         }
     }

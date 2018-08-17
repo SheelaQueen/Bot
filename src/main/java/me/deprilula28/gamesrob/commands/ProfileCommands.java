@@ -71,17 +71,20 @@ public class ProfileCommands {
 
     public static String emojiTile(CommandContext context) {
         Optional<String> emoteOpt = context.opt(context::next);
+        UserProfile profile = UserProfile.get(context.getAuthor());
+        profile.setEdited(true);
         if (emoteOpt.isPresent()) {
             String emote = emoteOpt.get();
             if (!UserProfile.get(context.getAuthor()).transaction(150, "transactions.changingEmote"))
                 return Constants.getNotEnoughTokensMessage(context, 150);
 
             if (EmojiManager.isEmoji(emote)) {
-                UserProfile.get(context.getAuthor()).setEmote(emote);
+                profile.setEmote(emote);
                 return Language.transl(context, "command.emote.set", emote);
             } else if (emotePattern.matcher(emote).matches()) {
                 if (!validateEmote(context.getJda(), emote)) return Language.transl(context, "command.emote.cannotUse");
-                UserProfile.get(context.getAuthor()).setEmote(emote);
+
+                profile.setEmote(emote);
                 return Language.transl(context, "command.emote.set", emote);
             } else return Language.transl(context, "command.emote.invalid");
         } else {

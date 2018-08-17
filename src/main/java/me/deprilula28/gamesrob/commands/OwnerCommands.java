@@ -159,9 +159,20 @@ public class OwnerCommands {
                 }
 
                 ResultSet tables = db.sqlQuery("SELECT table_name FROM information_schema.tables WHERE table_schema = 'public'");
+                List<String> tableNames = new ArrayList<>();
+                while (tables.next()) tableNames.add(tables.getString("table_name"));
+
+                if (tableNames.contains(query.split(" ")[0])) {
+                    String table = query.split(" ")[0];
+                    context.edit("<:check:314349398811475968> Table Information:\n```" +
+                            "Name: " + table + "\n" +
+                            "Size: " + db.getSize(table) + " entries\n" +
+                            "\n```");
+                    return;
+                }
+
                 StringBuilder message = new StringBuilder("<:check:314349398811475968> Tables:\n");
-                while (tables.next()) {
-                    String table = tables.getString("table_name");
+                for (String table : tableNames) {
                     message.append(table).append(" - ").append(db.getSize(table)).append(" entries\n");
                 }
 
