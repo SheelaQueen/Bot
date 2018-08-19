@@ -30,7 +30,10 @@ public class LanguageCommands {
             String it = language.get();
 
             if (!Language.getLanguageList().contains(it)) return Language.transl(context, "genericMessages.invalidLanguage");
-            GuildProfile.get(context.getGuild()).setLanguage(it);
+
+            GuildProfile profile = GuildProfile.get(context.getGuild());
+            profile.setEdited(true);
+            profile.setLanguage(it);
             return Language.transl(context, "command.guildlang.set", it);
         } else return getAllLangsMessage(Constants.getPrefix(context.getGuild()), context.getCurrentCommand().getName());
     }
@@ -42,7 +45,10 @@ public class LanguageCommands {
             String it = language.get();
 
             if (!Language.getLanguageList().contains(it)) return Language.transl(context, "genericMessages.invalidLanguage");
-            UserProfile.get(context.getAuthor()).setLanguage(it);
+
+            UserProfile profile = UserProfile.get(context.getAuthor());
+            profile.setEdited(true);
+            profile.setLanguage(it);
             return Language.transl(it, "command.userlang.set", Language.transl(it, "languageProperties.languageName"));
         } else return getAllLangsMessage(Constants.getPrefix(context.getGuild()), context.getCurrentCommand().getName());
     }

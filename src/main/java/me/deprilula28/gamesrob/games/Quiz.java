@@ -14,6 +14,7 @@ import net.dv8tion.jda.core.MessageBuilder;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.User;
 import net.dv8tion.jda.core.exceptions.PermissionException;
+import org.unbescape.html.HtmlEscape;
 
 import javax.xml.ws.Provider;
 import java.net.URL;
@@ -29,7 +30,7 @@ public class Quiz implements MatchHandler {
     private static String[] ITEMS;
     public static final GamesInstance GAME = new GamesInstance(
             "quiz", "quiz trivia quizzes qz",
-            1, 11, GameType.COLLECTIVE, false,
+            0, 11, GameType.COLLECTIVE, false,
             Quiz::new, Quiz.class, Collections.emptyList()
     );
 
@@ -208,7 +209,7 @@ public class Quiz implements MatchHandler {
 
     @Override
     public void updatedMessage(boolean over, MessageBuilder builder) {
-        String decodedQuestion = curQuestion.getQuestion().replaceAll("&quot;", "\"").replaceAll("&#039;", "'");
+        String decodedQuestion = HtmlEscape.unescapeHtml(curQuestion.getQuestion());
         if (over) builder.append(Language.transl(match.getLanguage(), "game.quiz.revealAnswer", decodedQuestion,
                 curQuestion.getCorrectAnswer()));
         else {
@@ -220,13 +221,6 @@ public class Quiz implements MatchHandler {
                     orderedOptions.stream().map(it -> Utility.getLetterEmote(orderedOptions.indexOf(it)) + " " + it)
                             .collect(Collectors.joining("\n"))));
         }
-        playerItems.forEach((player, item) -> {
-            boolean contains = scoreboard.containsKey(player);
-            if (!over || contains) builder.append("\n").append(item).append(" ").append(player.map(User::getName).orElse("**AI**"));
-            if (contains) {
-                long score = Math.round(scoreboard.get(player));
-                builder.append(" (").append(score).append(" points)");
-            }
-        });
+        GameUtil.appendPlayersScore(playerItems, scoreboard, over, builder);
     }
 }

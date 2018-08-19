@@ -1,6 +1,7 @@
 package me.deprilula28.gamesrob.data;
 
 import javafx.util.Pair;
+import lombok.Getter;
 import me.deprilula28.gamesrob.utility.Log;
 import me.deprilula28.gamesrob.utility.Utility;
 import org.postgresql.util.PSQLException;
@@ -11,6 +12,7 @@ import java.util.Optional;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.function.BiConsumer;
+import java.util.function.BiFunction;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -19,12 +21,11 @@ public class SQLDatabaseManager {
     private ExecutorService asyncExecutor = Executors.newFixedThreadPool(4);
     private String url;
     private Optional<Pair<String, String>> login = Optional.empty();
-    private Connection connection;
+    @Getter private Connection connection;
 
-    private Connection getConnection() throws SQLException {
-        if (login.isPresent()) return DriverManager.getConnection(url, login.get().getKey(), login.get().getValue());
-        else return DriverManager.getConnection(url);
-    }
+    private List<String> batchCommands;
+    private List<Consumer<ResultSet>> batchSelectHandlers;
+    private List<BiFunction<Integer, PreparedStatement, Integer>> batchExecuteHandlers;
 
     public SQLDatabaseManager(String connectionInfo) {
         String[] attribs = connectionInfo.split(",");
@@ -37,9 +38,42 @@ public class SQLDatabaseManager {
                 login = Optional.of(new Pair<>(attribs[2], attribs[3]));
                 Log.info("Login is " + attribs[2]);
             }
-            connection = getConnection();
+
+            if (login.isPresent()) connection = DriverManager.getConnection(url, login.get().getKey(), login.get().getValue());
+            else connection = DriverManager.getConnection(url);
             registerTables();
         });
+    }
+
+    public void batchRun() {
+        asyncExecutor.execute(() -> Log.wrapException("Batched SQL Execute", () -> {
+            String sql = String.join(";", batchCommands);
+            PreparedStatement statement = connection.prepareStatement(sql);
+            int curOffset = 1;
+            for (BiFunction<Integer, PreparedStatement, Integer> cur : batchExecuteHandlers)
+                curOffset += cur.apply(curOffset, statement);
+
+            ResultSet set = statement.executeQuery();
+            int index = 0;
+            while (set.next()) {
+                batchSelectHandlers.get(index).accept(set);
+                index ++;
+            }
+            statement.close();
+        }));
+    }
+
+    public void batchedExecute(String sql, BiFunction<Integer, PreparedStatement, Integer> cons) {
+        batchExecuteHandlers.add(cons);
+        batchCommands.add(sql);
+    }
+
+    public Utility.Promise<ResultSet> batchedSqlQuery(String sql) {
+        Utility.Promise<ResultSet> promise = new Utility.Promise<>();
+        batchSelectHandlers.add(promise::done);
+        batchCommands.add(sql);
+
+        return promise;
     }
 
     private Utility.Promise<Void> sqlExecute(String sql, Consumer<PreparedStatement> cons) {
@@ -59,7 +93,7 @@ public class SQLDatabaseManager {
     }
 
     public Utility.Promise<Void> save(String table, List<String> keys, String where, Predicate<ResultSet> checkSameValue,
-                                      BiConsumer<Optional<ResultSet>, PreparedStatement> consumer) {
+                                      boolean batched, BiConsumer<Optional<ResultSet>, PreparedStatement> consumer) {
         try {
             ResultSet set = select(table, keys, where);
             if (set.next()) {

@@ -8,6 +8,8 @@ languageProperties:
   translators: "deprilula28#3609"
   version: "1.6.3"
 
+baltopGuildTemp: "Temporarly disabled for this server."
+
 genericMessages:
   alreadyPlaying: "You are already playing another game on %s!\nType `%sstop` to stop that match."
   noGamesInChannel: "There are no games currently in this channel.\nYou can type `%shelp` to pick and start a game!"
@@ -35,10 +37,13 @@ gameFramework:
   singleplayerMatch: "**Single-player %s Match**\n%s\n\n"
   multiplayerMatch: "**Multi-player %s Match**\n%s\n\n"
   collectiveMatch: "**%s Game**\n%s\nClick 👥 to allow other people to play!\n\n"
-  joinToPlay2: "🚪 Type `%sjoin` or click the door below to play!"
-  joinToPlayNoReaction2: "🚪 Type `%sjoin` to play!"
+  joinToPlay2: "🚪 Type `%sjoin` or click the door below to join!"
+  joinToPlayNoReaction2: "🚪 Type `%sjoin` to join!"
   waiting: "⏰ Waiting\n"
   playButton: "Click :arrow_forward: to start %s!"
+  modePlayButtonHeader: "\n**Choose the %s mode:**"
+  modePlayButton: "\n%s to play %s"
+  defaultMode: "Normal %s"
   betting: "💰 Betting %s 🔸 tokens!"
   begin: "**It's on!**\n**%s**\n%s\n\n"
   join: "%s has joined the match! %s/%s"
@@ -68,6 +73,38 @@ gameFramework:
   rematch: "Click in :arrows_counterclockwise: for a rematch!"
 
 game:
+  towncountryriver:
+    name: "Town, Country, River"
+    shortDescription: "Do you know words? You have 15 seconds to come up with words within a theme."
+    longDescription: "Think fast! You have 15 seconds to think of a word that starts with the given letter in the given theme.\nThe other players can vote whether or not your word is within the theme with `yes` or `no`!"
+
+    themeMessage: "\n\nQuick, tell me a %s that starts with %s!\n⏰ You have 15 seconds\n"
+    rate: "\n\n%s that starts with %s:\n%s\nSay `yes` or `no` depending on if you think it's valid!\n"
+    reactionRate: "\n\nVote in %s's message depending on if you think it's valid!\n"
+
+    themes:
+      name: "Name"
+      object: "Object"
+      animal: "Animal"
+      adjective: "Adjective"
+      cep: "Country/State/City"
+      tv: "Movie/TV Show"
+      celebrity: "Celebrity"
+      profession: "Profession"
+      bodyPart: "Body Part"
+      company: "Company"
+      trademark: "Trademark"
+      discordBots: "Discord Bot"
+      meme: "Meme"
+      anime: "Anime"
+      movie: "Movie"
+      youtuber: "YouTuber"
+      game: "Game"
+      videoGame: "Video Game"
+      boardGame: "Board Game"
+      apps: "Apps/Programs"
+      gender: "Gender"
+      fortniteSkin: "Fortnite Skin"
   uno:
     name: "Uno"
     shortDescription: "Try to get the same color or number on one of your cards, until they're over!"
@@ -262,6 +299,7 @@ command:
     embedUpvote: "Or [Click here](%s) to upvote the bot"
     give: "%s gave %s + 🔶 %s tokens!"
     giveInvalidAmount: "You can only give %s to %s tokens."
+    giveInvalidUser: "You can't give this user tokens."
 
     add: "Added %s tokens to %s's balance (Current balance: %s)."
     remove: "Removed %s tokens from %s's balance (Current balance: %s)."

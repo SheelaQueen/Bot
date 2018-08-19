@@ -13,7 +13,6 @@ import me.deprilula28.gamesrob.data.*;
 import me.deprilula28.gamesrob.utility.*;
 import me.deprilula28.jdacmdframework.CommandFramework;
 import me.deprilula28.jdacmdframework.Settings;
-import me.deprilula28.jdacmdframework.discordbotsorgapi.DiscordBotsOrg;
 import net.dv8tion.jda.core.*;
 import net.dv8tion.jda.core.entities.Game;
 import net.dv8tion.jda.core.entities.TextChannel;
@@ -99,8 +98,28 @@ public class BootupProcedure {
         optBfdToken = pargs.get(15);
     };
 
+    private static final String[] ERROR_MESSAGES = {
+            "So um... This is awkard...", "Oof...", "Sorry :c", "This ~~happens~~ *doesn't happen* very often you know?",
+            "Roses are red,\nViolets are blue.\nDep is bad at coding,\nSo I bring this message for you!",
+            "uHhHh tHiS iS a StAbLe BoT oK?", "What did I do wrong?!", "A wild bug has appeared!"
+    };
+    private static final Game[] LOADING_MESSAGES = {
+            Game.watching("it all load.."), Game.watching("life pass me by..."),
+            Game.listening("the cogs spinning"), Game.playing("something. Maybe that's why it's taking so long?"),
+            Game.playing("01100001011011010010000001101100011011110110000101100100")
+    };
+    private static final String[] GIFS = {
+            "https://media2.giphy.com/media/dRgcwKJaGgWgo/giphy.gif",
+            "https://media1.giphy.com/media/ucqzuPUJSrTvW/giphy.gif",
+            "https://media2.giphy.com/media/3ztfAWk2M2msM/giphy.gif",
+            "https://media.giphy.com/media/sXICOpe3B2cc8/giphy.gif",
+            "https://media.giphy.com/media/11H1vD2IrZxg9G/giphy.gif",
+            "https://this.is-la.me/c82a77.png"
+    };
+
     private static final BootupTask connectDiscord = args -> {
         int curShard = shardFrom;
+        Game game = LOADING_MESSAGES[ThreadLocalRandom.current().nextInt(LOADING_MESSAGES.length)];
         while (curShard < shardTo) {
             JDA jda = new JDABuilder(AccountType.BOT).setToken(token)
                     .useSharding(curShard, totalShards).setStatus(OnlineStatus.DO_NOT_DISTURB)
@@ -112,21 +131,6 @@ public class BootupProcedure {
             curShard ++;
             if (curShard < shardTo) Thread.sleep(5000L);
         }
-    };
-
-    private static final String[] ERROR_MESSAGES = {
-            "So um... This is awkard...", "Oof...", "Sorry :c", "This ~~happens~~ *doesn't happen* very often you know?",
-            "Roses are red,\nViolets are blue.\nDep is bad at coding,\nSo I bring this message for you!",
-            "uHhHh tHiS iS a StAbLe BoT oK?",
-            ""
-    };
-    private static final String[] GIFS = {
-            "https://media2.giphy.com/media/dRgcwKJaGgWgo/giphy.gif",
-            "https://media1.giphy.com/media/ucqzuPUJSrTvW/giphy.gif",
-            "https://media2.giphy.com/media/3ztfAWk2M2msM/giphy.gif",
-            "https://media.giphy.com/media/sXICOpe3B2cc8/giphy.gif",
-            "https://media.giphy.com/media/11H1vD2IrZxg9G/giphy.gif",
-            "https://this.is-la.me/c82a77.png"
     };
 
     private static final BootupTask frameworkLoad = args -> {
@@ -173,9 +177,9 @@ public class BootupProcedure {
                                 "We currently support: " + Language.getLanguageList().stream().map(it ->
                                 Language.transl(it, "languageProperties.languageName")).collect(Collectors.joining(", ")) + "!\n\n" +
                                 "If you want to start playing games, type `g*help` and pick a game!")
-                            .setEmbed(new EmbedBuilder().setTitle("If you need help:")
+                            .setEmbed(new EmbedBuilder().setTitle("If you need help, you can:")
                                     .setDescription("- [View our online command list](" + Constants.GAMESROB_DOMAIN + "/help)\n" +
-                                            "- [Join our support server](https://discord.gg/8EZ7BEz), we'll always be there for you!")
+                                            "- [Join our support server](https://discord.gg/8EZ7BEz)")
                                     .setColor(Utility.getEmbedColor(event.getGuild())).build())
                     .build()).queue());
         });
@@ -187,35 +191,16 @@ public class BootupProcedure {
             Cache.onClose();
             GamesROB.plots.interrupt();
             Log.closeStream();
-
-            /*
-            if (GamesROB.twitchUserIDListen != -1 && WebhookHandlers.hasConfirmed && GamesROB.twitchClientID.isPresent())
-                Log.trace("Response to twitch de-subscription: " +
-                    HttpRequest.post(String.format("https://api.twitch.tv/helix/webhooks/hub?hub.callback=%s&hub.mode=%s&hub.topic=%s",
-                            "http%3A%2F%2F1%2Ftwitchwebhook", "unsubscribe",
-                            "https%3A%2F%2Fapi.twitch.tv%2Fhelix%2Fstreams%3Fuser_id%3D" + GamesROB.twitchUserIDListen))
-                    .header("Accept", "application/vnd.twitchtv.v5+json")
-                    .header("Client-ID",  GamesROB.twitchClientID.get())
-                    .body());
-
-            Cache.onClose();
-                    */
         }));
     };
 
     private static final BootupTask dblLoad = args ->
         optDblToken.ifPresent(dblToken -> {
-            DiscordBotsOrg dbo = DiscordBotsOrg.builder()
-                    .botID(GamesROB.shards.get(0).getSelfUser().getId()).shardCount(totalShards).token(dblToken)
-                    .build();
-
             if (shardFrom <= 0) GamesROB.getAllShards().then(BootupProcedure::postAllShards);
 
             GamesROB.commandFramework.handleEvent(GuildJoinEvent.class, event -> postUpdatedShard(event.getJDA()));
             GamesROB.commandFramework.handleEvent(GuildLeaveEvent.class, event -> postUpdatedShard(event.getJDA()));
 
-            GamesROB.dboAPI = Optional.of(dbo);
-            GamesROB.owners = Collections.unmodifiableList(GamesROB.dboAPI.get().getBot().getOwners().stream().map(Long::parseLong).collect(Collectors.toList()));
             owners = GamesROB.owners;
     });
     private static final String DBL_URL_ROOT = "https://discordbots.org/api/";
@@ -331,7 +316,7 @@ public class BootupProcedure {
                     channel.sendMessage("<@&389918430733664256>\n<:update:264184209617321984> **GamesROB v" + GamesROB.VERSION + " is available!**" +
                         "\n\nChangelog:\n" + changelog + "\n\n*Updates are usually scheduled for every friday, " +
                         "making the next update " + Utility.formatTime(Utility.predictNextUpdate()) + ".*\n" +
-                            "If you don't want to receive these messages, run `!unsubscribe` in <#389921363093356554>.")
+                            "If you don't want to get pinged in these messages, you can remove your reaction on <#358451223612882944>.")
                         .queue());
         }
     };

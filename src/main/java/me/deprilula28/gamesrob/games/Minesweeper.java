@@ -40,8 +40,8 @@ public class Minesweeper implements MatchHandler {
 
     @Setting(min = 4, max = 6, defaultValue = 6) public int rows; // Y axis
     @Setting(min = 4, max = 6, defaultValue = 6) public int columns; // X axis
-    @Setting(min = 2, max = 30, defaultValue = 13) public int bombs;
-    private boolean hiddenBombs = false;
+    @Setting(min = 2, max = 30, defaultValue = 6) public int bombs;
+    private List<User> hiddenBombs = new ArrayList<>();
 
     @Data
     @AllArgsConstructor
@@ -107,8 +107,8 @@ public class Minesweeper implements MatchHandler {
                 ? new MinesweeperTile(tile.type, true)
                 : new MinesweeperTile(MinesweeperTileType.DUG, false));
 
-        if (!hiddenBombs) {
-            Random rng = ThreadLocalRandom.current();
+        if (!hiddenBombs.contains(author)) {
+            Random rng = GameUtil.generateRandom();
             while (bombs -- > 0) {
                 int plantX = rng.nextInt(columns);
                 int plantY = rng.nextInt(rows);
@@ -120,7 +120,7 @@ public class Minesweeper implements MatchHandler {
                 curBoard.get(plantX).set(plantY, new MinesweeperTile(MinesweeperTileType.BOMB, false));
             }
 
-            hiddenBombs = true;
+            hiddenBombs.add(author);
         }
 
         // If all the tiles are either dug or bombs

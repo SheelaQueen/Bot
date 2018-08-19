@@ -34,15 +34,7 @@ public class Cache {
         Thread cleaner = new Thread(() -> {
             while (true) {
                 try {
-                    Random random = ThreadLocalRandom.current();
-                    long begin = System.nanoTime();
-
-                    // dep no one loves you.
-                    double thing = (45 + (Math.sqrt(random.nextInt(120 - 90) + 90 + ((System.currentTimeMillis() * 0.0000000001)
-                                    + (Math.sqrt(Math.pow(random.nextDouble() * (256 - 248) + 248, 2)) -
-                                    random.nextDouble() * (4.20 - 0.69) + 0.69)))));
-
-                    Thread.sleep(Math.round(thing * 1000));
+                    Thread.sleep(Constants.CACHE_TIME);
                     long time = System.currentTimeMillis();
                     int removed = 0;
 

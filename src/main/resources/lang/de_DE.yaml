@@ -26,8 +26,8 @@ genericMessages:
   blacklistedNoInfo: "⛔ Du wurdest von GamesROB gebannt."
 
 gameFramework:
-  singleplayerMatch: "**%s Einzelspieler Kampf!**\n%s\n\n%s"
-  multilplayerMatch: "**%s Mehrspieler Kampf!**\n%s\n\n"
+  singleplayerMatch: "**%s Einzelspieler Kampf!**\n%s\n\n"
+  multiplayerMatch: "**%s Mehrspieler Kampf!**\n%s\n\n"
   joinToPlay: "🚪 Gebe `%sjoin` ein, um das Spiel zu betreten! (%s/%s)"
   joinToPlayNoReaction: "🚪 Tippe `%sjoin` zum spielen! (%s/%s)"
   betting: "💰 Wette mit %s 🔸 Tokens!"
@@ -43,7 +43,7 @@ gameFramework:
   typeToJoin: "Gebe `%sjoin` ein um das Spiel zu betreten."
   playersOutOfRange: "Du kannst nur zwischen %s und %s Spielern in diesem Spiel haben!"
 
-  gameOver: "**Spiel vorbei!**\n%s\n\n%s"
+  gameOver: "**Spiel vorbei!**\n%s\n\n"
   winner: "%s hat gewonnen!"
   draw: "Unentschieden!"
   timeout: "Das Spiel ist nach **%s** vorbei."

@@ -31,7 +31,7 @@ public class TicTacToe extends TurnMatchHandler {
     @Override
     public void begin(Match match, Provider<RequestPromise<Message>> initialMessage) {
         tiles = boardSize * boardSize;
-        alive = match.getPlayers();
+        alive = new ArrayList<>(match.getPlayers());
 
         for (int i = 0; i < tiles; i ++) {
             board.add(Optional.empty());
@@ -48,7 +48,6 @@ public class TicTacToe extends TurnMatchHandler {
     public void receivedMessage(String contents, User author, Message reference) {
         messages ++;
         getTurn().ifPresent(cur -> {
-            if (!alive.contains(Optional.of(cur))) return;
             if (cur != author) return;
             if (contents.length() != 1) return;
 
@@ -61,6 +60,16 @@ public class TicTacToe extends TurnMatchHandler {
 
             if (!detectVictory()) nextTurn();
         });
+    }
+
+    @Override
+    protected boolean isInvalidTurn() {
+        return !getTurn().isPresent() || !alive.contains(getTurn());
+    }
+
+    @Override
+    protected void handleInvalidTurn() {
+        if (!getTurn().isPresent()) handleAIPlay();
     }
 
     @Override

@@ -76,8 +76,10 @@ public abstract class TurnMatchHandler implements MatchHandler {
         Guild guild = match.getChannelIn().getGuild();
         match.getPlayers().forEach(cur -> {
             if (playerItems != null) builder.append(playerItems.get(cur)).append(" ");
-            builder.append(cur.map(it -> guild.getMember(it) == null ? it.getName() : guild.getMember(it).getEffectiveName())
-                    .orElse("**AI**")).append(messageGetter.apply(cur));
+            String name = cur.map(it -> guild.getMember(it) == null ? it.getName() : guild.getMember(it).getEffectiveName())
+                    .orElse("**AI**");
+            String replacement = cur.map(User::getAsMention).orElse("no u");
+            builder.append(name.replaceAll("@everyone", replacement).replaceAll("@here", replacement)).append(messageGetter.apply(cur));
 
             if (getPlayers().contains(cur)) {
                 int pos = getPlayers().indexOf(cur) - turn;

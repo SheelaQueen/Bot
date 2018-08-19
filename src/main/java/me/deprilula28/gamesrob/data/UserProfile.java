@@ -5,6 +5,7 @@ import lombok.Data;
 import me.deprilula28.gamesrob.GamesROB;
 import me.deprilula28.gamesrob.achievements.AchievementType;
 import me.deprilula28.gamesrob.baseFramework.GamesInstance;
+import me.deprilula28.gamesrob.commands.CommandManager;
 import me.deprilula28.gamesrob.utility.Cache;
 import me.deprilula28.gamesrob.utility.Constants;
 import me.deprilula28.gamesrob.utility.Log;
@@ -32,6 +33,7 @@ public class UserProfile {
     private long lastUpvote;
     private int upvotedDays;
     private int shardId;
+    private boolean edited = false;
 
     public LeaderboardHandler.UserStatistics getStatsForGuild(Guild guild) {
         return GuildProfile.get(guild).getLeaderboard().getStatsForUser(userId);
@@ -64,6 +66,9 @@ public class UserProfile {
     );
 
     public void addTokens(int amount, String message) {
+        if (CommandManager.getBlacklist(userId).isPresent()) return;
+
+        edited = true;
         tokens += amount;
         GamesROB.database.ifPresent(it ->
             it.insert("transactions", Arrays.asList("userid", "amount", "time", "message"),
@@ -153,7 +158,7 @@ public class UserProfile {
             return db.save("userData", Arrays.asList(
                     "emote", "userId", "tokens", "lastupvote", "upvoteddays", "shardid", "language"
             ), "userid = '" + value.getUserId() + "'",
-                set -> fromResultSet(value.getUserId(), set).equals(Optional.of(value)),
+                set -> !value.isEdited(), true,
                 (set, it) -> Log.wrapException("Saving data on SQL", () -> write(it, value)));
         }
 
@@ -162,7 +167,7 @@ public class UserProfile {
                 return Optional.of(new UserProfile(from, select.getString("emote"),
                         select.getString("language"), select.getInt("tokens"),
                         select.getLong("lastupvote"), select.getInt("upvoteddays"),
-                        select.getInt("shardid")));
+                        select.getInt("shardid"), false));
             } catch (Exception e) {
                 Log.exception("Saving UserProfile in SQL", e);
                 return Optional.empty();
@@ -188,7 +193,7 @@ public class UserProfile {
         @Override
         public UserProfile createNew(String from) {
             return new UserProfile(from, null, null, 0, 0, 0,
-                    GamesROB.getUserById(from).map(it -> it.getJDA().getShardInfo().getShardId()).orElse(0));
+                    GamesROB.getUserById(from).map(it -> it.getJDA().getShardInfo().getShardId()).orElse(0), false);
         }
 
         @Override

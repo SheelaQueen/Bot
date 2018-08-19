@@ -1,4 +1,4 @@
-# To translators: Start on genericMessages
+﻿# To translators: Start on genericMessages
 languageProperties:
   code: "es_ES"
   language: "Spanish"
@@ -31,7 +31,7 @@ gameFramework:
   joinToPlay: "🚪 Escribe `%sjoin` o clickea la puerta de abajo para jugar! (%s/%s)"
   joinToPlayNoReaction: "🚪 Escribe `%sjoin` para jugar! (%s/%s)"
   betting: "💰 Apostando %s 🔸 fichas!"
-  begin: "**Encendido!**\n**%s**\n%s\n\n"
+  begin: "**Partida Iniciada!**\n**%s**\n%s\n\n"
   join: "%s se ha unido a la partida! %s/%s"
   left: "%s ha abandonado la partida!"
 
@@ -57,13 +57,26 @@ gameFramework:
   rematch: "Clickea en :arrows_counterclockwise: para la revancha!"
 
 game:
+  uno:
+    name: "Uno"
+    shortDescription: "Intenta conseguir el mismo número o color que una de tus cartas, hasta que se acaben!"
+    longDescription: "Todos empiezan con 7 cartas, que se reciben por mensaje privado. En cada ronda, puedes usar una carta.\nSi tienes una carta con el mismo color o número de la última carta jugada, puedes usarla.\nDe lo contrario, debes robar una carta."
+
+    deckDm: "Puedes jugar en %s.\nEn tu turno, envía el número que está arriba de la carta que deseas usar.\nSi es un comodín (color negro) puedes elegir el color con el que se va a continuar jugando con `número color` (ej. `3 blue`).\nTus cartas:"
+    drawCard: "Has robado una carta porque no podías jugar ninguna."
+
+    chooseCard: "%s: ¡Envía el número de la carta que quieras usar!\n Tus cartas están en tus mensajes privados.\n"
+    game: "última carta jugada\n%s\n\n"
+    noColor: "Debes elegir un color para usar un comodín (ej. `3 blue`)."
+    invalidColor: "Ese no es un color válido."
+    won: "¡Ganaste el juego!"
   roulette:
     name: "Ruleta rusa"
-    shortDescription: "¡Dale la vuelta al tambor, que no te dispare!"
-    longDescription: "Una bala, 8 recámaras.\nDale la vuelta al tambor con la fuerza que quieras, y espera lo mejor cuando apretes el gatillo!"
-    chooseStrength: "🔫 ¿Qué tan fuerte vas a voltear el tambor?\nEnvía un número de %s a %s."
+    shortDescription: "¡Gira el tambor, que no te toca la bala!"
+    longDescription: "Una bala, 8 recámaras.\nGira el tambor con la fuerza que quieras, y espera lo mejor cuando apretes el gatillo!"
+    chooseStrength: "🔫 ¿Qué tan fuerte vas a girar el tambor?\nEnvía un número de %s a %s."
     shot: "%s aprieta el gatillo y recibe el disparo! Qué mala suerte."
-    survive: "%s aprieta el gatillo y se alivia por la falta de sonido."
+    survive: "%s aprieta el gatillo y se alivia por el sonido de la recámara vacía."
   connectFour:
     name: "Conecta 4 / 4 en línea"
     shortDescription: "¡Coloca fichas para conectar 4 de tu color!"
@@ -162,7 +175,7 @@ command:
   permissionLock: "⛔ ¡No puedes usar este comando!"
 
   slots:
-    matchHeader: "Girando for 🔸 %s fichas..."
+    matchHeader: "Girando por 🔸 %s fichas..."
     matchEnd: "Tu has %s 🔸 %s fichas!"
     earnt: "ganado"
     lost: "perdido"
@@ -212,7 +225,7 @@ command:
     invalid: "Lo siento, pero ese no es un emoticón válido..."
     description: "Cambia el emoji que te representará en las partidas!"
   userlang:
-    set: "Tu idioma persona fue configurado a %s"
+    set: "Tu idioma personal fue configurado a %s"
     description: "Cambia tu propio idioma."
   guildlang: 
     set: "El idioma predeterminado para este servidor se estableció en %s"

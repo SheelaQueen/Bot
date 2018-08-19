@@ -281,6 +281,7 @@ public class RPCManager extends WebSocketClient {
 
             profile.addTokens(amount, "transactions.upvote");
             profile.setLastUpvote(System.currentTimeMillis());
+            profile.setEdited(true);
         }));
 
         return null;

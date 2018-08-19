@@ -32,6 +32,7 @@ public class Connect4 extends TurnMatchHandler {
     @Override
     public void begin(Match match, Provider<RequestPromise<Message>> initialMessage) {
         Utility.populateItems(match.getPlayers(), ITEMS, playerItems, itemPlayers);
+        alive = new ArrayList<>(match.getPlayers());
         super.begin(match, initialMessage);
     }
 
@@ -39,7 +40,6 @@ public class Connect4 extends TurnMatchHandler {
     public void receivedMessage(String contents, User author, Message reference) {
         messages ++;
         getTurn().ifPresent(cur -> {
-            if (!alive.contains(Optional.of(cur))) return;
             if (cur != author) return;
             Optional<Integer> numb = GameUtil.safeParseInt(contents);
             if (!numb.isPresent()) return;
@@ -58,6 +58,16 @@ public class Connect4 extends TurnMatchHandler {
             row.set(ln, Optional.of(playerItems.get(Optional.of(cur))));
             if (!detectVictory()) nextTurn();
         });
+    }
+
+    @Override
+    protected boolean isInvalidTurn() {
+        return !getTurn().isPresent() || !alive.contains(getTurn());
+    }
+
+    @Override
+    protected void handleInvalidTurn() {
+        if (!getTurn().isPresent()) handleAIPlay();
     }
 
     @Override

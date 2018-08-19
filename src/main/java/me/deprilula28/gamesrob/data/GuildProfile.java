@@ -29,6 +29,7 @@ public class GuildProfile {
     private String permStopGame;
     private String language;
     private int shardId;
+    private boolean edited;
 
     private boolean rolePermission(CommandContext context, String value, Supplier<Boolean> fallback) {
         boolean out;
@@ -80,7 +81,6 @@ public class GuildProfile {
 
             if (select.next()) return fromResultSet(from, select);
             select.close();
-            Log.info("Next not found!");
 
             return Optional.empty();
         }
@@ -90,7 +90,7 @@ public class GuildProfile {
             return db.save("guildData", Arrays.asList(
                     "prefix", "permstartgame", "permstopgame", "shardid", "language", "guildid"
             ), "guildid = '" + value.getGuildId() + "'",
-                set -> fromResultSet(value.getGuildId(), set).equals(Optional.of(value)),
+                set -> !value.isEdited(), true,
                 (set, it) -> Log.wrapException("Saving data on SQL", () -> writeGuildData(it, value)));
         }
 
@@ -99,7 +99,7 @@ public class GuildProfile {
                 return Optional.of(new GuildProfile(from,
                         select.getString("prefix"), select.getString("permStartgame"),
                         select.getString("permstopgame"), select.getString("language"),
-                        select.getInt("shardid")));
+                        select.getInt("shardid"), false));
             } catch (Exception e) {
                 Log.exception("Saving GuildProfile in SQL", e);
                 return Optional.empty();
@@ -133,7 +133,7 @@ public class GuildProfile {
         @Override
         public GuildProfile createNew(String from) {
             return new GuildProfile(from, "g*", null, null, Constants.DEFAULT_LANGUAGE,
-                    GamesROB.getGuildById(from).map(it -> it.getJDA().getShardInfo().getShardId()).orElse(0));
+                    GamesROB.getGuildById(from).map(it -> it.getJDA().getShardInfo().getShardId()).orElse(0), false);
         }
 
         @Override

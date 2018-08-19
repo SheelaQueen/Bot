@@ -2,6 +2,7 @@ package me.deprilula28.gamesrob.commands;
 
 import me.deprilula28.gamesrob.Language;
 import me.deprilula28.gamesrob.achievements.AchievementType;
+import me.deprilula28.gamesrob.baseFramework.GameUtil;
 import me.deprilula28.gamesrob.data.UserProfile;
 import me.deprilula28.gamesrob.utility.Constants;
 import me.deprilula28.gamesrob.utility.Log;
@@ -24,7 +25,7 @@ public class Slots {
     private static final int MIN_ITEMS = 3;
 
     public static String slotsGame(CommandContext context) {
-        Random random = new Random(System.currentTimeMillis());
+        Random random = GameUtil.generateRandom();
         String next = context.next();
         int betting = next.equalsIgnoreCase("all") ? UserProfile.get(context.getAuthor()).getTokens()
             : me.deprilula28.jdacmdframework.Utility.rethrow(n -> new InvalidCommandSyntaxException(), n -> Integer.parseInt(next));
@@ -68,7 +69,10 @@ public class Slots {
                         };
 
                         int earntAmount = (int) (multiplier * betting);
-                        if (multiplier != 0) profile.setTokens(profile.getTokens() + earntAmount);
+                        if (multiplier != 0) {
+                            profile.setEdited(true);
+                            profile.setTokens(profile.getTokens() + earntAmount);
+                        }
 
                         context.edit(it -> {
                             String language = Constants.getLanguage(context);

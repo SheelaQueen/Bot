@@ -60,7 +60,7 @@ public enum AchievementType {
             UserProfile profile = UserProfile.get(user);
             db.save("achievements", Arrays.asList("type", "amount", "userid"),
                     "userid = '" + profile.getUserId() + "' AND type = '" + type + "'", set -> false,
-                    (set, statement) -> Log.wrapException("Storing achievement amount", () -> {
+                    false, (set, statement) -> Log.wrapException("Storing achievement amount", () -> {
                 int prevAmount = set.map(it -> {
                     try {
                         return it.getInt("amount");

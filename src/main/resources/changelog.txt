@@ -1,14 +1,19 @@
-- Added aditional game modes!
-You can play these by adding `mode=<mode>` to the end of a game command (example: `g*connect4 mode=reverse`)
-These are the currently implemented modes:
+- Town Country River now says nothing when the game's over and can be played with reactions if you have them allowed.
+- Modes are now selectable more easily.
 
-\* Reverse `reverse` for Tic-Tac-Toe and Connect4, where if you match you're out of the game, and the last player wins.
-\* House `house` for Minesweeper, where the number of the mines you dig doesn't count the bottom, left and right tiles.
-\* Knight Paths `knightpaths` for Minesweeper, where the number of the mines you dig doesn't count the surrounding 8 tiles, but rather tiles in knight paths (chess knights :^)) from it.
+*And well, you asked for a bugfixes update so here you go:*
 
-- Fixed server count uploading.
-- Fixed matches starting after 20 seconds with no players. Twice, may I add.
-- Fixed rematch on single player games.
+- Minesweeper now has 6 bombs by default to have the same ratio as real minesweeper. (Fin considered this a bug, so..)
+- Fixed values not saving sometimes.
+- Fixed error message on invalid User IDs.
+- Fixed HTML escaping on some quiz questions.
+- Fixed a bug with matches when you don't give the bot message history.
+- Fixed `g*ping` (blame Fin).
+- Fixed microseconds unit to say the proper thing (blame Fin once more).
+- Fixed multiplayer minesweeper not giving bombs to one player.
+- Fixed emoji tile description in `g*help`.
+- Fixed the bot tagging `@everyone` if you have that name.
+- Fixed connect4 & tic tac toe win detection.
 
-Earlier update because I'm gonna be away for a bit. Next update is next friday.
+Weekend update cause why not
 Enjoy! ~ deprilula28
