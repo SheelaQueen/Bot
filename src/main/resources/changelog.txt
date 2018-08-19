@@ -1,19 +1,2 @@
-- Town Country River now says nothing when the game's over and can be played with reactions if you have them allowed.
-- Modes are now selectable more easily.
-
-*And well, you asked for a bugfixes update so here you go:*
-
-- Minesweeper now has 6 bombs by default to have the same ratio as real minesweeper. (Fin considered this a bug, so..)
-- Fixed values not saving sometimes.
-- Fixed error message on invalid User IDs.
-- Fixed HTML escaping on some quiz questions.
-- Fixed a bug with matches when you don't give the bot message history.
-- Fixed `g*ping` (blame Fin).
-- Fixed microseconds unit to say the proper thing (blame Fin once more).
-- Fixed multiplayer minesweeper not giving bombs to one player.
-- Fixed emoji tile description in `g*help`.
-- Fixed the bot tagging `@everyone` if you have that name.
-- Fixed connect4 & tic tac toe win detection.
-
-Weekend update cause why not
+- Added different loading messages. Yes, that's a very useful feature, I know.
 Enjoy! ~ deprilula28

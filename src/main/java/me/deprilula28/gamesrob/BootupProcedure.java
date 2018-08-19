@@ -123,11 +123,10 @@ public class BootupProcedure {
         while (curShard < shardTo) {
             JDA jda = new JDABuilder(AccountType.BOT).setToken(token)
                     .useSharding(curShard, totalShards).setStatus(OnlineStatus.DO_NOT_DISTURB)
-                    .setGame(Game.watching("it all load...")).buildBlocking();
+                    .setGame(game).buildBlocking();
             GamesROB.shards.add(jda);
             Match.ACTIVE_GAMES.put(jda, new ArrayList<>());
 
-            Log.info("Shard loaded: " + curShard + "/" + (shardTo - 1));
             curShard ++;
             if (curShard < shardTo) Thread.sleep(5000L);
         }

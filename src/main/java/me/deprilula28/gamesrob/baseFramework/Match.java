@@ -375,8 +375,7 @@ public class Match extends Thread {
     }
 
     private void startReaction(User user) {
-        if (!gameState.equals(GameState.PRE_GAME) || !user.equals(creator))
-            throw new InvalidCommandSyntaxException();
+        if (!gameState.equals(GameState.PRE_GAME) || !user.equals(creator)) return;
         if (game.getGameType().equals(GameType.HYBRID) && players.size() == 1) {
             multiplayer = false;
             matchMessage.then(it -> it.delete().queue());
