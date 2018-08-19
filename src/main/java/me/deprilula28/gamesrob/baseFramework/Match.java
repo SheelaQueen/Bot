@@ -371,7 +371,7 @@ public class Match extends Thread {
         joined(context.getAuthor());
     }
 
-    public void startReaction(User user) {
+    private void startReaction(User user) {
         if (!gameState.equals(GameState.PRE_GAME) || !user.equals(creator))
             throw new InvalidCommandSyntaxException();
         if (game.getGameType().equals(GameType.HYBRID) && players.size() == 1) {
@@ -396,7 +396,7 @@ public class Match extends Thread {
         }
     }
 
-    public void gameStart() {
+    private void gameStart() {
         interrupt();
         matchMessage.then(it -> it.delete().queue());
         Statistics.get().registerGame(game);

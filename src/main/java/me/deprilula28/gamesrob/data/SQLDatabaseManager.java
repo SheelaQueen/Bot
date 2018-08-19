@@ -12,6 +12,7 @@ import java.util.Optional;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.function.BiConsumer;
+import java.util.function.BiFunction;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -21,6 +22,10 @@ public class SQLDatabaseManager {
     private String url;
     private Optional<Pair<String, String>> login = Optional.empty();
     @Getter private Connection connection;
+
+    private List<String> batchCommands;
+    private List<Consumer<ResultSet>> batchSelectHandlers;
+    private List<BiFunction<Integer, PreparedStatement, Integer>> batchExecuteHandlers;
 
     public SQLDatabaseManager(String connectionInfo) {
         String[] attribs = connectionInfo.split(",");
@@ -40,6 +45,37 @@ public class SQLDatabaseManager {
         });
     }
 
+    public void batchRun() {
+        asyncExecutor.execute(() -> Log.wrapException("Batched SQL Execute", () -> {
+            String sql = String.join(";", batchCommands);
+            PreparedStatement statement = connection.prepareStatement(sql);
+            int curOffset = 1;
+            for (BiFunction<Integer, PreparedStatement, Integer> cur : batchExecuteHandlers)
+                curOffset += cur.apply(curOffset, statement);
+
+            ResultSet set = statement.executeQuery();
+            int index = 0;
+            while (set.next()) {
+                batchSelectHandlers.get(index).accept(set);
+                index ++;
+            }
+            statement.close();
+        }));
+    }
+
+    public void batchedExecute(String sql, BiFunction<Integer, PreparedStatement, Integer> cons) {
+        batchExecuteHandlers.add(cons);
+        batchCommands.add(sql);
+    }
+
+    public Utility.Promise<ResultSet> batchedSqlQuery(String sql) {
+        Utility.Promise<ResultSet> promise = new Utility.Promise<>();
+        batchSelectHandlers.add(promise::done);
+        batchCommands.add(sql);
+
+        return promise;
+    }
+
     private Utility.Promise<Void> sqlExecute(String sql, Consumer<PreparedStatement> cons) {
         Utility.Promise<Void> promise = new Utility.Promise<>();
         asyncExecutor.execute(() -> Log.wrapException("SQL Execute " + sql, () -> {
@@ -57,7 +93,7 @@ public class SQLDatabaseManager {
     }
 
     public Utility.Promise<Void> save(String table, List<String> keys, String where, Predicate<ResultSet> checkSameValue,
-                                      BiConsumer<Optional<ResultSet>, PreparedStatement> consumer) {
+                                      boolean batched, BiConsumer<Optional<ResultSet>, PreparedStatement> consumer) {
         try {
             ResultSet set = select(table, keys, where);
             if (set.next()) {

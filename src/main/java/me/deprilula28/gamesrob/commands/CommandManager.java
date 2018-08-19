@@ -141,7 +141,7 @@ public class CommandManager {
 
         f.command("userlang u lang language userlanguage mylang mylanguage", LanguageCommands::setUserLanguage).attr("category", "profilecommands");
 
-        f.command("emojitile emote e emoji changeemoji setemojitile setemoji emojis emoticons emoticon changeemoticon emoticontile " +
+        f.command("emote emojitile e emoji changeemoji setemojitile setemoji emojis emoticons emoticon changeemoticon emoticontile " +
                 "setemoticon setemoticontile changeemote emotetile setemote setemotetile emotes tile changetile settile " +
                 "depwhyaretheretwolinesforonecommandimscaredidkwhattodosothisisherehelphelphelphelp", ProfileCommands::emojiTile)
                 .attr("category", "profilecommands").setUsage("emojitile <Emoji>");

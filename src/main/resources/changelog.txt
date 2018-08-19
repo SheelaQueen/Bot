@@ -11,4 +11,9 @@
 - Fixed `g*ping` (blame Fin).
 - Fixed microseconds unit to say the proper thing (blame Fin once more).
 - Fixed multiplayer minesweeper not giving bombs to one player.
+- Fixed emoji tile description in `g*help`.
+- Fixed the bot tagging `@everyone` if you have that name.
+- Fixed connect4 & tic tac toe win detection.
+
+Weekend update cause why not
 Enjoy! ~ deprilula28

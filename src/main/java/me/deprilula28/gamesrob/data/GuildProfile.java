@@ -90,7 +90,7 @@ public class GuildProfile {
             return db.save("guildData", Arrays.asList(
                     "prefix", "permstartgame", "permstopgame", "shardid", "language", "guildid"
             ), "guildid = '" + value.getGuildId() + "'",
-                set -> !value.isEdited(),
+                set -> !value.isEdited(), true,
                 (set, it) -> Log.wrapException("Saving data on SQL", () -> writeGuildData(it, value)));
         }
 

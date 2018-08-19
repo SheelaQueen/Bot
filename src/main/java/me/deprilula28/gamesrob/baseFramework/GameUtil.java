@@ -33,7 +33,7 @@ public class GameUtil {
             }
             return false;
         } else match.onEnd(matcherPlayer);
-        return false;
+        return true;
     }
 
     public static RequestPromise<Message> editSend(TextChannel channel, int messagesSince, RequestPromise<Message> oldMessage, Message message) {

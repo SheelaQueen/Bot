@@ -107,7 +107,7 @@ public class LeaderboardHandler {
                     Log.exception("Saving Leaderboard Entry SQL", e);
                     return false;
                 }
-            }, (set, statement) -> Log.wrapException("Saving leaderboard entry", () -> {
+            }, true, (set, statement) -> Log.wrapException("Saving leaderboard entry", () -> {
                 statement.setInt(1, entry.getStats().getVictories());
                 statement.setInt(2, entry.getStats().getLosses());
                 statement.setInt(3, entry.getStats().getGamesPlayed());

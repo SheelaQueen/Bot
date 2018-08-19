@@ -158,7 +158,7 @@ public class UserProfile {
             return db.save("userData", Arrays.asList(
                     "emote", "userId", "tokens", "lastupvote", "upvoteddays", "shardid", "language"
             ), "userid = '" + value.getUserId() + "'",
-                set -> !value.isEdited(),
+                set -> !value.isEdited(), true,
                 (set, it) -> Log.wrapException("Saving data on SQL", () -> write(it, value)));
         }
 
