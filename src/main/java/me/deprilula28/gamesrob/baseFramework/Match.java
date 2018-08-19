@@ -66,6 +66,7 @@ public class Match extends Thread {
     private Map<String, Integer> settings = new HashMap<>();
     public boolean playMore = false;
     private boolean reacted = false;
+    private boolean reactedJoin = false;
 
     // Rematch multiplayer
     public Match(GamesInstance game, User creator, TextChannel channel, List<Optional<User>> players,
@@ -274,15 +275,17 @@ public class Match extends Thread {
         if (canReact && !reacted) {
             matchMessage.then(msg -> {
                 msg.addReaction("\uD83D\uDEAA").queue();
-                if (game.getGameType() == GameType.HYBRID || getPlayers().size() >= game.getMinTargetPlayers() + 1) {
-                    if (game.getModes().isEmpty()) msg.addReaction("▶").queue();
-                    else {
-                        msg.addReaction(Utility.getNumberEmote(0)).queue();
-                        for (int i = 0; i < game.getModes().size(); i ++) msg.addReaction(Utility.getNumberEmote(i + 1)).queue();
-                    }
-                }
             });
             reacted = true;
+        } else if (game.getGameType() == GameType.HYBRID || getPlayers().size() >= game.getMinTargetPlayers() + 1 && !reactedJoin) {
+            matchMessage.then(msg -> {
+                if (game.getModes().isEmpty()) msg.addReaction("▶").queue();
+                else {
+                    msg.addReaction(Utility.getNumberEmote(0)).queue();
+                    for (int i = 0; i < game.getModes().size(); i ++) msg.addReaction(Utility.getNumberEmote(i + 1)).queue();
+                }
+            });
+            reactedJoin = true;
         }
     }
 
