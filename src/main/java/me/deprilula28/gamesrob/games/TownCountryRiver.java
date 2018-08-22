@@ -162,12 +162,14 @@ public class TownCountryRiver extends TurnMatchHandler implements Runnable {
             if (word.isPresent()) {
                 String it = word.get();
                 if (match.isCanReact())
-                    builder.append(Language.transl(match.getLanguage(), "game.towncountryriver.reactionRate",
-                            getTurn().map(User::getAsMention).orElseThrow(() -> new RuntimeException("uh"))));
+                    builder.append(Language.transl(match.getLanguage(), "game.towncountryriver.reactionRate2",
+                            getTurn().map(User::getAsMention).orElseThrow(() -> new RuntimeException("uh")),
+                            themeStr));
                 else builder.append(Language.transl(match.getLanguage(), "game.towncountryriver.rate",
                         themeStr, letterStr, it));
             } else builder.append(Language.transl(match.getLanguage(),
-                    "game.towncountryriver.themeMessage", themeStr, letterStr));
+                    "game.towncountryriver.themeMessage2", themeStr, letterStr,
+                    Utility.formatPeriod(Constants.TCR_RESET_ROUND_TIME)));
 
             appendTurns(builder, playerItems, player -> scoreboard.containsKey(player)
                     ? " (" + BigDecimal.valueOf(scoreboard.get(player)).setScale(0, BigDecimal.ROUND_HALF_UP).toString()

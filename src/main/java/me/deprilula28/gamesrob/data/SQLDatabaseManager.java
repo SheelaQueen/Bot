@@ -7,6 +7,7 @@ import me.deprilula28.gamesrob.utility.Utility;
 import org.postgresql.util.PSQLException;
 
 import java.sql.*;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.ExecutorService;
@@ -23,9 +24,9 @@ public class SQLDatabaseManager {
     private Optional<Pair<String, String>> login = Optional.empty();
     @Getter private Connection connection;
 
-    private List<String> batchCommands;
-    private List<Consumer<ResultSet>> batchSelectHandlers;
-    private List<BiFunction<Integer, PreparedStatement, Integer>> batchExecuteHandlers;
+    private List<String> batchCommands = new ArrayList<>();
+    private List<Consumer<ResultSet>> batchSelectHandlers = new ArrayList<>();
+    private List<BiFunction<Integer, PreparedStatement, Integer>> batchExecuteHandlers = new ArrayList<>();
 
     public SQLDatabaseManager(String connectionInfo) {
         String[] attribs = connectionInfo.split(",");
@@ -46,21 +47,35 @@ public class SQLDatabaseManager {
     }
 
     public void batchRun() {
-        asyncExecutor.execute(() -> Log.wrapException("Batched SQL Execute", () -> {
-            String sql = String.join(";", batchCommands);
-            PreparedStatement statement = connection.prepareStatement(sql);
-            int curOffset = 1;
-            for (BiFunction<Integer, PreparedStatement, Integer> cur : batchExecuteHandlers)
-                curOffset += cur.apply(curOffset, statement);
+        asyncExecutor.execute(() -> {
+            Log.wrapException("Batched SQL Execute", () -> {
+                String sql = String.join(";", batchCommands);
+                PreparedStatement statement = connection.prepareStatement(sql);
+                int curOffset = 1;
+                for (BiFunction<Integer, PreparedStatement, Integer> cur : batchExecuteHandlers)
+                    curOffset += cur.apply(curOffset, statement);
+                Log.trace("[Batched SQL] Executing " + batchExecuteHandlers.size() + " rows.");
 
-            ResultSet set = statement.executeQuery();
-            int index = 0;
-            while (set.next()) {
-                batchSelectHandlers.get(index).accept(set);
-                index ++;
-            }
-            statement.close();
-        }));
+                boolean executeContinue = statement.execute();
+                int index = 0;
+                while (true) {
+                    if (executeContinue) {
+                        ResultSet set = statement.getResultSet();
+                        if (set.next()) {
+                            batchSelectHandlers.get(index).accept(set);
+                            index ++;
+                        }
+                        set.close();
+                    } else if (statement.getUpdateCount() == -1) break;
+                    executeContinue = statement.getMoreResults();
+                }
+                Log.trace("[Batched SQL] Selected " + index + " rows.");
+                statement.close();
+            });
+            batchSelectHandlers.clear();
+            batchExecuteHandlers.clear();
+            batchCommands.clear();
+        });
     }
 
     public void batchedExecute(String sql, BiFunction<Integer, PreparedStatement, Integer> cons) {
@@ -68,7 +83,7 @@ public class SQLDatabaseManager {
         batchCommands.add(sql);
     }
 
-    public Utility.Promise<ResultSet> batchedSqlQuery(String sql) {
+    private Utility.Promise<ResultSet> batchedSqlQuery(String sql) {
         Utility.Promise<ResultSet> promise = new Utility.Promise<>();
         batchSelectHandlers.add(promise::done);
         batchCommands.add(sql);
@@ -95,11 +110,15 @@ public class SQLDatabaseManager {
     public Utility.Promise<Void> save(String table, List<String> keys, String where, Predicate<ResultSet> checkSameValue,
                                       boolean batched, BiConsumer<Optional<ResultSet>, PreparedStatement> consumer) {
         try {
-            ResultSet set = select(table, keys, where);
-            if (set.next()) {
-                if (checkSameValue.test(set)) return Utility.Promise.result(null);
-                else return update(table, keys, where, statement -> consumer.accept(Optional.of(set), statement));
-            } else return insert(table, keys, statement -> consumer.accept(Optional.empty(), statement));
+            Utility.Promise<Void> promise = new Utility.Promise<>();
+            selectBatched(table, keys, where).then(set -> Log.wrapException("Saving with SQL", () -> {
+                if (set.next()) {
+                    if (checkSameValue.test(set)) promise.done(null);
+                    else update(table, keys, where, statement -> consumer.accept(Optional.of(set), statement)).then(promise::done);
+                } else insert(table, keys, statement -> consumer.accept(Optional.empty(), statement)).then(promise::done);
+            }));
+
+            return promise;
         } catch (PSQLException ex) {
             Log.trace(ex.getClass().getName() + ": " + ex.getMessage());
             return insert(table, keys, statement -> consumer.accept(Optional.empty(), statement));
@@ -152,11 +171,19 @@ public class SQLDatabaseManager {
     }
 
     public ResultSet select(String table, List<String> items, String where) throws Exception {
-         return sqlQuery(String.format(
-                 "SELECT %s FROM %s WHERE %s",
-                 items.stream().collect(Collectors.joining(", ")),
-                 table, where
-         ));
+        return sqlQuery(String.format(
+                "SELECT %s FROM %s WHERE %s",
+                items.stream().collect(Collectors.joining(", ")),
+                table, where
+        ));
+    }
+
+    public Utility.Promise<ResultSet> selectBatched(String table, List<String> items, String where) throws Exception {
+        return batchedSqlQuery(String.format(
+                "SELECT %s FROM %s WHERE %s",
+                items.stream().collect(Collectors.joining(", ")),
+                table, where
+        ));
     }
 
     public Utility.Promise<Void> insert(String table, List<String> keys, Consumer<PreparedStatement> consumer) {

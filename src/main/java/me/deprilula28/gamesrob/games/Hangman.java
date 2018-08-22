@@ -78,8 +78,11 @@ public class Hangman implements MatchHandler {
         messages ++;
         word.ifPresent(theWord -> {
             if (!match.getPlayers().contains(Optional.of(author)) || match.getCreator().equals(author) ||
-                    playerInfoMap.get(Optional.of(author)).hasLost() || contents.length() != 1 ||
-                    contents.charAt(0) == ' ') return;
+                    playerInfoMap.get(Optional.of(author)).hasLost()) return;
+            if (contents.equalsIgnoreCase(theWord)) {
+                match.onEnd(Optional.of(author));
+                return;
+            } else if (contents.length() != 1 || contents.charAt(0) == ' ') return;
             char guess = Character.toLowerCase(contents.charAt(0));
 
             // Invalid guess
@@ -108,7 +111,7 @@ public class Hangman implements MatchHandler {
     @Override
     public void receivedDM(String contents, User from, Message reference) {
         if (!word.isPresent() && from.equals(match.getCreator())) {
-            word = Optional.of(contents);
+            word = Optional.of(contents.replaceAll("`", ""));
             reference.getChannel().sendMessage(Language.transl(match.getLanguage(), "game.hangman.wordSet",
                     match.getChannelIn().getAsMention())).queue();
             lastNotification = Language.transl(match.getLanguage(), "game.hangman.wordPicked");

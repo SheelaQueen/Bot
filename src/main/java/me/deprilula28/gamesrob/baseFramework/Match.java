@@ -277,7 +277,8 @@ public class Match extends Thread {
                 msg.addReaction("\uD83D\uDEAA").queue();
             });
             reacted = true;
-        } else if (game.getGameType() == GameType.HYBRID || getPlayers().size() >= game.getMinTargetPlayers() + 1 && !reactedJoin) {
+        }
+        if (game.getGameType() == GameType.HYBRID || getPlayers().size() >= game.getMinTargetPlayers() + 1 && !reactedJoin) {
             matchMessage.then(msg -> {
                 if (game.getModes().isEmpty()) msg.addReaction("▶").queue();
                 else {

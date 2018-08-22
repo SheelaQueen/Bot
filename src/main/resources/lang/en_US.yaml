@@ -78,9 +78,9 @@ game:
     shortDescription: "Do you know words? You have 15 seconds to come up with words within a theme."
     longDescription: "Think fast! You have 15 seconds to think of a word that starts with the given letter in the given theme.\nThe other players can vote whether or not your word is within the theme with `yes` or `no`!"
 
-    themeMessage: "\n\nQuick, tell me a %s that starts with %s!\n⏰ You have 15 seconds\n"
+    themeMessage2: "\n\nQuick, gimme a %s that starts with %s!\n⏰ You have %s\n"
     rate: "\n\n%s that starts with %s:\n%s\nSay `yes` or `no` depending on if you think it's valid!\n"
-    reactionRate: "\n\nVote in %s's message depending on if you think it's valid!\n"
+    reactionRate2: "\n\nVote in %s's message depending on if you think it's valid!\nTheme: **%s**\n"
 
     themes:
       name: "Name"

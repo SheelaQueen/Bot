@@ -1,2 +1,2 @@
-- Added different loading messages. Yes, that's a very useful feature, I know.
+
 Enjoy! ~ deprilula28

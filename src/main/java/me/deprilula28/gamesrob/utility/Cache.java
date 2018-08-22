@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.Getter;
 import me.deprilula28.gamesrob.GamesROB;
+import me.deprilula28.gamesrob.data.SQLDatabaseManager;
 
 import javax.xml.ws.Provider;
 import java.util.Map;
@@ -47,6 +48,8 @@ public class Cache {
                             if (object.onRemove != null) object.onRemove.accept(object.result);
                         }
                     }
+                    GamesROB.database.ifPresent(SQLDatabaseManager::batchRun);
+                    Log.trace("Ran SQL Batch");
                     long after = getRAMUsage();
 
                     if (removed > 0) {

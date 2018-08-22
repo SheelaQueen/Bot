@@ -156,10 +156,14 @@ public class Uno extends TurnMatchHandler {
 
             if (card.action != null) card.action.handler.accept(this, cur);
             if (!color.equals(oldColor) || card.action != null) match.getPlayers().forEach(player ->
-                    player.ifPresent(user -> dmMessages.get(user).then(it -> it.editMessage(getDmMessage(user)).queue())));
-            else dmMessages.get(cur).then(it -> it.editMessage(getDmMessage(cur)).queue());
+                    player.ifPresent(this::updateMessage));
+            else updateMessage(cur);
             if (!detectVictory()) nextTurn();
         });
+    }
+
+    private void updateMessage(User user) {
+        dmMessages.get(user).then(it -> it.editMessage(getDmMessage(user)).queue());
     }
 
     @Override
@@ -175,6 +179,7 @@ public class Uno extends TurnMatchHandler {
             dmMessages.get(user).then(it -> it.editMessage(getDmMessage(user)).queue());
             user.openPrivateChannel().queue(it -> it.sendMessage(Language.transl(match.getLanguage(), "game.uno.drawCard")).queue());
             draw(getTurn(), 1);
+            updateMessage(user);
         }
     }
 

@@ -72,8 +72,9 @@ game:
     shortDescription: "Conhece várias palavras? Você tem 15 segundos para pensar em palavras dentro de um tema."
     longDescription: "Pense rápido! Você tem 15 segundos de pensar sobre uma palvra que começa com ume letra em um tema.\nOs outros jogadores podem votar se a palavra está correat ou não com `sim` ou `não`!"
 
-    themeMessage: "\n\nRápido, me diz um(a) %s que começa com %s!\n⏰ Você tem 15 segundos\n"
+    themeMessage2: "\n\nRápido, me diz um(a) %s que começa com %s!\n⏰ Você tem %s\n"
     rate: "\n\n%s que começa com %s:\n%s\nDiga `sim` ou `não` de acordo com sua opinião!\n"
+    reactionRate2: "\n\nVote na mensagem de %s dependendo da sua opinião da validade dentro do tema!\nTema: **%s**\n"
 
     themes:
       name: "Nome"
