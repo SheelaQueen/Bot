@@ -299,6 +299,7 @@ public class CommandManager {
         });
 
         f.getSettings().setMentionedMessageGetter(guild -> {
+            if (guild == null) return "null";
             String lang = GuildProfile.get(guild).getLanguage();
             return languageHelpMessages.get(lang == null ? Constants.DEFAULT_LANGUAGE : lang)
                     .replaceAll("%PREFIX%", Constants.getPrefixHelp(guild));

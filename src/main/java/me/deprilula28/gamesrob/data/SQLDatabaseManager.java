@@ -116,6 +116,7 @@ public class SQLDatabaseManager {
                     if (checkSameValue.test(set)) promise.done(null);
                     else update(table, keys, where, statement -> consumer.accept(Optional.of(set), statement)).then(promise::done);
                 } else insert(table, keys, statement -> consumer.accept(Optional.empty(), statement)).then(promise::done);
+                set.close();
             }));
 
             return promise;

@@ -91,21 +91,22 @@ public class TownCountryRiver extends TurnMatchHandler implements Runnable {
 
     @Override
     public void receivedReaction(User user, Message message, MessageReaction.ReactionEmote reaction) {
-        if (reaction.getName() == null) return;
+        if (reaction.getName() == null || rated.contains(Optional.of(message.getAuthor()))) return;
         if (reaction.getName().equals("✔")) rating ++;
         if (!reaction.getName().equals("❌")) return;
 
-        rated.add(Optional.of(user));
+        rated.add(Optional.of(message.getAuthor()));
         checkRoundOver();
     }
 
     @Override
     public void receivedMessage(String contents, User author, Message reference) {
         messages ++;
-        if (word.isPresent() && match.getPlayers().contains(Optional.of(author))) {
+        if (word.isPresent() && match.getPlayers().contains(Optional.of(author)) && !rated.contains(Optional.of(author))) {
             if (getTurn().map(it -> it.equals(author)).orElse(false)) return;
             if (YES.contains(contents.toLowerCase())) rating ++;
             else if (!NO.contains(contents.toLowerCase())) return;
+
             rated.add(Optional.of(author));
             checkRoundOver();
         } else getTurn().ifPresent(cur -> {
