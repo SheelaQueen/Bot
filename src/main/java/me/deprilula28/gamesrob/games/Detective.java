@@ -17,12 +17,12 @@ import java.util.stream.Collectors;
 public class Detective implements MatchHandler {
     public static final GamesInstance GAME = new GamesInstance(
             "detective", "detective assassin clue murder murderer detetive det dt",
-            3, 11, GameType.MULTIPLAYER, false,
+            3, 11, GameType.MULTIPLAYER, false, false,
             Detective::new, Detective.class, Collections.emptyList()
     );
 
-    private Optional<User> killer = Optional.empty();
-    private List<Optional<User>> alive = new ArrayList<>();
+    private Player killer = null;
+    private List<Player> alive = new ArrayList<>();
     private String lastNotification;
     private Match match;
     private boolean awake = false;
@@ -35,7 +35,7 @@ public class Detective implements MatchHandler {
 
         killer = match.getPlayers().get(GameUtil.generateRandom().nextInt(match.getPlayers().size()));
         alive.addAll(match.getPlayers());
-        match.getPlayers().stream().forEach(cur -> cur.ifPresent(user -> user.openPrivateChannel().queue(pm -> {
+        match.getPlayers().forEach(cur -> cur.getUser().ifPresent(user -> user.openPrivateChannel().queue(pm -> {
             if (killer.equals(cur)) pm.sendMessage(Language.transl(match.getLanguage(), "game.detective.dmAssassin")).queue();
             else pm.sendMessage(Language.transl(match.getLanguage(), "game.detective.dmCitizen")).queue();
         })));
@@ -50,39 +50,39 @@ public class Detective implements MatchHandler {
     @Override
     public void receivedMessage(String contents, User author, Message reference) {
         messages ++;
-        if (awake && alive.contains(Optional.of(author)) && contents.length() == 1 && !voted.contains(Optional.of(author))) {
+        if (awake && alive.contains(Player.user(author)) && contents.length() == 1 && !voted.contains(Player.user(author))) {
             int index = Utility.inputLetter(contents);
             if (index >= alive.size()) return;
             if (index < 0) return;
 
-            voted.add(Optional.of(author));
-            Optional<User> target = alive.get(index);
+            voted.add(Player.user(author));
+            Player target = alive.get(index);
             votes.put(target, votes.containsKey(target) ? votes.get(target) + 1 : 1);
 
             if (voted.size() == alive.size()) {
                 voted.clear();
-                List<Map.Entry<Optional<User>, Integer>> orderedEntries = votes.entrySet().stream()
-                        .sorted(Comparator.comparingInt(it -> ((Map.Entry<Optional<User>, Integer>) it).getValue())
+                List<Map.Entry<Player, Integer>> orderedEntries = votes.entrySet().stream()
+                        .sorted(Comparator.comparingInt(it -> ((Map.Entry<Player, Integer>) it).getValue())
                                 .reversed()).collect(Collectors.toList());
 
                 orderedEntries.stream().findFirst().ifPresent(cur -> {
                     int first = cur.getValue();
-                    List<Optional<User>> firstPlaces = orderedEntries.stream().filter(it -> it.getValue() == first)
+                    List<Player> firstPlaces = orderedEntries.stream().filter(it -> it.getValue() == first)
                             .map(Map.Entry::getKey).collect(Collectors.toList());
 
                     if (firstPlaces.size() > 1) lastNotification = Language.transl(match.getLanguage(), "game.detective.sleepIndecisive");
                     else {
-                        Optional<User> kicked = cur.getKey();
+                        Player kicked = cur.getKey();
                         if (killer.equals(kicked)) {
                             match.onEnd(Language.transl(match.getLanguage(), "game.detective.assassinKicked"), true);
                             return;
                         }
-                        lastNotification = Language.transl(match.getLanguage(), "game.detective.sleepKicked", kicked.map(User::getAsMention).orElse("AI"));
+                        lastNotification = Language.transl(match.getLanguage(), "game.detective.sleepKicked", kicked.toString());
                         alive.remove(kicked);
                     }
 
                     awake = false;
-                    killer.ifPresent(user -> user.openPrivateChannel().queue(pm ->
+                    killer.getUser().ifPresent(user -> user.openPrivateChannel().queue(pm ->
                             pm.sendMessage(Language.transl(match.getLanguage(), "game.detective.dmAssassinRecursive")).queue()));
                     updateMessage();
                 });
@@ -96,20 +96,20 @@ public class Detective implements MatchHandler {
         }
     }
 
-    private List<Optional<User>> voted = new ArrayList<>();
-    private Map<Optional<User>, Integer> votes = new HashMap<>();
+    private List<Player> voted = new ArrayList<>();
+    private Map<Player, Integer> votes = new HashMap<>();
 
     @Override
     public void receivedDM(String contents, User from, Message reference) {
-        if (!awake && killer.isPresent() && killer.get().equals(from)) {
-            Optional<User> userOpt = alive.stream().filter(it -> it.isPresent() && contents.equalsIgnoreCase(it.get().getName()))
-                    .map(Optional::get).findFirst();
+        if (!awake && killer.getUser().filter(it -> it.equals(from)).isPresent()) {
+            Optional<User> userOpt = alive.stream().filter(it -> it.getUser().isPresent() && contents.equalsIgnoreCase(it.getUser().get().getName()))
+                    .map(it -> it.getUser().get()).findFirst();
 
             if (userOpt.isPresent()) {
                 User user = userOpt.get();
                 if (user.equals(from)) return;
 
-                alive.remove(Optional.of(user));
+                alive.remove(Player.user(user));
                 if (alive.size() <= 2) {
                     match.onEnd(killer);
                     return;
@@ -139,10 +139,9 @@ public class Detective implements MatchHandler {
 
     @Override
     public void updatedMessage(boolean over, MessageBuilder builder) {
-        if (over) builder.append(Language.transl(match.getLanguage(), "game.detective.murderReveal", killer
-                .map(User::getAsMention).orElse("AI")));
+        if (over) builder.append(Language.transl(match.getLanguage(), "game.detective.murderReveal", killer.toString()));
         else if (awake) builder.append(lastNotification + Language.transl(match.getLanguage(), "game.detective.chooseKick")
-                + alive.stream().map(it -> Utility.getLetterEmote(alive.indexOf(it)) + it.map(User::getAsMention).orElse("AI")
+                + alive.stream().map(it -> Utility.getLetterEmote(alive.indexOf(it)) + it.toString()
                     + (votes.containsKey(it) ? " (" + votes.get(it) + " votes)" : ""))
                 .collect(Collectors.joining("\n")));
         else builder.append(lastNotification);

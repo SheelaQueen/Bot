@@ -63,7 +63,10 @@ public enum AchievementType {
                     false, (set, statement) -> Log.wrapException("Storing achievement amount", () -> {
                 int prevAmount = set.map(it -> {
                     try {
-                        return it.getInt("amount");
+                        ResultSet select = db.select("achievements", Collections.singletonList("amount"),
+                                "userid = '" + profile.getUserId() + "' AND type = '" + type + "'");
+                        if (select.next()) return select.getInt("amount");
+                        else return 0;
                     } catch (Exception e) {
                         Log.exception("Getting achievements", e);
                         return 0;

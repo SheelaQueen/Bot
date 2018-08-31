@@ -135,16 +135,12 @@ public class RPCManager extends WebSocketClient {
     public void disconnectThread() {
         Log.wrapException("Reconnecting to RPC/JSON", () -> {
             long delay = 3000L;
-            final long delayInc = 1000L;
-            final long delayMax = TimeUnit.MINUTES.toMillis(2);
 
             Log.info("Attempting reconnect to RPC/JSON...");
             while (!reconnectBlocking()) {
                 Log.info("RPC/JSON Reconnect failed. Re-attempting in " + Utility.formatPeriod(delay));
-                Thread.sleep(delay * 100000);
+                Thread.sleep(delay);
                 Log.info("Attempting reconnect to RPC/JSON...");
-                delay += delayInc;
-                if (delay > delayMax) delay = delayMax;
             }
         });
     }

@@ -1,7 +1,9 @@
 package me.deprilula28.gamesrob.games;
 
+import me.deprilula28.gamesrob.GamesROB;
 import me.deprilula28.gamesrob.Language;
 import me.deprilula28.gamesrob.baseFramework.*;
+import me.deprilula28.gamesrob.utility.Log;
 import me.deprilula28.gamesrob.utility.Utility;
 import me.deprilula28.jdacmdframework.RequestPromise;
 import net.dv8tion.jda.core.entities.Message;
@@ -16,7 +18,7 @@ public class Connect4 extends TurnMatchHandler {
     };
     public static final GamesInstance GAME = new GamesInstance(
             "connectFour", "connect4 connectfour lig4 ligquatro con4 confour c4",
-            1, ITEMS.length - 1, GameType.MULTIPLAYER, false,
+            1, ITEMS.length - 1, GameType.MULTIPLAYER, false, true,
             Connect4::new, Connect4.class, Collections.singletonList(new GamesInstance.GameMode(
                     "reversec4", "reverse rev reversed inverted dontconnect4")));
 
@@ -24,10 +26,10 @@ public class Connect4 extends TurnMatchHandler {
     @Setting(min = 1, max = 6, defaultValue = 6) public int rows; // Y axis
     @Setting(min = 1, max = 8, defaultValue = 7) public int columns; // X axis
 
-    private Map<Optional<User>, String> playerItems = new HashMap<>();
-    private Map<String, Optional<User>> itemPlayers = new HashMap<>();
+    private Map<Player, String> playerItems = new HashMap<>();
+    private Map<String, Player> itemPlayers = new HashMap<>();
     private List<List<Optional<String>>> board = new ArrayList<>(); // List of rows (Y axis)
-    private List<Optional<User>> alive = new ArrayList<>();
+    private List<Player> alive = new ArrayList<>();
 
     @Override
     public void begin(Match match, Provider<RequestPromise<Message>> initialMessage) {
@@ -39,35 +41,28 @@ public class Connect4 extends TurnMatchHandler {
     @Override
     public void receivedMessage(String contents, User author, Message reference) {
         messages ++;
-        getTurn().ifPresent(cur -> {
-            if (cur != author) return;
-            Optional<Integer> numb = GameUtil.safeParseInt(contents);
-            if (!numb.isPresent()) return;
-            int n = numb.get() - 1;
-            if (n < 0 || n >= columns) return;
+        Player cur = getTurn();
+        if (!cur.getUser().filter(it -> it.equals(author)).isPresent()) return;
+        Optional<Integer> numb = GameUtil.safeParseInt(contents);
+        if (!numb.isPresent()) return;
+        int n = numb.get() - 1;
+        if (n < 0 || n >= columns) return;
 
-            List<Optional<String>> row = board.get(n);
-            int ln = 0;
-            for (int curi = row.size() - 1; curi >= 0; curi --) {
-                if (row.get(curi).isPresent()) {
-                    ln = curi + 1;
-                    break;
-                }
-            }
-            if (ln >= rows) return;
-            row.set(ln, Optional.of(playerItems.get(Optional.of(cur))));
-            if (!detectVictory()) nextTurn();
-        });
+        List<Optional<String>> row = board.get(n);
+        int ln = getLnDrop(row);
+        if (ln >= rows) return;
+        row.set(ln, Optional.of(playerItems.get(Player.user(author))));
+        if (!detectVictory()) nextTurn();
     }
 
     @Override
     protected boolean isInvalidTurn() {
-        return !getTurn().isPresent() || !alive.contains(getTurn());
+        return !getTurn().getUser().isPresent() || !alive.contains(getTurn());
     }
 
     @Override
     protected void handleInvalidTurn() {
-        if (!getTurn().isPresent()) handleAIPlay();
+        if (!getTurn().getUser().isPresent()) handleAIPlay();
     }
 
     @Override
@@ -84,7 +79,7 @@ public class Connect4 extends TurnMatchHandler {
         if (matcher == null) return false;
 
         boolean reverse = match.getMode().isPresent() && match.getMode().get().getLanguageCode().equals("reversec4");
-        Optional<User> matcherPlayer = itemPlayers.get(matcher);
+        Player matcherPlayer = itemPlayers.get(matcher);
         return GameUtil.gameEnd(reverse, matcherPlayer, alive, match);
     }
 
@@ -101,7 +96,7 @@ public class Connect4 extends TurnMatchHandler {
         }
 
         StringBuilder builder = new StringBuilder();
-        if (!over) builder.append(Language.transl(match.getLanguage(), "gameFramework.turn", getTurn()
+        if (!over) builder.append(Language.transl(match.getLanguage(), "gameFramework.turn", getTurn().getUser()
                 .map(User::getAsMention).orElseThrow(() -> new RuntimeException("Asked update message on AI turn."))));
         builder.append("\n");
 
@@ -120,13 +115,20 @@ public class Connect4 extends TurnMatchHandler {
         return builder.toString();
     }
 
-    private static final int AI_MAX_LAYERS = 8;
+    private static final int AI_MAX_LAYERS = 3;
 
     @Override
     public void handleAIPlay() {
         String tile = playerItems.get(getTurn());
-        int playRow = MinMaxAI.use(processor(tile, board, 0));
-        List<Optional<String>> row = board.get(playRow);
+        int playCol = MinMaxAI.use(processor(tile, board, (turn + 1) >= getPlayers().size() ? 0 : turn + 1, 0));
+        List<Optional<String>> row = board.get(playCol);
+        int ln = getLnDrop(row);
+        if (ln >= rows) return;
+        row.set(ln, Optional.of(tile));
+        detectVictory();
+    }
+
+    private int getLnDrop(List<Optional<String>> row) {
         int ln = 0;
         for (int curi = row.size() - 1; curi >= 0; curi --) {
             if (row.get(curi).isPresent()) {
@@ -134,33 +136,24 @@ public class Connect4 extends TurnMatchHandler {
                 break;
             }
         }
-        if (ln >= rows) {
-            nextTurn();
-            return;
-        }
-        row.set(ln, Optional.of(tile));
+
+        return ln;
     }
 
-    private MinMaxAI.BranchProcessor processor(String emote, List<List<Optional<String>>> board, int layer) {
+    private MinMaxAI.BranchProcessor processor(String emote, List<List<Optional<String>>> board, int nturn, int layer) {
         return branch -> {
             for (int i = 0; i < columns; i ++) {
-                List<List<Optional<String>>> clonedBoard = new ArrayList<>();
-                Collections.copy(clonedBoard, board);
+                List<List<Optional<String>>> clonedBoard = new ArrayList<>(board);
 
-                List<Optional<String>> row = clonedBoard.get(i);
-                int ln = 0;
-                for (int curi = row.size() - 1; curi >= 0; curi --) {
-                    if (row.get(curi).isPresent()) {
-                        ln = curi + 1;
-                        break;
-                    }
-                }
+                List<Optional<String>> row = new ArrayList<>(clonedBoard.get(i));
+                int ln = getLnDrop(row);
                 if (ln >= rows) {
                     branch.node(0.0);
                     continue;
                 }
 
-                row.add(Optional.of(emote));
+                row.set(ln, Optional.of(emote));
+                clonedBoard.set(i, row);
 
                 if (clonedBoard.stream().allMatch(it -> it.stream().allMatch(Optional::isPresent))) {
                     branch.node(0.5);
@@ -169,8 +162,9 @@ public class Connect4 extends TurnMatchHandler {
 
                 String winner = GameUtil.detectVictory(board, rows, columns - 1, 2, 1);
                 if (winner == null) {
-                    if (layer >= AI_MAX_LAYERS) branch.node(0.0);
-                    else branch.walk(processor(emote, clonedBoard, layer + 1));
+                    if (layer >= AI_MAX_LAYERS) branch.node(0.25);
+                    else branch.walk(processor(playerItems.get(getPlayers().get(nturn)), clonedBoard,
+                            (nturn + 1) >= getPlayers().size() ? 0 : nturn + 1, layer + 1));
                     continue;
                 }
                 branch.node(winner.equals(emote) ? 1.0 : 0.0);

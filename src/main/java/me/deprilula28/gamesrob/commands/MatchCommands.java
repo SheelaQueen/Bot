@@ -4,6 +4,7 @@ import me.deprilula28.gamesrob.Language;
 import me.deprilula28.gamesrob.baseFramework.GameState;
 import me.deprilula28.gamesrob.baseFramework.GameType;
 import me.deprilula28.gamesrob.baseFramework.Match;
+import me.deprilula28.gamesrob.baseFramework.Player;
 import me.deprilula28.gamesrob.data.UserProfile;
 import me.deprilula28.gamesrob.utility.Constants;
 import me.deprilula28.jdacmdframework.CommandContext;
@@ -36,7 +37,7 @@ public class MatchCommands {
         if (game.getBetting().isPresent() && !UserProfile.get(context.getAuthor()).transaction(game.getBetting().get(), "transactions.betting"))
             return Constants.getNotEnoughTokensMessage(context, game.getBetting().get());
 
-        game.joined(context.getAuthor());
+        game.joined(Player.user(context.getAuthor()));
         return null;
     }
 
@@ -47,7 +48,7 @@ public class MatchCommands {
                 game.getGame().getName(language), game.getGame().getShortDescription(language)
         ));
 
-        game.getPlayers().forEach(cur -> builder.append(cur.map(User::getName).orElse("**AI**")).append("\n"));
+        game.getPlayers().forEach(cur -> builder.append(cur.toString()).append("\n"));
         return builder.toString();
     }
 

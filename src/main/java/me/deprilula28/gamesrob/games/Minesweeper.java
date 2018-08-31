@@ -20,7 +20,7 @@ import java.util.concurrent.ThreadLocalRandom;
 public class Minesweeper implements MatchHandler {
     public static final GamesInstance GAME = new GamesInstance(
             "minesweeper", "minesweeper minsw miner ms",
-            1, 3, GameType.HYBRID, false,
+            1, 3, GameType.HYBRID, false, false,
             Minesweeper::new, Minesweeper.class, Arrays.asList(
                 new GamesInstance.GameMode("knightpaths", "knightpaths knightspaths knightpath kp knpath"),
                 new GamesInstance.GameMode("house", "house hs onlytopandcorners topcorners"))
@@ -40,7 +40,7 @@ public class Minesweeper implements MatchHandler {
 
     @Setting(min = 4, max = 6, defaultValue = 6) public int rows; // Y axis
     @Setting(min = 4, max = 6, defaultValue = 6) public int columns; // X axis
-    @Setting(min = 2, max = 30, defaultValue = 6) public int bombs;
+    @Setting(min = 2, max = 30, defaultValue = 12) public int bombs;
     private List<User> hiddenBombs = new ArrayList<>();
 
     @Data
@@ -54,8 +54,8 @@ public class Minesweeper implements MatchHandler {
         UNCOVERED, DUG, BOMB
     }
 
-    private Map<Optional<User>, List<List<MinesweeperTile>>> board = new HashMap<>(); // List of columns (X axis)
-    private List<Optional<User>> playing = new ArrayList<>();
+    private Map<Player, List<List<MinesweeperTile>>> board = new HashMap<>(); // List of columns (X axis)
+    private List<Player> playing = new ArrayList<>();
     private Match match;
     private int messages = 0;
 
@@ -82,11 +82,11 @@ public class Minesweeper implements MatchHandler {
     @Override
     public void receivedMessage(String contents, User author, Message reference) {
         messages ++;
-        if (!playing.contains(Optional.of(author))) return;
+        if (!playing.contains(Player.user(author))) return;
         int length = contents.length();
         if (length < 2 || length > 3 || (length == 3 && !contents.endsWith("F"))) return;
 
-        List<List<MinesweeperTile>> curBoard = board.get(Optional.of(author));
+        List<List<MinesweeperTile>> curBoard = board.get(Player.user(author));
         int x = Utility.inputLetter(contents);
         Optional<Integer> optY = GameUtil.safeParseInt(contents.charAt(1) + "");
         if (x < 0 || x >= columns || !optY.isPresent()) return;
@@ -98,18 +98,26 @@ public class Minesweeper implements MatchHandler {
         if (type == MinesweeperTileType.DUG) return;
         if (type == MinesweeperTileType.BOMB && length != 3) {
             if (match.isMultiplayer()) {
-                playing.remove(Optional.of(author));
+                playing.remove(Player.user(author));
                 if (playing.size() == 1) match.onEnd(playing.get(0));
             } else match.onEnd(Language.transl(match.getLanguage(), "game.minesweeper.bomb"), true);
             return;
         }
-        curBoard.get(x).set(y, length == 3
-                ? new MinesweeperTile(tile.type, true)
-                : new MinesweeperTile(MinesweeperTileType.DUG, false));
+
+        if (length == 3) curBoard.get(x).set(y, new MinesweeperTile(tile.type, true));
+        else if (!hiddenBombs.contains(author) || match.getMode().isPresent())
+            curBoard.get(x).set(y, new MinesweeperTile(MinesweeperTileType.DUG, false));
+        else clearArea(curBoard, x, y);
+
+        /*
+        if (!match.getMode().isPresent()) clearArea(curBoard, x, y);
+        else curBoard.get(x).set(y, new MinesweeperTile(MinesweeperTileType.DUG, false))
+         */
 
         if (!hiddenBombs.contains(author)) {
             Random rng = GameUtil.generateRandom();
-            while (bombs -- > 0) {
+            int bombsLeft = bombs;
+            while (bombsLeft -- > 0) {
                 int plantX = rng.nextInt(columns);
                 int plantY = rng.nextInt(rows);
                 while (curBoard.get(plantX).get(plantY).getType() != MinesweeperTileType.UNCOVERED) {
@@ -121,11 +129,12 @@ public class Minesweeper implements MatchHandler {
             }
 
             hiddenBombs.add(author);
+            if (length != 2 && !match.getMode().isPresent()) clearArea(curBoard, x, y);
         }
 
         // If all the tiles are either dug or bombs
-        if (curBoard.stream().allMatch(it -> it.stream().allMatch(t -> t.getType() != MinesweeperTileType.UNCOVERED))) {
-            match.onEnd(Optional.of(author));
+        if (curBoard.stream().noneMatch(tiles -> tiles.stream().anyMatch(ctile -> ctile.getType() == MinesweeperTileType.UNCOVERED))) {
+            match.onEnd(Player.user(author));
             return;
         }
 
@@ -136,6 +145,20 @@ public class Minesweeper implements MatchHandler {
         match.interrupt();
     }
 
+    private void clearArea(List<List<MinesweeperTile>> curBoard, int x, int y) {
+        curBoard.get(x).set(y, new MinesweeperTile(MinesweeperTileType.DUG, false));
+        if (getNearbyBombs(curBoard, x, y) == 0)
+            for (int xOff = -1; xOff <= 1; xOff ++)
+                for (int yOff = -1; yOff <= 1; yOff ++) {
+                    int nx = x + xOff;
+                    int ny = y + yOff;
+                    Log.info(x, y, nx, ny);
+                    if (nx < 0 || nx > columns || ny < 0 || ny > rows || (xOff == 0 && yOff == 0)) continue;
+                    Log.info(curBoard.get(nx).get(ny).getType().equals(MinesweeperTileType.DUG));
+                    if (curBoard.get(nx).get(ny).getType().equals(MinesweeperTileType.DUG)) continue;
+                    clearArea(curBoard, x + xOff, y + yOff);
+                }
+    }
 
     @Override
     public void receivedDM(String contents, User from, Message reference) { }
@@ -181,7 +204,7 @@ public class Minesweeper implements MatchHandler {
 
             if (match.isMultiplayer()) {
                 builder.append("\n");
-                embed.addField(user.map(User::getName).orElse("AI"), builder.toString(), true);
+                embed.addField(user.toString(), builder.toString(), true);
             } else msgBuilder.append(builder.toString());
         });
 

@@ -13,6 +13,7 @@ import net.dv8tion.jda.core.entities.User;
 import javax.xml.ws.Provider;
 import java.util.*;
 import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 public class Uno extends TurnMatchHandler {
@@ -24,12 +25,12 @@ public class Uno extends TurnMatchHandler {
     };
     public static final GamesInstance GAME = new GamesInstance(
             "uno", "uno unogame 1",
-            1, ITEMS.length - 1, GameType.MULTIPLAYER, false,
+            1, ITEMS.length - 1, GameType.MULTIPLAYER, false, false,
             Uno::new, Uno.class, Collections.emptyList()
     );
 
-    private Map<Optional<User>, String> playerItems = new HashMap<>();
-    private Map<Optional<User>, List<UnoCard>> decks = new HashMap<>();
+    private Map<Player, String> playerItems = new HashMap<>();
+    private Map<Player, List<UnoCard>> decks = new HashMap<>();
     private Map<User, RequestPromise<Message>> dmMessages = new HashMap<>();
     private Random random;
     private UnoCard card;
@@ -48,16 +49,16 @@ public class Uno extends TurnMatchHandler {
 
         @AllArgsConstructor
         private static enum UnoCardAction {
-            BLOCK((uno, user) -> uno.turn ++),
-            INVERT((uno, user) -> {
-                List<Optional<User>> oldList = new ArrayList<>(uno.match.getPlayers());
+            BLOCK((uno) -> uno.turn ++),
+            INVERT((uno) -> {
+                List<Player> oldList = new ArrayList<>(uno.match.getPlayers());
                 uno.match.getPlayers().sort(Comparator.comparingInt(oldList::indexOf).reversed());
             }),
-            PLUS2((uno, user) -> uno.draw(uno.seekTurn(), 2)),
-            PLUS4((uno, user) -> uno.draw(uno.seekTurn(), 4)),
-            WILDCARD((uno, user) -> {});
+            PLUS2((uno) -> uno.draw(uno.seekTurn(), 2)),
+            PLUS4((uno) -> uno.draw(uno.seekTurn(), 4)),
+            WILDCARD((uno) -> {});
 
-            private BiConsumer<Uno, User> handler;
+            private Consumer<Uno> handler;
         }
 
         public boolean canUse(UnoCard card, UnoCardColor topColor) {
@@ -71,11 +72,11 @@ public class Uno extends TurnMatchHandler {
         }
     }
 
-    private void draw(Optional<User> player, int amount) {
+    private void draw(Player player, int amount) {
         List<UnoCard> cards = decks.get(player);
         for (int i = 0; i < amount; i++)
             cards.add(randomCard(true));
-        player.ifPresent(user -> dmMessages.get(user).then(it -> it.editMessage(getDmMessage(user)).queue()));
+        player.getUser().ifPresent(user -> dmMessages.get(user).then(it -> it.editMessage(getDmMessage(user)).queue()));
     }
 
     // Numbers according to the original deck
@@ -110,7 +111,7 @@ public class Uno extends TurnMatchHandler {
             for (int i = 0; i < STARTING_CARDS; i ++) cards.add(randomCard(true));
             decks.put(it, cards);
 
-            it.ifPresent(user -> user.openPrivateChannel().queue(pm -> {
+            it.getUser().ifPresent(user -> user.openPrivateChannel().queue(pm -> {
                 pm.sendMessage(Language.transl(match.getLanguage(), "game.uno.deckDm", match.getChannelIn().getAsMention())).queue();
                 dmMessages.put(user, RequestPromise.forAction(pm.sendMessage(getDmMessage(user))));
             }));
@@ -126,61 +127,64 @@ public class Uno extends TurnMatchHandler {
     @Override
     public void receivedMessage(String contents, User author, Message reference) {
         messages ++;
-        getTurn().ifPresent(cur -> {
-            if (cur != author) return;
-            String[] values = contents.split(" ");
-            if (values.length > 2) return;
-            if (values[0].length() != 1) return;
+        Player cur = getTurn();
+        if (!cur.getUser().filter(it -> it.equals(author)).isPresent()) return;
+        String[] values = contents.split(" ");
+        if (values.length > 2) return;
+        if (values[0].length() != 1) return;
 
-            int cardi = GameUtil.safeParseInt(values[0]).orElse(-1);
-            List<UnoCard> deck = decks.get(Optional.of(author));
-            if (cardi < 1 || cardi > deck.size()) return;
-            UnoCard card = deck.get(cardi - 1);
-            if (!card.canUse(this.card, color)) return;
+        int cardi = GameUtil.safeParseInt(values[0]).orElse(-1);
+        List<UnoCard> deck = decks.get(Player.user(author));
+        if (cardi < 1 || cardi > deck.size()) return;
+        UnoCard card = deck.get(cardi - 1);
+        if (!card.canUse(this.card, color)) return;
 
-            deck.remove(card);
-            this.card = card;
-            UnoCard.UnoCardColor oldColor = color;
-            color = card.color;
-            if (card.color.equals(UnoCard.UnoCardColor.SPECIAL)) {
-                boolean doreturn = true;
-                if (values.length == 1) match.getChannelIn().sendMessage(Language.transl(match.getLanguage(), "game.uno.noColor")).queue();
-                else try {
-                    color = UnoCard.UnoCardColor.valueOf(values[1].toUpperCase());
-                    doreturn = false;
-                } catch (Exception e) {
-                    match.getChannelIn().sendMessage(Language.transl(match.getLanguage(), "game.uno.invalidColor")).queue();
-                }
-                if (doreturn) return;
+        UnoCard.UnoCardColor oldColor = color;
+        if (card.color.equals(UnoCard.UnoCardColor.SPECIAL)) {
+            boolean doreturn = true;
+            if (values.length == 1) match.getChannelIn().sendMessage(Language.transl(match.getLanguage(), "game.uno.noColor")).queue();
+            else try {
+                color = UnoCard.UnoCardColor.valueOf(values[1].toUpperCase());
+                doreturn = false;
+            } catch (Exception e) {
+                match.getChannelIn().sendMessage(Language.transl(match.getLanguage(), "game.uno.invalidColor")).queue();
             }
+            if (doreturn) return;
+        } else color = card.color;
+        deck.remove(card);
+        this.card = card;
 
-            if (card.action != null) card.action.handler.accept(this, cur);
-            if (!color.equals(oldColor) || card.action != null) match.getPlayers().forEach(player ->
-                    player.ifPresent(user -> dmMessages.get(user).then(it -> it.editMessage(getDmMessage(user)).queue())));
-            else dmMessages.get(cur).then(it -> it.editMessage(getDmMessage(cur)).queue());
-            if (!detectVictory()) nextTurn();
-        });
+        if (card.action != null) card.action.handler.accept(this);
+        if (!color.equals(oldColor) || card.action != null) match.getPlayers().forEach(player ->
+                player.getUser().ifPresent(this::updateMessage));
+        else cur.getUser().ifPresent(this::updateMessage);
+        if (!detectVictory()) nextTurn();
+    }
+
+    private void updateMessage(User user) {
+        dmMessages.get(user).then(it -> it.editMessage(getDmMessage(user)).queue());
     }
 
     @Override
     protected boolean isInvalidTurn() {
-        return !getTurn().isPresent() || decks.get(getTurn()).stream().noneMatch(it -> it.canUse(card, color));
+        return !getTurn().getUser().isPresent() || decks.get(getTurn()).stream().noneMatch(it -> it.canUse(card, color));
     }
 
     @Override
     protected void handleInvalidTurn() {
-        if (!getTurn().isPresent()) handleAIPlay();
+        if (!getTurn().getUser().isPresent()) handleAIPlay();
         else {
-            User user = getTurn().get();
+            User user = getTurn().getUser().get();
             dmMessages.get(user).then(it -> it.editMessage(getDmMessage(user)).queue());
             user.openPrivateChannel().queue(it -> it.sendMessage(Language.transl(match.getLanguage(), "game.uno.drawCard")).queue());
             draw(getTurn(), 1);
+            updateMessage(user);
         }
     }
 
     @Override
     public boolean detectVictory() {
-        Optional<Map.Entry<Optional<User>, List<UnoCard>>> winner = decks.entrySet().stream()
+        Optional<Map.Entry<Player, List<UnoCard>>> winner = decks.entrySet().stream()
                 .filter(it -> it.getValue().size() <= 0).findAny();
 
         winner.ifPresent(it -> match.onEnd(it.getKey()));
@@ -188,7 +192,7 @@ public class Uno extends TurnMatchHandler {
     }
 
     private String getDmMessage(User user) {
-        List<UnoCard> deck = decks.get(Optional.of(user));
+        List<UnoCard> deck = decks.get(Player.user(user));
         if (deck.isEmpty()) return Language.transl(match.getLanguage(), "game.uno.won");
 
         StringBuilder options = new StringBuilder();
@@ -203,10 +207,11 @@ public class Uno extends TurnMatchHandler {
     @Override
     public String turnUpdatedMessage(boolean over) {
         StringBuilder builder = new StringBuilder();
-        if (!over) builder.append(Language.transl(match.getLanguage(), "game.uno.chooseCard", getTurn()
+        if (!over) builder.append(Language.transl(match.getLanguage(), "game.uno.chooseCard", getTurn().getUser()
                 .map(User::getAsMention).orElseThrow(() -> new RuntimeException("Asked update message on AI turn."))));
 
-        builder.append(Language.transl(match.getLanguage(), "game.uno.game", card.toString()));
+        builder.append(Language.transl(match.getLanguage(), "game.uno.game", card.toString() +
+                (card.color.equals(UnoCard.UnoCardColor.SPECIAL) ? color.toString() : "")));
 
         appendTurns(builder, playerItems, user -> decks.get(user).stream().map(it -> over ? it.toString() :
                 GameUtil.getEmote("unknown").orElse("card")).collect(Collectors.joining("")));
@@ -216,6 +221,6 @@ public class Uno extends TurnMatchHandler {
 
     @Override
     public void handleAIPlay() {
-
+        // TODO
     }
 }

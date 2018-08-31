@@ -123,11 +123,10 @@ public class BootupProcedure {
         while (curShard < shardTo) {
             JDA jda = new JDABuilder(AccountType.BOT).setToken(token)
                     .useSharding(curShard, totalShards).setStatus(OnlineStatus.DO_NOT_DISTURB)
-                    .setGame(Game.watching("it all load...")).buildBlocking();
+                    .setGame(game).buildBlocking();
             GamesROB.shards.add(jda);
             Match.ACTIVE_GAMES.put(jda, new ArrayList<>());
 
-            Log.info("Shard loaded: " + curShard + "/" + (shardTo - 1));
             curShard ++;
             if (curShard < shardTo) Thread.sleep(5000L);
         }
@@ -179,7 +178,7 @@ public class BootupProcedure {
                                 "If you want to start playing games, type `g*help` and pick a game!")
                             .setEmbed(new EmbedBuilder().setTitle("If you need help, you can:")
                                     .setDescription("- [View our online command list](" + Constants.GAMESROB_DOMAIN + "/help)\n" +
-                                            "- [Join our support server](https://discord.gg/8EZ7BEz)")
+                                            "- [Join our support server](https://discord.gg/xajeDYR)")
                                     .setColor(Utility.getEmbedColor(event.getGuild())).build())
                     .build()).queue());
         });
@@ -313,7 +312,7 @@ public class BootupProcedure {
             statistics.setLastUpdateLogSent(GamesROB.VERSION);
             statistics.setLastUpdateLogSentTime(System.currentTimeMillis());
             GamesROB.getTextChannelById(Constants.changelogChannel.get()).ifPresent(channel ->
-                    channel.sendMessage("<@&389918430733664256>\n<:update:264184209617321984> **GamesROB v" + GamesROB.VERSION + " is available!**" +
+                    channel.sendMessage("<@&484522326906503172>\n<:update:264184209617321984> **GamesROB v" + GamesROB.VERSION + " is available!**" +
                         "\n\nChangelog:\n" + changelog + "\n\n*Updates are usually scheduled for every friday, " +
                         "making the next update " + Utility.formatTime(Utility.predictNextUpdate()) + ".*\n" +
                             "If you don't want to get pinged in these messages, you can remove your reaction on <#358451223612882944>.")

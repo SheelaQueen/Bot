@@ -17,6 +17,7 @@ public class GamesInstance {
     private int maxTargetPlayers;
     private GameType gameType;
     private boolean requireBetting;
+    private boolean allowAi;
 
     private transient Supplier<MatchHandler> matchHandlerSupplier;
     private transient Class<? extends MatchHandler> matchHandlerClass;

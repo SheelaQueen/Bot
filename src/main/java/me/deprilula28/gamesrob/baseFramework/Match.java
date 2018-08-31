@@ -1,6 +1,7 @@
 package me.deprilula28.gamesrob.baseFramework;
 
 import lombok.Data;
+import me.deprilula28.gamesrob.GamesROB;
 import me.deprilula28.gamesrob.Language;
 import me.deprilula28.gamesrob.achievements.AchievementType;
 import me.deprilula28.gamesrob.commands.CommandManager;
@@ -50,7 +51,7 @@ public class Match extends Thread {
     private final Map<User, Map<AchievementType, Integer>> addAchievement = new HashMap<>();
     private GamesInstance game;
     private GameState gameState;
-    private List<Optional<User>> players = new ArrayList<>();
+    private List<Player> players = new ArrayList<>();
     private User creator;
     private transient MatchHandler matchHandler;
     private transient RequestPromise<Message> matchMessage;
@@ -67,9 +68,10 @@ public class Match extends Thread {
     public boolean playMore = false;
     private boolean reacted = false;
     private boolean reactedJoin = false;
+    private boolean reactedAi = false;
 
     // Rematch multiplayer
-    public Match(GamesInstance game, User creator, TextChannel channel, List<Optional<User>> players,
+    public Match(GamesInstance game, User creator, TextChannel channel, List<Player> players,
                  Map<String, String> options, int matchesPlayed) {
         multiplayer = players.size() > 1;
         String guildLang = GuildProfile.get(channel.getGuild()).getLanguage();
@@ -104,9 +106,10 @@ public class Match extends Thread {
             matchHandler.updatedMessage(false, builder);
             return RequestPromise.forAction(channelIn.sendMessage(builder.build())).then(no -> gameState = GameState.MATCH);
         });
-        players.stream().filter(Optional::isPresent).forEach(it -> {
-            PLAYING.put(it.get(), this);
-            achievement(it.get(), AchievementType.PLAY_GAMES, 1);
+        players.stream().filter(it -> it.getUser().isPresent()).forEach(it -> {
+            User user = it.getUser().get();
+            PLAYING.put(user, this);
+            achievement(user, AchievementType.PLAY_GAMES, 1);
         });
     }
 
@@ -119,7 +122,7 @@ public class Match extends Thread {
         Member member = channelIn.getGuild().getMember(channelIn.getJDA().getSelfUser());
         canReact = Utility.hasPermission(channelIn, member, Permission.MESSAGE_ADD_REACTION) &&
                 Utility.hasPermission(channelIn, member, Permission.MESSAGE_HISTORY);
-        players.add(Optional.of(creator));
+        players.add(Player.user(creator));
 
         this.betting = Optional.empty();
         this.creator = creator;
@@ -161,7 +164,7 @@ public class Match extends Thread {
         Member member = channelIn.getGuild().getMember(channelIn.getJDA().getSelfUser());
         canReact = Utility.hasPermission(channelIn, member, Permission.MESSAGE_ADD_REACTION) &&
                 Utility.hasPermission(channelIn, member, Permission.MESSAGE_HISTORY);
-        players.add(Optional.of(creator));
+        players.add(Player.user(creator));
 
         this.mode = mode;
         this.betting = betting;
@@ -241,10 +244,11 @@ public class Match extends Thread {
                     .orElse("")
         ));
 
-        players.forEach(cur -> builder.append(cur.map(it -> "☑ **" + it.getName() + "**").orElse("AI")).append("\n"));
+        players.forEach(cur -> builder.append("☑ **").append(cur.toString()).append("**").append("\n"));
         for (int i = players.size(); i <= game.getMinTargetPlayers(); i ++) builder.append(Language.transl(language, "gameFramework.waiting"));
 
         builder.append("\n");
+        if (game.isAllowAi()) builder.append(Language.transl(language, "gameFramework.addBot")).append("\n");
         betting.ifPresent(amount -> builder.append(Language.transl(language, "gameFramework.betting", amount)).append("\n"));
         builder.append(Language.transl(language, canReact ? "gameFramework.joinToPlay2" : "gameFramework.joinToPlayNoReaction2",
                 Constants.getPrefix(channelIn.getGuild())
@@ -277,7 +281,8 @@ public class Match extends Thread {
                 msg.addReaction("\uD83D\uDEAA").queue();
             });
             reacted = true;
-        } else if (game.getGameType() == GameType.HYBRID || getPlayers().size() >= game.getMinTargetPlayers() + 1 && !reactedJoin) {
+        }
+        if (game.getGameType() == GameType.HYBRID || getPlayers().size() >= game.getMinTargetPlayers() + 1 && !reactedJoin) {
             matchMessage.then(msg -> {
                 if (game.getModes().isEmpty()) msg.addReaction("▶").queue();
                 else {
@@ -286,6 +291,10 @@ public class Match extends Thread {
                 }
             });
             reactedJoin = true;
+        }
+        if (game.isAllowAi() && !reactedAi) {
+            matchMessage.then(msg -> msg.addReaction("\uD83E\uDD16").queue());
+            reactedAi = true;
         }
     }
 
@@ -305,7 +314,6 @@ public class Match extends Thread {
                 if (name.equals("▶") && game.getModes().isEmpty()) startReaction(event.getUser());
                 else if (name.charAt(1) == '⃣') {
                     int number = name.charAt(0) - 49;
-                    Log.info((int) name.charAt(0), number);
                     if (game.getModes().size() < number || number < 0) return;
 
                     if (number == 0) mode = Optional.empty();
@@ -321,29 +329,32 @@ public class Match extends Thread {
     }
 
     public void messageEvent(MessageReceivedEvent event) {
-        try {
-            if (event.getGuild() == null) getMatchHandler().receivedDM(event.getMessage().getContentRaw(),
-                    event.getAuthor(), event.getMessage());
-            else getMatchHandler().receivedMessage(event.getMessage().getContentRaw(),
-                    event.getAuthor(), event.getMessage());
-        } catch (Exception e) {
-            Optional<String> trelloUrl = Log.exception("Game of " + getGame().getName(Constants.DEFAULT_LANGUAGE) + " had an error", e);
-            onEnd("⛔ Oops! Something spoopy happened and I had to stop this game.\n" +
-                    "You can send this: " + trelloUrl.orElse("*No trello info found*") + " to our support server at https://discord.gg/gJKQPkN !", false);
-        }
+        GamesROB.commandFramework.getSettings().getThreadPool().execute(() -> {
+            try {
+                if (event.getGuild() == null) getMatchHandler().receivedDM(event.getMessage().getContentRaw(),
+                        event.getAuthor(), event.getMessage());
+                else getMatchHandler().receivedMessage(event.getMessage().getContentRaw(),
+                        event.getAuthor(), event.getMessage());
+            } catch (Exception e) {
+                Optional<String> trelloUrl = Log.exception("Game of " + getGame().getName(Constants.DEFAULT_LANGUAGE) + " had an error", e);
+                onEnd("⛔ Oops! Something spoopy happened and I had to stop this game.\n" +
+                        "You can send this: " + trelloUrl.orElse("*No trello info found*") + " to our support server at https://discord.gg/gJKQPkN !", false);
+            }
+        });
     }
 
-    public void joined(User user) {
+    public void joined(Player player) {
         interrupt(); // Keep the match alive
-        PLAYING.put(user, this);
-        players.add(Optional.of(user));
-        achievement(user, AchievementType.PLAY_GAMES, 1);
+        players.add(player);
+        player.getUser().ifPresent(user -> {
+            PLAYING.put(user, this);
+            achievement(user, AchievementType.PLAY_GAMES, 1);
+        });
         if (gameState == GameState.PRE_GAME) {
             if (players.size() == game.getMaxTargetPlayers() + 1) gameStart();
             else updatePreMessage();
         } else if (game.getGameType() != GameType.COLLECTIVE) channelIn.sendMessage(Language.transl(language, "gameFramework.join",
-            user.getAsMention(),
-            players.size(), game.getMaxTargetPlayers()
+                player.toString(), players.size(), game.getMaxTargetPlayers()
         )).queue();
     }
 
@@ -364,19 +375,24 @@ public class Match extends Thread {
     }
 
     public void joinReaction(CommandContext context) {
-        if (Match.PLAYING.containsKey(context.getAuthor()) || getPlayers().contains(Optional.of(context.getAuthor()))
+        if (Match.PLAYING.containsKey(context.getAuthor()) || getPlayers().contains(Player.user(context.getAuthor()))
                 || (betting.isPresent() &&
                 !UserProfile.get(context.getAuthor()).transaction(betting.get(), "transactions.betting"))
                 || gameState != GameState.PRE_GAME) {
             throw new InvalidCommandSyntaxException();
         }
 
-        joined(context.getAuthor());
+        joined(Player.user(context.getAuthor()));
+    }
+
+    public void aiReaction(CommandContext context) {
+        if (!gameState.equals(GameState.PRE_GAME) || !context.getAuthor().equals(creator))
+            throw new InvalidCommandSyntaxException();
+        joined(Player.ai());
     }
 
     private void startReaction(User user) {
-        if (!gameState.equals(GameState.PRE_GAME) || !user.equals(creator))
-            throw new InvalidCommandSyntaxException();
+        if (!gameState.equals(GameState.PRE_GAME) || !user.equals(creator)) return;
         if (game.getGameType().equals(GameType.HYBRID) && players.size() == 1) {
             multiplayer = false;
             matchMessage.then(it -> it.delete().queue());
@@ -391,7 +407,8 @@ public class Match extends Thread {
                 matchHandler.updatedMessage(false, builder);
                 return matchMessage = RequestPromise.forAction(channelIn.sendMessage(builder.build())).then(no2 -> gameState = GameState.MATCH);
             });
-            players.stream().filter(Optional::isPresent).forEach(it -> achievement(it.get(), AchievementType.PLAY_GAMES, 1));
+            players.stream().filter(it -> it.getUser().isPresent()).forEach(it -> achievement(it.getUser().get(),
+                    AchievementType.PLAY_GAMES, 1));
         } else {
             if (getPlayers().size() < game.getMinTargetPlayers() + 1) throw new InvalidCommandSyntaxException();
 
@@ -418,7 +435,8 @@ public class Match extends Thread {
     public void rematchReaction(CommandContext context) {
         if (!allowRematch) throw new InvalidCommandSyntaxException();
         if (GAMES.containsKey(context.getChannel()) || PLAYING.containsKey(context.getAuthor()) ||
-                !players.stream().filter(Optional::isPresent).map(Optional::get).allMatch(context.getReactionUsers()::contains)) return;
+                !players.stream().filter(it -> it.getUser().isPresent()).map(it -> it.getUser().get())
+                        .allMatch(context.getReactionUsers()::contains)) return;
         matchMessage.then(it -> it.delete().queue());
 
         new Match(game, creator, channelIn, players, options, matchesPlayed + 1);
@@ -426,16 +444,16 @@ public class Match extends Thread {
     }
 
     public void onEnd(int tokens) {
-        onEnd(getPlayers().get(0), tokens);
+        onEnd(Player.user(creator), tokens);
     }
 
-    public void onEnd(Optional<User> winner) {
+    public void onEnd(Player winner) {
         onEnd(winner, Constants.MATCH_WIN_TOKENS);
     }
 
-    public void onEnd(Optional<User> winner, int tokens) {
+    public void onEnd(Player winner, int tokens) {
         players.forEach(cur ->
-            cur.ifPresent(user -> {
+            cur.getUser().ifPresent(user -> {
                 UserProfile userProfile = UserProfile.get(user);
                 boolean victory = winner.equals(Optional.of(user));
                 userProfile.registerGameResult(channelIn.getGuild(), user, victory, !victory, game);
@@ -447,16 +465,16 @@ public class Match extends Thread {
                 }
             })
         );
-        winner.ifPresent(it -> achievement(it, AchievementType.WIN_GAMES, 1));
+        winner.getUser().ifPresent(user -> achievement(user, AchievementType.WIN_GAMES, 1));
 
-        onEnd(Language.transl(language, "gameFramework.winner", winner.map(User::getAsMention).orElse("**AI**"))
+        onEnd(Language.transl(language, "gameFramework.winner", winner.toString())
                 + Language.transl(language, "gameFramework.winnerTokens", betting.map(it -> it * players.size())
                         .orElse(tokens), Constants.getPrefix(channelIn.getGuild())), false);
     }
 
     public void onEnd(String reason, boolean registerPoints) {
         players.forEach(cur ->
-            cur.ifPresent(user -> {
+            cur.getUser().ifPresent(user -> {
                 if (registerPoints) {
                     UserProfile.get(user).registerGameResult(channelIn.getGuild(), user, false, false, game);
                     betting.ifPresent(amount -> {
@@ -480,7 +498,7 @@ public class Match extends Thread {
                 Permission.MESSAGE_ADD_REACTION) && allowRematch)
             gameOver.append("\n").append(Language.transl(language, "gameFramework.rematch"));
 
-        players.forEach(cur -> cur.ifPresent(user -> {
+        players.forEach(cur -> cur.getUser().ifPresent(user -> {
             if (addAchievement.containsKey(user)) addAchievement.get(user).forEach((type, amount) ->
                 type.addAmount(true, amount, gameOver, user, channelIn.getGuild(), language));
         }));

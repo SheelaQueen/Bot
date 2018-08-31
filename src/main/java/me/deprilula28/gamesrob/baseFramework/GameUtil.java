@@ -24,7 +24,7 @@ public class GameUtil {
         }
     }
 
-    public static boolean gameEnd(boolean reverse, Optional<User> matcherPlayer, List<Optional<User>> alive, Match match) {
+    public static boolean gameEnd(boolean reverse, Player matcherPlayer, List<Player> alive, Match match) {
         if (reverse) {
             alive.remove(matcherPlayer);
             if (alive.size() == 1) {
@@ -94,12 +94,12 @@ public class GameUtil {
         });
     }
 
-    public static void appendPlayersScore(Map<Optional<User>, String> playerItems, Map<Optional<User>, Double> scoreboard,
+    public static void appendPlayersScore(Map<Player, String> playerItems, Map<Player, Double> scoreboard,
                                           boolean over, MessageBuilder builder) {
         playerItems.forEach((player, item) -> {
             boolean contains = scoreboard.containsKey(player);
             if (!over || contains)
-                builder.append("\n").append(item).append(" ").append(player.map(User::getName).orElse("**AI**"));
+                builder.append("\n").append(item).append(" ").append(player.toString());
             if (contains) {
                 long score = Math.round(scoreboard.get(player));
                 builder.append(" (").append(score).append(" points)");

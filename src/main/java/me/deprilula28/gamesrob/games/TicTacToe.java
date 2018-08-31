@@ -17,16 +17,16 @@ public class TicTacToe extends TurnMatchHandler {
     };
     public static final GamesInstance GAME = new GamesInstance(
             "tictactoe", "tictactoe ttt",
-            1, ITEMS.length - 1, GameType.MULTIPLAYER, false,
+            1, ITEMS.length - 1, GameType.MULTIPLAYER, false, true,
             TicTacToe::new, TicTacToe.class, Collections.singletonList(new GamesInstance.GameMode("reversettt", "reverse rev reversed inverted donttictactoe")));
     private int tiles = 9;
     @Setting(min = 2, max = 5, defaultValue = 3) public int boardSize;
     @Setting(min = 2, max = 10, defaultValue = 3) public int connectTiles;
 
     private List<Optional<String>> board = new ArrayList<>();
-    private Map<Optional<User>, String> playerItems = new HashMap<>();
-    private Map<String, Optional<User>> itemPlayers = new HashMap<>();
-    private List<Optional<User>> alive = new ArrayList<>();
+    private Map<Player, String> playerItems = new HashMap<>();
+    private Map<String, Player> itemPlayers = new HashMap<>();
+    private List<Player> alive = new ArrayList<>();
 
     @Override
     public void begin(Match match, Provider<RequestPromise<Message>> initialMessage) {
@@ -47,29 +47,28 @@ public class TicTacToe extends TurnMatchHandler {
     @Override
     public void receivedMessage(String contents, User author, Message reference) {
         messages ++;
-        getTurn().ifPresent(cur -> {
-            if (cur != author) return;
-            if (contents.length() != 1) return;
+        Player cur = getTurn();
+        if (!cur.getUser().filter(it -> it.equals(author)).isPresent()) return;
+        if (contents.length() != 1) return;
 
-            int numb = Utility.inputLetter(contents);
-            if (numb >= tiles || numb < 0) return;
+        int numb = Utility.inputLetter(contents);
+        if (numb >= tiles || numb < 0) return;
 
-            if (board.get(numb).isPresent()) return;
+        if (board.get(numb).isPresent()) return;
 
-            board.set(numb, Optional.of(playerItems.get(Optional.of(cur))));
+        board.set(numb, Optional.of(playerItems.get(cur)));
 
-            if (!detectVictory()) nextTurn();
-        });
+        if (!detectVictory()) nextTurn();
     }
 
     @Override
     protected boolean isInvalidTurn() {
-        return !getTurn().isPresent() || !alive.contains(getTurn());
+        return !getTurn().getUser().isPresent() || !alive.contains(getTurn());
     }
 
     @Override
     protected void handleInvalidTurn() {
-        if (!getTurn().isPresent()) handleAIPlay();
+        if (!getTurn().getUser().isPresent()) handleAIPlay();
     }
 
     @Override
@@ -78,7 +77,7 @@ public class TicTacToe extends TurnMatchHandler {
         if (matcher == null) return false;
 
         boolean reverse = match.getMode().isPresent() && match.getMode().get().getLanguageCode().equals("reversec4");
-        Optional<User> matcherPlayer = itemPlayers.get(matcher);
+        Player matcherPlayer = itemPlayers.get(matcher);
         return GameUtil.gameEnd(reverse, matcherPlayer, alive, match);
     }
 
@@ -102,7 +101,7 @@ public class TicTacToe extends TurnMatchHandler {
     @Override
     public String turnUpdatedMessage(boolean over) {
         StringBuilder builder = new StringBuilder();
-        if (!over) builder.append(Language.transl(match.getLanguage(), "gameFramework.turn", getTurn()
+        if (!over) builder.append(Language.transl(match.getLanguage(), "gameFramework.turn", getTurn().getUser()
                 .map(User::getAsMention).orElseThrow(() -> new RuntimeException("Asked update message on AI turn."))));
 
         for (int i = 0; i < tiles; i++) {
@@ -122,12 +121,13 @@ public class TicTacToe extends TurnMatchHandler {
     @Override
     public void handleAIPlay() {
         String tile = playerItems.get(getTurn());
-        int playTile = MinMaxAI.use(processor(tile, board, 0));
+        int playTile = MinMaxAI.use(processor(tile, board, turn + 1, 0));
 
         if (!board.get(playTile).isPresent()) board.set(playTile, Optional.of(tile));
+        detectVictory();
     }
 
-    private MinMaxAI.BranchProcessor processor(String emote, List<Optional<String>> board, int layer) {
+    private MinMaxAI.BranchProcessor processor(String emote, List<Optional<String>> board, int nturn, int layer) {
         return branch -> {
             for (int i = 0; i < tiles; i ++) {
                 if (board.get(i).isPresent()) {
@@ -135,8 +135,7 @@ public class TicTacToe extends TurnMatchHandler {
                     continue;
                 }
 
-                List<Optional<String>> clonedBoard = new ArrayList<>();
-                Collections.copy(clonedBoard, board);
+                List<Optional<String>> clonedBoard = new ArrayList<>(board);
 
                 clonedBoard.set(i, Optional.of(emote));
 
@@ -148,7 +147,8 @@ public class TicTacToe extends TurnMatchHandler {
                 String winner = detectVictory(clonedBoard);
                 if (winner == null) {
                     if (layer >= AI_MAX_LAYERS) branch.node(0.0);
-                    else branch.walk(processor(emote, clonedBoard, layer + 1));
+                    else branch.walk(processor(playerItems.get(getPlayers().get(nturn)), clonedBoard,
+                            nturn + 1, layer + 1));
                     continue;
                 }
                 branch.node(winner.equals(emote) ? 1.0 : 0.0);

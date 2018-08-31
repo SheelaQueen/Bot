@@ -18,7 +18,7 @@ import java.util.stream.Collectors;
 public class Roulette extends TurnMatchHandler {
     public static final GamesInstance GAME = new GamesInstance(
             "roulette", "roulette russianroulette rl rr roul",
-            1, 7, GameType.MULTIPLAYER, true,
+            1, 7, GameType.MULTIPLAYER, true, false,
             Roulette::new, Roulette.class, Collections.emptyList()
     );
     private static final int BARREL_HOLES = 8;
@@ -28,14 +28,14 @@ public class Roulette extends TurnMatchHandler {
             "\uD83D\uDE10", "\uD83D\uDE1F", "\uD83D\uDE20", "\uD83D\uDE44", "\uD83D\uDE11", "\uD83D\uDE35", "\uD83D\uDE26", "\uD83E\uDD58"
     };
 
-    private Map<Optional<User>, String> playerItems = new HashMap<>();
-    private List<Optional<User>> alive = new ArrayList<>();
+    private Map<Player, String> playerItems = new HashMap<>();
+    private List<Player> alive = new ArrayList<>();
     private String lastNotification = "";
 
     private int bulletIn;
 
     @Override
-    public List<Optional<User>> getPlayers() {
+    public List<Player> getPlayers() {
         return alive;
     }
 
@@ -50,21 +50,20 @@ public class Roulette extends TurnMatchHandler {
     @Override
     public void receivedMessage(String contents, User author, Message reference) {
         messages ++;
-        getTurn().ifPresent(cur -> {
-            if (cur != author) return;
-            Optional<Integer> numb = GameUtil.safeParseInt(contents);
-            if (!numb.isPresent()) return;
-            int pickedInt = numb.get();
-            if (pickedInt < MIN_STRENGTH || pickedInt > MAX_STRENGTH) return;
+        Player cur = getTurn();
+        if (!cur.getUser().filter(it -> it.equals(author)).isPresent()) return;
+        Optional<Integer> numb = GameUtil.safeParseInt(contents);
+        if (!numb.isPresent()) return;
+        int pickedInt = numb.get();
+        if (pickedInt < MIN_STRENGTH || pickedInt > MAX_STRENGTH) return;
 
-            bulletIn = (bulletIn + pickedInt + (int) (ThreadLocalRandom.current().nextDouble() * (pickedInt / 2))) % BARREL_HOLES;
-            if (bulletIn == 0) {
-                alive.remove(Optional.of(author));
-                playerItems.put(Optional.of(author), "❌");
-                lastNotification = Language.transl(match.getLanguage(), "game.roulette.shot", author.getAsMention());
-            } else lastNotification = Language.transl(match.getLanguage(), "game.roulette.survive", author.getAsMention());
-            if (!detectVictory()) nextTurn();
-        });
+        bulletIn = (bulletIn + pickedInt + (int) (ThreadLocalRandom.current().nextDouble() * (pickedInt / 2))) % BARREL_HOLES;
+        if (bulletIn == 0) {
+            alive.remove(Player.user(author));
+            playerItems.put(Player.user(author), "❌");
+            lastNotification = Language.transl(match.getLanguage(), "game.roulette.shot", author.getAsMention());
+        } else lastNotification = Language.transl(match.getLanguage(), "game.roulette.survive", author.getAsMention());
+        if (!detectVictory()) nextTurn();
     }
 
     @Override
@@ -84,7 +83,7 @@ public class Roulette extends TurnMatchHandler {
         StringBuilder builder = new StringBuilder();
         if (!lastNotification.isEmpty()) builder.append(lastNotification).append("\n").append("\n");
 
-        if (!over) builder.append(Language.transl(match.getLanguage(), "gameFramework.turn", getTurn()
+        if (!over) builder.append(Language.transl(match.getLanguage(), "gameFramework.turn", getTurn().getUser()
                 .map(User::getAsMention).orElseThrow(() -> new RuntimeException("Asked update message on AI turn."))));
         builder.append("\n");
 

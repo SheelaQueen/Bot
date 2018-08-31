@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.Getter;
 import me.deprilula28.gamesrob.GamesROB;
+import me.deprilula28.gamesrob.data.SQLDatabaseManager;
 
 import javax.xml.ws.Provider;
 import java.util.Map;

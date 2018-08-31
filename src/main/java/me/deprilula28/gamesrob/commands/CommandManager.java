@@ -90,15 +90,7 @@ public class CommandManager {
 				"dollars dollar bucks BTC ETH XRP BCH EOS XLM TC ADA USDT XMR TRX MIOTA DASH ETC NEO BNB XEM XTZ " +
 				"ZEC OMG VET ZRX QTUM DCR BTG BCN LSK MKR BTS ZIL DGB DOGE AE ICX STEEM MOAC REP ONT SC XVG BCD " +
 				"WAVES BTM RHOC GNT KCS TRAT PPT NPXS ﷼ ₾ ₽ ₼ ₺ ₹ ₸ ₵ ₴ ₲ ₱ ₮ ₭ € ₫ ₩ ₨ ₧ ₦ ₡ ฿ ֏ դր. лв дин " +
-				"ден ƒ ¥ 元 £ $ ZMW ZAR YER XPF XOF XCD XAF WST VUVVND VEF UZS UYU USD UGX UAH TZS TWD  TVD " +
-				"TTD TRY TOP TND TMT TJS THB SZL SYP STN SSP SRD SOS SLL SHP SGD SEK SDG SCR SBD SAR RWF " +
-				"RUB RSD RON QAR PYG PRB PLN PKR PHP PGK PEN PAB OMR NZD NPR NOK NIO NGN NAD MZN MYR " +
-				"MXN MWK MVR MUR MRU MOP MNT MMK MKD MGA MDL MAD LYD LSL LRD LKR LBP LAK KZT KYZ " +
-				"KWD KRW KPW KMF KHR KGS KES JPY JOD JMD JEP ISK  IRR IQD INR IMP ILS IDR HUF " +
-				"HTG HRK HNL HKD GYD GTQ GNF GMD GIP GHS GGP GEL GBP FKP FJD EUR ETB ERN EGP " +
-				"DZD DOP DIKK DJF CZK CVE CUP CUC CRC COP CNY CLP CHF CDF CAD BAZD BYN BWP " +
-				"BTN BSD BRL BOB BND BIF BHD BGN BDT BBD BAM AZN AWG AUD ARS AOA ANG AMD " +
-				"ALL AFN AED сўм ரூ  රු  robux RUB R$ Kč C$ B/. ރ imjuanrichboiiiilmaoxd ",
+				"ден ƒ ¥ 元 £ $ USD BRL PHP сўм ரூ  රු  robux RUB R$ Kč C$ B/. ރ imjuanrichboiiiilmaoxd ",
                 Tokens::tokens, cmd -> {
             cmd.sub("a add p addition additions additive plus insertplussignhere + U+002B hax",
                     OwnerCommands.tokenCommand((profile, tokens) -> profile.addTokens(tokens, "transactions.cheater"),
@@ -302,11 +294,15 @@ public class CommandManager {
         f.reactionHandler("\uD83D\uDC65", context -> {
             if (Match.GAMES.containsKey(context.getChannel())) Match.GAMES.get(context.getChannel()).collectiveReacion(context);
         });
+        f.reactionHandler("\uD83E\uDD16", context -> {
+            if (Match.GAMES.containsKey(context.getChannel())) Match.GAMES.get(context.getChannel()).aiReaction(context);
+        });
         f.reactionHandler("\uD83D\uDD04", context -> {
             if (Match.REMATCH_GAMES.containsKey(context.getChannel())) Match.REMATCH_GAMES.get(context.getChannel()).rematchReaction(context);
         });
 
         f.getSettings().setMentionedMessageGetter(guild -> {
+            if (guild == null) return "Please use the bot in a guild.";
             String lang = GuildProfile.get(guild).getLanguage();
             return languageHelpMessages.get(lang == null ? Constants.DEFAULT_LANGUAGE : lang)
                     .replaceAll("%PREFIX%", Constants.getPrefixHelp(guild));

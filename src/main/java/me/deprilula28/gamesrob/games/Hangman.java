@@ -18,7 +18,7 @@ import java.util.stream.Collectors;
 public class Hangman implements MatchHandler {
     public static final GamesInstance GAME = new GamesInstance(
             "hangman", "hangman hgm hm forca",
-            1, 5, GameType.MULTIPLAYER, false,
+            1, 5, GameType.MULTIPLAYER, false, false,
             Hangman::new, Hangman.class, Collections.emptyList()
     );
 
@@ -39,7 +39,7 @@ public class Hangman implements MatchHandler {
     @Setting(min = 1, max = 16, defaultValue = 4) public int tries;
     private Optional<String> word = Optional.empty();
     private List<Character> guessedLetters = new ArrayList<>();
-    private Map<Optional<User>, PlayerInfo> playerInfoMap = new HashMap<>();
+    private Map<Player, PlayerInfo> playerInfoMap = new HashMap<>();
     private String lastNotification;
     private Match match;
     private int messages = 0;
@@ -59,13 +59,8 @@ public class Hangman implements MatchHandler {
         this.match = match;
 
         ensureLoaded();
-        match.getPlayers().forEach(cur -> {
-            playerInfoMap.put(cur, new PlayerInfo(tries));
-            cur.ifPresent(player -> {
-                if (player.equals(match.getCreator())) player.openPrivateChannel().queue(pm ->
-                    pm.sendMessage("What's the word gonna be?").queue());
-            });
-        });
+        match.getCreator().openPrivateChannel().queue(pm -> pm.sendMessage(Language.transl(match.getLanguage(), "game.hangman.sendWordDM")).queue());
+        match.getPlayers().forEach(cur -> playerInfoMap.put(cur, new PlayerInfo(tries)));
         match.setMatchMessage(initialMessage.invoke(null));
     }
 
@@ -77,14 +72,17 @@ public class Hangman implements MatchHandler {
     public void receivedMessage(String contents, User author, Message reference) {
         messages ++;
         word.ifPresent(theWord -> {
-            if (!match.getPlayers().contains(Optional.of(author)) || match.getCreator().equals(author) ||
-                    playerInfoMap.get(Optional.of(author)).hasLost() || contents.length() != 1 ||
-                    contents.charAt(0) == ' ') return;
+            if (!match.getPlayers().contains(Player.user(author)) || match.getCreator().equals(author) ||
+                    playerInfoMap.get(Player.user(author)).hasLost()) return;
+            if (contents.equalsIgnoreCase(theWord)) {
+                match.onEnd(Player.user(author));
+                return;
+            } else if (contents.length() != 1 || contents.charAt(0) == ' ') return;
             char guess = Character.toLowerCase(contents.charAt(0));
 
             // Invalid guess
             if (theWord.toLowerCase().indexOf(guess) < 0) {
-                PlayerInfo info = playerInfoMap.get(Optional.of(author));
+                PlayerInfo info = playerInfoMap.get(Player.user(author));
                 lastNotification = Language.transl(match.getLanguage(), "game.hangman.invalidGuess",
                         author.getAsMention(), guess);
 
@@ -108,7 +106,7 @@ public class Hangman implements MatchHandler {
     @Override
     public void receivedDM(String contents, User from, Message reference) {
         if (!word.isPresent() && from.equals(match.getCreator())) {
-            word = Optional.of(contents);
+            word = Optional.of(contents.replaceAll("`", ""));
             reference.getChannel().sendMessage(Language.transl(match.getLanguage(), "game.hangman.wordSet",
                     match.getChannelIn().getAsMention())).queue();
             lastNotification = Language.transl(match.getLanguage(), "game.hangman.wordPicked");
@@ -126,12 +124,12 @@ public class Hangman implements MatchHandler {
     private boolean detectVictory(User user) {
         if (word.isPresent() && word.get().chars().mapToObj(c -> (char) c).allMatch(it ->
                 guessedLetters.contains(Character.toLowerCase(it)) || !Character.isLetter(it)) ) {
-            match.onEnd(Optional.of(user));
+            match.onEnd(Player.user(user));
             return true;
         }
-        if (match.getPlayers().stream().allMatch(it -> it.equals(Optional.of(match.getCreator()))
+        if (match.getPlayers().stream().allMatch(it -> it.equals(Player.user(match.getCreator()))
                 || playerInfoMap.get(it).hasLost())) {
-            match.onEnd(Optional.of(match.getCreator()));
+            match.onEnd(Player.user(match.getCreator()));
             return true;
         }
 
@@ -143,13 +141,13 @@ public class Hangman implements MatchHandler {
         if (word.isPresent()) {
             builder.append(lastNotification).append("\n\n");
             if (!over) {
-                for (Optional<User> curPlayer : match.getPlayers()) {
-                    if (curPlayer.isPresent() && match.getCreator().equals(curPlayer.get())) continue;
+                for (Player curPlayer : match.getPlayers()) {
+                    if (curPlayer.getUser().isPresent() && match.getCreator().equals(curPlayer.getUser().get())) continue;
                     PlayerInfo playerInfo = playerInfoMap.get(curPlayer);
 
                     // torso0 torso1 torso2 bottom0 bottom1 bottom2
                     // 0      1      2      3       4       5
-                    if (match.getPlayers().size() > 2) builder.append(curPlayer.map(User::getAsMention).orElse("**AI**"));
+                    if (match.getPlayers().size() > 2) builder.append(curPlayer.toString());
                     builder.append(" \\_\\_\\_\\_\n")
                             .append("⏐          |\n")
                             .append("|       ").append(FACES[Math.min(FACES.length - playerInfo.tries, 0)]).append("\n")

@@ -36,8 +36,8 @@ public class Constants {
     public static final File GUILDS_FOLDER = new File(DATA_FOLDER, "guildData");
 
     public static final long PRESENCE_UPDATE_PERIOD = TimeUnit.SECONDS.toMillis(60);
-    public static final long RAM_CACHE_TIME = TimeUnit.SECONDS.toMillis(15);
-    public static final long CACHE_TIME = TimeUnit.SECONDS.toMillis(90);
+    public static final long RAM_CACHE_TIME = TimeUnit.SECONDS.toMillis(5);
+    public static final long CACHE_TIME = TimeUnit.SECONDS.toMillis(30);
     public static final long TCR_RESET_ROUND_TIME = TimeUnit.SECONDS.toMillis(15);
 
     public static final Optional<String> VANITY_DBL_URL = Optional.of("https://discordbots.org/bot/GamesROB");

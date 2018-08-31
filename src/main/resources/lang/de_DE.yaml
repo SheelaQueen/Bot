@@ -38,7 +38,7 @@ gameFramework:
   requireBetting: "Dieses Spiel benötigt wetten!\nAdde `bet=amount` beim Kommand um tokens zu setzen."
   settingOutOfRange: "Die Einstellung `%s` muss zwischen %s und %s liegen!"
   activeGame: "In diesem Channel läuft bereits ein Spiel."
-  viewPlayers: "Seh dir die Spieler mit `%slistplayers` an und verlasse das Spiel mit `%sleave`."
+  viewPlayers: "Seh dir die Spieler mit `%slistplayers`."
   viewPlayersStop: "Seh dir die Spieler mit `%slistplayers` an und stoppe mit `%sstop`."
   typeToJoin: "Gebe `%sjoin` ein um das Spiel zu betreten."
   playersOutOfRange: "Du kannst nur zwischen %s und %s Spielern in diesem Spiel haben!"

@@ -30,7 +30,7 @@ public class Quiz implements MatchHandler {
     private static String[] ITEMS;
     public static final GamesInstance GAME = new GamesInstance(
             "quiz", "quiz trivia quizzes qz",
-            0, 11, GameType.COLLECTIVE, false,
+            0, 11, GameType.COLLECTIVE, false, false,
             Quiz::new, Quiz.class, Collections.emptyList()
     );
 
@@ -49,10 +49,10 @@ public class Quiz implements MatchHandler {
 
     private Match match;
 
-    private Map<Optional<User>, String> playerItems = new HashMap<>();
-    private Map<String, Optional<User>> itemPlayers = new HashMap<>();
-    private Map<Optional<User>, Double> scoreboard = new HashMap<>();
-    private Map<Optional<User>, Integer> attempts = new HashMap<>();
+    private Map<Player, String> playerItems = new HashMap<>();
+    private Map<String, Player> itemPlayers = new HashMap<>();
+    private Map<Player, Double> scoreboard = new HashMap<>();
+    private Map<Player, Integer> attempts = new HashMap<>();
 
     private Optional<String> lastNotification = Optional.empty();
     private OpenTDBResponse.QuizQuestion curQuestion;
@@ -133,9 +133,9 @@ public class Quiz implements MatchHandler {
         if (contents.length() == 1) {
             int letter = Utility.inputLetter(contents);
             if (letter < 0 || letter >= orderedOptions.size()) return;
-            if (!match.getPlayers().contains(Optional.of(author))) match.joined(author);
+            if (!match.getPlayers().contains(Player.user(author))) match.joined(Player.user(author));
 
-            Optional<User> player = Optional.of(author);
+            Player player = Player.user(author);
             if (attempts.containsKey(player) && attempts.get(player) >= orderedOptions.size() / 2) {
                 try {
                     reference.addReaction("⛔").queue();
@@ -174,7 +174,7 @@ public class Quiz implements MatchHandler {
                             updateMessage();
                         }
                     } else match.getChannelIn().sendMessage(Language.transl(match.getLanguage(),
-                            "game.quiz.cantPlay", player.map(User::getAsMention).orElse("**AI**"))).queue();
+                            "game.quiz.cantPlay", player.toString())).queue();
                 } else {
                     try {
                         reference.addReaction("❌").queue();
@@ -191,7 +191,7 @@ public class Quiz implements MatchHandler {
                 ? (int) Math.round(scoreboard.get(match.getPlayers().get(0))) : 0);
         else match.onEnd(scoreboard.entrySet().stream()
                 .sorted(Comparator.comparingDouble(it -> (double) ((Map.Entry) it).getValue()).reversed())
-                .map(Map.Entry::getKey).findFirst().orElse(Optional.empty()));
+                .map(Map.Entry::getKey).findFirst().orElse(null));
     }
 
     @Override
