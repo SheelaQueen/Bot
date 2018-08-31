@@ -48,8 +48,6 @@ public class Cache {
                             if (object.onRemove != null) object.onRemove.accept(object.result);
                         }
                     }
-                    GamesROB.database.ifPresent(SQLDatabaseManager::batchRun);
-                    Log.trace("Ran SQL Batch");
                     long after = getRAMUsage();
 
                     if (removed > 0) {

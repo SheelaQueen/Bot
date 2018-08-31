@@ -294,12 +294,15 @@ public class CommandManager {
         f.reactionHandler("\uD83D\uDC65", context -> {
             if (Match.GAMES.containsKey(context.getChannel())) Match.GAMES.get(context.getChannel()).collectiveReacion(context);
         });
+        f.reactionHandler("\uD83E\uDD16", context -> {
+            if (Match.GAMES.containsKey(context.getChannel())) Match.GAMES.get(context.getChannel()).aiReaction(context);
+        });
         f.reactionHandler("\uD83D\uDD04", context -> {
             if (Match.REMATCH_GAMES.containsKey(context.getChannel())) Match.REMATCH_GAMES.get(context.getChannel()).rematchReaction(context);
         });
 
         f.getSettings().setMentionedMessageGetter(guild -> {
-            if (guild == null) return "null";
+            if (guild == null) return "Please use the bot in a guild.";
             String lang = GuildProfile.get(guild).getLanguage();
             return languageHelpMessages.get(lang == null ? Constants.DEFAULT_LANGUAGE : lang)
                     .replaceAll("%PREFIX%", Constants.getPrefixHelp(guild));

@@ -1,6 +1,7 @@
 package me.deprilula28.gamesrob.utility;
 
 import me.deprilula28.gamesrob.Language;
+import me.deprilula28.gamesrob.baseFramework.Player;
 import me.deprilula28.gamesrob.commands.ProfileCommands;
 import me.deprilula28.gamesrob.data.Statistics;
 import me.deprilula28.gamesrob.data.UserProfile;
@@ -55,6 +56,17 @@ public class Utility {
         @FunctionalInterface
         public static interface PromiseProvider<R> {
             R invoke();
+        }
+
+        public R await() {
+            awaiting.add(Thread.currentThread());
+            try {
+                Thread.sleep(Long.MAX_VALUE);
+            } catch (InterruptedException ex){
+                return result.get();
+            }
+            Log.trace("Wait it really took that long?");
+            return null;
         }
 
         public static <R> Promise<R> provider(PromiseProvider<R> provider) {
@@ -113,17 +125,17 @@ public class Utility {
         return addNumberDelimitors((long) number);
     }
 
-    public static void populateItems(List<Optional<User>> players, String[] items,
-                                     Map<Optional<User>, String> playerItems, Map<String, Optional<User>> itemPlayers) {
+    public static void populateItems(List<Player> players, String[] items,
+                                     Map<Player, String> playerItems, Map<String, Player> itemPlayers) {
         for (int i = 0; i < players.size(); i++) {
-            Optional<User> user = players.get(i);
+            Player player = players.get(i);
 
-            String emote = user.isPresent()
-                    ? Optional.ofNullable(UserProfile.get(user.get()).getEmote()).filter(it -> !itemPlayers.containsKey(it)
-                    && ProfileCommands.validateEmote(user.get().getJDA(), it)).orElse(items[i])
+            String emote = player.getUser().isPresent()
+                    ? Optional.ofNullable(UserProfile.get(player.getUser().get()).getEmote()).filter(it -> !itemPlayers.containsKey(it)
+                    && ProfileCommands.validateEmote(player.getUser().get().getJDA(), it)).orElse(items[i])
                     : items[i];
-            playerItems.put(user, emote);
-            itemPlayers.put(emote, user);
+            playerItems.put(player, emote);
+            itemPlayers.put(emote, player);
         }
     }
 

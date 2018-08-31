@@ -93,7 +93,7 @@ public class LeaderboardHandler {
     }
 
     private void saveEntry(SQLDatabaseManager db, String gameId, LeaderboardEntry entry) {
-        db.save("leaderboardEntries", Arrays.asList("victories", "losses", "gamesplayed", "guildid", "userid", "gameid"),
+        db.save("leaderboardentries", Arrays.asList("victories", "losses", "gamesplayed", "guildid", "userid", "gameid"),
                 "guildid = '" + guildId + "' AND userid = '" + entry.getId() + "' AND gameid = '" + gameId + "'",
             set -> {
                 try {

@@ -122,6 +122,7 @@ game:
     longDescription: "O(a) criador(a) manda em privado para o bot uma palavra.\nDepois disso, os jogadores devem adivinha-lá, letra por letra!"
 
     sendWord: "Antes de tudo, %s: Envie a palavra em privado!"
+    sendWordDM: "Que palavra(s) você vai escolher?"
     wordSet: "**Palavra enviada!**\nVocê pode voltar para %s."
     wordPicked: "A palavra foi escolhida!"
     invalidGuess: "%s adivinhou %s, e errou!"

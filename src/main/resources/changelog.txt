@@ -1,3 +1,12 @@
+- Added automatic nearby clearing on minesweeper.
+- Added AI to connect 4 and tic tac toe! Just click the robot in the message to add an AI player.
+
+- Fixed uno wildcard invalid message freezing the game.
+- Fixed 'null' dms.
+- Fixed hangman's send the word message sending multiple times and not being translable.
+- Fixed data saving issues.
 - Fixed annoying error on console.
 - Fixed getting achievements.
+- Fixed minesweeper win detection.
+- Fixed multiplayer minesweeper.
 Enjoy! ~ deprilula28

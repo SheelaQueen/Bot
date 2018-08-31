@@ -3,6 +3,7 @@ package me.deprilula28.gamesrob.baseFramework;
 import lombok.Getter;
 import me.deprilula28.gamesrob.Language;
 import me.deprilula28.gamesrob.utility.Constants;
+import me.deprilula28.gamesrob.utility.Log;
 import me.deprilula28.gamesrob.utility.Utility;
 import me.deprilula28.jdacmdframework.RequestPromise;
 import net.dv8tion.jda.core.MessageBuilder;
@@ -26,20 +27,20 @@ public abstract class TurnMatchHandler implements MatchHandler {
         match.setMatchMessage(initialMessage.invoke(null));
     }
 
-    public abstract void handleAIPlay();
+    public void handleAIPlay() {};
     public abstract boolean detectVictory();
     protected int messages = 0;
 
-    public List<Optional<User>> getPlayers() {
+    public List<Player> getPlayers() {
         return match.getPlayers();
     }
 
-    public Optional<User> getTurn() {
+    public Player getTurn() {
         if (turn >= getPlayers().size()) turn = 0;
         return getPlayers().get(turn);
     }
 
-    public Optional<User> seekTurn() {
+    public Player seekTurn() {
         return getPlayers().get((turn + 1) % (getPlayers().size() - 1));
     }
 
@@ -49,6 +50,7 @@ public abstract class TurnMatchHandler implements MatchHandler {
         if (turn >= getPlayers().size()) turn = 0;
         while (isInvalidTurn()) {
             handleInvalidTurn();
+            if (match.getGameState().equals(GameState.POST_MATCH)) return;
             turn ++;
             if (turn >= getPlayers().size()) turn = 0;
         }
@@ -61,25 +63,23 @@ public abstract class TurnMatchHandler implements MatchHandler {
     }
 
     protected boolean isInvalidTurn() {
-        return !getTurn().isPresent();
+        return !getTurn().getUser().isPresent();
     }
 
     protected void handleInvalidTurn() {
         handleAIPlay();
     }
 
-    protected void appendTurns(StringBuilder builder, Map<Optional<User>, String> playerItems) {
+    protected void appendTurns(StringBuilder builder, Map<Player, String> playerItems) {
         appendTurns(builder, playerItems, n -> "");
     }
 
-    protected void appendTurns(StringBuilder builder, Map<Optional<User>, String> playerItems, Function<Optional<User>, String> messageGetter) {
+    protected void appendTurns(StringBuilder builder, Map<Player, String> playerItems, Function<Player, String> messageGetter) {
         Guild guild = match.getChannelIn().getGuild();
         match.getPlayers().forEach(cur -> {
             if (playerItems != null) builder.append(playerItems.get(cur)).append(" ");
-            String name = cur.map(it -> guild.getMember(it) == null ? it.getName() : guild.getMember(it).getEffectiveName())
-                    .orElse("**AI**");
-            String replacement = cur.map(User::getAsMention).orElse("no u");
-            builder.append(name.replaceAll("@everyone", replacement).replaceAll("@here", replacement)).append(messageGetter.apply(cur));
+            String name = cur.toString();
+            builder.append(name).append(messageGetter.apply(cur));
 
             if (getPlayers().contains(cur)) {
                 int pos = getPlayers().indexOf(cur) - turn;
@@ -95,11 +95,8 @@ public abstract class TurnMatchHandler implements MatchHandler {
 
     @Override
     public void onQuit(User user) {
-        getTurn().ifPresent(it -> {
-            if (it == user) {
-                nextTurn();
-            }
-        });
+        if (!getTurn().getUser().filter(it -> it.equals(user)).isPresent()) return;
+        nextTurn();
     }
 
     @Override
