@@ -2,6 +2,7 @@ package me.deprilula28.gamesrob.utility;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import me.deprilula28.gamesrob.GamesROB;
 import me.deprilula28.gamesrob.Language;
 import me.deprilula28.gamesrob.baseFramework.Match;
 import me.deprilula28.gamesrob.data.GuildProfile;
@@ -11,6 +12,7 @@ import net.dv8tion.jda.core.JDA;
 import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.entities.User;
+import sun.misc.IOUtils;
 
 import java.awt.*;
 import java.io.File;
@@ -36,8 +38,8 @@ public class Constants {
     public static final File GUILDS_FOLDER = new File(DATA_FOLDER, "guildData");
 
     public static final long PRESENCE_UPDATE_PERIOD = TimeUnit.SECONDS.toMillis(60);
-    public static final long RAM_CACHE_TIME = TimeUnit.SECONDS.toMillis(5);
-    public static final long CACHE_TIME = TimeUnit.SECONDS.toMillis(30);
+    public static final long OBJECT_STORE_TIME = TimeUnit.MINUTES.toMillis(2);
+    public static final long CACHE_SLEEP_TIME = TimeUnit.SECONDS.toMillis(5);
     public static final long TCR_RESET_ROUND_TIME = TimeUnit.SECONDS.toMillis(15);
 
     public static final Optional<String> VANITY_DBL_URL = Optional.of("https://discordbots.org/bot/GamesROB");
@@ -60,6 +62,16 @@ public class Constants {
     public static final Gson GSON = new GsonBuilder()
             .enableComplexMapKeySerialization().disableHtmlEscaping()
             .create();
+
+    public static Font getStarlightFont() {
+        return Cache.get("stfont", n -> {
+            try {
+                return Font.createFont(Font.TRUETYPE_FONT, Language.class.getResourceAsStream("/imggen/starlightfont.ttf"));
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+        });
+    }
 
     public static String getPrefix(Guild guild) {
         if (guild == null) return DEFAULT_PREFIX;

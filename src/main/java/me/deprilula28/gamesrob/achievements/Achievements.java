@@ -32,9 +32,6 @@ public enum Achievements {
     overconfident(new Achievement("overconfident", 40, AchievementType.LOSE_TOKENS_GAMBLING, 1000)),
     stubborn(new Achievement("stubborn", 100, AchievementType.LOSE_TOKENS_GAMBLING, 4000)),
 
-    // Reach place in lb
-    wwcd(new Achievement("winnerWinnerChickenDinner", 300, AchievementType.REACH_PLACE_LEADERBOARD, 1)),
-
     // Reach tokens
     mediumClass(new Achievement("mediumClass", 200, AchievementType.REACH_TOKENS, 3000)),
     upperClass(new Achievement("upperClass", 500, AchievementType.REACH_TOKENS, 6000)),

@@ -9,6 +9,7 @@ languageProperties:
   version: "1.6.3"
 
 genericMessages:
+  imagegenTime: "Essa imagem foi gerada em %s."
   alreadyPlaying: "Você já está jogando em %s!\nDigite `%sleave` para sair da partida."
   noGamesInChannel: "Não há jogos atualmente nesse canal.\nVocê pode digitar `%shelp` para escolher e começar um jogo!"
   invalidLanguage: "Essa linguagem é inválida."
@@ -139,6 +140,8 @@ game:
     name: "Jogo da Velha"
     shortDescription: "Faça uma linha de 3!"
     longDescription: "Você sabe como funciona!\nEnvie a letra de onde quer colocar seu símbolo (ex. a)."
+
+    tie: "Deu velha!"
   detective:
     name: "Detetive"
     shortDescription: "Um de vocês é um assassino. Sua missão é expulsá-lo antes que seja tarde demais."
@@ -181,7 +184,6 @@ game:
     gambleTokens: "Aposte %s tokens"
     winTokensGambling: "Ganhe %s tokens apostando"
     loseTokensGambling: "Perca %s tokens apostando"
-    reachPlaceLeaderboard: "Chegue no %sº lugar do placar"
     reachTokens: "Alcançe %s tokens"
     upvote: "Vote para GamesROB no DBL %s vezes"
 
@@ -207,8 +209,6 @@ game:
     unfair: "Isso é injusto!"
     overconfident: "Confidente demais"
     stubborn: "Teimoso"
-
-    winnerWinnerChickenDinner: "Winner winner chicken dinner"
 
     mediumClass: "Classe Média"
     upperClass: "Classe Alta"
@@ -237,6 +237,10 @@ command:
 
   idlerpg:
     description: "Saiba mais sobre nosso parceiro IdleRPG!"
+
+  support:
+    message: "Se estiver tendo problemas com o bot, quer sugerir funcionalidades, ser notificado quando atualizamos o bot ou quer conversar com outras pessoas que o usam, entre no nosso servidor de suporte:\nhttps://discord.gg/xajeDYR"
+    description: "Te dá um link para o servidor de suporte do bot"
 
   slots:
     matchHeader: "Apostando 🔸 %s tokens..."
@@ -290,8 +294,16 @@ command:
     alreadyOnMatch: "Você já está nesse jogo!"
     full: "O jogo já começou!"
     description: "Entra na partida do canal atual"
+  leave:
+    creator: "Você criou essa partida, use `%sstop` para pará-la."
+    notInMatch: "Você não está nessa partida!"
+    cantLeave: "Você não pode sair dessa partida."
+    message: "%s saiu da partida.\n"
+
+    description: "Leaves your current match"
   stop:
     matchStopped: "⏹ Partida parada por %s"
+    response: "A partida foi parada."
     description: "Força uma parada na partida"
   listplayers:
     header: "**Partida de %s**\n%s\n\n"

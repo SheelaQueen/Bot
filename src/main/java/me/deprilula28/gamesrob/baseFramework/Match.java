@@ -328,6 +328,10 @@ public class Match extends Thread {
         }
     }
 
+    public boolean isMode(String code) {
+        return mode.map(it -> code.equals(it.getLanguageCode())).orElse(code == null);
+    }
+
     public void messageEvent(MessageReceivedEvent event) {
         GamesROB.commandFramework.getSettings().getThreadPool().execute(() -> {
             try {
@@ -340,6 +344,22 @@ public class Match extends Thread {
                 onEnd("⛔ Oops! Something spoopy happened and I had to stop this game.\n" +
                         "You can send this: " + trelloUrl.orElse("*No trello info found*") + " to our support server at https://discord.gg/gJKQPkN !", false);
             }
+        });
+    }
+
+    public void left(Player player, MessageBuilder builder) {
+        interrupt();
+        if (players.size() == 2) {
+            players.stream().filter(it -> !it.equals(player)).findFirst().ifPresent(this::onEnd);
+            return;
+        }
+
+        players.remove(player);
+        player.getUser().ifPresent(user -> {
+            PLAYING.remove(user);
+            if (addAchievement.containsKey(user)) addAchievement.get(user).forEach((type, amount) ->
+                    type.addAmount(true, amount, builder, user, channelIn.getGuild(), language));
+            matchHandler.onQuit(user);
         });
     }
 
@@ -455,7 +475,7 @@ public class Match extends Thread {
         players.forEach(cur ->
             cur.getUser().ifPresent(user -> {
                 UserProfile userProfile = UserProfile.get(user);
-                boolean victory = winner.equals(Optional.of(user));
+                boolean victory = winner.equals(Player.user(user));
                 userProfile.registerGameResult(channelIn.getGuild(), user, victory, !victory, game);
 
                 if (winner.equals(cur)) {

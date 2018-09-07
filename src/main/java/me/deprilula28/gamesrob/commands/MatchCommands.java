@@ -9,6 +9,8 @@ import me.deprilula28.gamesrob.data.UserProfile;
 import me.deprilula28.gamesrob.utility.Constants;
 import me.deprilula28.jdacmdframework.CommandContext;
 import me.deprilula28.jdacmdframework.exceptions.CommandArgsException;
+import net.dv8tion.jda.core.MessageBuilder;
+import net.dv8tion.jda.core.entities.Game;
 import net.dv8tion.jda.core.entities.User;
 
 import java.util.Optional;
@@ -22,6 +24,23 @@ public class MatchCommands {
         return Match.GAMES.get(context.getChannel());
     }
 
+    public static String leave(CommandContext context) {
+        Match game = getGame(context);
+        if (game.getCreator().equals(context.getAuthor()))
+            throw new CommandArgsException(Language.transl(context, "command.leave.creator",
+                    Constants.getPrefix(context.getGuild())));
+        if (!game.getPlayers().contains(Player.user(context.getAuthor())))
+            throw new CommandArgsException(Language.transl(context, "command.leave.notInMatch"));
+        if (game.getGame().getGameType().equals(GameType.COLLECTIVE))
+            throw new CommandArgsException(Language.transl(context, "command.leave.cantLeave"));
+
+        context.send(builder -> {
+            builder.append(Language.transl(context, "command.leave.message", context.getAuthor().getAsMention()));
+            game.left(Player.user(context.getAuthor()), builder);
+        });
+        return null;
+    }
+
     public static String join(CommandContext context) {
         if (Match.PLAYING.containsKey(context.getAuthor()))
             return Language.transl(context, "genericMessages.alreadyPlaying",
@@ -32,7 +51,7 @@ public class MatchCommands {
         Match game = getGame(context);
         if (game.getGame().getGameType() == GameType.COLLECTIVE) return Language.transl(context, "command.join.collectiveMatch");
         if (game.getGameState() != GameState.PRE_GAME) return Language.transl(context, "command.join.gameStarted");
-        if (game.getPlayers().contains(Optional.of(context.getAuthor())))
+        if (game.getPlayers().contains(Player.user(context.getAuthor())))
             return Language.transl(context, "command.join.alreadyOnMatch");
         if (game.getBetting().isPresent() && !UserProfile.get(context.getAuthor()).transaction(game.getBetting().get(), "transactions.betting"))
             return Constants.getNotEnoughTokensMessage(context, game.getBetting().get());
@@ -57,6 +76,6 @@ public class MatchCommands {
         game.onEnd(Language.transl(context, "command.stop.matchStopped", context.getAuthor().getName()),
                 false);
 
-        return null;
+        return Language.transl(context, "command.stop.response");
     }
 }

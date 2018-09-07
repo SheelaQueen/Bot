@@ -56,6 +56,12 @@ public class TownCountryRiver extends TurnMatchHandler implements Runnable {
         ITEMS = numbers.stream().map(it -> GameUtil.getEmote("question" + it).get()).toArray(String[]::new);
     }
 
+    @Override
+    public void onQuit(User user) {
+        if (getTurn().getUser().filter(it -> it.equals(user)).isPresent()) resetRound();
+        super.onQuit(user);
+    }
+
     private void resetRound() {
         theme = THEMES[random.nextInt(THEMES.length)];
         letter = LETTERS[random.nextInt(LETTERS.length)];

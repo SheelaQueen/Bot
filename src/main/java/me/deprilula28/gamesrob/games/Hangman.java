@@ -66,6 +66,7 @@ public class Hangman implements MatchHandler {
 
     @Override
     public void onQuit(User user) {
+        playerInfoMap.remove(Player.user(user));
     }
 
     @Override

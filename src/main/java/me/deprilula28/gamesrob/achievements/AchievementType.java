@@ -24,8 +24,7 @@ import java.util.function.Consumer;
 @AllArgsConstructor
 public enum AchievementType {
     PLAY_GAMES("playGames"), WIN_GAMES("winGames"), GAMBLE_TOKENS("gambleTokens"), WIN_TOKENS_GAMBLING("winTokensGambling"),
-    LOSE_TOKENS_GAMBLING("loseTokensGambling"), REACH_PLACE_LEADERBOARD("reachPlaceLeaderboard"),
-    REACH_TOKENS("reachTokens"), UPVOTE("upvote"), OTHER("other");
+    LOSE_TOKENS_GAMBLING("loseTokensGambling"), REACH_TOKENS("reachTokens"), UPVOTE("upvote"), OTHER("other");
 
     private static final String[] ACHIEVEMENT_GOT_EMOTES = {
         "\uD83D\uDC83", "\uD83D\uDC51", "\uD83D\uDCAB", "<:rules_header:456960990559338497>", "\uD83C\uDF20", "\uD83C\uDF89"

@@ -152,9 +152,7 @@ public class Minesweeper implements MatchHandler {
                 for (int yOff = -1; yOff <= 1; yOff ++) {
                     int nx = x + xOff;
                     int ny = y + yOff;
-                    Log.info(x, y, nx, ny);
                     if (nx < 0 || nx > columns || ny < 0 || ny > rows || (xOff == 0 && yOff == 0)) continue;
-                    Log.info(curBoard.get(nx).get(ny).getType().equals(MinesweeperTileType.DUG));
                     if (curBoard.get(nx).get(ny).getType().equals(MinesweeperTileType.DUG)) continue;
                     clearArea(curBoard, x + xOff, y + yOff);
                 }
@@ -165,7 +163,7 @@ public class Minesweeper implements MatchHandler {
 
     @Override
     public void onQuit(User user) {
-        match.onEnd(Language.transl(match.getLanguage(), "game.minesweeper.left"), true);
+        board.remove(Player.user(user));
     }
 
     @Override

@@ -28,7 +28,6 @@ public class GuildProfile {
     private String permStartGame;
     private String permStopGame;
     private String language;
-    private int shardId;
     private boolean edited;
 
     private boolean rolePermission(CommandContext context, String value, Supplier<Boolean> fallback) {
@@ -77,7 +76,7 @@ public class GuildProfile {
         @Override
         public Optional<GuildProfile> getFromSQL(SQLDatabaseManager db, String from) throws Exception {
             ResultSet select = db.select("guildData", Arrays.asList("permstartgame",
-                    "permstopgame", "prefix", "language", "shardid"), "guildid = '" + from + "'");
+                    "permstopgame", "prefix", "language"), "guildid = '" + from + "'");
 
             if (select.next()) return fromResultSet(from, select);
             select.close();
@@ -88,7 +87,7 @@ public class GuildProfile {
         @Override
         public Utility.Promise<Void> saveToSQL(SQLDatabaseManager db, GuildProfile value) {
             return db.save("guildData", Arrays.asList(
-                    "prefix", "permstartgame", "permstopgame", "shardid", "language", "guildid"
+                    "prefix", "permstartgame", "permstopgame", "language", "guildid"
             ), "guildid = '" + value.getGuildId() + "'",
                 set -> !value.isEdited(), true,
                 (set, it) -> Log.wrapException("Saving data on SQL", () -> writeGuildData(it, value)));
@@ -99,7 +98,7 @@ public class GuildProfile {
                 return Optional.of(new GuildProfile(from,
                         select.getString("prefix"), select.getString("permStartgame"),
                         select.getString("permstopgame"), select.getString("language"),
-                        select.getInt("shardid"), false));
+                        false));
             } catch (Exception e) {
                 Log.exception("Saving GuildProfile in SQL", e);
                 return Optional.empty();
@@ -110,9 +109,8 @@ public class GuildProfile {
             statement.setString(1, profile.getGuildPrefix());
             statement.setString(2, profile.getPermStartGame());
             statement.setString(3, profile.getPermStopGame());
-            statement.setInt(4, profile.getShardId());
-            statement.setString(5, profile.getLanguage());
-            statement.setString(6, profile.getGuildId());
+            statement.setString(4, profile.getLanguage());
+            statement.setString(5, profile.getGuildId());
         }
 
 
@@ -133,7 +131,7 @@ public class GuildProfile {
         @Override
         public GuildProfile createNew(String from) {
             return new GuildProfile(from, "g*", null, null, Constants.DEFAULT_LANGUAGE,
-                    GamesROB.getGuildById(from).map(it -> it.getJDA().getShardInfo().getShardId()).orElse(0), false);
+                    false);
         }
 
         @Override

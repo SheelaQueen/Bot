@@ -13,7 +13,7 @@ import java.util.List;
 import java.util.Map;
 
 public interface MatchHandler {
-    void onQuit(User user);
+    default void onQuit(User user) {};
     void begin(Match base, Provider<RequestPromise<Message>> initialMessage);
     void updatedMessage(boolean over, MessageBuilder builder);
 

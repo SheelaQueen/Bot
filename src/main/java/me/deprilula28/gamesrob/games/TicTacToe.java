@@ -76,7 +76,12 @@ public class TicTacToe extends TurnMatchHandler {
         String matcher = detectVictory(board);
         if (matcher == null) return false;
 
-        boolean reverse = match.getMode().isPresent() && match.getMode().get().getLanguageCode().equals("reversec4");
+        if (board.stream().allMatch(Optional::isPresent)) {
+            match.onEnd(Language.transl(match.getLanguage(), "game.tictactoe.tie"), true);
+            return true;
+        }
+
+        boolean reverse = match.isMode("reversettt");
         Player matcherPlayer = itemPlayers.get(matcher);
         return GameUtil.gameEnd(reverse, matcherPlayer, alive, match);
     }
@@ -121,7 +126,7 @@ public class TicTacToe extends TurnMatchHandler {
     @Override
     public void handleAIPlay() {
         String tile = playerItems.get(getTurn());
-        int playTile = MinMaxAI.use(processor(tile, board, turn + 1, 0));
+        int playTile = MinMaxAI.use(processor(tile, board, (turn + 1) >= getPlayers().size() ? 0 : turn + 1, 0));
 
         if (!board.get(playTile).isPresent()) board.set(playTile, Optional.of(tile));
         detectVictory();
@@ -148,7 +153,7 @@ public class TicTacToe extends TurnMatchHandler {
                 if (winner == null) {
                     if (layer >= AI_MAX_LAYERS) branch.node(0.0);
                     else branch.walk(processor(playerItems.get(getPlayers().get(nturn)), clonedBoard,
-                            nturn + 1, layer + 1));
+                            (nturn + 1) >= getPlayers().size() ? 0 : nturn + 1, layer + 1));
                     continue;
                 }
                 branch.node(winner.equals(emote) ? 1.0 : 0.0);

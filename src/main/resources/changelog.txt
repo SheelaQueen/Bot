@@ -1,12 +1,10 @@
-- Added automatic nearby clearing on minesweeper.
-- Added AI to connect 4 and tic tac toe! Just click the robot in the message to add an AI player.
+- The match creator can now stop the match.
+- Added `g*leave` back in! You can now use it if you're not the match creator to leave the match.
+- `g*profile` now sends a fancy image! You'll be able to change the background in the future.
+- Changed detective for killers to pick who to kill with A/B/C thing.
+- Removed the reach leaderboard position achievement. It's not like it worked anyway...
 
-- Fixed uno wildcard invalid message freezing the game.
-- Fixed 'null' dms.
-- Fixed hangman's send the word message sending multiple times and not being translable.
-- Fixed data saving issues.
-- Fixed annoying error on console.
-- Fixed getting achievements.
-- Fixed minesweeper win detection.
-- Fixed multiplayer minesweeper.
+- Fixed token rewards in games.
+- Fixed reverse tic-tac-toe.
+- Fixed ties in tic-tac-toe.
 Enjoy! ~ deprilula28

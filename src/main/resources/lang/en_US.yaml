@@ -11,6 +11,7 @@ languageProperties:
 baltopGuildTemp: "Temporarly disabled for this server."
 
 genericMessages:
+  imagegenTime: "Image took %s to generate."
   alreadyPlaying: "You are already playing another game on %s!\nType `%sstop` to stop that match."
   noGamesInChannel: "There are no games currently in this channel.\nYou can type `%shelp` to pick and start a game!"
   invalidLanguage: "Not a valid language."
@@ -154,6 +155,8 @@ game:
     name: "TicTacToe"
     shortDescription: "Arrange 3 of your tile in a line within the board!"
     longDescription: "You know how TicTacToe works!\nJust send in the letter you want to put your tile in (e.g. a)."
+
+    tie: "It's a tie!"
   detective:
     name: "Detective"
     shortDescription: "One of you is an assassin. Kick them out before it's too late."
@@ -174,8 +177,8 @@ game:
     wakeFourthPlus: "🌆 The city wakes up, with one less citizen on our realm, and that would be %s. When does this stop?"
 
     dmCitizen: "🏙 You're a citizen."
-    dmAssassin: "🗡 You're the killer!\nWho will be the unlucky first? (Type their name here)"
-    dmAssassinRecursive: "Who will it be tonight? (Type their name here)"
+    dmAssassin2: "🗡 You're the killer!\nWho will be the unlucky first?\n%s"
+    dmAssassinRecursive2: "Who will it be tonight?\n%s"
   quiz:
     name: "Quiz"
     shortDescription: "Do you know all the answers?"
@@ -196,7 +199,6 @@ game:
     gambleTokens: "Gamble %s tokens"
     winTokensGambling: "Win %s tokens gambling"
     loseTokensGambling: "Lose %s tokens gambling"
-    reachPlaceLeaderboard: "Reach %sst place in the leaderboard"
     reachTokens: "Get %s tokens"
     upvote: "Upvote GamesROB on DBL %s times"
 
@@ -222,8 +224,6 @@ game:
     unfair: "This is unfair!"
     overconfident: "Overconfident"
     stubborn: "Stubborn"
-
-    winnerWinnerChickenDinner: "Winner winner chicken dinner"
 
     mediumClass: "Medium Class"
     upperClass: "Upper Class"
@@ -255,6 +255,10 @@ command:
     checkItOut: "Check it out"
 
     description: "Learn more about our partnered bot IdleRPG!"
+
+  support:
+    message: "If you're having trouble with the bot, want to suggest features, get notified when the bot updates or just want to talk to other people who use it, check out our support server:\nhttps://discord.gg/xajeDYR"
+    description: "Gives you a link to the bot's support server"
 
   slots:
     matchHeader: "Rolling for 🔸 %s tokens..."
@@ -317,8 +321,16 @@ command:
     collectiveMatch: "This is a collective match, you can just go ahead and play!"
 
     description: "Joins a match on the current channel"
+  leave:
+    creator: "You are the match creator, use `%sstop` to stop the match."
+    notInMatch: "You aren't in that match!"
+    cantLeave: "This match can't be left."
+    message: "%s has left the match.\n"
+
+    description: "Leaves your current match"
   stop:
     matchStopped: "⏹ Match stopped by %s"
+    response: "The match has been stopped."
     description: "Forces a stop the current match"
   listplayers:
     header: "**%s Match**\n%s\n\n"
@@ -332,12 +344,12 @@ command:
     websiteLink: "View everything in our site"
     description: "View the leaderboard!"
   profile:
-    playerStats: "**%s**'s Statistics:\n"
-    overall: "%s **Overall Stats**: %s\n\n"
-    statsString: "%s%s Wins, %s Losses (%s W/L Ratio), %s Games Played"
-    place: "place"
+    overall: "Overall"
+    line1: "%s place"
+    line2: "%s wins, %s losses"
+    line3: "(%s%% Ratio)"
+
     description: "View your profile, or someone else's!"
-    notRanked: "Not ranked"
   emote:
     set: "Your emoji has been set! %s"
     reset: "Your emoji has been reset!"
@@ -356,7 +368,9 @@ command:
     beginning: "**<:GamesROBNew:456913958457049109> GamesROB v%s** *by deprilula28*\n"
     subCategory2: "\nUse `%%PREFIX%%help command` to get information about a command (e.g. `%%PREFIX%%help slots`).\nReact with a category's emote to view all its commands.\nArguments `<in these>` are obligatory, while arguments `[in these]` are optional. You don't actually use them in the command (e.g. `%%PREFIX%%slots 10`)"
     commandInfo: "`%s%s`: %s\nAliases: %s\nCategory: %s"
-    gameInfo: "`%s%s`: %s\n\n**Long Description**\n%s\n\nAliases: %s\nMore information: %s"
+    gameInfo2: "`%s%s`: %s\n\n**Long Description**\n%s\n\n**Settings:**\n%s\n\n%sAliases: %s\nMore information: %s"
+    modes: "**Modes:**\n%s\n\n"
+    setting: "`%s` (Values %s - %s / Default %s)"
     recentUpdate: "<:update:264184209617321984> The bot has recently received an update! `v%s`\nCheck out the changes with `%schangelog`."
     categories:
       games: "Games"

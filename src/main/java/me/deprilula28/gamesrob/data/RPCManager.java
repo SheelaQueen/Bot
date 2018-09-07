@@ -2,7 +2,6 @@ package me.deprilula28.gamesrob.data;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import com.google.gson.JsonPrimitive;
 import com.google.gson.annotations.SerializedName;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -77,7 +76,7 @@ public class RPCManager extends WebSocketClient {
     public static enum RequestType {
         // Server -> Client
         WEBHOOK_NOTIFICATION, GET_USER_BY_ID, GET_GUILD_BY_ID, GET_MUTUAL_SERVERS, GET_SHARDS_INFO, OWNER_LIST_UPDATED,
-        BOT_UDPATED, IS_OWNER,
+        BOT_UPDATED, BOT_RESTARTED, IS_OWNER,
 
         // Client -> Server
         GET_ALL_SHARDS_INFO, BOT_UPDATE, OWNER_LIST_UPDATE
@@ -217,8 +216,13 @@ public class RPCManager extends WebSocketClient {
             return null;
         });
 
-        handlerMap.put(RequestType.BOT_UDPATED, url -> {
+        handlerMap.put(RequestType.BOT_UPDATED, url -> {
             Log.wrapException("Updating bot from RPC request", () -> OwnerCommands.update(url.getAsString(), Log::info));
+            return null;
+        });
+        handlerMap.put(RequestType.BOT_RESTARTED, url -> {
+            Log.info("Bot restarting as RPC server request.");
+            System.exit(-1);
             return null;
         });
     }

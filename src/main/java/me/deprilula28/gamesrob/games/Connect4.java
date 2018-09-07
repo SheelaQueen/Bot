@@ -78,7 +78,7 @@ public class Connect4 extends TurnMatchHandler {
         String matcher = GameUtil.detectVictory(board, rows, columns - 1, 1, tiles - 2);
         if (matcher == null) return false;
 
-        boolean reverse = match.getMode().isPresent() && match.getMode().get().getLanguageCode().equals("reversec4");
+        boolean reverse = match.isMode("reversec4");
         Player matcherPlayer = itemPlayers.get(matcher);
         return GameUtil.gameEnd(reverse, matcherPlayer, alive, match);
     }
