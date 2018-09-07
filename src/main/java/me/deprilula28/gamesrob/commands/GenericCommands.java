@@ -26,6 +26,8 @@ import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static me.deprilula28.gamesrob.commands.Tokens.ENTRIES_PAGE;
+
 public class GenericCommands {
     public static String ping(CommandContext context) {
         long youToBotPing = System.currentTimeMillis() - context.getMessage().getCreationTime().toInstant().toEpochMilli();
@@ -206,7 +208,8 @@ public class GenericCommands {
                 it.append(Language.transl(context, "command.upvote.info",
                         Utility.formatPeriod(System.currentTimeMillis() - profile.getLastUpvote()),
                         profile.getUpvotedDays(), Utility.formatTime(profile.getLastUpvote() + TimeUnit.DAYS.toMillis(2)),
-                        upvotes, Utility.formatPeriod(System.currentTimeMillis() - 1533254400000L)));
+                        upvotes, Utility.formatPeriod(System.currentTimeMillis() - 1533254400000L),
+                        Constants.getPrefix(context.getGuild())));
             }
             if (System.currentTimeMillis() - profile.getLastUpvote() > TimeUnit.HOURS.toMillis(12)) {
                 it.append(Language.transl(context, "command.upvote.messageCanVote",
@@ -217,5 +220,20 @@ public class GenericCommands {
             }
         });
         return null;
+    }
+
+    public static String upvoteHistory(CommandContext context) {
+        UserProfile profile = UserProfile.get(context.getAuthor());
+        int page = context.opt(context::nextInt).orElse(1);
+        int elements = profile.getTransactionAmount();
+        int pages = (elements / ENTRIES_PAGE) + 1;
+        if (page <= 0 || page > pages) return Language.transl(context, "command.baltop.invalidPage", 1, pages);
+
+        return Language.transl(context, "command.upvote.history.title") +
+                profile.getTransactions(ENTRIES_PAGE, (page - 1) * ENTRIES_PAGE, Optional.of("upvote"))
+                        .stream().map(it -> String.format("%s +\uD83D\uDD36 %s tokens",
+                        Utility.formatPeriod(System.currentTimeMillis() - it.getTime()), it.getAmount()
+                )).collect(Collectors.joining("\n")) + Language.transl(context, "command.upvote.history.footer",
+                        ENTRIES_PAGE, page, pages, Constants.getPrefix(context.getGuild()));
     }
 }

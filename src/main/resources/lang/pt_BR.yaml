@@ -397,9 +397,13 @@ command:
     message: "Se estiver tendo problemas com o bot, quer sugerir funcionalidades, ser notificado quando atualizamos o bot ou quer conversar com outras pessoas que o usam, entre no nosso servidor de suporte:\nhttps://discord.gg/xajeDYR"
     description: "Te dá um link para o servidor de suporte do bot"
   upvote:
-    info: "Votado pela Ùltima Vez: %s\nVotos em Seguida: %s (Perderá %s)\nVotou %s vezes desde %s (Veja seu histórico com `%supvote history`)\n"
+    info: "Votado pela Ùltima Vez: %s\nVotos em Seguida: %s dias (Perderá %s)\nVotou %s vezes desde %s (Veja seu histórico com `%supvote history`)\n"
     messageCanVote: "Você pode votar para o bot para 🔸 %s tokens!"
     clickToVote: "Clique para ir para a página de voto"
+
+    history:
+      title: "**Seus últimos votos:**\n"
+      footer: "\nMostrando %s itens por página | Página %s de %s\nVeja outra página com `%supvote history <page>`."
 
     description: "Te dá informações sobre seus últimos votos."
 

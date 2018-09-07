@@ -151,7 +151,7 @@ public class Tokens {
         } else return Language.transl(context, "command.tokens.other", target.getName(), Utility.addNumberDelimitors(tokens)) + baltopMessage;
     }
 
-    private static final int ENTRIES_PAGE = 10;
+    public static final int ENTRIES_PAGE = 10;
 
     public static String baltop(CommandContext context) {
         Optional<String> next = context.opt(context::next);

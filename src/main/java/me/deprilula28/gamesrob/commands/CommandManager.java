@@ -166,6 +166,15 @@ public class CommandManager {
                 ctx -> ctx.getAuthorMember().hasPermission(Permission.MANAGE_SERVER)))
                 .attr("category", "servercommands").setUsage("setprefix <Prefix>");
 
+        f.command("upvote upvotes vote votes upvoteinfo voteinfo up ups daily", GenericCommands::upvote, cmd -> {
+            cmd.sub("set setdays", OwnerCommands.tokenCommand((profile, days) -> {
+                profile.setUpvotedDays(days);
+                profile.setLastUpvote(System.currentTimeMillis());
+            }, "command.upvote.setdays"));
+
+            cmd.sub("history his lastvotes", GenericCommands::upvoteHistory).setUsage("upvote history <page>");
+        }).attr("category", "servercommands");
+
         // Match
         f.command("leave l lv leavegame lg leavematch lm quit", MatchCommands::leave).attr("cateogry", "matchcommands");
 
@@ -206,8 +215,6 @@ public class CommandManager {
 
         f.command("support bug report glitch bugs error glitches errors server", messageCommand())
                 .attr("category", "infocommands");
-
-        f.command("upvote upvotes vote votes upvoteinfo voteinfo up ups daily", GenericCommands::upvote);
 
         f.command("help h halp games what wat uwot uwotm8 uwotm9  wtf tf ... ivefallenandicantgetup whatisgoingon " +
                 "imscared commands cmds imgoingtoexplode please~~sendnudes~~*help*me ineedassistance", CommandManager::help, cmd -> {
