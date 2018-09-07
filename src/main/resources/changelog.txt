@@ -1,5 +1,8 @@
-- The match creator can now stop the match.
 - Added `g*leave` back in! You can now use it if you're not the match creator to leave the match.
+- Added `g*support` which links to our server.
+- Added `g*upvote` which informs you of your upvote streak and other information.
+
+- The match creator can now stop the match.
 - `g*profile` now sends a fancy image! You'll be able to change the background in the future.
 - Changed detective for killers to pick who to kill with A/B/C thing.
 - Removed the reach leaderboard position achievement. It's not like it worked anyway...

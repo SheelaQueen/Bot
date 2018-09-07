@@ -243,7 +243,7 @@ public class Tokens {
         if (page <= 0 || page > pages) return Language.transl(context, "command.baltop.invalidPage", 1, pages);
 
         return Language.transl(context, "command.tokens.transactions.title") +
-                profile.getTransactions(ENTRIES_PAGE, (page - 1) * ENTRIES_PAGE).stream().map(it -> String.format(
+                profile.getTransactions(ENTRIES_PAGE, (page - 1) * ENTRIES_PAGE, Optional.empty()).stream().map(it -> String.format(
                         "%s\uD83D\uDD36 %s tokens `%s` (%s)",
                         it.getAmount() >= 0 ? "+" : "-", Utility.addNumberDelimitors(Math.abs(it.getAmount())),
                         Language.transl(context, it.getMessage()), Utility.formatTime(it.getTime())

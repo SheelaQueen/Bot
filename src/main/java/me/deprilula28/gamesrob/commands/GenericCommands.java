@@ -5,6 +5,7 @@ import me.deprilula28.gamesrob.GamesROB;
 import me.deprilula28.gamesrob.Language;
 import me.deprilula28.gamesrob.data.GuildProfile;
 import me.deprilula28.gamesrob.data.Statistics;
+import me.deprilula28.gamesrob.data.UserProfile;
 import me.deprilula28.gamesrob.utility.Constants;
 import me.deprilula28.gamesrob.utility.Utility;
 import me.deprilula28.jdacmdframework.CommandContext;
@@ -12,6 +13,7 @@ import me.deprilula28.jdacmdframework.CommandFramework;
 import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.JDA;
 import net.dv8tion.jda.core.JDAInfo;
+import net.dv8tion.jda.core.MessageBuilder;
 import net.dv8tion.jda.core.entities.MessageEmbed;
 import net.dv8tion.jda.core.events.message.guild.react.GuildMessageReactionAddEvent;
 
@@ -19,6 +21,8 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -191,5 +195,27 @@ public class GenericCommands {
         profile.setEdited(true);
 
         return Language.transl(context, "command.setprefix.message");
+    }
+
+    public static String upvote(CommandContext context) {
+        UserProfile profile = UserProfile.get(context.getAuthor());
+
+        context.send(it -> {
+            if (profile.getLastUpvote() != 0) {
+                int upvotes = profile.getTransactionAmount(Optional.of("upvote"));
+                it.append(Language.transl(context, "command.upvote.info",
+                        Utility.formatPeriod(System.currentTimeMillis() - profile.getLastUpvote()),
+                        profile.getUpvotedDays(), Utility.formatTime(profile.getLastUpvote() + TimeUnit.DAYS.toMillis(2)),
+                        upvotes, Utility.formatPeriod(System.currentTimeMillis() - 1533254400000L)));
+            }
+            if (System.currentTimeMillis() - profile.getLastUpvote() > TimeUnit.HOURS.toMillis(12)) {
+                it.append(Language.transl(context, "command.upvote.messageCanVote",
+                        125 + profile.getUpvotedDays() * 50 * (Utility.isWeekendMultiplier() ? 2 : 1)));
+                it.setEmbed(new EmbedBuilder().setTitle(Language.transl(context, "command.upvote.clickToVote"),
+                        Constants.getDblVoteUrl(context.getJda(), "upvoteCommand"))
+                        .setColor(Utility.getEmbedColor(context.getGuild())).build());
+            }
+        });
+        return null;
     }
 }

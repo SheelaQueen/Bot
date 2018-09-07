@@ -204,6 +204,11 @@ public class CommandManager {
                 "shards getshards viewshards seeshards checkshards", GenericCommands::shardsInfo)
                 .attr("category", "infocommands");
 
+        f.command("support bug report glitch bugs error glitches errors server", messageCommand())
+                .attr("category", "infocommands");
+
+        f.command("upvote upvotes vote votes upvoteinfo voteinfo up ups daily", GenericCommands::upvote);
+
         f.command("help h halp games what wat uwot uwotm8 uwotm9  wtf tf ... ivefallenandicantgetup whatisgoingon " +
                 "imscared commands cmds imgoingtoexplode please~~sendnudes~~*help*me ineedassistance", CommandManager::help, cmd -> {
             cmd.sub("back bbbb bbb bb b aaaa aaa aa a cccc ccc cc c kkkk kkk kk k bac bccc bcck " +
@@ -251,9 +256,6 @@ public class CommandManager {
 
             for (int i = 1; i < EMOTE_LIST.size(); i++) cmd.reactSub(EMOTE_LIST.get(i), CATEGORIES[i]);
         }).reactSub("⬅", "back").attr("category", "infocommands");
-
-        f.command("support bug report glitch bugs error glitches errors server", messageCommand())
-                .attr("category", "infocommands");
 
         f.getCommands().forEach(cur -> {
             String category = cur.attr("category");

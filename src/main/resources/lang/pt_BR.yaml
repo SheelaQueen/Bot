@@ -238,10 +238,6 @@ command:
   idlerpg:
     description: "Saiba mais sobre nosso parceiro IdleRPG!"
 
-  support:
-    message: "Se estiver tendo problemas com o bot, quer sugerir funcionalidades, ser notificado quando atualizamos o bot ou quer conversar com outras pessoas que o usam, entre no nosso servidor de suporte:\nhttps://discord.gg/xajeDYR"
-    description: "Te dá um link para o servidor de suporte do bot"
-
   slots:
     matchHeader: "Apostando 🔸 %s tokens..."
     matchEnd: "Você %s 🔸 %s tokens!"
@@ -397,6 +393,15 @@ command:
   changelog:
     text: "**GamesROB v%s**\nDe %s\n\n%s\n\n*Normalmente atualizamos toda sexta-feita, fazendo a próxima %s.*\n*Você pode sugerir funcionalidades e reportar bugs no nosso servidor: %s*"
     description: "Mostra todas as novidades da última atualização."
+  support:
+    message: "Se estiver tendo problemas com o bot, quer sugerir funcionalidades, ser notificado quando atualizamos o bot ou quer conversar com outras pessoas que o usam, entre no nosso servidor de suporte:\nhttps://discord.gg/xajeDYR"
+    description: "Te dá um link para o servidor de suporte do bot"
+  upvote:
+    info: "Votado pela Ùltima Vez: %s\nVotos em Seguida: %s (Perderá %s)\nVotou %s vezes desde %s (Veja seu histórico com `%supvote history`)\n"
+    messageCanVote: "Você pode votar para o bot para 🔸 %s tokens!"
+    clickToVote: "Clique para ir para a página de voto"
+
+    description: "Te dá informações sobre seus últimos votos."
 
   perm:
     invalidPerm: "Permissão inválida!"

@@ -256,10 +256,6 @@ command:
 
     description: "Learn more about our partnered bot IdleRPG!"
 
-  support:
-    message: "If you're having trouble with the bot, want to suggest features, get notified when the bot updates or just want to talk to other people who use it, check out our support server:\nhttps://discord.gg/xajeDYR"
-    description: "Gives you a link to the bot's support server"
-
   slots:
     matchHeader: "Rolling for 🔸 %s tokens..."
     matchEnd: "You %s 🔸 %s tokens!"
@@ -427,7 +423,16 @@ command:
     description: "🗄 *Debug* View a shard information dump"
   changelog:
     text: "**GamesROB v%s**\nFrom %s\n\n%s\n\n*Updates are usually scheduled for every friday, making the next update %s.*\n*You can suggest features and bug fixes in our server: %s*"
-    description: "Shows all the changes on the latest update."
+    description: "Shows all the changes on the latest update"
+  support:
+    message: "If you're having trouble with the bot, want to suggest features, get notified when the bot updates or just want to talk to other people who use it, check out our support server:\nhttps://discord.gg/xajeDYR"
+    description: "Gives you a link to the bot's support server"
+  upvote:
+    info: "Last upvoted: %s\nCurrent Streak: %s (Lost %s)\nUpvoted %s times since %s (View your history with `%supvote history`)\n"
+    messageCanVote: "You can upvote the bot for 🔸 %s tokens!"
+    clickToVote: "Click to go to the upvote page"
+
+    description: "Gives you information about your last upvotes"
 
   perm:
     invalidPerm: "Invalid permission!"

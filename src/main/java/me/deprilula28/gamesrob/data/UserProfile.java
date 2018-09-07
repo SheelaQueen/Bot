@@ -80,12 +80,26 @@ public class UserProfile {
         })));
     }
 
-    public List<Transaction> getTransactions(int limit, int offset) {
+    public int getTransactionAmount(Optional<String> transactionMessage) {
+        if (!GamesROB.database.isPresent()) return 0;
+        return Cache.get("transactions_amount_" + userId + "_" + transactionMessage.orElse("all"), it -> {
+            try {
+                return GamesROB.database.get().getSize("transactions", "userid = '" + userId + "'" +
+                        transactionMessage.map(str -> " AND message = " + TRANSACTION_MESSAGES.indexOf(str))
+                                .orElse(""));
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+        });
+    }
+
+    public List<Transaction> getTransactions(int limit, int offset, Optional<String> transactionMessage) {
         if (!GamesROB.database.isPresent()) return new ArrayList<>();
-        return Cache.get("transactions_" + userId + "_" + limit + "_" + offset, it -> {
+        return Cache.get("transactions_" + userId + "_" + limit + "_" + offset + "_" + transactionMessage.orElse("all"), it -> {
             try {
                 ResultSet set = GamesROB.database.get().select("transactions", Arrays.asList("amount", "time", "message"),
-                        "userid = '" + userId + "'", "time", true, limit, offset);
+                        "userid = '" + userId + "'" + transactionMessage.map(str -> " AND message = " +
+                                TRANSACTION_MESSAGES.indexOf(str)).orElse(""), "time", true, limit, offset);
                 List<Transaction> transactions = new ArrayList<>();
 
                 while (set.next()) transactions.add(new Transaction(
