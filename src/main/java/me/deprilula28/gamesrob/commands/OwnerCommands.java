@@ -85,6 +85,33 @@ public class OwnerCommands {
                 "`Discord Bots`: " + BootupProcedure.getLastDbotsRequest();
     }
 
+    public static String badges(CommandContext context) {
+        if (!GamesROB.owners.contains(context.getAuthor().getIdLong())) return Language.transl(context,
+                "genericMessages.ownersOnly");
+
+        String language = Constants.getLanguage(context);
+        String thing = context.next();
+        User user = context.nextUser();
+        UserProfile profile = UserProfile.get(user);
+
+        if (thing.equalsIgnoreCase("add")) {
+            UserProfile.Badge badge = UserProfile.Badge.valueOf(context.next().toUpperCase());
+            profile.addBadge(badge);
+            return "Added badge " + badge.getName(language) + " to " + user.getAsMention() + ".";
+        } else if (thing.equalsIgnoreCase("remove")) {
+            UserProfile.Badge badge = UserProfile.Badge.valueOf(context.next().toUpperCase());
+            profile.getBadges().remove(badge);
+            return "Removed badge " + badge.getName(language) + " to " + user.getAsMention() + ".";
+        } else if (thing.equalsIgnoreCase("view")) {
+            int encoded = Utility.encodeBinary(profile.getBadges(), UserProfile.Badge.class);
+            return "" + user.getAsMention()
+                    + "'s badges:\n`0x" + Integer.toBinaryString(encoded) + "` " +  encoded + "\n"
+                    + profile.getBadges().stream().map(it -> it.getName(language))
+                    .collect(Collectors.joining("\n"));
+        }
+        else throw new InvalidCommandSyntaxException();
+    }
+
     public static String cache(CommandContext context) {
         if (!GamesROB.owners.contains(context.getAuthor().getIdLong())) return Language.transl(context,
                 "genericMessages.ownersOnly");

@@ -3,6 +3,7 @@ package me.deprilula28.gamesrob.data;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import me.deprilula28.gamesrob.GamesROB;
+import me.deprilula28.gamesrob.Language;
 import me.deprilula28.gamesrob.achievements.AchievementType;
 import me.deprilula28.gamesrob.baseFramework.GamesInstance;
 import me.deprilula28.gamesrob.commands.CommandManager;
@@ -33,10 +34,24 @@ public class UserProfile {
     private long lastUpvote;
     private int upvotedDays;
     private String backgroundImageUrl;
+    private List<Badge> badges;
     private boolean edited = false;
 
     public LeaderboardHandler.UserStatistics getStatsForGuild(Guild guild) {
         return GuildProfile.get(guild).getLeaderboard().getStatsForUser(userId);
+    }
+
+    @AllArgsConstructor
+    public static enum Badge {
+        HIGHEST_BALTOP_1ST("highestBaltop1st"), HIGHEST_BALTOP_2ND("highestBaltop2nd"), HIGHEST_BALTOP_3RD("highestBaltop3rd"),
+        GLOBAL_BALTOP_TOP_10("globalBaltopTop10"), STAFF("staff"), TRANSLATOR("translator"), PATRON("patron"),
+        ACHIEVER("achiever"), DEVELOPER("developer");
+
+        private String languageCode;
+
+        public String getName(String language) {
+            return Language.transl(language, "badges." + languageCode);
+        }
     }
 
     @Data
@@ -64,6 +79,10 @@ public class UserProfile {
     private static final List<String> TRANSACTION_MESSAGES = Arrays.asList(
             "upvote", "completeAchievement", "cheater", "give", "got", "winGamePrize", "betting", "slots", "changingEmote"
     );
+
+    public void addBadge(Badge badge) {
+        if (!badges.contains(badge)) badges.add(badge);
+    }
 
     public void addTokens(int amount, String message) {
         if (CommandManager.getBlacklist(userId).isPresent()) return;
@@ -159,7 +178,7 @@ public class UserProfile {
         @Override
         public Optional<UserProfile> getFromSQL(SQLDatabaseManager db, String from) throws Exception {
             ResultSet select = db.select("userData", Arrays.asList("emote", "language", "tokens", "lastupvote",
-                    "upvoteddays", "profilebackgroundimgurl"),
+                    "upvoteddays", "profilebackgroundimgurl", "badges"),
                     "userid = '" + from + "'");
             if (select.next()) return fromResultSet(from, select);
             select.close();
@@ -170,7 +189,8 @@ public class UserProfile {
         @Override
         public Utility.Promise<Void> saveToSQL(SQLDatabaseManager db, UserProfile value) {
             return db.save("userData", Arrays.asList(
-                    "emote", "userId", "tokens", "lastupvote", "upvoteddays", "language", "profilebackgroundimgurl"
+                    "emote", "userId", "tokens", "lastupvote", "upvoteddays", "language", "profilebackgroundimgurl",
+                    "badges"
             ), "userid = '" + value.getUserId() + "'",
                 set -> !value.isEdited(), true,
                 (set, it) -> Log.wrapException("Saving data on SQL", () -> write(it, value)));
@@ -181,7 +201,8 @@ public class UserProfile {
                 return Optional.of(new UserProfile(from, select.getString("emote"),
                         select.getString("language"), select.getInt("tokens"),
                         select.getLong("lastupvote"), select.getInt("upvoteddays"),
-                        select.getString("profilebackgroundimgurl"), false));
+                        select.getString("profilebackgroundimgurl"),
+                        Utility.decodeBinary(select.getInt("badges"), Badge.class), false));
             } catch (Exception e) {
                 Log.exception("Saving UserProfile in SQL", e);
                 return Optional.empty();
@@ -196,6 +217,7 @@ public class UserProfile {
             statement.setInt(5, profile.getUpvotedDays());
             statement.setString(6, profile.getLanguage());
             statement.setString(7, profile.getBackgroundImageUrl());
+            statement.setInt(8, Utility.encodeBinary(profile.getBadges(), Badge.class));
         }
 
         private void saveStatistics(DataOutputStream stream, GameStatistics stats) throws Exception {
@@ -207,7 +229,7 @@ public class UserProfile {
         @Override
         public UserProfile createNew(String from) {
             return new UserProfile(from, null, null, 0, 0, 0,
-                    null, false);
+                    null, new ArrayList<>(), false);
         }
 
         @Override

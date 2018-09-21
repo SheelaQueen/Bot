@@ -140,12 +140,11 @@ public class Match extends Thread {
         Statistics.get().registerGame(game);
 
         matchHandler.begin(this, no -> {
-            MessageBuilder builder = new MessageBuilder().append(Language.transl(language, "gameFramework.collectiveMatch",
+            MessageBuilder builder = new MessageBuilder().append(Language.transl(language, "gameFramework.collectiveMatch2",
                     game.getName(language), game.getLongDescription(language)
             ));
             matchHandler.updatedMessage(false, builder);
             matchMessage = RequestPromise.forAction(channel.sendMessage(builder.build()));
-            matchMessage.then(message -> message.addReaction("\uD83D\uDC65").queue());
 
             return matchMessage;
         });
@@ -381,19 +380,6 @@ public class Match extends Thread {
     /*
     Reactions
      */
-    public void collectiveReacion(CommandContext context) {
-        if (!game.getGameType().equals(GameType.COLLECTIVE) || !context.getAuthor().equals(creator)) {
-            throw new InvalidCommandSyntaxException();
-        }
-
-        playMore = true;
-        matchMessage.then(it -> it.getReactions().stream().filter(reaction -> reaction.getReactionEmote().getName().equals("\uD83D\uDC65"))
-                .findFirst().ifPresent(joystick -> joystick.removeReaction(joystick.getJDA().getSelfUser()).queue()));
-        MessageBuilder builder = new MessageBuilder();
-        matchHandler.updatedMessage(false, builder);
-        matchMessage.then(it -> it.editMessage(builder.build()).queue());
-    }
-
     public void joinReaction(CommandContext context) {
         if (Match.PLAYING.containsKey(context.getAuthor()) || getPlayers().contains(Player.user(context.getAuthor()))
                 || (betting.isPresent() &&
@@ -468,15 +454,15 @@ public class Match extends Thread {
     }
 
     public void onEnd(Player winner) {
-        onEnd(winner, Constants.MATCH_WIN_TOKENS);
+        onEnd(winner, players.stream().anyMatch(it -> it.getUser().isPresent()) ? 0 : Constants.MATCH_WIN_TOKENS);
     }
 
-    public void onEnd(Player winner, int tokens) {
+    private void onEnd(Player winner, int tokens) {
         players.forEach(cur ->
             cur.getUser().ifPresent(user -> {
                 UserProfile userProfile = UserProfile.get(user);
                 boolean victory = winner.equals(Player.user(user));
-                userProfile.registerGameResult(channelIn.getGuild(), user, victory, !victory, game);
+                if (tokens != 0) userProfile.registerGameResult(channelIn.getGuild(), user, victory, !victory, game);
 
                 if (winner.equals(cur)) {
                     int won = betting.map(it -> it * players.size()).orElse(tokens);

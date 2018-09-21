@@ -121,14 +121,16 @@ public class TicTacToe extends TurnMatchHandler {
         return builder.toString();
     }
 
-    private static final int AI_MAX_LAYERS = 8;
+    private static final int AI_MAX_LAYERS = 4;
 
     @Override
     public void handleAIPlay() {
         String tile = playerItems.get(getTurn());
         int playTile = MinMaxAI.use(processor(tile, board, (turn + 1) >= getPlayers().size() ? 0 : turn + 1, 0));
 
-        if (!board.get(playTile).isPresent()) board.set(playTile, Optional.of(tile));
+        if (playTile < 0 || playTile >= board.size() || board.get(playTile).isPresent()) board.stream()
+                .filter(Optional::isPresent).findFirst().ifPresent(it -> board.set(board.indexOf(it), Optional.of(tile)));
+        else board.set(playTile, Optional.of(tile));
         detectVictory();
     }
 
@@ -141,11 +143,10 @@ public class TicTacToe extends TurnMatchHandler {
                 }
 
                 List<Optional<String>> clonedBoard = new ArrayList<>(board);
-
                 clonedBoard.set(i, Optional.of(emote));
 
                 if (clonedBoard.stream().allMatch(Optional::isPresent)) {
-                    branch.node(0.5);
+                    branch.node(0.0);
                     continue;
                 }
 
@@ -154,9 +155,7 @@ public class TicTacToe extends TurnMatchHandler {
                     if (layer >= AI_MAX_LAYERS) branch.node(0.0);
                     else branch.walk(processor(playerItems.get(getPlayers().get(nturn)), clonedBoard,
                             (nturn + 1) >= getPlayers().size() ? 0 : nturn + 1, layer + 1));
-                    continue;
-                }
-                branch.node(winner.equals(emote) ? 1.0 : 0.0);
+                } else branch.node(1.0);
             }
         };
     }

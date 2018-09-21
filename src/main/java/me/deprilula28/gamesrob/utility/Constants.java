@@ -80,9 +80,8 @@ public class Constants {
     }
 
     public static String getPrefixHelp(Guild guild) {
-        String result = getPrefix(guild).replaceAll("\\$", "\uFF04").replaceAll("\\\\", "\\\\\\\\");
-        Log.trace(result);
-        return result;
+        return getPrefix(guild).replaceAll("\\$", "\uFF04")
+                .replaceAll("\\\\", "\\\\\\\\");
     }
 
     public static String getInviteURL(JDA jda) {

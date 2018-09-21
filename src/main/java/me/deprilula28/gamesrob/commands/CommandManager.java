@@ -1,6 +1,7 @@
 package me.deprilula28.gamesrob.commands;
 
 import com.sun.org.apache.bcel.internal.classfile.Code;
+import javafx.util.Pair;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import me.deprilula28.gamesrob.GamesROB;
@@ -90,39 +91,6 @@ public class CommandManager {
 
         // Tokens
         f.command("slots c slot lotto lottery gamble gmb gmbl", Slots::slotsGame).attr("category", "tokencommands").setUsage("slots <amount/all>");
-        f.command("tokens t tk tks tok toks viewtokens viewtk viewtks viewtok viewtoks viewt gettokens gettk gettks " +
-                "gettok gettoks gett tokenamount tkamount tokamount tamount bal balance viewbalance money cash $ " +
-				"dollars dollar bucks BTC ETH XRP BCH EOS XLM TC ADA USDT XMR TRX MIOTA DASH ETC NEO BNB XEM XTZ " +
-				"ZEC OMG VET ZRX QTUM DCR BTG BCN LSK MKR BTS ZIL DGB DOGE AE ICX STEEM MOAC REP ONT SC XVG BCD " +
-				"WAVES BTM RHOC GNT KCS TRAT PPT NPXS ﷼ ₾ ₽ ₼ ₺ ₹ ₸ ₵ ₴ ₲ ₱ ₮ ₭ € ₫ ₩ ₨ ₧ ₦ ₡ ฿ ֏ դր. лв дин " +
-				"ден ƒ ¥ 元 £ $ USD BRL PHP сўм ரூ  රු  robux RUB R$ Kč C$ B/. ރ imjuanrichboiiiilmaoxd ",
-                Tokens::tokens, cmd -> {
-            cmd.sub("a add p addition additions additive plus insertplussignhere + U+002B hax",
-                    OwnerCommands.tokenCommand((profile, tokens) -> profile.addTokens(tokens, "transactions.cheater"),
-                            "command.tokens.add"));
-            cmd.sub("r take k d takeaway minus delete remove - rem eternal_sadness_dot_jpeg remisabadbot cheat",
-                    OwnerCommands.tokenCommand((profile, tokens) -> profile.addTokens(-tokens, "transactions.cheater"),
-                            "command.tokens.remove"));
-            cmd.sub("s set e hak", OwnerCommands.tokenCommand((profile, tokens) -> {
-                profile.setTokens(tokens);
-                profile.setEdited(true);
-            }, "command.tokens.set"));
-
-            cmd.sub("t transactions tr taxes do_your_taxes transactts payments bought history salary view", Tokens::transactions);
-            // Giving tokens
-            cmd.sub("g give pay repay giveto send sendnudes", context -> {
-                User target = context.nextUser();
-                if (getBlacklist(target.getId()).isPresent()) return Language.transl(context, "command.tokens.giveInvalidUser");
-                int amount = context.nextInt();
-                if (amount < 10 || amount > 5000) return Language.transl(context,"command.tokens.giveInvalidAmount", 10, 5000);
-
-                if (!UserProfile.get(context.getAuthor()).transaction(amount, "transactions.give"))
-                    return Constants.getNotEnoughTokensMessage(context, amount);
-                UserProfile.get(target).addTokens(amount, "transactions.got");
-
-                return Language.transl(context, "command.tokens.give", context.getAuthor().getAsMention(), target.getAsMention(), amount);
-            }).setUsage("g*token give <user> <amount>");
-        }).attr("category", "tokencommands").setUsage("tokens [user]");
 
         f.command("achievements a achieve achieved achieves ach " +
                 "viewachievements viewachieve viewachieved viewachieves viewach accomplishments accomplished viewaccomplishments " +
@@ -133,9 +101,38 @@ public class CommandManager {
                 .attr("category", "tokencommands").setUsage("baltop [global] [page]");
 
         // Profile Commands
-        f.command("profile p prof getprofile getprof viewprofile viewprof user usr getuser getusr viewuser viewusr " +
-                "player getplayer viewplayers rank pfp", imageCommand(ImageCommands.PROFILE_COMMAND_WIDTH,
-                ImageCommands.PROFILE_COMMAND_HEIGHT, ImageCommands::profile)).attr("category", "profilecommands");
+        f.command("profile p prof getprofile getprof viewprofile viewprof user usr getuser getusr viewuser viewusr \" +\n" +
+                        "player getplayer viewplayers rank tokens token pfptokens t tk tks tok toks viewtokens viewtk viewtks " +
+                        "viewtok viewtoks viewt gettokens gettk gettks gettok gettoks gett tokenamount tkamount tokamount " +
+                        "tamount bal balance viewbalance money cash $ dollars dollar bucks ﷼ ₾ ₽ ₼ ₺ ₹ ₸ ₵ ₴ ₲ ₱ ₮ ₭ € ₫ ₩ " +
+                        "₨ ₧ ₦ ₡ ฿ ֏ դր. лв дин ден ƒ ¥ 元 £ $ USD BRL PHP сўм ரூ  රු  robux RUB R$ Kč C$ B/. ރ imjuanrichboiiiilmaoxd ",
+                imageCommand(ProfileCommands::profile), cmd -> {
+                    cmd.sub("a add p addition additions additive plus insertplussignhere + U+002B hax",
+                            OwnerCommands.tokenCommand((profile, tokens) -> profile.addTokens(tokens, "transactions.cheater"),
+                                    "command.tokens.add"));
+                    cmd.sub("r take k d takeaway minus delete remove - rem eternal_sadness_dot_jpeg remisabadbot cheat",
+                            OwnerCommands.tokenCommand((profile, tokens) -> profile.addTokens(-tokens, "transactions.cheater"),
+                                    "command.tokens.remove"));
+                    cmd.sub("s set e hak", OwnerCommands.tokenCommand((profile, tokens) -> {
+                        profile.setTokens(tokens);
+                        profile.setEdited(true);
+                    }, "command.tokens.set"));
+
+                    cmd.sub("t transactions tr taxes do_your_taxes transactts payments bought history salary view", Tokens::transactions);
+                    // Giving tokens
+                    cmd.sub("g give pay repay giveto send sendnudes", context -> {
+                        User target = context.nextUser();
+                        if (getBlacklist(target.getId()).isPresent()) return Language.transl(context, "command.tokens.giveInvalidUser");
+                        int amount = context.nextInt();
+                        if (amount < 10 || amount > 5000) return Language.transl(context,"command.tokens.giveInvalidAmount", 10, 5000);
+
+                        if (!UserProfile.get(context.getAuthor()).transaction(amount, "transactions.give"))
+                            return Constants.getNotEnoughTokensMessage(context, amount);
+                        UserProfile.get(target).addTokens(amount, "transactions.got");
+
+                        return Language.transl(context, "command.tokens.give", context.getAuthor().getAsMention(), target.getAsMention(), amount);
+                    }).setUsage("g*token give <user> <amount>");
+                }).attr("category", "profilecommands").setUsage("profile [user]");
 
         f.command("userlang u lang language userlanguage mylang mylanguage", LanguageCommands::setUserLanguage).attr("category", "profilecommands");
 
@@ -149,7 +146,7 @@ public class CommandManager {
                         "viewleaderboards checkleaderboards board getboard viewboard checkboard boards getboards checkboards " +
                         "viewboards leader getleader checkleader viewleader leaders getleaders checkleaders viewleaders lb " +
                         "getlb checklb viewlb lbs getlbs checklbs viewlbs top gettop checktop viewtop",
-                LeaderboardCommand::leaderboard).attr("category", "servercommands");
+                imageCommand(LeaderboardCommand::leaderboard)).attr("category", "servercommands");
 
         f.command("guildlang g changeguildlang setguildlang guildlanguage changeguildlanguage setguildlanguage " +
                         "glang changeglang setglang glanguage changeglanguage setglanguage serverlang changeserverlang " +
@@ -281,6 +278,7 @@ public class CommandManager {
         f.command("| cache", OwnerCommands::cache);
         f.command(". servercount srvcount svc", OwnerCommands::servercount);
         f.command("¨ compilelanguage cl", OwnerCommands::compileLanguage);
+        f.command("+ badges badge bdg bg", OwnerCommands::badges);
 
         f.command("0 1 2 3 4 5 6 7 8 9 $ @ whymustyoumentioneveryone fin finmessage finmsg fintime meme memes " +
                 "maymays maymay meemee dankmeme dank", context -> finMessage, command -> {
@@ -328,9 +326,6 @@ public class CommandManager {
 
         f.reactionHandler("\uD83D\uDEAA", context -> {
             if (Match.GAMES.containsKey(context.getChannel())) Match.GAMES.get(context.getChannel()).joinReaction(context);
-        });
-        f.reactionHandler("\uD83D\uDC65", context -> {
-            if (Match.GAMES.containsKey(context.getChannel())) Match.GAMES.get(context.getChannel()).collectiveReacion(context);
         });
         f.reactionHandler("\uD83E\uDD16", context -> {
             if (Match.GAMES.containsKey(context.getChannel())) Match.GAMES.get(context.getChannel()).aiReaction(context);
@@ -461,7 +456,8 @@ public class CommandManager {
 
     public static Command.Executor permissionLock(Command.Executor command, Function<CommandContext, Boolean> func) {
         return context -> {
-            if (!func.apply(context)) return Language.transl(context, "command.permissionLock");
+            if (!func.apply(context) && !GamesROB.owners.contains(context.getAuthor().getIdLong()))
+                return Language.transl(context, "command.permissionLock");
             return command.execute(context);
         };
     }
@@ -470,31 +466,34 @@ public class CommandManager {
 
     @FunctionalInterface
     private static interface ImageCommand {
-        void render(CommandContext context, Graphics2D g2d, Font starlight) throws Exception;
+        Pair<Integer, Integer> render(CommandContext context, Utility.Promise<RenderContext> promise);
     }
 
-    public static Command.Executor imageCommand(int width, int height, ImageCommand command) {
+    @AllArgsConstructor
+    @Data
+    public static class RenderContext {
+        private Graphics2D graphics;
+        private Font starlight;
+        private MessageBuilder message;
+        private int width;
+        private int height;
+    }
+
+    public static Command.Executor imageCommand(ImageCommand command) {
         return context -> {
-            BufferedImage image = new BufferedImage(width, height + TIME_TAKEN_HEIGHT,
+            Utility.Promise<RenderContext> promise = new Utility.Promise<>();
+            Pair<Integer, Integer> dimensions = command.render(context, promise);
+
+            BufferedImage image = new BufferedImage(dimensions.getKey(), dimensions.getValue(),
                     BufferedImage.TYPE_INT_RGB);
             Graphics2D g2d = image.createGraphics();
             g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON); // AA
             g2d.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BICUBIC); // Bicubic Image Interpolation
 
             Font starlight = Constants.getStarlightFont();
-
+            MessageBuilder builder = new MessageBuilder();
             long begin = System.currentTimeMillis();
-            try {
-                command.render(context, g2d, starlight);
-            } catch (Exception e) {
-                throw new RuntimeException(e);
-            }
-            String time = Utility.formatPeriod(System.currentTimeMillis() - begin);
-
-            g2d.setColor(Color.WHITE);
-            g2d.setFont(starlight.deriveFont(14F));
-            g2d.drawString(Language.transl(context, "genericMessages.imagegenTime", time), 10, height
-                    + TIME_TAKEN_HEIGHT / 2);
+            promise.done(new RenderContext(g2d, starlight, builder, dimensions.getKey(), dimensions.getValue()));
 
             List<Closeable> toClose = new ArrayList<>();
             try {
@@ -503,7 +502,8 @@ public class CommandManager {
                 ImageOutputStream ios = ImageIO.createImageOutputStream(os);
                 ImageIO.write(image, "png", ios);
 
-                context.getChannel().sendFile(os.toByteArray(), "imagecommandresult.png").queue();
+                if (builder.isEmpty()) context.getChannel().sendFile(os.toByteArray(), "cooleastereggamirite.png").queue();
+                else context.getChannel().sendFile(os.toByteArray(), "coolimagecommandright.png", builder.build()).queue();
                 toClose.forEach(Utility::quietlyClose);
             } catch (Exception e) {
                 toClose.forEach(Utility::quietlyClose);

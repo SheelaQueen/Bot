@@ -22,6 +22,9 @@ import org.java_websocket.handshake.ServerHandshake;
 
 import java.net.URI;
 import java.util.*;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -132,15 +135,15 @@ public class RPCManager extends WebSocketClient {
     }
 
     public void disconnectThread() {
-        Log.wrapException("Reconnecting to RPC/JSON", () -> {
-            long delay = 3000L;
+        ScheduledExecutorService service = Executors.newSingleThreadScheduledExecutor();
+        disconnectExec(service);
+    }
 
+    private void disconnectExec(ScheduledExecutorService service) {
+        Log.wrapException("Failed to connect to RPC/JSON", () -> {
             Log.info("Attempting reconnect to RPC/JSON...");
-            while (!reconnectBlocking()) {
-                Log.info("RPC/JSON Reconnect failed. Re-attempting in " + Utility.formatPeriod(delay));
-                Thread.sleep(delay);
-                Log.info("Attempting reconnect to RPC/JSON...");
-            }
+            if (reconnectBlocking()) Log.info("Connected sucessfully.");
+            else service.schedule(() -> disconnectExec(service), 3, TimeUnit.SECONDS);
         });
     }
 

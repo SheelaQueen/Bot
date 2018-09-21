@@ -89,9 +89,13 @@ public class GenericCommands {
                                     Utility.formatPeriod(System.currentTimeMillis() - GamesROB.UP_SINCE)
                             ), true)
                     .addField(Language.transl(context, "command.info.embed2.system.title"),
-                            Language.transl(context, "command.info.embed2.system.description",
+                            Language.transl(context, "command.info.embed2.system.description2",
                                     Utility.getRAM(), System.getProperty("os.name"), context.getJda().getShardInfo().getShardId() + 1,
-                                    context.getJda().getShardInfo().getShardTotal(), Utility.formatPeriod(context.getJda().getPing())
+                                    context.getJda().getShardInfo().getShardTotal(), Utility.formatPeriod(context.getJda().getPing()),
+                                    GamesROB.rpc.map(it -> it.isOpen() ? "<:online:313956277808005120>" :
+                                            it.isConnecting() ? "<:invisible:313956277107556352>" :
+                                            it.isClosing() ? "<:dnd:313956276893646850>" : "<:offline:313956277237710868>")
+                                            .orElse("<:offline:313956277237710868>")
                             ), true)
                     .build();
 

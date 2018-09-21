@@ -67,6 +67,18 @@ gameFramework:
 
   rematch: "Clique no :arrows_counterclockwise: para jogar novamente!"
 
+badges:
+  earned: "\nVocê conquistou o distintivo **%s**!\nEle irá aparecer no seu perfil em `%sprofile`."
+  highestBaltop1st: "1º no baltop"
+  highestBaltop1st: "2º no baltop"
+  highestBaltop1st: "3º no baltop"
+  globalBaltopTop10: "Top 10 no baltop global"
+  staff: "Equipe"
+  translator: "Tradutor"
+  patron: "Patrão"
+  achiever: "Conquistador"
+  developer: "Desenvolvedor"
+
 game:
   towncountryriver:
     name: "Stop/Adedonha"
@@ -313,12 +325,25 @@ command:
     websiteLink: "Veja tudo no nosso site"
     description: "Veja a lista de vencedores!"
   profile:
-    playerStats: "Estatísticas de **%s**:\n"
-    overall: "%s **Estatísticas em geral**: %s\n\n"
-    statsString: "%s%s Vitórias, %s Derrotas (%s W/L Ratio), %s Partidas Jogadas"
-    place: "lugar"
+    title: "Perfil (Valores desse servidor)"
+
+    overall: "Em Geral"
+    unranked: "Não Ranqueado"
+    game: "Jogo"
+    position: "Posição"
+    victories: "Vitórias"
+    losses: "Percas"
+    gamesPlayed: "Jogos"
+    winPercent: "%% Ganha"
+
+    tokenGuide: "Leia nosso guia de tokens clicando aqui!"
+    upvote: "Votando para o bot"
+    winMatches: "Vencendo partidas"
+    completeAchievements: "%%PREFIX%%achievements"
+    gambling: "%%PREFIX%%slots"
+    upvoteEmbed: "Ou [clique aqui](%s) para votar para o bot!"
+
     description: "Veja seu perfil, ou de outros!"
-    notRanked: "Sem posição"
   emote:
     set: "Seu emoji foi escolhido! %s"
     reset: "Seu emoji foi resetado!"

@@ -123,7 +123,7 @@ public class Connect4 extends TurnMatchHandler {
         int playCol = MinMaxAI.use(processor(tile, board, (turn + 1) >= getPlayers().size() ? 0 : turn + 1, 0));
         List<Optional<String>> row = board.get(playCol);
         int ln = getLnDrop(row);
-        if (ln >= rows) return;
+        if (ln >= rows || ln < 0) return;
         row.set(ln, Optional.of(tile));
         detectVictory();
     }
@@ -165,9 +165,7 @@ public class Connect4 extends TurnMatchHandler {
                     if (layer >= AI_MAX_LAYERS) branch.node(0.25);
                     else branch.walk(processor(playerItems.get(getPlayers().get(nturn)), clonedBoard,
                             (nturn + 1) >= getPlayers().size() ? 0 : nturn + 1, layer + 1));
-                    continue;
-                }
-                branch.node(winner.equals(emote) ? 1.0 : 0.0);
+                } else branch.node(winner.equals(emote) ? 1.0 : 0.0);
             }
         };
     }

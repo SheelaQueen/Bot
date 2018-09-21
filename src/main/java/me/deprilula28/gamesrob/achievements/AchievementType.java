@@ -1,7 +1,6 @@
 package me.deprilula28.gamesrob.achievements;
 
 import lombok.AllArgsConstructor;
-import lombok.Data;
 import lombok.Getter;
 import me.deprilula28.gamesrob.GamesROB;
 import me.deprilula28.gamesrob.Language;
@@ -12,14 +11,13 @@ import me.deprilula28.gamesrob.utility.Utility;
 import me.deprilula28.jdacmdframework.CommandContext;
 import net.dv8tion.jda.core.MessageBuilder;
 import net.dv8tion.jda.core.entities.Guild;
-import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.entities.User;
 
 import java.sql.ResultSet;
-import java.util.Arrays;
-import java.util.Collections;
+import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.function.Consumer;
+import java.util.stream.Collectors;
 
 @AllArgsConstructor
 public enum AchievementType {
@@ -77,7 +75,9 @@ public enum AchievementType {
                 statement.setInt(2, newAmount);
                 statement.setString(3, profile.getUserId());
 
-                Arrays.stream(Achievements.values()).filter(it -> it.getAchievement().getType().equals(this)).forEach(achievements -> {
+                List<Achievements> achievementsType = Arrays.stream(Achievements.values())
+                        .filter(it -> it.getAchievement().getType().equals(this)).collect(Collectors.toList());
+                achievementsType.forEach(achievements -> {
                     Achievement achievement = achievements.getAchievement();
                     if (prevAmount < achievement.getAmount() && newAmount >= achievement.getAmount()) {
                         // Achievement got!
@@ -94,6 +94,25 @@ public enum AchievementType {
                         REACH_TOKENS.addAmount(tagName, achievement.getTokens(), builder, user, guild, language);
                     }
                 });
+
+                // If last achievement for this type has been completed
+                if (achievementsType.stream().max(Comparator.comparingInt(ac -> ac.getAchievement().getAmount()))
+                        .filter(ac -> prevAmount < ac.getAchievement().getAmount() && newAmount >= ac.getAchievement().getAmount())
+                        .isPresent()) {
+                    Map<AchievementType, Integer> amountTypes = new HashMap<>();
+                    for (AchievementType it : AchievementType.values()) {
+                        if (it.equals(OTHER)) continue;
+                        amountTypes.put(it, it.equals(this) ? newAmount : it.getAmount(user));
+                    }
+
+                    // If all achievements have been completed
+                    if (Arrays.stream(Achievements.values()).allMatch(it -> amountTypes.get(it.getAchievement().getType())
+                            >= it.getAchievement().getAmount())) {
+                        profile.addBadge(UserProfile.Badge.ACHIEVER);
+                        builder.append(Language.transl(language, "badges.earned", UserProfile.Badge.
+                                ACHIEVER.getName(language), Constants.getPrefix(guild)));
+                    }
+                }
             }));
         });
     }

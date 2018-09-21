@@ -305,18 +305,27 @@ public class BootupProcedure {
         */
     };
 
+    private static final String sendChangelogFormat = "<@&%s>\n%s **GamesROB v%s**\nHere's what's new:\n```diff\n%s\n```\n" +
+            "*We schedule updates to be every friday. This means the next update should be %s.\n" +
+            "If you don't want to be notified whenever we update, you can remove the reaction on <#%s>" +
+            " (click it twice if you havent reacted to it).*";
+
+    /*"<@&484522326906503172>\n<:update:264184209617321984> **GamesROB v" + GamesROB.VERSION + " is available!**" +
+                        "\n\nChangelog:\n" + changelog + "\n\n*Updates are usually scheduled for every friday, " +
+                        "making the next update " + Utility.formatTime(Utility.predictNextUpdate()) + ".*\n" +
+                            "If you don't want to get pinged in these messages, you can remove your reaction on <#358451223612882944>."
+                            */
+
     private static final BootupTask sendChangelog = args -> {
         changelog = Utility.readResource("/changelog.txt");
         Statistics statistics = Statistics.get();
         if (!GamesROB.VERSION.equals(statistics.getLastUpdateLogSent()) && Constants.changelogChannel.isPresent()) {
             statistics.setLastUpdateLogSent(GamesROB.VERSION);
             statistics.setLastUpdateLogSentTime(System.currentTimeMillis());
-            GamesROB.getTextChannelById(Constants.changelogChannel.get()).ifPresent(channel ->
-                    channel.sendMessage("<@&484522326906503172>\n<:update:264184209617321984> **GamesROB v" + GamesROB.VERSION + " is available!**" +
-                        "\n\nChangelog:\n" + changelog + "\n\n*Updates are usually scheduled for every friday, " +
-                        "making the next update " + Utility.formatTime(Utility.predictNextUpdate()) + ".*\n" +
-                            "If you don't want to get pinged in these messages, you can remove your reaction on <#358451223612882944>.")
-                        .queue());
+            GamesROB.getTextChannelById(Constants.changelogChannel.get()).ifPresent(channel -> channel.sendMessage(String.format(sendChangelogFormat,
+                "484522326906503172", "<:update:264184209617321984>", GamesROB.VERSION, changelog,
+                Utility.formatTimeRegularFormat(Utility.predictNextUpdate()), "358451223612882944"
+            )).queue());
         }
     };
 

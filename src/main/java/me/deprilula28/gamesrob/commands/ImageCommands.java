@@ -1,92 +1,49 @@
 package me.deprilula28.gamesrob.commands;
 
 import com.github.kevinsawicki.http.HttpRequest;
-import me.deprilula28.gamesrob.GamesROB;
+import javafx.util.Pair;
+import lombok.AllArgsConstructor;
+import lombok.Data;
 import me.deprilula28.gamesrob.Language;
 import me.deprilula28.gamesrob.data.GuildProfile;
-import me.deprilula28.gamesrob.data.LeaderboardHandler;
 import me.deprilula28.gamesrob.data.UserProfile;
 import me.deprilula28.gamesrob.utility.Cache;
 import me.deprilula28.gamesrob.utility.Constants;
-import me.deprilula28.gamesrob.utility.Log;
 import me.deprilula28.gamesrob.utility.Utility;
 import me.deprilula28.jdacmdframework.CommandContext;
+import net.dv8tion.jda.core.EmbedBuilder;
+import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.User;
 
 import javax.imageio.ImageIO;
-import javax.xml.ws.Provider;
 import java.awt.*;
 import java.awt.geom.Ellipse2D;
+import java.awt.geom.Rectangle2D;
 import java.io.InputStream;
 import java.math.BigDecimal;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
+import java.util.concurrent.TimeUnit;
+import java.util.function.Function;
+import java.util.function.Supplier;
+import java.util.stream.Collectors;
 
 public class ImageCommands {
-    private static final int USER_PROFILE_HEIGHT = 150;
-    private static final int USER_PROFILE_WIDTH = 800;
+    public static final int USER_PROFILE_HEIGHT = 150;
+    public static final int USER_PROFILE_WIDTH = 800;
+    public static final int PFP_SIZE = 109;
 
-    private static final int PROFILE_GAMES_IN_LINE = 4;
-    private static final int PROFILE_GAMES_BORDER_PX = 30;
+    private static final Color GUILD_FALLBACK_BACKGROUND_COLOR = new Color(0x2f3136);
 
-    private static final int PROFILE_GAME_LINE_HEIGHT = 30;
-    private static final int PROFILE_GAME_LINE_DISTANCE = 5;
-    private static final int PROFILE_GAME_LINES = 4;
-    private static final int PROFILE_GAME_HEIGHT = (PROFILE_GAME_LINE_HEIGHT * (PROFILE_GAME_LINES + 1) +
-            PROFILE_GAME_LINE_DISTANCE * (PROFILE_GAME_LINES - 1));
-
-    static final int PROFILE_COMMAND_WIDTH = USER_PROFILE_WIDTH + 100;
-    static final int PROFILE_COMMAND_HEIGHT = USER_PROFILE_HEIGHT + PROFILE_GAMES_BORDER_PX * 2 +
-        PROFILE_GAME_HEIGHT * (GamesROB.ALL_GAMES.length + 1) / PROFILE_GAMES_IN_LINE;
-
-    private static final Color GAME_DESC_COLOR = new Color(33, 33, 33, 201);
-
-    private static final int PFP_SIZE = 109;
-
-    public static void profile(CommandContext context, Graphics2D g2d, Font starlight) throws Exception {
-        String background = UserProfile.get(context.getAuthor()).getBackgroundImageUrl();
-
-        int userprofileX = renderBackground(g2d, background, PROFILE_COMMAND_WIDTH, USER_PROFILE_HEIGHT, PROFILE_COMMAND_HEIGHT);
-        drawUserProfile(context.getAuthor(), g2d, userprofileX, 0, starlight);
-
-        GuildProfile board = GuildProfile.get(context.getGuild());
-
-        g2d.setFont(starlight.deriveFont((float) PROFILE_GAME_LINE_HEIGHT - 1F));
-        int curi = 0;
-        final int singleSize = PROFILE_COMMAND_WIDTH / PROFILE_GAMES_IN_LINE - PROFILE_GAMES_BORDER_PX;
-        for (Map.Entry<String, UserProfile.GameStatistics> entry : board.getLeaderboard()
-                .getStatsForUser(context.getAuthor().getId()).getRawMap().entrySet()) {
-            int x = PROFILE_GAMES_BORDER_PX + (curi % PROFILE_GAMES_IN_LINE) * singleSize;
-            int y = USER_PROFILE_HEIGHT + PROFILE_GAMES_BORDER_PX + PROFILE_GAME_HEIGHT * (curi / PROFILE_GAMES_IN_LINE);
-            boolean overall = entry.getKey().equals("overall");
-            int leaderboardPosition = board.getIndex(board.getLeaderboard().getEntriesForGame(overall ? Optional.empty() :
-                    Optional.of(entry.getKey())), context.getAuthor().getId());
-
-            g2d.setColor(Color.BLACK);
-            g2d.setFont(g2d.getFont().deriveFont(Font.BOLD));
-            g2d.drawString(overall
-                ? Language.transl(context, "command.profile.overall")
-                : Language.transl(context, "game." + entry.getKey() + ".name"), x, y);
-
-            g2d.setColor(GAME_DESC_COLOR);
-            g2d.setFont(g2d.getFont().deriveFont(Font.PLAIN));
-
-            y += PROFILE_GAME_LINE_DISTANCE + g2d.getFontMetrics().getHeight();
-            g2d.drawString(Language.transl(context, "command.profile.line1",
-                    leaderboardPosition + Utility.formatNth(Constants.getLanguage(context), leaderboardPosition)),
-                    x, y);
-            y += PROFILE_GAME_LINE_DISTANCE + g2d.getFontMetrics().getHeight();
-            g2d.drawString(Language.transl(context, "command.profile.line2",
-                    entry.getValue().getVictories(), entry.getValue().getLosses()), x, y);
-            y += PROFILE_GAME_LINE_DISTANCE + g2d.getFontMetrics().getHeight();
-            g2d.drawString(Language.transl(context, "command.profile.line3", new BigDecimal(entry.getValue()
-                    .getWonPercent()).setScale(1, BigDecimal.ROUND_HALF_UP).toString()), x, y);
-
-            curi ++;
+    public static int drawBackground(Graphics2D g2d, String background, int width, int height, int blurryHeight, boolean user) {
+        if (!user && background == null) {
+            g2d.setColor(GUILD_FALLBACK_BACKGROUND_COLOR);
+            g2d.fillRect(0, 0, width, height);
+            return -1;
         }
-    }
-
-    private static int renderBackground(Graphics2D g2d, String background, int width, int height, int blurryHeight) {
         Image image = getImage("userprofilebg_" + background, background == null
                 ? ImageCommands.class.getResourceAsStream("/imggen/shapesbackground.png")
                 : HttpRequest.get(background).userAgent(Constants.USER_AGENT).stream());
@@ -96,22 +53,34 @@ public class ImageCommands {
 
         int relHeight = (int) (image.getHeight(null) / ((double) image.getWidth(null)
                 / USER_PROFILE_WIDTH));
-        int y = - relHeight / 2 - height / 2;
+        int y = relHeight / 2 - height / 2;
         int x = width / 2 - USER_PROFILE_WIDTH / 2;
 
-        g2d.drawImage(blurryImage, 0, y + height, width,
-                - y + blurryHeight, null);
-        g2d.drawImage(image, 0, y, width, - y + height,
-                null);
+        if (user) {
+            // Blurry (bottom) background
+            drawTileImage(image, g2d, 0, 0, width, USER_PROFILE_HEIGHT, 0, -relHeight / 2, width, relHeight);
+            drawTileImage(blurryImage, g2d, 0, USER_PROFILE_HEIGHT, width, blurryHeight - USER_PROFILE_HEIGHT,
+                    0, -relHeight / 2 - USER_PROFILE_HEIGHT, width, relHeight);
 
-        g2d.setClip(new Ellipse2D.Float(x + 12, 8, (float) PFP_SIZE, (float) PFP_SIZE));
-        g2d.drawImage(blurryImage, 0, y, width, relHeight, null);
-        g2d.setClip(null);
+            // Avatar blurry background
+            y = -relHeight / 2 - height / 2;
+            g2d.setClip(new Ellipse2D.Float(x + 12, 8, (float) PFP_SIZE, (float) PFP_SIZE));
+            g2d.drawImage(blurryImage, 0, y, width, relHeight, null);
+            g2d.setClip(null);
+        } else {
+            drawTileImage(image, g2d, 0, 0, width, USER_PROFILE_HEIGHT, 0, -relHeight / 2, width, relHeight);
+            drawTileImage(blurryImage, g2d, 0, USER_PROFILE_HEIGHT, width, blurryHeight - USER_PROFILE_HEIGHT,
+                    0, -relHeight / 2 - USER_PROFILE_HEIGHT, width, relHeight);
+        }
 
         return x;
     }
 
-    private static void drawUserProfile(User user, Graphics2D g2d, int x, int y, Font starlight) throws Exception {
+    private static final int USER_PROFILE_FONT_SIZE = 60;
+
+    public static void drawUserProfile(Member member, Graphics2D g2d, int x, int y, Font starlight) {
+        Optional<String> nick = Optional.ofNullable(member.getNickname());
+        User user = member.getUser();
         Image template = getImage("uptemplate", ImageCommands.class.getResourceAsStream("/imggen/userprofiletemplate.png"));
         g2d.drawImage(template, x, y, null);
 
@@ -120,20 +89,78 @@ public class ImageCommands {
                 x + 12, y + 8, PFP_SIZE, PFP_SIZE, null);
         g2d.setClip(null);
 
-        // name
+        // [nick]/name
+        int maxNameWidth = 350;
         g2d.setColor(Color.WHITE);
-        g2d.setFont(starlight.deriveFont(60F));
-        g2d.drawString(user.getName(), x + 200, y + 85);
+        g2d.setFont(starlight.deriveFont((float) USER_PROFILE_FONT_SIZE).deriveFont(Font.PLAIN));
+        g2d.drawString(Utility.truncateLength(nick.orElseGet(user::getName), maxNameWidth, g2d.getFontMetrics()),
+                x + 200, y + 85);
         int oldHeight = g2d.getFontMetrics().getHeight();
-        int fullWidth = g2d.getFontMetrics().stringWidth(user.getName());
-        // #tagg
+        int fullWidth = Math.min(maxNameWidth + g2d.getFontMetrics().stringWidth("..."),
+                g2d.getFontMetrics().stringWidth(nick.orElseGet(user::getName)));
+        // [name]#tagg
         g2d.setColor(new Color(0x90A4AE));
         g2d.setFont(starlight.deriveFont(20F));
-        g2d.drawString("#" + user.getDiscriminator(), x + 210 + fullWidth, y + 110 - g2d.getFontMetrics().getHeight());
+        g2d.drawString(nick.map(it -> user.getName()).orElse("") + "#" + user.getDiscriminator(),
+                x + 210 + fullWidth, y + 110 - g2d.getFontMetrics().getHeight());
     }
 
-    private static Image getImage(String cacheName, InputStream is) {
-        return Cache.get(cacheName, (Provider<Image>)  n -> {
+    private static final Color[] POSITION_COLORS = {
+            new Color(0xFFA000), new Color(0x607D8B), new Color(0x3E2723),
+            new Color(55, 71, 79, 200)
+    };
+
+    private static final double TITLE_SPACE = 0.25;
+    private static final double ITEMS_SPACE = 1.0 - TITLE_SPACE;
+
+    public static void drawLeaderboardEntry(Optional<Member> member, String title, UserProfile.GameStatistics stats, int position,
+                                             Graphics2D g2d, int x, int y, int width, Font starlight, String language) {
+        member.ifPresent(it -> {
+            String background = UserProfile.get(it.getUser()).getBackgroundImageUrl();
+            Image image = getImage("userprofilebgblurry_" + background, background == null
+                    ? ImageCommands.class.getResourceAsStream("/imggen/shapesbackgroundblurry.png")
+                    : HttpRequest.get(background + "blurry").userAgent(Constants.USER_AGENT).stream());
+            int relHeight = (int) (image.getHeight(null) / ((double) image.getWidth(null) / width));
+            drawTileImage(image, g2d, x, y, width, LEADERBOARD_ENTRY_HEIGHT, 0, -relHeight / 2, width, relHeight);
+            g2d.setClip(null);
+        });
+
+        drawLeaderboardEntry(member.isPresent() ? Optional.empty()
+                : Optional.of(POSITION_COLORS[position < 0 ? 3 : Math.min(position, 3)]),
+                title, g2d, x, y, width, starlight, language,
+                () -> position >= 0 ? (position + 1) + Utility.formatNth(language, position + 1)
+                        : Language.transl(language, "command.profile.unranked"),
+                () -> stats.victories, () -> stats.losses, () -> stats.gamesPlayed,
+                () -> new BigDecimal(stats.getWonPercent()).setScale(1, BigDecimal.ROUND_HALF_UP).toString() + "%");
+    }
+
+    public static final int LEADERBOARD_ENTRY_HEIGHT = 50;
+    public static final int LEADERBOARD_ENTRY_FONT_SIZE = 30;
+    public static final int LEADERBOARD_BORDERS = 10;
+
+    public static void drawLeaderboardEntry(Optional<Color> backgroundColor, String title, Graphics2D g2d,
+                                             int x, int y, int width, Font starlight, String language, Supplier... suppliers) {
+        g2d.setFont(starlight.deriveFont((float) LEADERBOARD_ENTRY_FONT_SIZE).deriveFont(Font.PLAIN));
+        backgroundColor.ifPresent(color -> {
+            g2d.setColor(color);
+            g2d.fillRect(x, y, width, LEADERBOARD_ENTRY_HEIGHT);
+        });
+
+        g2d.setColor(Color.white);
+        int texty = y + LEADERBOARD_ENTRY_HEIGHT - LEADERBOARD_BORDERS - g2d.getFontMetrics().getHeight() / 4;
+        int textbasex = x + LEADERBOARD_BORDERS;
+        g2d.drawString(title, textbasex, texty);
+
+        final int startSpace = (int) (textbasex + TITLE_SPACE * width);
+        final double itemSpace = ITEMS_SPACE / suppliers.length;
+        for (int i = 0; i < suppliers.length; i++) {
+            String str = String.valueOf(suppliers[i].get());
+            drawCenteredString(g2d, str, startSpace + (int) ((itemSpace * i) * width), texty, (int) itemSpace);
+        }
+    }
+
+    public static Image getImage(String cacheName, InputStream is) {
+        return Cache.get(cacheName, n -> {
             try {
                 Image image = ImageIO.read(is);
                 Utility.quietlyClose(is);
@@ -142,5 +169,18 @@ public class ImageCommands {
                 throw new RuntimeException(e);
             }
         });
+    }
+
+    public static void drawTileImage(Image image, Graphics2D g2d, int x, int y, int width, int height,
+                                    int u, int v, int tileWidth, int tileHeight) {
+        g2d.setClip(new Rectangle2D.Float((float) x, (float) y, (float) width, (float) height));
+        g2d.drawImage(image, x + u, y + v, tileWidth, tileHeight, null);
+
+        int bottom = y + v + tileHeight;
+        if (bottom < y + height) g2d.drawImage(image, x + u, y + v + tileHeight, tileWidth, tileHeight, null);
+    }
+
+    public static void drawCenteredString(Graphics2D g2d, String text, int x, int y, int width) {
+        g2d.drawString(text, x + (width / 2 - g2d.getFontMetrics().stringWidth(text) / 2), y);
     }
 }

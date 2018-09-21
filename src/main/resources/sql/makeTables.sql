@@ -3,6 +3,7 @@ CREATE TABLE IF NOT EXISTS guilddata (
     permstopgame TEXT, 
     prefix TEXT,
     guildid TEXT,
+    leaderboardbackgroundimgurl TEXT,
     language TEXT
 );
 CREATE TABLE IF NOT EXISTS userdata (
@@ -13,7 +14,8 @@ CREATE TABLE IF NOT EXISTS userdata (
     upvoteddays INT,
     userid TEXT,
     profilebackgroundimgurl TEXT,
-    websitesession TEXT
+    websitesession TEXT,
+    badges INT
 );
 CREATE TABLE IF NOT EXISTS leaderboardentries (
     userid TEXT,
@@ -66,6 +68,5 @@ CREATE TABLE IF NOT EXISTS translationsuggestions (
     raters TEXT[]
 );
 
-ALTER TABLE guilddata DROP shardid;
-ALTER TABLE userdata DROP shardid;
-ALTER TABLE userdata ADD profilebackgroundimgurl TEXT;
+ALTER TABLE guilddata ADD COLUMN leaderboardbackgroundimgurl TEXT;
+ALTER TABLE userdata ADD COLUMN badges INT;

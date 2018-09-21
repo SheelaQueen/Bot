@@ -37,7 +37,7 @@ genericMessages:
 gameFramework:
   singleplayerMatch: "**Single-player %s Match**\n%s\n\n"
   multiplayerMatch: "**Multi-player %s Match**\n%s\n\n"
-  collectiveMatch: "**%s Game**\n%s\nClick 👥 to allow other people to play!\n\n"
+  collectiveMatch2: "**%s Game**\n%s\n\n"
   joinToPlay2: "🚪 Type `%sjoin` or click the door below to join!"
   joinToPlayNoReaction2: "🚪 Type `%sjoin` to join!"
   waiting: "⏰ Waiting\n"
@@ -73,6 +73,18 @@ gameFramework:
   turn: "%s's turn"
 
   rematch: "Click in :arrows_counterclockwise: for a rematch!"
+
+badges:
+  earned: "\nYou have earned the **%s** badge!\nIt will now appear in your profile at `%sprofile`."
+  highestBaltop1st: "1st in baltop"
+  highestBaltop1st: "2nd in baltop"
+  highestBaltop1st: "3rd in baltop"
+  globalBaltopTop10: "Top 10 in global baltop"
+  staff: "Staff"
+  translator: "Translator"
+  patron: "Patron"
+  overAchiever: "Achiever"
+  developer: "Developer"
 
 game:
   towncountryriver:
@@ -308,8 +320,6 @@ command:
     set: "Set %2$s's balance to %1$s (Current balance: %s)."
 
     baltop: "\nRanked **%s** in this guild and **%s** globally! `%sbaltop`"
-
-    description: "View how many tokens you or someone else has"
   join:
     alreadyOnMatch: "You're already on the match!"
     full: "The match is full!"
@@ -334,16 +344,28 @@ command:
   
   leaderboard:
     unknownUser: "*unknown user*"
-    playerRatings: " (**%s** victories)"
     noWinner: "~no winner yet~"
-    response: "**Overall**\n%s\n**Games:**\n%s"
+
     websiteLink: "View everything in our site"
     description: "View the leaderboard!"
   profile:
+    title: "Profile (Scores from this server)"
+
     overall: "Overall"
-    line1: "%s place"
-    line2: "%s wins, %s losses"
-    line3: "(%s%% Ratio)"
+    unranked: "Not ranked"
+    game: "Game"
+    position: "Position"
+    victories: "Victories"
+    losses: "Losses"
+    gamesPlayed: "Games"
+    winPercent: "Win %%"
+
+    tokenGuide: "Read our token guide by clicking here!"
+    upvote: "Upvoting the bot"
+    winMatches: "Winning Matches"
+    completeAchievements: "%%PREFIX%%achievements"
+    gambling: "%%PREFIX%%gamble"
+    upvoteEmbed: "Or [click here](%s) to upvote the bot!"
 
     description: "View your profile, or someone else's!"
   emote:
@@ -394,10 +416,10 @@ command:
         month: " (**%s** this month)"
       versions:
         title: "📁 Versions"
-        description: "GamesROB Version: **%s**\nJava Version: **%s**\n[JDA](%s) Version: **%s**\n[JDA Framework](%s) Version: **%s**\nShard Uptime: **%s**"
+        description: "GamesROB Version: **%s**\nJava Version: **%s**\n[JDA](%s) Version: **%s**\n[JDA Framework](%s) Version: **%s**\nCluster Uptime: **%s**"
       system:
         title: "💻 System"
-        description: "RAM: **%s**\nOS: **%s**\nShard: **%s/%s** (**%s**)"
+        description2: "RAM: **%s**\nOS: **%s**\nShard: **%s/%s** (**%s**)\n%s RPC/JSON Connection"
       links:
         title: "🔗 Useful Links"
         description: "🌐 [Our Website](%s)\n➕ [Add bot to server](%s)\n🗒 [View the source code](%s)\nℹ️ [Join our support server](%s)\n❤ [Credits](%s)\n⬆ [Upvote the bot in DBL](%s)"
@@ -422,7 +444,7 @@ command:
     ram: "RAM Usage"
     description: "🗄 *Debug* View a shard information dump"
   changelog:
-    text: "**GamesROB v%s**\nFrom %s\n\n%s\n\n*Updates are usually scheduled for every friday, making the next update %s.*\n*You can suggest features and bug fixes in our server: %s*"
+    text: "**GamesROB v%s**\nFrom %s\n```diff\n%s\n```\n*Updates are usually scheduled for every friday, making the next update %s.*\n*You can suggest features and bug fixes in our server: %s*"
     description: "Shows all the changes on the latest update"
   support:
     message: "If you're having trouble with the bot, want to suggest features, get notified when the bot updates or just want to talk to other people who use it, check out our support server:\nhttps://discord.gg/xajeDYR"

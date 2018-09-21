@@ -221,6 +221,13 @@ public class Utility {
         });
     }
 
+    public static String formatTimeRegularFormat(long time) {
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTimeInMillis(time);
+
+        return REGULAR_DATE_FORMAT.format(calendar.getTime());
+    }
+
     public static String formatTime(long time) {
         long now = System.currentTimeMillis();
         boolean future = time > now;
@@ -374,5 +381,40 @@ public class Utility {
         nextUpdatePredictment = prediction;
 
         return prediction;
+    }
+
+    public static <E> List<E> decodeBinary(int code, Class<E> enumClass) {
+        List<E> badges = new ArrayList<>();
+        int curi = 0;
+        for (E badge : enumClass.getEnumConstants()) {
+            if (((code >> curi) & 1) == 1) badges.add(badge);
+            curi ++;
+        }
+
+        return badges;
+    }
+
+    public static <E> int encodeBinary(List<E> badges, Class<E> enumClass) {
+        int code = 0;
+        List<E> allBadges = Arrays.asList(enumClass.getEnumConstants());
+        for (E badge : badges) code += 1 << allBadges.indexOf(badge);
+
+        return code;
+    }
+
+    public static String truncate(String str, int lengthMax) {
+        return str.length() > lengthMax ? str.substring(0, lengthMax - 3) + "..." : str;
+    }
+
+    public static String truncateLength(String str, int maxWidth, FontMetrics metrics) {
+        char[] chars = str.toCharArray();
+        int curWidth = 0;
+        int curi = 0;
+        for (char cur : chars) {
+            curWidth += metrics.charsWidth(chars, curi, 1);
+            if (curWidth > maxWidth) return str.substring(0, curi) + "...";
+            else curi ++;
+        }
+        return str;
     }
 }
