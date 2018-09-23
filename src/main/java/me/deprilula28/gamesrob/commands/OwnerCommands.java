@@ -104,8 +104,7 @@ public class OwnerCommands {
             return "Removed badge " + badge.getName(language) + " to " + user.getAsMention() + ".";
         } else if (thing.equalsIgnoreCase("view")) {
             int encoded = Utility.encodeBinary(profile.getBadges(), UserProfile.Badge.class);
-            return "" + user.getAsMention()
-                    + "'s badges:\n`0x" + Integer.toBinaryString(encoded) + "` " +  encoded + "\n"
+            return user.getName() + "'s badges:\n`0x" + Integer.toBinaryString(encoded) + "` " +  encoded + "\n"
                     + profile.getBadges().stream().map(it -> it.getName(language))
                     .collect(Collectors.joining("\n"));
         }

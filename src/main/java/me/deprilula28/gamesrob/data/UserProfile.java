@@ -82,6 +82,7 @@ public class UserProfile {
 
     public void addBadge(Badge badge) {
         if (!badges.contains(badge)) badges.add(badge);
+        edited = true;
     }
 
     public void addTokens(int amount, String message) {

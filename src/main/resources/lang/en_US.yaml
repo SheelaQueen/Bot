@@ -25,8 +25,8 @@ genericMessages:
   nth4: "th"
   upvoteMessage: "Thank you for upvoting GamesROB!\nYou've earnt:\n**%s**\nUpvote streak: **%s days**\nKeep upvoting daily for more rewards!"
   ownersOnly: "This command is only accessible for owners."
-  blacklisted: "⛔ You were blacklisted from using GamesROB by %s (%s).\nReason: %s"
-  blacklistedNoInfo: "⛔ You were blacklisted from using GamesROB."
+  blacklisted: "⛔ You were blacklisted from using GamesROB by %s (%s).\nReason: %s\nPlease contact %s."
+  blacklistedNoInfo: "⛔ You were blacklisted from using GamesROB.\nPlease contact %s."
 
   upvote:
     header: "**Thank you for voting for GamesROB!**\nRewards:\n+ 🔸 %s tokens!"
