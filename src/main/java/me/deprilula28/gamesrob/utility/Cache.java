@@ -3,15 +3,10 @@ package me.deprilula28.gamesrob.utility;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.Getter;
-import me.deprilula28.gamesrob.GamesROB;
-import me.deprilula28.gamesrob.data.SQLDatabaseManager;
 
 import javax.xml.ws.Provider;
 import java.util.Map;
-import java.util.Random;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ThreadLocalRandom;
-import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 
 public class Cache {
@@ -35,14 +30,14 @@ public class Cache {
         Thread cleaner = new Thread(() -> {
             while (true) {
                 try {
-                    Thread.sleep(Constants.CACHE_TIME);
+                    Thread.sleep(Constants.CACHE_SLEEP_TIME);
                     long time = System.currentTimeMillis();
                     int removed = 0;
 
                     long before = getRAMUsage();
                     for (Map.Entry<Object, CachedObjectData> cur : cachedMap.entrySet()) {
                         CachedObjectData object = cur.getValue();
-                        if (time > object.added + Constants.RAM_CACHE_TIME) {
+                        if (time > object.added + Constants.OBJECT_STORE_TIME) {
                             cachedMap.remove(cur.getKey());
                             removed ++;
                             if (object.onRemove != null) object.onRemove.accept(object.result);
@@ -84,6 +79,7 @@ public class Cache {
     public static <K extends Object, V extends Object> V get(K key, Provider<V> backup) {
         return get(key, backup, null);
     }
+
     public static <K extends Object, V extends Object> V get(K key, Provider<V> backup, Consumer<Object> onRemove) {
         if (cachedMap.containsKey(key)) {
             CachedObjectData data = cachedMap.get(key);

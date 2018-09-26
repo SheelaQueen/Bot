@@ -3,6 +3,7 @@ package me.deprilula28.gamesrob.data;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import me.deprilula28.gamesrob.GamesROB;
+import me.deprilula28.gamesrob.Language;
 import me.deprilula28.gamesrob.achievements.AchievementType;
 import me.deprilula28.gamesrob.baseFramework.GamesInstance;
 import me.deprilula28.gamesrob.commands.CommandManager;
@@ -32,11 +33,25 @@ public class UserProfile {
     private int tokens;
     private long lastUpvote;
     private int upvotedDays;
-    private int shardId;
+    private String backgroundImageUrl;
+    private List<Badge> badges;
     private boolean edited = false;
 
     public LeaderboardHandler.UserStatistics getStatsForGuild(Guild guild) {
         return GuildProfile.get(guild).getLeaderboard().getStatsForUser(userId);
+    }
+
+    @AllArgsConstructor
+    public static enum Badge {
+        HIGHEST_BALTOP_1ST("highestBaltop1st"), HIGHEST_BALTOP_2ND("highestBaltop2nd"), HIGHEST_BALTOP_3RD("highestBaltop3rd"),
+        GLOBAL_BALTOP_TOP_10("globalBaltopTop10"), STAFF("staff"), TRANSLATOR("translator"), PATRON("patron"),
+        ACHIEVER("achiever"), DEVELOPER("developer");
+
+        private String languageCode;
+
+        public String getName(String language) {
+            return Language.transl(language, "badges." + languageCode);
+        }
     }
 
     @Data
@@ -65,6 +80,11 @@ public class UserProfile {
             "upvote", "completeAchievement", "cheater", "give", "got", "winGamePrize", "betting", "slots", "changingEmote"
     );
 
+    public void addBadge(Badge badge) {
+        if (!badges.contains(badge)) badges.add(badge);
+        edited = true;
+    }
+
     public void addTokens(int amount, String message) {
         if (CommandManager.getBlacklist(userId).isPresent()) return;
 
@@ -80,12 +100,26 @@ public class UserProfile {
         })));
     }
 
-    public List<Transaction> getTransactions(int limit, int offset) {
+    public int getTransactionAmount(Optional<String> transactionMessage) {
+        if (!GamesROB.database.isPresent()) return 0;
+        return Cache.get("transactions_amount_" + userId + "_" + transactionMessage.orElse("all"), it -> {
+            try {
+                return GamesROB.database.get().getSize("transactions", "userid = '" + userId + "'" +
+                        transactionMessage.map(str -> " AND message = " + TRANSACTION_MESSAGES.indexOf(str))
+                                .orElse(""));
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+        });
+    }
+
+    public List<Transaction> getTransactions(int limit, int offset, Optional<String> transactionMessage) {
         if (!GamesROB.database.isPresent()) return new ArrayList<>();
-        return Cache.get("transactions_" + userId + "_" + limit + "_" + offset, it -> {
+        return Cache.get("transactions_" + userId + "_" + limit + "_" + offset + "_" + transactionMessage.orElse("all"), it -> {
             try {
                 ResultSet set = GamesROB.database.get().select("transactions", Arrays.asList("amount", "time", "message"),
-                        "userid = '" + userId + "'", "time", true, limit, offset);
+                        "userid = '" + userId + "'" + transactionMessage.map(str -> " AND message = " +
+                                TRANSACTION_MESSAGES.indexOf(str)).orElse(""), "time", true, limit, offset);
                 List<Transaction> transactions = new ArrayList<>();
 
                 while (set.next()) transactions.add(new Transaction(
@@ -145,7 +179,7 @@ public class UserProfile {
         @Override
         public Optional<UserProfile> getFromSQL(SQLDatabaseManager db, String from) throws Exception {
             ResultSet select = db.select("userData", Arrays.asList("emote", "language", "tokens", "lastupvote",
-                    "upvoteddays", "shardid"),
+                    "upvoteddays", "profilebackgroundimgurl", "badges"),
                     "userid = '" + from + "'");
             if (select.next()) return fromResultSet(from, select);
             select.close();
@@ -156,7 +190,8 @@ public class UserProfile {
         @Override
         public Utility.Promise<Void> saveToSQL(SQLDatabaseManager db, UserProfile value) {
             return db.save("userData", Arrays.asList(
-                    "emote", "userId", "tokens", "lastupvote", "upvoteddays", "shardid", "language"
+                    "emote", "userId", "tokens", "lastupvote", "upvoteddays", "language", "profilebackgroundimgurl",
+                    "badges"
             ), "userid = '" + value.getUserId() + "'",
                 set -> !value.isEdited(), true,
                 (set, it) -> Log.wrapException("Saving data on SQL", () -> write(it, value)));
@@ -167,7 +202,8 @@ public class UserProfile {
                 return Optional.of(new UserProfile(from, select.getString("emote"),
                         select.getString("language"), select.getInt("tokens"),
                         select.getLong("lastupvote"), select.getInt("upvoteddays"),
-                        select.getInt("shardid"), false));
+                        select.getString("profilebackgroundimgurl"),
+                        Utility.decodeBinary(select.getInt("badges"), Badge.class), false));
             } catch (Exception e) {
                 Log.exception("Saving UserProfile in SQL", e);
                 return Optional.empty();
@@ -180,8 +216,9 @@ public class UserProfile {
             statement.setInt(3, profile.getTokens());
             statement.setLong(4, profile.getLastUpvote());
             statement.setInt(5, profile.getUpvotedDays());
-            statement.setInt(6, profile.getShardId());
-            statement.setString(7, profile.getLanguage());
+            statement.setString(6, profile.getLanguage());
+            statement.setString(7, profile.getBackgroundImageUrl());
+            statement.setInt(8, Utility.encodeBinary(profile.getBadges(), Badge.class));
         }
 
         private void saveStatistics(DataOutputStream stream, GameStatistics stats) throws Exception {
@@ -193,7 +230,7 @@ public class UserProfile {
         @Override
         public UserProfile createNew(String from) {
             return new UserProfile(from, null, null, 0, 0, 0,
-                    GamesROB.getUserById(from).map(it -> it.getJDA().getShardInfo().getShardId()).orElse(0), false);
+                    null, new ArrayList<>(), false);
         }
 
         @Override

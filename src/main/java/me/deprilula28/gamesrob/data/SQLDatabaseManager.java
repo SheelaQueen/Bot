@@ -79,6 +79,14 @@ public class SQLDatabaseManager {
         }
     }
 
+    public ResultSet select(String table, String where) throws Exception {
+        return sqlQuery(String.format(
+                "SELECT * FROM %s WHERE %s",
+                table, where
+        ));
+    }
+
+
     public ResultSet select(String table, List<String> items, String where, String orderBy, boolean desc, int limit, int offset) throws Exception {
         return sqlQuery(String.format(
                 "SELECT %s FROM %s WHERE %s ORDER BY %s%s LIMIT %s OFFSET %s",

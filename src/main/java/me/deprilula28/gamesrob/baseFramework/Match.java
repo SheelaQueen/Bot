@@ -140,12 +140,11 @@ public class Match extends Thread {
         Statistics.get().registerGame(game);
 
         matchHandler.begin(this, no -> {
-            MessageBuilder builder = new MessageBuilder().append(Language.transl(language, "gameFramework.collectiveMatch",
+            MessageBuilder builder = new MessageBuilder().append(Language.transl(language, "gameFramework.collectiveMatch2",
                     game.getName(language), game.getLongDescription(language)
             ));
             matchHandler.updatedMessage(false, builder);
             matchMessage = RequestPromise.forAction(channel.sendMessage(builder.build()));
-            matchMessage.then(message -> message.addReaction("\uD83D\uDC65").queue());
 
             return matchMessage;
         });
@@ -328,6 +327,10 @@ public class Match extends Thread {
         }
     }
 
+    public boolean isMode(String code) {
+        return mode.map(it -> code.equals(it.getLanguageCode())).orElse(code == null);
+    }
+
     public void messageEvent(MessageReceivedEvent event) {
         GamesROB.commandFramework.getSettings().getThreadPool().execute(() -> {
             try {
@@ -340,6 +343,22 @@ public class Match extends Thread {
                 onEnd("⛔ Oops! Something spoopy happened and I had to stop this game.\n" +
                         "You can send this: " + trelloUrl.orElse("*No trello info found*") + " to our support server at https://discord.gg/gJKQPkN !", false);
             }
+        });
+    }
+
+    public void left(Player player, MessageBuilder builder) {
+        interrupt();
+        if (players.size() == 2) {
+            players.stream().filter(it -> !it.equals(player)).findFirst().ifPresent(this::onEnd);
+            return;
+        }
+
+        players.remove(player);
+        player.getUser().ifPresent(user -> {
+            PLAYING.remove(user);
+            if (addAchievement.containsKey(user)) addAchievement.get(user).forEach((type, amount) ->
+                    type.addAmount(true, amount, builder, user, channelIn.getGuild(), language));
+            matchHandler.onQuit(user);
         });
     }
 
@@ -361,19 +380,6 @@ public class Match extends Thread {
     /*
     Reactions
      */
-    public void collectiveReacion(CommandContext context) {
-        if (!game.getGameType().equals(GameType.COLLECTIVE) || !context.getAuthor().equals(creator)) {
-            throw new InvalidCommandSyntaxException();
-        }
-
-        playMore = true;
-        matchMessage.then(it -> it.getReactions().stream().filter(reaction -> reaction.getReactionEmote().getName().equals("\uD83D\uDC65"))
-                .findFirst().ifPresent(joystick -> joystick.removeReaction(joystick.getJDA().getSelfUser()).queue()));
-        MessageBuilder builder = new MessageBuilder();
-        matchHandler.updatedMessage(false, builder);
-        matchMessage.then(it -> it.editMessage(builder.build()).queue());
-    }
-
     public void joinReaction(CommandContext context) {
         if (Match.PLAYING.containsKey(context.getAuthor()) || getPlayers().contains(Player.user(context.getAuthor()))
                 || (betting.isPresent() &&
@@ -448,15 +454,15 @@ public class Match extends Thread {
     }
 
     public void onEnd(Player winner) {
-        onEnd(winner, Constants.MATCH_WIN_TOKENS);
+        onEnd(winner, players.stream().anyMatch(it -> it.getUser().isPresent()) ? 0 : Constants.MATCH_WIN_TOKENS);
     }
 
-    public void onEnd(Player winner, int tokens) {
+    private void onEnd(Player winner, int tokens) {
         players.forEach(cur ->
             cur.getUser().ifPresent(user -> {
                 UserProfile userProfile = UserProfile.get(user);
-                boolean victory = winner.equals(Optional.of(user));
-                userProfile.registerGameResult(channelIn.getGuild(), user, victory, !victory, game);
+                boolean victory = winner.equals(Player.user(user));
+                if (tokens != 0) userProfile.registerGameResult(channelIn.getGuild(), user, victory, !victory, game);
 
                 if (winner.equals(cur)) {
                     int won = betting.map(it -> it * players.size()).orElse(tokens);

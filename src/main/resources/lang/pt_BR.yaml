@@ -9,6 +9,7 @@ languageProperties:
   version: "1.6.3"
 
 genericMessages:
+  imagegenTime: "Essa imagem foi gerada em %s."
   alreadyPlaying: "Você já está jogando em %s!\nDigite `%sleave` para sair da partida."
   noGamesInChannel: "Não há jogos atualmente nesse canal.\nVocê pode digitar `%shelp` para escolher e começar um jogo!"
   invalidLanguage: "Essa linguagem é inválida."
@@ -65,6 +66,18 @@ gameFramework:
   upvoteEmbedTitle: "Votar"
 
   rematch: "Clique no :arrows_counterclockwise: para jogar novamente!"
+
+badges:
+  earned: "\nVocê conquistou o distintivo **%s**!\nEle irá aparecer no seu perfil em `%sprofile`."
+  highestBaltop1st: "1º no baltop"
+  highestBaltop1st: "2º no baltop"
+  highestBaltop1st: "3º no baltop"
+  globalBaltopTop10: "Top 10 no baltop global"
+  staff: "Equipe"
+  translator: "Tradutor"
+  patron: "Patrão"
+  achiever: "Conquistador"
+  developer: "Desenvolvedor"
 
 game:
   towncountryriver:
@@ -139,6 +152,8 @@ game:
     name: "Jogo da Velha"
     shortDescription: "Faça uma linha de 3!"
     longDescription: "Você sabe como funciona!\nEnvie a letra de onde quer colocar seu símbolo (ex. a)."
+
+    tie: "Deu velha!"
   detective:
     name: "Detetive"
     shortDescription: "Um de vocês é um assassino. Sua missão é expulsá-lo antes que seja tarde demais."
@@ -181,7 +196,6 @@ game:
     gambleTokens: "Aposte %s tokens"
     winTokensGambling: "Ganhe %s tokens apostando"
     loseTokensGambling: "Perca %s tokens apostando"
-    reachPlaceLeaderboard: "Chegue no %sº lugar do placar"
     reachTokens: "Alcançe %s tokens"
     upvote: "Vote para GamesROB no DBL %s vezes"
 
@@ -207,8 +221,6 @@ game:
     unfair: "Isso é injusto!"
     overconfident: "Confidente demais"
     stubborn: "Teimoso"
-
-    winnerWinnerChickenDinner: "Winner winner chicken dinner"
 
     mediumClass: "Classe Média"
     upperClass: "Classe Alta"
@@ -290,8 +302,16 @@ command:
     alreadyOnMatch: "Você já está nesse jogo!"
     full: "O jogo já começou!"
     description: "Entra na partida do canal atual"
+  leave:
+    creator: "Você criou essa partida, use `%sstop` para pará-la."
+    notInMatch: "Você não está nessa partida!"
+    cantLeave: "Você não pode sair dessa partida."
+    message: "%s saiu da partida.\n"
+
+    description: "Leaves your current match"
   stop:
     matchStopped: "⏹ Partida parada por %s"
+    response: "A partida foi parada."
     description: "Força uma parada na partida"
   listplayers:
     header: "**Partida de %s**\n%s\n\n"
@@ -305,12 +325,25 @@ command:
     websiteLink: "Veja tudo no nosso site"
     description: "Veja a lista de vencedores!"
   profile:
-    playerStats: "Estatísticas de **%s**:\n"
-    overall: "%s **Estatísticas em geral**: %s\n\n"
-    statsString: "%s%s Vitórias, %s Derrotas (%s W/L Ratio), %s Partidas Jogadas"
-    place: "lugar"
+    title: "Perfil (Valores desse servidor)"
+
+    overall: "Em Geral"
+    unranked: "Não Ranqueado"
+    game: "Jogo"
+    position: "Posição"
+    victories: "Vitórias"
+    losses: "Percas"
+    gamesPlayed: "Jogos"
+    winPercent: "%% Ganha"
+
+    tokenGuide: "Leia nosso guia de tokens clicando aqui!"
+    upvote: "Votando para o bot"
+    winMatches: "Vencendo partidas"
+    completeAchievements: "%%PREFIX%%achievements"
+    gambling: "%%PREFIX%%slots"
+    upvoteEmbed: "Ou [clique aqui](%s) para votar para o bot!"
+
     description: "Veja seu perfil, ou de outros!"
-    notRanked: "Sem posição"
   emote:
     set: "Seu emoji foi escolhido! %s"
     reset: "Seu emoji foi resetado!"
@@ -385,6 +418,19 @@ command:
   changelog:
     text: "**GamesROB v%s**\nDe %s\n\n%s\n\n*Normalmente atualizamos toda sexta-feita, fazendo a próxima %s.*\n*Você pode sugerir funcionalidades e reportar bugs no nosso servidor: %s*"
     description: "Mostra todas as novidades da última atualização."
+  support:
+    message: "Se estiver tendo problemas com o bot, quer sugerir funcionalidades, ser notificado quando atualizamos o bot ou quer conversar com outras pessoas que o usam, entre no nosso servidor de suporte:\nhttps://discord.gg/xajeDYR"
+    description: "Te dá um link para o servidor de suporte do bot"
+  upvote:
+    info: "Votado pela Ùltima Vez: %s\nVotos em Seguida: %s dias (Perderá %s)\nVotou %s vezes desde %s (Veja seu histórico com `%supvote history`)\n"
+    messageCanVote: "Você pode votar para o bot para 🔸 %s tokens!"
+    clickToVote: "Clique para ir para a página de voto"
+
+    history:
+      title: "**Seus últimos votos:**\n"
+      footer: "\nMostrando %s itens por página | Página %s de %s\nVeja outra página com `%supvote history <page>`."
+
+    description: "Te dá informações sobre seus últimos votos."
 
   perm:
     invalidPerm: "Permissão inválida!"

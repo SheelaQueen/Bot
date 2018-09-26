@@ -1,5 +1,6 @@
 package me.deprilula28.gamesrob.commands;
 
+import javafx.util.Pair;
 import me.deprilula28.gamesrob.GamesROB;
 import me.deprilula28.gamesrob.Language;
 import me.deprilula28.gamesrob.baseFramework.GamesInstance;
@@ -11,15 +12,78 @@ import me.deprilula28.gamesrob.utility.Log;
 import me.deprilula28.gamesrob.utility.Utility;
 import me.deprilula28.jdacmdframework.CommandContext;
 import net.dv8tion.jda.core.EmbedBuilder;
+import net.dv8tion.jda.core.entities.Member;
+import net.dv8tion.jda.core.entities.User;
 
-import java.util.Comparator;
+import java.awt.*;
+import java.util.*;
 import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
 public class LeaderboardCommand {
+    private static final int LEADERBOARD_COMMAND_WIDTH = ImageCommands.USER_PROFILE_WIDTH + 60;
+    private static final int LEADERBOARD_ENTRIES_BORDER = 30;
+    private static final int LEADERBOARD_GAME_TITLE_HEIGHT = 30;
+    private static final int LEADERBOARD_GAME_TITLE_FONT_SIZE = 30;
+
+    private static final int OVERALL_ENTRY_LIMIT = 5;
+    private static final int GAME_ENTRY_LIMIT = 1;
+
+    public static Pair<Integer, Integer> leaderboard(CommandContext context, Utility.Promise<CommandManager.RenderContext> rcontextPromise) {
+        GuildProfile guildprofile = GuildProfile.get(context.getGuild());
+        List<LeaderboardHandler.LeaderboardEntry> overall = guildprofile.getLeaderboard().getEntriesForGame(Optional.empty());
+
+        rcontextPromise.then(rcontext -> {
+            Graphics2D g2d = rcontext.getGraphics();
+            String background = guildprofile.getBackgroundImageUrl();
+
+            ImageCommands.drawBackground(g2d, background, LEADERBOARD_COMMAND_WIDTH, rcontext.getHeight(), 0, false);
+
+            int cury = LEADERBOARD_ENTRIES_BORDER;
+
+            cury = drawEntriesForGame(g2d, rcontext.getStarlight(), context, Language.transl(context, "command.profile.overall"),
+                    overall, cury, rcontext.getWidth(), OVERALL_ENTRY_LIMIT);
+            for (GamesInstance game : GamesROB.ALL_GAMES) {
+                List<LeaderboardHandler.LeaderboardEntry> entries = guildprofile.getLeaderboard()
+                        .getEntriesForGame(Optional.of(game.getLanguageCode()));
+                if (!entries.isEmpty()) cury = drawEntriesForGame(g2d, rcontext.getStarlight(), context,
+                        game.getName(Constants.getLanguage(context)), entries, cury, rcontext.getWidth(), GAME_ENTRY_LIMIT);
+            }
+        });
+
+        return new Pair<>(LEADERBOARD_COMMAND_WIDTH, LEADERBOARD_ENTRIES_BORDER * 2 +
+            Arrays.stream(GamesROB.ALL_GAMES).mapToInt(it -> {
+                List<LeaderboardHandler.LeaderboardEntry> entries = guildprofile.getLeaderboard()
+                        .getEntriesForGame(Optional.of(it.getLanguageCode()));
+                return entries.size() > 0 ? Math.min(entries.size(), GAME_ENTRY_LIMIT)
+                        * ImageCommands.LEADERBOARD_ENTRY_HEIGHT + LEADERBOARD_GAME_TITLE_HEIGHT : 0;
+            }).sum() + LEADERBOARD_GAME_TITLE_HEIGHT + ImageCommands.LEADERBOARD_ENTRY_HEIGHT * Math.min(overall.size(), OVERALL_ENTRY_LIMIT));
+    }
+
+    private static int drawEntriesForGame(Graphics2D g2d, Font starlight, CommandContext context, String title,
+                                          List<LeaderboardHandler.LeaderboardEntry> entries, int cury, int width, int entryLimit) {
+        g2d.setColor(Color.white);
+        g2d.setFont(starlight.deriveFont((float) LEADERBOARD_GAME_TITLE_FONT_SIZE).deriveFont(Font.PLAIN));
+        ImageCommands.drawCenteredString(g2d, title,
+                0, cury + LEADERBOARD_GAME_TITLE_HEIGHT - g2d.getFontMetrics().getHeight() / 4, width);
+        cury += LEADERBOARD_GAME_TITLE_FONT_SIZE;
+
+        for (int i = 0; i < entryLimit && i < entries.size(); i++) {
+            LeaderboardHandler.LeaderboardEntry it = entries.get(i);
+            Optional<Member> member = Optional.ofNullable(context.getGuild().getMemberById(it.getId()));
+            ImageCommands.drawLeaderboardEntry(member, member.map(mbm -> Utility.truncateLength(mbm.getEffectiveName(),
+                150, g2d.getFontMetrics())).orElseGet(() -> Language.transl(context, "command.leaderboard.unknownUser")),
+                    it.getStats(), i, g2d, LEADERBOARD_ENTRIES_BORDER, cury, LEADERBOARD_COMMAND_WIDTH -
+                            LEADERBOARD_ENTRIES_BORDER * 2, starlight, Constants.getLanguage(context));
+            cury += ImageCommands.LEADERBOARD_ENTRY_HEIGHT;
+        }
+
+        return cury;
+    }
+
+    /*
     private static final String[] MEDALS = {
             "\uD83E\uDD47", "\uD83E\uDD48", "\uD83E\uDD49"
     };
@@ -62,4 +126,5 @@ public class LeaderboardCommand {
         });
         return null;
     }
+    */
 }

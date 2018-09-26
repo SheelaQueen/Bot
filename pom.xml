@@ -6,7 +6,7 @@
 
     <groupId>me.deprilula28</groupId>
     <artifactId>gamesrob</artifactId>
-    <version>1.7.5</version>
+    <version>1.7.8</version>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -173,6 +173,10 @@
                             <addClasspath>false</addClasspath>
                             <mainClass>${main}</mainClass>
                         </manifest>
+                        <manifestEntries>
+                            <Built-By>deprilula28</Built-By>
+                            <Bot-Version>${version}</Bot-Version>
+                        </manifestEntries>
                     </archive>
                 </configuration>
             </plugin>

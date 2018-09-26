@@ -40,6 +40,12 @@ public class Roulette extends TurnMatchHandler {
     }
 
     @Override
+    public void onQuit(User user) {
+        alive.remove(Player.user(user));
+        super.onQuit(user);
+    }
+
+    @Override
     public void begin(Match match, Provider<RequestPromise<Message>> initialMessage) {
         Utility.populateItems(match.getPlayers(), ITEMS, playerItems, new HashMap<>());
         bulletIn = ThreadLocalRandom.current().nextInt(BARREL_HOLES);
@@ -65,9 +71,6 @@ public class Roulette extends TurnMatchHandler {
         } else lastNotification = Language.transl(match.getLanguage(), "game.roulette.survive", author.getAsMention());
         if (!detectVictory()) nextTurn();
     }
-
-    @Override
-    public void receivedDM(String contents, User from, Message reference) { }
 
     @Override
     public boolean detectVictory() {

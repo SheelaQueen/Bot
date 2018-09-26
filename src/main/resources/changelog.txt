@@ -1,12 +1,15 @@
-- Added automatic nearby clearing on minesweeper.
-- Added AI to connect 4 and tic tac toe! Just click the robot in the message to add an AI player.
++ Added new changelog thing as you can see!
 
-- Fixed uno wildcard invalid message freezing the game.
-- Fixed 'null' dms.
-- Fixed hangman's send the word message sending multiple times and not being translable.
-- Fixed data saving issues.
-- Fixed annoying error on console.
-- Fixed getting achievements.
-- Fixed minesweeper win detection.
-- Fixed multiplayer minesweeper.
-Enjoy! ~ deprilula28
++ Profile command now changes the image's height depending on how many games you have values.
++ Image commands now show your nickname.
++ Image commands now have proper backgrounds.
++ Image commands no longer show the time taken.
++ Revamped profile image command to have leaderboard entry format and tokens.
++ Merged `g*tokens` with `g*profile`.
++ Leaderboard command now uses image format.
++ Collective games no longer need a reaction.
+
+- Games with AI will no longer give you tokens or increase stats for winning until I find a way to improve the AI.
+- Fixed RPC reconnects and getting info.
+- Fixed reversed Uno card.
+Developed by deprilula28#3609. Hope you enjoy the changes!

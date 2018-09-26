@@ -194,12 +194,6 @@ public class Quiz implements MatchHandler {
                 .map(Map.Entry::getKey).findFirst().orElse(null));
     }
 
-    @Override
-    public void receivedDM(String contents, User from, Message reference) { }
-
-    @Override
-    public void onQuit(User user) { }
-
     private void updateMessage() {
         MessageBuilder builder = new MessageBuilder();
         updatedMessage(false, builder);

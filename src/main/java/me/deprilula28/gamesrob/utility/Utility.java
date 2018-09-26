@@ -5,12 +5,15 @@ import me.deprilula28.gamesrob.baseFramework.Player;
 import me.deprilula28.gamesrob.commands.ProfileCommands;
 import me.deprilula28.gamesrob.data.Statistics;
 import me.deprilula28.gamesrob.data.UserProfile;
+import me.deprilula28.jdacmdframework.Command;
+import me.deprilula28.jdacmdframework.CommandContext;
 import me.deprilula28.jdacmdframework.exceptions.CommandArgsException;
 import net.dv8tion.jda.core.Permission;
 import net.dv8tion.jda.core.entities.*;
 
 import javax.xml.ws.Provider;
 import java.awt.*;
+import java.awt.image.BufferedImage;
 import java.io.Closeable;
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -23,6 +26,7 @@ import java.util.*;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.TimeUnit;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -217,6 +221,12 @@ public class Utility {
         });
     }
 
+    public static String formatTimeRegularFormat(long time) {
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTimeInMillis(time);
+
+        return REGULAR_DATE_FORMAT.format(calendar.getTime());
+    }
 
     public static String formatTime(long time) {
         long now = System.currentTimeMillis();
@@ -371,5 +381,40 @@ public class Utility {
         nextUpdatePredictment = prediction;
 
         return prediction;
+    }
+
+    public static <E> List<E> decodeBinary(int code, Class<E> enumClass) {
+        List<E> badges = new ArrayList<>();
+        int curi = 0;
+        for (E badge : enumClass.getEnumConstants()) {
+            if (((code >> curi) & 1) == 1) badges.add(badge);
+            curi ++;
+        }
+
+        return badges;
+    }
+
+    public static <E> int encodeBinary(List<E> badges, Class<E> enumClass) {
+        int code = 0;
+        List<E> allBadges = Arrays.asList(enumClass.getEnumConstants());
+        for (E badge : badges) code += 1 << allBadges.indexOf(badge);
+
+        return code;
+    }
+
+    public static String truncate(String str, int lengthMax) {
+        return str.length() > lengthMax ? str.substring(0, lengthMax - 3) + "..." : str;
+    }
+
+    public static String truncateLength(String str, int maxWidth, FontMetrics metrics) {
+        char[] chars = str.toCharArray();
+        int curWidth = 0;
+        int curi = 0;
+        for (char cur : chars) {
+            curWidth += metrics.charsWidth(chars, curi, 1);
+            if (curWidth > maxWidth) return str.substring(0, curi) + "...";
+            else curi ++;
+        }
+        return str;
     }
 }

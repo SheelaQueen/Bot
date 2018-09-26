@@ -1,6 +1,7 @@
 package me.deprilula28.gamesrob.baseFramework;
 
 import lombok.Data;
+import me.deprilula28.gamesrob.utility.Log;
 import me.deprilula28.gamesrob.utility.Utility;
 
 import java.util.ArrayList;
@@ -25,7 +26,7 @@ public class MinMaxAI {
         private List<Double> elements = new ArrayList<>();
 
         public double getAvarage() {
-            return elements.stream().mapToDouble(it -> it).sum() / (double) elements.size();
+            return elements.size() > 0 ? elements.stream().mapToDouble(it -> it).sum() / (double) elements.size() : 0.0;
         }
 
         public double walk(BranchProcessor processor) {
@@ -50,7 +51,7 @@ public class MinMaxAI {
         Branch master = new Branch();
 
         processor.walk(master);
-        return master.getElements().indexOf(master.getElements().stream()
-                .min(Collections.reverseOrder(Comparator.comparingDouble(it -> it))).orElse(1.0));
+        return master.getElements().indexOf(master.getElements().stream().min(Collections
+                .reverseOrder(Comparator.comparingDouble(it -> it))).orElse(1.0));
     }
 }

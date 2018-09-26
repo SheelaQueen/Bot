@@ -95,8 +95,11 @@ public abstract class TurnMatchHandler implements MatchHandler {
 
     @Override
     public void onQuit(User user) {
-        if (!getTurn().getUser().filter(it -> it.equals(user)).isPresent()) return;
-        nextTurn();
+        if (getTurn().getUser().filter(it -> it.equals(user)).isPresent()) nextTurn();
+        MessageBuilder builder = new MessageBuilder();
+        updatedMessage(false, builder);
+        match.setMatchMessage(GameUtil.editSend(match.getChannelIn(), messages, match.getMatchMessage(), builder.build()));
+        if (messages > Constants.MESSAGES_SINCE_THRESHOLD) messages = 0;
     }
 
     @Override

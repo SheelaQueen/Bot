@@ -27,16 +27,20 @@ public class Tokens {
 
     public static String achievements(CommandContext context) {
         // Achievements
-        Map<Achievement, Integer> toComplete = new HashMap<>();
+        Map<Achievement, Integer> toComplete = Cache.get("achievements_" + context.getAuthor().getId(), n -> {
+            Map<Achievement, Integer> map = new HashMap<>();
 
-        for (AchievementType type : AchievementType.values()) {
-            if (type == AchievementType.OTHER) continue;
-            int amount = type.getAmount(context.getAuthor());
-            Arrays.stream(Achievements.values()).filter(it -> type.equals(it.getAchievement().getType()))
-                    .map(Achievements::getAchievement).filter(it -> it.getAmount() > amount)
-                    .min(Comparator.comparingInt(Achievement::getAmount)).ifPresent(achievement ->
-                    toComplete.put(achievement, amount));
-        }
+            for (AchievementType type : AchievementType.values()) {
+                if (type == AchievementType.OTHER) continue;
+                int amount = type.getAmount(context.getAuthor());
+                Arrays.stream(Achievements.values()).filter(it -> type.equals(it.getAchievement().getType()))
+                        .map(Achievements::getAchievement).filter(it -> it.getAmount() > amount)
+                        .min(Comparator.comparingInt(Achievement::getAmount)).ifPresent(achievement ->
+                        map.put(achievement, amount));
+            };
+
+            return map;
+        });
 
         if (toComplete.isEmpty()) return Language.transl(context, "command.achievements.noAchievements");
         else context.send(builder -> {
@@ -70,6 +74,7 @@ public class Tokens {
         return null;
     }
 
+    /*
     public static String tokens(CommandContext context) {
         User target = context.opt(context::nextUser).orElse(context.getAuthor());
         UserProfile profile = UserProfile.get(target);
@@ -150,8 +155,9 @@ public class Tokens {
             return null;
         } else return Language.transl(context, "command.tokens.other", target.getName(), Utility.addNumberDelimitors(tokens)) + baltopMessage;
     }
+    */
 
-    private static final int ENTRIES_PAGE = 10;
+    public static final int ENTRIES_PAGE = 10;
 
     public static String baltop(CommandContext context) {
         Optional<String> next = context.opt(context::next);
@@ -243,7 +249,7 @@ public class Tokens {
         if (page <= 0 || page > pages) return Language.transl(context, "command.baltop.invalidPage", 1, pages);
 
         return Language.transl(context, "command.tokens.transactions.title") +
-                profile.getTransactions(ENTRIES_PAGE, (page - 1) * ENTRIES_PAGE).stream().map(it -> String.format(
+                profile.getTransactions(ENTRIES_PAGE, (page - 1) * ENTRIES_PAGE, Optional.empty()).stream().map(it -> String.format(
                         "%s\uD83D\uDD36 %s tokens `%s` (%s)",
                         it.getAmount() >= 0 ? "+" : "-", Utility.addNumberDelimitors(Math.abs(it.getAmount())),
                         Language.transl(context, it.getMessage()), Utility.formatTime(it.getTime())

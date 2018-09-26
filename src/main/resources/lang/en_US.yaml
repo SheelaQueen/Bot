@@ -11,6 +11,7 @@ languageProperties:
 baltopGuildTemp: "Temporarly disabled for this server."
 
 genericMessages:
+  imagegenTime: "Image took %s to generate."
   alreadyPlaying: "You are already playing another game on %s!\nType `%sstop` to stop that match."
   noGamesInChannel: "There are no games currently in this channel.\nYou can type `%shelp` to pick and start a game!"
   invalidLanguage: "Not a valid language."
@@ -24,8 +25,8 @@ genericMessages:
   nth4: "th"
   upvoteMessage: "Thank you for upvoting GamesROB!\nYou've earnt:\n**%s**\nUpvote streak: **%s days**\nKeep upvoting daily for more rewards!"
   ownersOnly: "This command is only accessible for owners."
-  blacklisted: "⛔ You were blacklisted from using GamesROB by %s (%s).\nReason: %s"
-  blacklistedNoInfo: "⛔ You were blacklisted from using GamesROB."
+  blacklisted: "⛔ You were blacklisted from using GamesROB by %s (%s).\nReason: %s\nPlease contact %s."
+  blacklistedNoInfo: "⛔ You were blacklisted from using GamesROB.\nPlease contact %s."
 
   upvote:
     header: "**Thank you for voting for GamesROB!**\nRewards:\n+ 🔸 %s tokens!"
@@ -36,7 +37,7 @@ genericMessages:
 gameFramework:
   singleplayerMatch: "**Single-player %s Match**\n%s\n\n"
   multiplayerMatch: "**Multi-player %s Match**\n%s\n\n"
-  collectiveMatch: "**%s Game**\n%s\nClick 👥 to allow other people to play!\n\n"
+  collectiveMatch2: "**%s Game**\n%s\n\n"
   joinToPlay2: "🚪 Type `%sjoin` or click the door below to join!"
   joinToPlayNoReaction2: "🚪 Type `%sjoin` to join!"
   waiting: "⏰ Waiting\n"
@@ -72,6 +73,18 @@ gameFramework:
   turn: "%s's turn"
 
   rematch: "Click in :arrows_counterclockwise: for a rematch!"
+
+badges:
+  earned: "\nYou have earned the **%s** badge!\nIt will now appear in your profile at `%sprofile`."
+  highestBaltop1st: "1st in baltop"
+  highestBaltop1st: "2nd in baltop"
+  highestBaltop1st: "3rd in baltop"
+  globalBaltopTop10: "Top 10 in global baltop"
+  staff: "Staff"
+  translator: "Translator"
+  patron: "Patron"
+  overAchiever: "Achiever"
+  developer: "Developer"
 
 game:
   towncountryriver:
@@ -154,6 +167,8 @@ game:
     name: "TicTacToe"
     shortDescription: "Arrange 3 of your tile in a line within the board!"
     longDescription: "You know how TicTacToe works!\nJust send in the letter you want to put your tile in (e.g. a)."
+
+    tie: "It's a tie!"
   detective:
     name: "Detective"
     shortDescription: "One of you is an assassin. Kick them out before it's too late."
@@ -174,8 +189,8 @@ game:
     wakeFourthPlus: "🌆 The city wakes up, with one less citizen on our realm, and that would be %s. When does this stop?"
 
     dmCitizen: "🏙 You're a citizen."
-    dmAssassin: "🗡 You're the killer!\nWho will be the unlucky first? (Type their name here)"
-    dmAssassinRecursive: "Who will it be tonight? (Type their name here)"
+    dmAssassin2: "🗡 You're the killer!\nWho will be the unlucky first?\n%s"
+    dmAssassinRecursive2: "Who will it be tonight?\n%s"
   quiz:
     name: "Quiz"
     shortDescription: "Do you know all the answers?"
@@ -196,7 +211,6 @@ game:
     gambleTokens: "Gamble %s tokens"
     winTokensGambling: "Win %s tokens gambling"
     loseTokensGambling: "Lose %s tokens gambling"
-    reachPlaceLeaderboard: "Reach %sst place in the leaderboard"
     reachTokens: "Get %s tokens"
     upvote: "Upvote GamesROB on DBL %s times"
 
@@ -222,8 +236,6 @@ game:
     unfair: "This is unfair!"
     overconfident: "Overconfident"
     stubborn: "Stubborn"
-
-    winnerWinnerChickenDinner: "Winner winner chicken dinner"
 
     mediumClass: "Medium Class"
     upperClass: "Upper Class"
@@ -308,8 +320,6 @@ command:
     set: "Set %2$s's balance to %1$s (Current balance: %s)."
 
     baltop: "\nRanked **%s** in this guild and **%s** globally! `%sbaltop`"
-
-    description: "View how many tokens you or someone else has"
   join:
     alreadyOnMatch: "You're already on the match!"
     full: "The match is full!"
@@ -317,8 +327,16 @@ command:
     collectiveMatch: "This is a collective match, you can just go ahead and play!"
 
     description: "Joins a match on the current channel"
+  leave:
+    creator: "You are the match creator, use `%sstop` to stop the match."
+    notInMatch: "You aren't in that match!"
+    cantLeave: "This match can't be left."
+    message: "%s has left the match.\n"
+
+    description: "Leaves your current match"
   stop:
     matchStopped: "⏹ Match stopped by %s"
+    response: "The match has been stopped."
     description: "Forces a stop the current match"
   listplayers:
     header: "**%s Match**\n%s\n\n"
@@ -326,18 +344,30 @@ command:
   
   leaderboard:
     unknownUser: "*unknown user*"
-    playerRatings: " (**%s** victories)"
     noWinner: "~no winner yet~"
-    response: "**Overall**\n%s\n**Games:**\n%s"
+
     websiteLink: "View everything in our site"
     description: "View the leaderboard!"
   profile:
-    playerStats: "**%s**'s Statistics:\n"
-    overall: "%s **Overall Stats**: %s\n\n"
-    statsString: "%s%s Wins, %s Losses (%s W/L Ratio), %s Games Played"
-    place: "place"
+    title: "Profile (Scores from this server)"
+
+    overall: "Overall"
+    unranked: "Not ranked"
+    game: "Game"
+    position: "Position"
+    victories: "Victories"
+    losses: "Losses"
+    gamesPlayed: "Games"
+    winPercent: "Win %%"
+
+    tokenGuide: "Read our token guide by clicking here!"
+    upvote: "Upvoting the bot"
+    winMatches: "Winning Matches"
+    completeAchievements: "%%PREFIX%%achievements"
+    gambling: "%%PREFIX%%gamble"
+    upvoteEmbed: "Or [click here](%s) to upvote the bot!"
+
     description: "View your profile, or someone else's!"
-    notRanked: "Not ranked"
   emote:
     set: "Your emoji has been set! %s"
     reset: "Your emoji has been reset!"
@@ -356,7 +386,9 @@ command:
     beginning: "**<:GamesROBNew:456913958457049109> GamesROB v%s** *by deprilula28*\n"
     subCategory2: "\nUse `%%PREFIX%%help command` to get information about a command (e.g. `%%PREFIX%%help slots`).\nReact with a category's emote to view all its commands.\nArguments `<in these>` are obligatory, while arguments `[in these]` are optional. You don't actually use them in the command (e.g. `%%PREFIX%%slots 10`)"
     commandInfo: "`%s%s`: %s\nAliases: %s\nCategory: %s"
-    gameInfo: "`%s%s`: %s\n\n**Long Description**\n%s\n\nAliases: %s\nMore information: %s"
+    gameInfo2: "`%s%s`: %s\n\n**Long Description**\n%s\n\n**Settings:**\n%s\n\n%sAliases: %s\nMore information: %s"
+    modes: "**Modes:**\n%s\n\n"
+    setting: "`%s` (Values %s - %s / Default %s)"
     recentUpdate: "<:update:264184209617321984> The bot has recently received an update! `v%s`\nCheck out the changes with `%schangelog`."
     categories:
       games: "Games"
@@ -384,10 +416,10 @@ command:
         month: " (**%s** this month)"
       versions:
         title: "📁 Versions"
-        description: "GamesROB Version: **%s**\nJava Version: **%s**\n[JDA](%s) Version: **%s**\n[JDA Framework](%s) Version: **%s**\nShard Uptime: **%s**"
+        description: "GamesROB Version: **%s**\nJava Version: **%s**\n[JDA](%s) Version: **%s**\n[JDA Framework](%s) Version: **%s**\nCluster Uptime: **%s**"
       system:
         title: "💻 System"
-        description: "RAM: **%s**\nOS: **%s**\nShard: **%s/%s** (**%s**)"
+        description2: "RAM: **%s**\nOS: **%s**\nShard: **%s/%s** (**%s**)\n%s RPC/JSON Connection"
       links:
         title: "🔗 Useful Links"
         description: "🌐 [Our Website](%s)\n➕ [Add bot to server](%s)\n🗒 [View the source code](%s)\nℹ️ [Join our support server](%s)\n❤ [Credits](%s)\n⬆ [Upvote the bot in DBL](%s)"
@@ -412,8 +444,22 @@ command:
     ram: "RAM Usage"
     description: "🗄 *Debug* View a shard information dump"
   changelog:
-    text: "**GamesROB v%s**\nFrom %s\n\n%s\n\n*Updates are usually scheduled for every friday, making the next update %s.*\n*You can suggest features and bug fixes in our server: %s*"
-    description: "Shows all the changes on the latest update."
+    text: "**GamesROB v%s**\nFrom %s\n```diff\n%s\n```\n*Updates are usually scheduled for every friday, making the next update %s.*\n*You can suggest features and bug fixes in our server: %s*"
+    description: "Shows all the changes on the latest update"
+  support:
+    message: "If you're having trouble with the bot, want to suggest features, get notified when the bot updates or just want to talk to other people who use it, check out our support server:\nhttps://discord.gg/xajeDYR"
+    description: "Gives you a link to the bot's support server"
+  upvote:
+    info: "Last upvoted: %s\nCurrent Streak: %s days (Lost %s)\nUpvoted %s times since %s (View your history with `%supvote history`)\n"
+    messageCanVote: "You can upvote the bot for 🔸 %s tokens!"
+    clickToVote: "Click to go to the upvote page"
+    setdays: "Set %2$s's upvoted days to %1$s."
+
+    history:
+      title: "**Your last upvotes:**\n"
+      footer: "\nShowing %s entries per page | Page %s/%s\nView another page with `%supvote history <page>`."
+
+    description: "Gives you information about your last upvotes"
 
   perm:
     invalidPerm: "Invalid permission!"

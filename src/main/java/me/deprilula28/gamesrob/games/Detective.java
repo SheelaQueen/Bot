@@ -36,7 +36,8 @@ public class Detective implements MatchHandler {
         killer = match.getPlayers().get(GameUtil.generateRandom().nextInt(match.getPlayers().size()));
         alive.addAll(match.getPlayers());
         match.getPlayers().forEach(cur -> cur.getUser().ifPresent(user -> user.openPrivateChannel().queue(pm -> {
-            if (killer.equals(cur)) pm.sendMessage(Language.transl(match.getLanguage(), "game.detective.dmAssassin")).queue();
+            if (killer.equals(cur)) pm.sendMessage(Language.transl(match.getLanguage(), "game.detective.dmAssassin2",
+                    getOptionsKillerMessage())).queue();
             else pm.sendMessage(Language.transl(match.getLanguage(), "game.detective.dmCitizen")).queue();
         })));
         lastNotification = Language.transl(match.getLanguage(), "game.detective.sleep");
@@ -45,6 +46,12 @@ public class Detective implements MatchHandler {
 
     @Override
     public void onQuit(User user) {
+        if (Player.user(user).equals(killer))
+            match.onEnd(Language.transl(match.getLanguage(), "game.detective.assassinKicked"), true);
+        else {
+            alive.remove(Player.user(user));
+            updateMessage();
+        }
     }
 
     @Override
@@ -83,7 +90,8 @@ public class Detective implements MatchHandler {
 
                     awake = false;
                     killer.getUser().ifPresent(user -> user.openPrivateChannel().queue(pm ->
-                            pm.sendMessage(Language.transl(match.getLanguage(), "game.detective.dmAssassinRecursive")).queue()));
+                            pm.sendMessage(Language.transl(match.getLanguage(), "game.detective.dmAssassinRecursive2",
+                                    getOptionsKillerMessage())).queue()));
                     updateMessage();
                 });
                 votes.clear();
@@ -96,36 +104,39 @@ public class Detective implements MatchHandler {
         }
     }
 
+    private String getOptionsKillerMessage() {
+        return alive.stream().map(it -> Utility.getLetterEmote(alive.indexOf(it)) + it.toString())
+                .collect(Collectors.joining("\n"));
+    }
+
     private List<Player> voted = new ArrayList<>();
     private Map<Player, Integer> votes = new HashMap<>();
 
     @Override
     public void receivedDM(String contents, User from, Message reference) {
         if (!awake && killer.getUser().filter(it -> it.equals(from)).isPresent()) {
-            Optional<User> userOpt = alive.stream().filter(it -> it.getUser().isPresent() && contents.equalsIgnoreCase(it.getUser().get().getName()))
-                    .map(it -> it.getUser().get()).findFirst();
+            if (contents.length() != 1) return;
+            int numb = Utility.inputLetter(contents);
+            if (numb >= alive.size() || numb < 0) return;
 
-            if (userOpt.isPresent()) {
-                User user = userOpt.get();
-                if (user.equals(from)) return;
+            Player player = alive.get(numb);
+            if (player.equals(Player.user(from))) return;
 
-                alive.remove(Player.user(user));
-                if (alive.size() <= 2) {
-                    match.onEnd(killer);
-                    return;
-                }
+            alive.remove(player);
+            if (alive.size() <= 2) {
+                match.onEnd(killer);
+                return;
+            }
 
-                awake = true;
-                days ++;
+            awake = true;
+            days ++;
 
-                lastNotification = Language.transl(match.getLanguage(),
-                        days == 1 ? "game.detective.wakeFirst" :
-                        days == 2 ? "game.detective.wakeSecond" :
-                        days == 3 ? "game.detective.wakeThird" :
-                        "game.detective.wakeFourthPlus", user.getAsMention());
-                updateMessage();
-            } else from.openPrivateChannel().queue(pm -> pm.sendMessage(Language.transl(match.getLanguage(),
-                    "game.detective.invalidUser")).queue());
+            lastNotification = Language.transl(match.getLanguage(),
+                    days == 1 ? "game.detective.wakeFirst" :
+                    days == 2 ? "game.detective.wakeSecond" :
+                    days == 3 ? "game.detective.wakeThird" :
+                    "game.detective.wakeFourthPlus", player.toString());
+            updateMessage();
             match.interrupt();
         }
     }

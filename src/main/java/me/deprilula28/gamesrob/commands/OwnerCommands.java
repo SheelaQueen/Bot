@@ -1,8 +1,7 @@
 package me.deprilula28.gamesrob.commands;
 
 import com.google.gson.JsonPrimitive;
-import jdk.nashorn.api.scripting.ClassFilter;
-import jdk.nashorn.api.scripting.NashornScriptEngineFactory;
+import javafx.util.Pair;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import me.deprilula28.gamesrob.BootupProcedure;
@@ -14,14 +13,16 @@ import me.deprilula28.gamesrob.utility.*;
 import me.deprilula28.jdacmdframework.Command;
 import me.deprilula28.jdacmdframework.CommandContext;
 import me.deprilula28.jdacmdframework.CommandFramework;
+import me.deprilula28.jdacmdframework.exceptions.CommandArgsException;
+import me.deprilula28.jdacmdframework.exceptions.InvalidCommandSyntaxException;
 import net.dv8tion.jda.core.entities.User;
+import org.yaml.snakeyaml.Yaml;
 
 import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
 import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.net.URLConnection;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.util.*;
@@ -82,6 +83,32 @@ public class OwnerCommands {
                 "`DBL`: " + BootupProcedure.getLastDblRequest() + "\n" +
                 "`BotsForDiscord`: " + BootupProcedure.getLastBfdRequest() + "\n" +
                 "`Discord Bots`: " + BootupProcedure.getLastDbotsRequest();
+    }
+
+    public static String badges(CommandContext context) {
+        if (!GamesROB.owners.contains(context.getAuthor().getIdLong())) return Language.transl(context,
+                "genericMessages.ownersOnly");
+
+        String language = Constants.getLanguage(context);
+        String thing = context.next();
+        User user = context.nextUser();
+        UserProfile profile = UserProfile.get(user);
+
+        if (thing.equalsIgnoreCase("add")) {
+            UserProfile.Badge badge = UserProfile.Badge.valueOf(context.next().toUpperCase());
+            profile.addBadge(badge);
+            return "Added badge " + badge.getName(language) + " to " + user.getAsMention() + ".";
+        } else if (thing.equalsIgnoreCase("remove")) {
+            UserProfile.Badge badge = UserProfile.Badge.valueOf(context.next().toUpperCase());
+            profile.getBadges().remove(badge);
+            return "Removed badge " + badge.getName(language) + " to " + user.getAsMention() + ".";
+        } else if (thing.equalsIgnoreCase("view")) {
+            int encoded = Utility.encodeBinary(profile.getBadges(), UserProfile.Badge.class);
+            return user.getName() + "'s badges:\n`0x" + Integer.toBinaryString(encoded) + "` " +  encoded + "\n"
+                    + profile.getBadges().stream().map(it -> it.getName(language))
+                    .collect(Collectors.joining("\n"));
+        }
+        else throw new InvalidCommandSyntaxException();
     }
 
     public static String cache(CommandContext context) {
@@ -265,7 +292,7 @@ public class OwnerCommands {
         double time = (double) (System.nanoTime() - begin) / 1000000000.0;
 
         String text = response == null ? "null" : (response instanceof String ? (String) response : response.toString());
-        text = text.replaceAll(context.getJda().getToken(), "no u");
+        text = text.replaceAll(context.getJda().getToken(), "how about no");
         String message = (success
                 ? "<:check:314349398811475968> Output took " + Utility.formatPeriod(time)
                 : "<:xmark:314349398824058880> Failed in " + Utility.formatPeriod(time)) + ":\n" +
@@ -310,7 +337,7 @@ public class OwnerCommands {
         AtomicLong lastSecond = new AtomicLong(0L);
 
         GamesROB.rpc.ifPresent(rpc -> {
-            rpc.request(RPCManager.RequestType.BOT_UDPATED, new JsonPrimitive(url));
+            rpc.request(RPCManager.RequestType.BOT_UPDATED, new JsonPrimitive(url));
             Log.info("Sent bot update to other clusters.");
         });
 
@@ -384,5 +411,36 @@ public class OwnerCommands {
                 return "Cleared owners.";
             });
         });
+    }
+
+    public static String compileLanguage(CommandContext context) {
+        if (!GamesROB.owners.contains(context.getAuthor().getIdLong())) return Language.transl(context,
+                "genericMessages.ownersOnly");
+
+        String lang = context.next();
+        Map<String, String> allKeys = new HashMap<>();
+        List<String> translators = new ArrayList<>();
+        Optional.ofNullable(Language.getLanguages().get(lang)).ifPresent(allKeys::putAll);
+
+        GamesROB.database.ifPresent(db -> Log.wrapException("Getting translation suggestions", () -> {
+            ResultSet set = db.select("translationsuggestions", "language = '" + lang + "'");
+            Map<String, List<Pair<String, Integer>>> votesForEntries = new HashMap<>();
+
+            while (set.next()) {
+                String key = set.getString("key");
+
+                if (!votesForEntries.containsKey(key)) votesForEntries.put(key, new ArrayList<>());
+                votesForEntries.get(key).add(new Pair<>(set.getString("translation"), set.getInt("rating")));
+                translators.add(set.getString("userid"));
+            }
+
+            votesForEntries.forEach((key, value) -> value.stream().min(Comparator.comparingInt(it ->
+                    ((Pair<String, Integer>) it).getValue()).reversed()).ifPresent(it -> allKeys.put(key, it.getKey())));
+        }));
+        allKeys.put("languageProperties.translators", translators.stream().map(it -> GamesROB.getUserById(it)
+            .map(user -> user.getName() + "#" + user.getDiscriminator()).orElse("not found")).collect(Collectors.joining(", ")));
+
+        context.getChannel().sendFile(Constants.GSON.toJson(allKeys).getBytes(), lang + ".json").queue();
+        return null;
     }
 }

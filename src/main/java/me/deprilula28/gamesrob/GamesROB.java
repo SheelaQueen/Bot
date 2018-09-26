@@ -18,6 +18,7 @@ import me.deprilula28.jdacmdframework.CommandFramework;
 import net.dv8tion.jda.core.JDA;
 import net.dv8tion.jda.core.OnlineStatus;
 import net.dv8tion.jda.core.entities.*;
+import org.java_websocket.client.WebSocketClient;
 
 import java.util.*;
 import java.util.function.Supplier;
@@ -32,7 +33,7 @@ public class GamesROB {
     public static final long UP_SINCE = System.currentTimeMillis();
     private static final int MAJOR = 1;
     private static final int MINOR = 7;
-    private static final int PATCH = 6;
+    private static final int PATCH = 8;
     public static final String VERSION = String.format("%s.%s.%s", MAJOR, MINOR, PATCH);
 
     public static List<JDA> shards = new ArrayList<>();
@@ -66,7 +67,7 @@ public class GamesROB {
     }
 
     public static Utility.Promise<List<ShardStatus>> getAllShards() {
-        return rpc.map(it -> it.request(RPCManager.RequestType.GET_ALL_SHARDS_INFO, null)
+        return rpc.filter(WebSocketClient::isOpen).map(it -> it.request(RPCManager.RequestType.GET_ALL_SHARDS_INFO, null)
                 .map(list -> {
                     List<ShardStatus> statuses = new ArrayList<>();
                     list.getAsJsonArray().forEach(el -> statuses.add(Constants.GSON.fromJson(el, ShardStatus.class)));

@@ -2,7 +2,6 @@ package me.deprilula28.gamesrob.data;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import com.google.gson.JsonPrimitive;
 import com.google.gson.annotations.SerializedName;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -23,6 +22,9 @@ import org.java_websocket.handshake.ServerHandshake;
 
 import java.net.URI;
 import java.util.*;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -77,7 +79,7 @@ public class RPCManager extends WebSocketClient {
     public static enum RequestType {
         // Server -> Client
         WEBHOOK_NOTIFICATION, GET_USER_BY_ID, GET_GUILD_BY_ID, GET_MUTUAL_SERVERS, GET_SHARDS_INFO, OWNER_LIST_UPDATED,
-        BOT_UDPATED, IS_OWNER,
+        BOT_UPDATED, BOT_RESTARTED, IS_OWNER,
 
         // Client -> Server
         GET_ALL_SHARDS_INFO, BOT_UPDATE, OWNER_LIST_UPDATE
@@ -133,15 +135,15 @@ public class RPCManager extends WebSocketClient {
     }
 
     public void disconnectThread() {
-        Log.wrapException("Reconnecting to RPC/JSON", () -> {
-            long delay = 3000L;
+        ScheduledExecutorService service = Executors.newSingleThreadScheduledExecutor();
+        disconnectExec(service);
+    }
 
+    private void disconnectExec(ScheduledExecutorService service) {
+        Log.wrapException("Failed to connect to RPC/JSON", () -> {
             Log.info("Attempting reconnect to RPC/JSON...");
-            while (!reconnectBlocking()) {
-                Log.info("RPC/JSON Reconnect failed. Re-attempting in " + Utility.formatPeriod(delay));
-                Thread.sleep(delay);
-                Log.info("Attempting reconnect to RPC/JSON...");
-            }
+            if (reconnectBlocking()) Log.info("Connected sucessfully.");
+            else service.schedule(() -> disconnectExec(service), 3, TimeUnit.SECONDS);
         });
     }
 
@@ -217,8 +219,13 @@ public class RPCManager extends WebSocketClient {
             return null;
         });
 
-        handlerMap.put(RequestType.BOT_UDPATED, url -> {
+        handlerMap.put(RequestType.BOT_UPDATED, url -> {
             Log.wrapException("Updating bot from RPC request", () -> OwnerCommands.update(url.getAsString(), Log::info));
+            return null;
+        });
+        handlerMap.put(RequestType.BOT_RESTARTED, url -> {
+            Log.info("Bot restarting as RPC server request.");
+            System.exit(-1);
             return null;
         });
     }

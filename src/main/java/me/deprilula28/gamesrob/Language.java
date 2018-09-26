@@ -13,9 +13,8 @@ import org.yaml.snakeyaml.Yaml;
 import java.util.*;
 
 public class Language {
-    private static Map<String, Map<String, String>> languages = new HashMap<>();
-    @Getter
-    private static List<String> languageList = new ArrayList<>();
+    @Getter private static Map<String, Map<String, String>> languages = new HashMap<>();
+    @Getter private static List<String> languageList = new ArrayList<>();
 
     public static void loadLanguages() {
         Yaml yaml = new Yaml();
