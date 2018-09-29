@@ -12,16 +12,17 @@ import java.util.stream.Collectors;
 public class LanguageCommands {
     private static String allLangs = null;
 
-    private static String getAllLangsMessage(String prefix, String command) {
-        if (allLangs == null) allLangs = Language.getLanguageList().stream().map(it -> String.format(
-                "%s %s `%s` ~%s",
-                Language.transl(it, "languageProperties.flag"),
-                Language.transl(it, "languageProperties.languageName"),
-                Language.transl(it, "languageProperties.code"),
-                Language.transl(it, "languageProperties.translators")
-        )).collect(Collectors.joining("\n"));
-
-        return "`" + prefix + command + " <co_DE>`\n" + allLangs;
+    private static String getAllLangsMessage(CommandContext context) {
+        String curLang = Constants.getLanguage(context);
+        return Language.transl(context, "genericMessages.languagecommand.header",
+                Language.transl(context, "languageProperties.flag"), Language.transl(context, "languageProperties.languageName"),
+                Constants.getPrefix(context.getGuild()) + context.getCurrentCommand().getName()) +
+                Language.getLanguageList().stream().filter(it -> !it.equals(curLang)).map(it -> Language.transl(context,
+            "genericMessages.languagecommand.entry", String.format("%s %s `%s`",
+                Language.transl(it, "languageProperties.flag"), Language.transl(it, "languageProperties.languageName"),
+                Language.transl(it, "languageProperties.code")), Language.transl(it, "languageProperties.translators")))
+            .collect(Collectors.joining("\n")) + Language.transl(context, "genericMessages.languagecommand.bottom",
+                Constants.GAMESROB_DOMAIN + "/translators");
     }
 
     public static String setGuildLanguage(CommandContext context) {
@@ -35,7 +36,7 @@ public class LanguageCommands {
             profile.setEdited(true);
             profile.setLanguage(it);
             return Language.transl(context, "command.guildlang.set", it);
-        } else return getAllLangsMessage(Constants.getPrefix(context.getGuild()), context.getCurrentCommand().getName());
+        } else return getAllLangsMessage(context);
     }
 
     public static String setUserLanguage(CommandContext context) {
@@ -50,6 +51,6 @@ public class LanguageCommands {
             profile.setEdited(true);
             profile.setLanguage(it);
             return Language.transl(it, "command.userlang.set", Language.transl(it, "languageProperties.languageName"));
-        } else return getAllLangsMessage(Constants.getPrefix(context.getGuild()), context.getCurrentCommand().getName());
+        } else return getAllLangsMessage(context);
     }
 }

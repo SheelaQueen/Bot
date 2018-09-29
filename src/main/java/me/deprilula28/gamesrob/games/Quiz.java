@@ -212,8 +212,8 @@ public class Quiz implements MatchHandler {
                     roundsDone, rounds,
                     curQuestion.getCategory(), curQuestion.getDifficulty(),
                     decodedQuestion.replaceAll("\\?", "<:qmgreen:456945984656900096>"),
-                    orderedOptions.stream().map(it -> Utility.getLetterEmote(orderedOptions.indexOf(it)) + " " + it)
-                            .collect(Collectors.joining("\n"))));
+                    orderedOptions.stream().map(it -> Utility.getLetterEmote(orderedOptions.indexOf(it)) + " " +
+                            HtmlEscape.unescapeHtml(it)).collect(Collectors.joining("\n"))));
         }
         GameUtil.appendPlayersScore(playerItems, scoreboard, over, builder);
     }

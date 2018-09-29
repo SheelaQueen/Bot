@@ -25,14 +25,21 @@ genericMessages:
   nth4: "th"
   upvoteMessage: "Thank you for upvoting GamesROB!\nYou've earnt:\n**%s**\nUpvote streak: **%s days**\nKeep upvoting daily for more rewards!"
   ownersOnly: "This command is only accessible for owners."
-  blacklisted: "⛔ You were blacklisted from using GamesROB by %s (%s).\nReason: %s\nPlease contact %s."
+  blacklisted: "⛔ You were blacklisted from using GamesROB by %s (%s).\nReason: %s"
   blacklistedNoInfo: "⛔ You were blacklisted from using GamesROB.\nPlease contact %s."
+  tooFast: "You're sending commands too quickly! Wait before the last one has finished loading."
+  requirespermissions: "The bot needs these permissions in the server to use this command:\n`%s`"
 
   upvote:
     header: "**Thank you for voting for GamesROB!**\nRewards:\n+ 🔸 %s tokens!"
     streak: " (%s days in a row)"
     weekend: " **Weekend multiplier: 2x!**"
     footer: "\n\nYou can upvote again in 12 hours.\nVoting more days in a row increases the amount of tokens gained."
+
+  languagecommand:
+    header: "%s The language is currently set to %s.\nPick the code (`has darker background`) of the language you want below and run `%s <code>`:\n\n"
+    entry: "%s (Translated by %s)"
+    bottom: "\n\nWant to help translating to your own language?\n%s"
 
 gameFramework:
   singleplayerMatch: "**Single-player %s Match**\n%s\n\n"
@@ -363,8 +370,8 @@ command:
     tokenGuide: "Read our token guide by clicking here!"
     upvote: "Upvoting the bot"
     winMatches: "Winning Matches"
-    completeAchievements: "%%PREFIX%%achievements"
-    gambling: "%%PREFIX%%gamble"
+    completeAchievements: "Completing some %%PREFIX%%achievements"
+    gambling: "Gambling with %%PREFIX%%slots"
     upvoteEmbed: "Or [click here](%s) to upvote the bot!"
 
     description: "View your profile, or someone else's!"

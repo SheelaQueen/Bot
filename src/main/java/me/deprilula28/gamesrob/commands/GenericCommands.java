@@ -29,6 +29,10 @@ import java.util.stream.Stream;
 import static me.deprilula28.gamesrob.commands.Tokens.ENTRIES_PAGE;
 
 public class GenericCommands {
+    private static final String[] ICON_MAKERS = {
+        "Freepik", "phatplus", "Good Ware", "smashicons"
+    };
+
     public static String ping(CommandContext context) {
         long youToBotPing = System.currentTimeMillis() - context.getMessage().getCreationTime().toInstant().toEpochMilli();
 

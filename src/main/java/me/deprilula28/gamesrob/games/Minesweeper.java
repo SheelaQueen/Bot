@@ -16,6 +16,7 @@ import net.dv8tion.jda.core.entities.User;
 import javax.xml.ws.Provider;
 import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
+import java.util.stream.Collectors;
 
 public class Minesweeper implements MatchHandler {
     public static final GamesInstance GAME = new GamesInstance(
@@ -129,7 +130,7 @@ public class Minesweeper implements MatchHandler {
             }
 
             hiddenBombs.add(author);
-            if (length != 2 && !match.getMode().isPresent()) clearArea(curBoard, x, y);
+            if (length != 3 && !match.getMode().isPresent()) clearArea(curBoard, x, y);
         }
 
         // If all the tiles are either dug or bombs

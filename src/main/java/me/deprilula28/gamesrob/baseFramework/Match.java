@@ -311,7 +311,7 @@ public class Match extends Thread {
                 String name = event.getReactionEmote().getName();
                 if (name == null) return;
                 if (name.equals("▶") && game.getModes().isEmpty()) startReaction(event.getUser());
-                else if (name.charAt(1) == '⃣') {
+                else if (name.length() == 2 && name.charAt(1) == '⃣') {
                     int number = name.charAt(0) - 49;
                     if (game.getModes().size() < number || number < 0) return;
 
@@ -454,7 +454,7 @@ public class Match extends Thread {
     }
 
     public void onEnd(Player winner) {
-        onEnd(winner, players.stream().anyMatch(it -> it.getUser().isPresent()) ? 0 : Constants.MATCH_WIN_TOKENS);
+        onEnd(winner, players.stream().anyMatch(it -> !it.getUser().isPresent()) ? 0 : Constants.MATCH_WIN_TOKENS);
     }
 
     private void onEnd(Player winner, int tokens) {

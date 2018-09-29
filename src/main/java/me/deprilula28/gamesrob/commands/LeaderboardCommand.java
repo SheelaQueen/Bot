@@ -23,7 +23,7 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 public class LeaderboardCommand {
-    private static final int LEADERBOARD_COMMAND_WIDTH = ImageCommands.USER_PROFILE_WIDTH + 60;
+    private static final int LEADERBOARD_COMMAND_WIDTH = ImageCommands.USER_PROFILE_WIDTH + 200;
     private static final int LEADERBOARD_ENTRIES_BORDER = 30;
     private static final int LEADERBOARD_GAME_TITLE_HEIGHT = 30;
     private static final int LEADERBOARD_GAME_TITLE_FONT_SIZE = 30;

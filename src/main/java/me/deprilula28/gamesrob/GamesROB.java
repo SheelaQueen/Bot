@@ -33,7 +33,7 @@ public class GamesROB {
     public static final long UP_SINCE = System.currentTimeMillis();
     private static final int MAJOR = 1;
     private static final int MINOR = 7;
-    private static final int PATCH = 8;
+    private static final int PATCH = 9;
     public static final String VERSION = String.format("%s.%s.%s", MAJOR, MINOR, PATCH);
 
     public static List<JDA> shards = new ArrayList<>();

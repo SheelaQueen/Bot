@@ -355,6 +355,31 @@ public class Utility {
     }
 
     public static boolean hasPermission(Channel channel, Member member, Permission permission) {
+        if (member.hasPermission(permission)) {
+            return channel.getRolePermissionOverrides().stream().noneMatch(it -> member.getRoles().contains(it.getRole())
+                    && it.getDenied().contains(permission)) && channel.getMemberPermissionOverrides().stream().noneMatch(it -> it.getMember().equals(member)
+                    && it.getDenied().contains(permission));
+        } else return channel.getRolePermissionOverrides().stream().anyMatch(it -> member.getRoles().contains(it.getRole())
+                && it.getAllowed().contains(permission)) || channel.getMemberPermissionOverrides().stream()
+                .anyMatch(it -> it.getMember().equals(member) && it.getAllowed().contains(permission));
+        /*
+        Log.info("Checking permission:", channel, member, permission,
+                "\nMember", member.hasPermission(permission),
+                channel.getRolePermissionOverrides().stream().noneMatch(it -> member.getRoles().contains(it.getRole())
+                        && it.getDenied().contains(permission)),
+                channel.getMemberPermissionOverrides().stream().noneMatch(it -> it.getMember().equals(member)
+                        && it.getDenied().contains(permission)),
+                "\nOther", channel.getRolePermissionOverrides().stream().anyMatch(it -> member.getRoles().contains(it.getRole())
+                        && it.getAllowed().contains(permission)) || channel.getMemberPermissionOverrides().stream()
+                        .anyMatch(it -> it.getMember().equals(member) && it.getAllowed().contains(permission)),
+                "\nResult", (member.hasPermission(permission) &&
+                        channel.getRolePermissionOverrides().stream().noneMatch(it -> member.getRoles().contains(it.getRole())
+                                && it.getDenied().contains(permission)) &&
+                        channel.getMemberPermissionOverrides().stream().noneMatch(it -> it.getMember().equals(member)
+                                && it.getDenied().contains(permission)))
+                        || channel.getRolePermissionOverrides().stream().anyMatch(it -> member.getRoles().contains(it.getRole())
+                        && it.getAllowed().contains(permission)) || channel.getMemberPermissionOverrides().stream()
+                        .anyMatch(it -> it.getMember().equals(member) && it.getAllowed().contains(permission)));
         return (member.hasPermission(permission) &&
                 channel.getRolePermissionOverrides().stream().noneMatch(it -> member.getRoles().contains(it.getRole())
                         && it.getDenied().contains(permission)) &&
@@ -363,6 +388,7 @@ public class Utility {
             || channel.getRolePermissionOverrides().stream().anyMatch(it -> member.getRoles().contains(it.getRole())
                     && it.getAllowed().contains(permission)) || channel.getMemberPermissionOverrides().stream()
                 .anyMatch(it -> it.getMember().equals(member) && it.getAllowed().contains(permission));
+                */
     }
 
     private static long nextUpdatePredictment = -1;

@@ -44,7 +44,7 @@ import java.util.stream.Collectors;
 public class CommandManager {
     public static Map<Class<? extends MatchHandler>, List<GameSettingValue>> matchHandlerSettings = new HashMap<>();
     private static Map<String, String> languageHelpMessages = new HashMap<>();
-    private static Map<String, Long> commandStart = new ConcurrentHashMap<>();
+    public static Map<String, Long> commandStart = new ConcurrentHashMap<>();
     public static double avgCommandDelay = 0L;
 
     @Data
@@ -90,12 +90,14 @@ public class CommandManager {
         }).attr("category", "partnercommands");
 
         // Tokens
-        f.command("slots c slot lotto lottery gamble gmb gmbl", Slots::slotsGame).attr("category", "tokencommands").setUsage("slots <amount/all>");
+        f.command("slots c slot lotto lottery gamble gmb gmbl", Slots::slotsGame)
+                .attr("category", "tokencommands").setUsage("slots <amount/all>");
 
         f.command("achievements a achieve achieved achieves ach " +
                 "viewachievements viewachieve viewachieved viewachieves viewach accomplishments accomplished viewaccomplishments " +
                 "viewaccomplished tasks task viewtasks viewtask missions mission viewmissions viewmission",
-                Tokens::achievements).attr("category", "tokencommands");
+                Tokens::achievements).attr("category", "tokencommands")
+                .attr("permissions", "MESSAGE_EMBED_LINKS");
 
         f.command("baltop b balancetop topbalance rich tokensleaderboard tokenslb tklb", Tokens::baltop)
                 .attr("category", "tokencommands").setUsage("baltop [global] [page]");
@@ -132,7 +134,8 @@ public class CommandManager {
 
                         return Language.transl(context, "command.tokens.give", context.getAuthor().getAsMention(), target.getAsMention(), amount);
                     }).setUsage("g*token give <user> <amount>");
-                }).attr("category", "profilecommands").setUsage("profile [user]");
+                }).attr("category", "profilecommands").attr("permissions", "MESSAGE_ATTACH_FILES,MESSAGE_EMBED_LINKS")
+                .setUsage("profile [user]");
 
         f.command("userlang u lang language userlanguage mylang mylanguage", LanguageCommands::setUserLanguage).attr("category", "profilecommands");
 
@@ -146,7 +149,8 @@ public class CommandManager {
                         "viewleaderboards checkleaderboards board getboard viewboard checkboard boards getboards checkboards " +
                         "viewboards leader getleader checkleader viewleader leaders getleaders checkleaders viewleaders lb " +
                         "getlb checklb viewlb lbs getlbs checklbs viewlbs top gettop checktop viewtop",
-                imageCommand(LeaderboardCommand::leaderboard)).attr("category", "servercommands");
+                imageCommand(LeaderboardCommand::leaderboard)).attr("category", "servercommands")
+                .attr("permissions", "MESSAGE_ATTACH_FILES");
 
         f.command("guildlang g changeguildlang setguildlang guildlanguage changeguildlanguage setguildlanguage " +
                         "glang changeglang setglang glanguage changeglanguage setglanguage serverlang changeserverlang " +
@@ -188,15 +192,17 @@ public class CommandManager {
 
         // Information
         f.command("invite i invitebot invitegrob invitegamesrob add addbot addgrob addgamesrob get getbot getgrob " +
-                "getgamesrob getgood getgud", GenericCommands::invite).attr("category", "infocommands");
+                "getgamesrob getgood getgud", GenericCommands::invite).attr("category", "infocommands")
+                .attr("permissions", "MESSAGE_EMBED_LINKS");
 
         f.command("info ? information botinfo botinformation helpbutwithdetails", GenericCommands::info,
                 it -> it.sub("reload", GenericCommands::info)).reactSub("\uD83D\uDD01", "reload")
-                .attr("category", "infocommands");
+                .attr("category", "infocommands").attr("permissions", "MESSAGE_EMBED_LINKS");
 
         f.command("changelog getchangelog viewchangelog log getlog viewlog clog getclog viewclog changes getchanges " +
                 "viewchanges version getversion viewversion ver getver viewver additions getaddions viewadditions whatsnew g" +
-                "etwhatsnew viewwhatsnew", GenericCommands::changelog).attr("category", "infocommands");
+                "etwhatsnew viewwhatsnew", GenericCommands::changelog).attr("category", "infocommands")
+                .attr("permissions", "MESSAGE_EMBED_LINKS");
 
         f.command("ping getping viewping seeping checkping pong getpong viewpong seepong checkpong connection getconnection " +
                 "viewconnection seeconnection checkconnection latency getlatency viewlatency seelatency checklatency latenci " +
@@ -211,7 +217,7 @@ public class CommandManager {
                 .attr("category", "infocommands");
 
         f.command("support bug report glitch bugs error glitches errors server", messageCommand())
-                .attr("category", "infocommands");
+                .attr("category", "infocommands").attr("permissions", "MESSAGE_EMBED_LINKS");
 
         f.command("help h halp games what wat uwot uwotm8 uwotm9  wtf tf ... ivefallenandicantgetup whatisgoingon " +
                 "imscared commands cmds imgoingtoexplode please~~sendnudes~~*help*me ineedassistance", CommandManager::help, cmd -> {
@@ -259,7 +265,8 @@ public class CommandManager {
             });
 
             for (int i = 1; i < EMOTE_LIST.size(); i++) cmd.reactSub(EMOTE_LIST.get(i), CATEGORIES[i]);
-        }).reactSub("⬅", "back").attr("category", "infocommands");
+        }).reactSub("⬅", "back").attr("category", "infocommands")
+            .attr("permissions", "MESSAGE_EMBED_LINKS");
 
         f.getCommands().forEach(cur -> {
             String category = cur.attr("category");
@@ -277,7 +284,7 @@ public class CommandManager {
         f.command("< blacklist bl l8r adios cya pce peace later bye rekt dab", OwnerCommands::blacklist);
         f.command("| cache", OwnerCommands::cache);
         f.command(". servercount srvcount svc", OwnerCommands::servercount);
-        f.command("¨ compilelanguage cl", OwnerCommands::compileLanguage);
+        f.command("¨ compilelanguage cl21", OwnerCommands::compileLanguage);
         f.command("+ badges badge bdg bg", OwnerCommands::badges);
 
         f.command("0 1 2 3 4 5 6 7 8 9 $ @ whymustyoumentioneveryone fin finmessage finmsg fintime meme memes " +
@@ -292,12 +299,25 @@ public class CommandManager {
         OwnerCommands.owners(f);
 
         f.before(it -> {
+            if (commandStart.containsKey(it.getAuthor().getId())) return Language.transl(it, "genericMessages.tooFast");
+
             Optional<Blacklist> optBl = getBlacklist(it.getAuthor().getId());
             if (optBl.isPresent()) {
                 Blacklist blacklist = optBl.get();
                 return Language.transl(it, "genericMessages.blacklisted",
                         blacklist.getBotOwner().map(User::getName).orElse("*No longer an owner*"),
                         Utility.formatTime(blacklist.getTime()), blacklist.getReason());
+            }
+
+            String permissions = it.getCurrentCommand().attr("permissions");
+            if (permissions != null && !it.getGuild().getMember(it.getJda().getSelfUser())
+                    .hasPermission(Permission.ADMINISTRATOR)) {
+                List<String> missing = Arrays.stream(permissions.split(",")).map(Permission::valueOf)
+                        .filter(perm -> !Utility.hasPermission(it.getChannel(), it.getGuild().getMember(it.getJda().getSelfUser()), perm))
+                        .map(Objects::toString).collect(Collectors.toList());
+
+                if (!missing.isEmpty()) return Language.transl(it, "genericMessages.requirespermissions",
+                        String.join(", ", missing));
             }
 
             commandStart.put(it.getAuthor().getId(), System.nanoTime());

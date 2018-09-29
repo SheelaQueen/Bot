@@ -2,6 +2,7 @@ package me.deprilula28.gamesrob.data;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.Getter;
 import me.deprilula28.gamesrob.GamesROB;
 import me.deprilula28.gamesrob.Language;
 import me.deprilula28.gamesrob.achievements.AchievementType;
@@ -48,6 +49,10 @@ public class UserProfile {
         ACHIEVER("achiever"), DEVELOPER("developer");
 
         private String languageCode;
+
+        public String getBadgeImageUrl() {
+            return Constants.GAMESROB_DOMAIN + "/res/badge/" + languageCode + ".png";
+        }
 
         public String getName(String language) {
             return Language.transl(language, "badges." + languageCode);
