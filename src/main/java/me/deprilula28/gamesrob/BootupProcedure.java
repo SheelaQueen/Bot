@@ -139,6 +139,7 @@ public class BootupProcedure {
                         new LinkedBlockingQueue<>())).prefixGetter(Constants::getPrefix).joinQuotedArgs(true)
                 .commandExceptionFunction((context, exception) -> {
                     Optional<String> trelloUrl = Log.exception("Command: " + context.getMessage().getContentRaw(), exception, context);
+                    CommandManager.commandStart.remove(context.getAuthor().getId());
                     context.send(new EmbedBuilder()
                         .setTitle("Failed to run that command!", trelloUrl.orElse("https://discord.gg/gJKQPkN"))
                         .setDescription(ERROR_MESSAGES[ThreadLocalRandom.current().nextInt(ERROR_MESSAGES.length)]

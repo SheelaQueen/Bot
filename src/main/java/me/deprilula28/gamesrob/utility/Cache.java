@@ -3,6 +3,7 @@ package me.deprilula28.gamesrob.utility;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.Getter;
+import me.deprilula28.gamesrob.commands.CommandManager;
 
 import javax.xml.ws.Provider;
 import java.util.Map;
@@ -43,6 +44,7 @@ public class Cache {
                             if (object.onRemove != null) object.onRemove.accept(object.result);
                         }
                     }
+                    CommandManager.commandStart.clear();
                     long after = getRAMUsage();
 
                     if (removed > 0) {

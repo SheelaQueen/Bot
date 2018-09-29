@@ -67,6 +67,3 @@ CREATE TABLE IF NOT EXISTS translationsuggestions (
     rating INT,
     raters TEXT[]
 );
-
-ALTER TABLE guilddata ADD COLUMN leaderboardbackgroundimgurl TEXT;
-ALTER TABLE userdata ADD COLUMN badges INT;
