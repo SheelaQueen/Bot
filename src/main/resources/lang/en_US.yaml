@@ -11,6 +11,7 @@ languageProperties:
 baltopGuildTemp: "Temporarly disabled for this server."
 
 genericMessages:
+  eventhasntbegan: "This event hasn't started yet! It's starting %s (%s)."
   imagegenTime: "Image took %s to generate."
   alreadyPlaying: "You are already playing another game on %s!\nType `%sstop` to stop that match."
   noGamesInChannel: "There are no games currently in this channel.\nYou can type `%shelp` to pick and start a game!"
@@ -84,8 +85,8 @@ gameFramework:
 badges:
   earned: "\nYou have earned the **%s** badge!\nIt will now appear in your profile at `%sprofile`."
   highestBaltop1st: "1st in baltop"
-  highestBaltop1st: "2nd in baltop"
-  highestBaltop1st: "3rd in baltop"
+  highestBaltop2nd: "2nd in baltop"
+  highestBaltop3rd: "3rd in baltop"
   globalBaltopTop10: "Top 10 in global baltop"
   staff: "Staff"
   translator: "Translator"
@@ -133,6 +134,13 @@ game:
 
     deckDm: "You can play on %s.\nOn your turn, send the number on top of the card you want to use.\nIf it's a wildcard (black color) you can pick the color we'll be playing next with `number color` (i.e. `3 blue`).\nYour deck:"
     drawCard: "You've drawn a card because you had run out."
+
+    played: "%s has played %s%s."
+    wildcard: " and chose the color %s"
+    draw2: " and %s drew %s cards"
+    draw4: " and chose the color %s, %s drew %s cards"
+    block: ", blocking %s"
+    invert: ", inverting the game order"
 
     chooseCard: "%s: Send the number of the card in your deck you want to use here!\nYour deck is in our DMs.\n"
     game: "Top Card\n%s\n\n"
@@ -268,6 +276,29 @@ game:
 
 command:
   permissionLock: "⛔ You can't use this command!"
+
+  candy:
+    own: "🍬 You have %s candy!"
+    other: "🍬 %s has %s candy!"
+    description: "Checks how much candy you or someone else has"
+
+  trickortreating:
+    findingChannel: "Finding a channel to connect to..."
+    alreadyConnected: "This server already has a connection happening."
+    alreadyLooking: "You're already looking for a channel."
+
+    connected: "You've connected up to another server!\n"
+    connectedHost: "In %s, you can choose to give them treats or trick them."
+    connectedProxy: "You have %s to convince them to give you candy!"
+
+    rateWait: "You still have to wait %s to rate!"
+    rateTreat: "🍬 Treats!\n+ %s candy were given to %s."
+    rateTrick: "⛔ Trick!\n- %s candy were removed from %s."
+    candyCommand: "\nCheck your candy with `%scandy`!"
+    rateTime: "Tricks or treats?\nClick on the reactions below to choose:\n🍬 +%s candy for them\n⛔ %s of their candy"
+    timeUp: "Looks like the time ran out! No tricks or treats after all..."
+
+    description: "Trick or treating? But it's on Discord!"
 
   idlerpg:
     message: "IdleRPG is a bot with shop system, characters, classes, dungeons, items, PvP, economy, gambling, marriage, music, guilds and much more!"
@@ -456,6 +487,9 @@ command:
   support:
     message: "If you're having trouble with the bot, want to suggest features, get notified when the bot updates or just want to talk to other people who use it, check out our support server:\nhttps://discord.gg/xajeDYR"
     description: "Gives you a link to the bot's support server"
+  website:
+    message: "We have a website where you learn more about the bot!\nhttps://gamesrob.com"
+    description: "Gives you a link to the website"
   upvote:
     info: "Last upvoted: %s\nCurrent Streak: %s days (Lost %s)\nUpvoted %s times since %s (View your history with `%supvote history`)\n"
     messageCanVote: "You can upvote the bot for 🔸 %s tokens!"

@@ -155,18 +155,6 @@ public class BootupProcedure {
         // Commands
         CommandManager.registerCommands(f);
 
-        f.handleEvent(MessageReceivedEvent.class, event -> {
-            if (Match.PLAYING.containsKey(event.getAuthor())) {
-                Match game = Match.PLAYING.get(event.getAuthor());
-
-                if (game.getGameState() == GameState.MATCH) game.messageEvent(event);
-            } else if (!event.getAuthor().isBot() && event.getGuild() != null && Match.GAMES.containsKey(event.getTextChannel())) {
-                Match game = Match.GAMES.get(event.getTextChannel());
-                if (game.getGame().getGameType() != GameType.COLLECTIVE || !game.playMore) return;
-                game.messageEvent(event);
-            }
-        });
-
         f.handleEvent(GuildJoinEvent.class, event -> {
             if (event.getGuild().getMembers().size() < 50)
                 event.getGuild().getTextChannels().stream().filter(TextChannel::canTalk).findFirst().ifPresent(channel ->

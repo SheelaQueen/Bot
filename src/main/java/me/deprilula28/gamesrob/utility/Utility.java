@@ -10,6 +10,7 @@ import me.deprilula28.jdacmdframework.CommandContext;
 import me.deprilula28.jdacmdframework.exceptions.CommandArgsException;
 import net.dv8tion.jda.core.Permission;
 import net.dv8tion.jda.core.entities.*;
+import net.dv8tion.jda.core.requests.RestAction;
 
 import javax.xml.ws.Provider;
 import java.awt.*;
@@ -83,6 +84,13 @@ public class Utility {
             return promise;
         }
 
+        public static <R> Promise<R> action(RestAction<R> provider) {
+            Promise<R> promise = new Promise<>();
+            provider.queue(promise::done);
+
+            return promise;
+        }
+
         public static <R> Promise<R> result(R resulting) {
             Promise<R> promise = new Promise<>();
             promise.done(resulting);
@@ -113,6 +121,13 @@ public class Utility {
         public <V> Promise<V> map(Function<R, V> mapper) {
             Promise<V> promiseSecond = new Promise<>();
             then(it -> promiseSecond.done(mapper.apply(it)));
+
+            return promiseSecond;
+        }
+
+        public <V> Promise<V> mapPromise(Function<R, Promise<V>> mapper) {
+            Promise<V> promiseSecond = new Promise<>();
+            then(it -> mapper.apply(it).then(promiseSecond::done));
 
             return promiseSecond;
         }

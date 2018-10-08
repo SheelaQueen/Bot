@@ -36,6 +36,7 @@ public class UserProfile {
     private int upvotedDays;
     private String backgroundImageUrl;
     private List<Badge> badges;
+    private int candy;
     private boolean edited = false;
 
     public LeaderboardHandler.UserStatistics getStatsForGuild(Guild guild) {
@@ -184,7 +185,7 @@ public class UserProfile {
         @Override
         public Optional<UserProfile> getFromSQL(SQLDatabaseManager db, String from) throws Exception {
             ResultSet select = db.select("userData", Arrays.asList("emote", "language", "tokens", "lastupvote",
-                    "upvoteddays", "profilebackgroundimgurl", "badges"),
+                    "upvoteddays", "profilebackgroundimgurl", "badges", "candy"),
                     "userid = '" + from + "'");
             if (select.next()) return fromResultSet(from, select);
             select.close();
@@ -196,7 +197,7 @@ public class UserProfile {
         public Utility.Promise<Void> saveToSQL(SQLDatabaseManager db, UserProfile value) {
             return db.save("userData", Arrays.asList(
                     "emote", "userId", "tokens", "lastupvote", "upvoteddays", "language", "profilebackgroundimgurl",
-                    "badges"
+                    "badges", "candy"
             ), "userid = '" + value.getUserId() + "'",
                 set -> !value.isEdited(), true,
                 (set, it) -> Log.wrapException("Saving data on SQL", () -> write(it, value)));
@@ -208,7 +209,8 @@ public class UserProfile {
                         select.getString("language"), select.getInt("tokens"),
                         select.getLong("lastupvote"), select.getInt("upvoteddays"),
                         select.getString("profilebackgroundimgurl"),
-                        Utility.decodeBinary(select.getInt("badges"), Badge.class), false));
+                        Utility.decodeBinary(select.getInt("badges"), Badge.class),
+                        select.getInt("candy"), false));
             } catch (Exception e) {
                 Log.exception("Saving UserProfile in SQL", e);
                 return Optional.empty();
@@ -224,6 +226,7 @@ public class UserProfile {
             statement.setString(6, profile.getLanguage());
             statement.setString(7, profile.getBackgroundImageUrl());
             statement.setInt(8, Utility.encodeBinary(profile.getBadges(), Badge.class));
+            statement.setInt(9, profile.getCandy());
         }
 
         private void saveStatistics(DataOutputStream stream, GameStatistics stats) throws Exception {
@@ -235,7 +238,7 @@ public class UserProfile {
         @Override
         public UserProfile createNew(String from) {
             return new UserProfile(from, null, null, 0, 0, 0,
-                    null, new ArrayList<>(), false);
+                    null, new ArrayList<>(), 0,false);
         }
 
         @Override
