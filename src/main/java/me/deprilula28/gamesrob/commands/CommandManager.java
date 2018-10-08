@@ -1,6 +1,5 @@
 package me.deprilula28.gamesrob.commands;
 
-import com.sun.org.apache.bcel.internal.classfile.Code;
 import javafx.util.Pair;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -22,7 +21,9 @@ import net.dv8tion.jda.core.MessageBuilder;
 import net.dv8tion.jda.core.Permission;
 import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.User;
+import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.core.events.message.guild.react.GuildMessageReactionAddEvent;
+import net.dv8tion.jda.core.events.user.UserTypingEvent;
 import net.dv8tion.jda.core.exceptions.PermissionException;
 
 import javax.imageio.ImageIO;
@@ -67,6 +68,9 @@ public class CommandManager {
     private static String finMessage = "";
     public static void registerCommands(CommandFramework f) {
         // Games
+        f.command("trickortreating trickortreat trickotreating tot", HalloweenEvent::trickOrTreatingMinigame)
+                .attr("category", "games").attr("permissions", "MESSAGE_ADD_REACTION");
+
         Arrays.stream(GamesROB.ALL_GAMES).forEach(cur -> {
             Command command = f.command(cur.getAliases(), Match.createCommand(cur)).attr("category", "games")
                     .attr("gameCode", cur.getLanguageCode());
@@ -138,6 +142,8 @@ public class CommandManager {
                 .setUsage("profile [user]");
 
         f.command("userlang u lang language userlanguage mylang mylanguage", LanguageCommands::setUserLanguage).attr("category", "profilecommands");
+
+        f.command("candy halloweentokens candycurrency candybal", HalloweenEvent::candy).attr("category", "profilecommands");
 
         f.command("emote emojitile e emoji changeemoji setemojitile setemoji emojis emoticons emoticon changeemoticon emoticontile " +
                 "setemoticon setemoticontile changeemote emotetile setemote setemotetile emotes tile changetile settile " +
@@ -217,6 +223,9 @@ public class CommandManager {
                 .attr("category", "infocommands");
 
         f.command("support bug report glitch bugs error glitches errors server", messageCommand())
+                .attr("category", "infocommands").attr("permissions", "MESSAGE_EMBED_LINKS");
+
+        f.command("website web site online internet interweb gamesrobcom gamesrobdotcom gamesrob.com .com dotcom com", messageCommand())
                 .attr("category", "infocommands").attr("permissions", "MESSAGE_EMBED_LINKS");
 
         f.command("help h halp games what wat uwot uwotm8 uwotm9  wtf tf ... ivefallenandicantgetup whatisgoingon " +
@@ -327,12 +336,30 @@ public class CommandManager {
             Statistics stats = Statistics.get();
             stats.setCommandCount(stats.getCommandCount() + 1);
 
-            long delay = System.nanoTime() - commandStart.get(it.getAuthor().getId());
-            commandStart.remove(it.getAuthor().getId());
-            double singleCommandWeight = (1.0 / (double) stats.getCommandCount());
-            avgCommandDelay = (int) (avgCommandDelay * (1.0 - singleCommandWeight) + delay * singleCommandWeight);
+            if (commandStart.containsKey(it.getAuthor().getId())) {
+                long delay = System.nanoTime() - commandStart.get(it.getAuthor().getId());
+                commandStart.remove(it.getAuthor().getId());
+                double singleCommandWeight = (1.0 / (double) stats.getCommandCount());
+                avgCommandDelay = (int) (avgCommandDelay * (1.0 - singleCommandWeight) + delay * singleCommandWeight);
+            }
 
             return null;
+        });
+
+        f.handleEvent(UserTypingEvent.class, event -> {
+            if (HalloweenEvent.connections.containsKey(event.getTextChannel())) HalloweenEvent.typingTunneling(event);
+        });
+        f.handleEvent(MessageReceivedEvent.class, event -> {
+            if (HalloweenEvent.connections.containsKey(event.getTextChannel())) HalloweenEvent.messageTunneling(event);
+            if (Match.PLAYING.containsKey(event.getAuthor())) {
+                Match game = Match.PLAYING.get(event.getAuthor());
+
+                if (game.getGameState() == GameState.MATCH) game.messageEvent(event);
+            } else if (!event.getAuthor().isBot() && event.getGuild() != null && Match.GAMES.containsKey(event.getTextChannel())) {
+                Match game = Match.GAMES.get(event.getTextChannel());
+                if (game.getGame().getGameType() != GameType.COLLECTIVE || !game.playMore) return;
+                game.messageEvent(event);
+            }
         });
 
         // Reactions
@@ -352,6 +379,12 @@ public class CommandManager {
         });
         f.reactionHandler("\uD83D\uDD04", context -> {
             if (Match.REMATCH_GAMES.containsKey(context.getChannel())) Match.REMATCH_GAMES.get(context.getChannel()).rematchReaction(context);
+        });
+        f.reactionHandler("\uD83C\uDF6C", context -> {
+            if (HalloweenEvent.connections.containsKey(context.getChannel())) HalloweenEvent.reaction(context, true);
+        });
+        f.reactionHandler("⛔", context -> {
+            if (HalloweenEvent.connections.containsKey(context.getChannel())) HalloweenEvent.reaction(context, false);
         });
 
         f.getSettings().setMentionedMessageGetter(guild -> {

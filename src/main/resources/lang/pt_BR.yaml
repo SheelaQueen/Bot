@@ -70,8 +70,8 @@ gameFramework:
 badges:
   earned: "\nVocê conquistou o distintivo **%s**!\nEle irá aparecer no seu perfil em `%sprofile`."
   highestBaltop1st: "1º no baltop"
-  highestBaltop1st: "2º no baltop"
-  highestBaltop1st: "3º no baltop"
+  highestBaltop2nd: "2º no baltop"
+  highestBaltop3rd: "3º no baltop"
   globalBaltopTop10: "Top 10 no baltop global"
   staff: "Equipe"
   translator: "Tradutor"

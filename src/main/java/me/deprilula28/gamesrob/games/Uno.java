@@ -13,7 +13,9 @@ import net.dv8tion.jda.core.entities.User;
 import javax.xml.ws.Provider;
 import java.util.*;
 import java.util.function.BiConsumer;
+import java.util.function.BiFunction;
 import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 public class Uno extends TurnMatchHandler {
@@ -29,12 +31,14 @@ public class Uno extends TurnMatchHandler {
             Uno::new, Uno.class, Collections.emptyList()
     );
 
+    private Optional<String> eventMessage = Optional.empty();
     private Map<Player, String> playerItems = new HashMap<>();
     private Map<Player, List<UnoCard>> decks = new HashMap<>();
     private Map<User, RequestPromise<Message>> dmMessages = new HashMap<>();
     private Random random;
     private UnoCard card;
     private UnoCard.UnoCardColor color;
+    private static final int CARDS_LIMIT = 26;
 
     @Data
     @AllArgsConstructor
@@ -49,16 +53,19 @@ public class Uno extends TurnMatchHandler {
 
         @AllArgsConstructor
         private static enum UnoCardAction {
-            BLOCK((uno) -> uno.turn ++),
+            BLOCK((uno) -> uno.turn ++, (uno) -> Language.transl(uno.match.getLanguage(), "game.uno.block", uno.seekTurn().toString())),
             INVERT((uno) -> {
                 List<Player> oldList = new ArrayList<>(uno.match.getPlayers());
                 uno.match.getPlayers().sort(Comparator.comparingInt(oldList::indexOf).reversed());
-            }),
-            PLUS2((uno) -> uno.draw(uno.seekTurn(), 2)),
-            PLUS4((uno) -> uno.draw(uno.seekTurn(), 4)),
-            WILDCARD((uno) -> {});
+            }, (uno) -> Language.transl(uno.match.getLanguage(), "game.uno.invert")),
+            PLUS2((uno) -> uno.draw(uno.seekTurn(), 2), (uno) -> Language.transl(uno.match.getLanguage(),
+                    "game.uno.draw2", uno.seekTurn().toString(), 2)),
+            PLUS4((uno) -> uno.draw(uno.seekTurn(), 4), (uno) -> Language.transl(uno.match.getLanguage(),
+                    "game.uno.draw4", uno.color.toString(), uno.seekTurn().toString(), 4)),
+            WILDCARD((uno) -> {}, (uno) -> Language.transl(uno.match.getLanguage(), "game.uno.wildcard", uno.color.toString()));
 
             private Consumer<Uno> handler;
+            private Function<Uno, String> eventTranslHandler;
         }
 
         public boolean canUse(UnoCard card, UnoCardColor topColor) {
@@ -74,7 +81,7 @@ public class Uno extends TurnMatchHandler {
 
     private void draw(Player player, int amount) {
         List<UnoCard> cards = decks.get(player);
-        for (int i = 0; i < amount; i++)
+        for (int i = cards.size(); i < Math.min(cards.size() + amount, CARDS_LIMIT);  i++)
             cards.add(randomCard(true));
         player.getUser().ifPresent(user -> dmMessages.get(user).then(it -> it.editMessage(getDmMessage(user)).queue()));
     }
@@ -133,7 +140,7 @@ public class Uno extends TurnMatchHandler {
         if (values.length > 2) return;
         if (values[0].length() != 1) return;
 
-        int cardi = GameUtil.safeParseInt(values[0]).orElse(-1);
+        int cardi = Utility.inputLetter(values[0]) - 1;
         List<UnoCard> deck = decks.get(Player.user(author));
         if (cardi < 1 || cardi > deck.size()) return;
         UnoCard card = deck.get(cardi - 1);
@@ -154,15 +161,23 @@ public class Uno extends TurnMatchHandler {
         deck.remove(card);
         this.card = card;
 
-        if (card.action != null) card.action.handler.accept(this);
-        if (!color.equals(oldColor) || card.action != null) match.getPlayers().forEach(player ->
-                player.getUser().ifPresent(this::updateMessage));
-        else cur.getUser().ifPresent(this::updateMessage);
+        if (card.action == null) eventMessage = Optional.of(Language.transl(match.getLanguage(), "game.uno.played",
+                author.getAsMention(), card.toString(), ""));
+        else {
+            card.action.handler.accept(this);
+            eventMessage = Optional.of(Language.transl(match.getLanguage(), "game.uno.played",
+                    author.getAsMention(), card.toString(), card.action.eventTranslHandler.apply(this)));
+        }
+
+        match.getPlayers().forEach(player -> player.getUser().ifPresent(this::updateMessage));
         if (!detectVictory()) nextTurn();
     }
 
     private void updateMessage(User user) {
-        dmMessages.get(user).then(it -> it.editMessage(getDmMessage(user)).queue());
+        dmMessages.get(user).then(it -> {
+            String message = getDmMessage(user);
+            if (!it.getContentRaw().equals(message)) it.editMessage(message).queue();
+        });
     }
 
     @Override
@@ -197,24 +212,25 @@ public class Uno extends TurnMatchHandler {
 
         StringBuilder options = new StringBuilder();
         for (int i = 0; i < deck.size(); i ++) {
-            if (deck.get(i).canUse(card, color)) options.append(Utility.getNumberEmote(i));
-            else options.append("⬜");
+            if (deck.get(i).canUse(card, color)) options.append(Utility.getLetterEmote(i)).append(" ");
+            else options.append("⬜").append(" ");
         }
 
-        return options.toString() + "\n" + deck.stream().map(Object::toString).collect(Collectors.joining(""));
+        return options.toString() + "\n" + deck.stream().map(Object::toString).collect(Collectors.joining(" "));
     }
 
     @Override
     public String turnUpdatedMessage(boolean over) {
         StringBuilder builder = new StringBuilder();
+        eventMessage.ifPresent(it -> builder.append(it).append("\n\n"));
         if (!over) builder.append(Language.transl(match.getLanguage(), "game.uno.chooseCard", getTurn().getUser()
                 .map(User::getAsMention).orElseThrow(() -> new RuntimeException("Asked update message on AI turn."))));
 
-        builder.append(Language.transl(match.getLanguage(), "game.uno.game", card.toString() +
-                (card.color.equals(UnoCard.UnoCardColor.SPECIAL) ? color.toString() : "")));
+        builder.append(Language.transl(match.getLanguage(), "game.uno.game", card.toString()));
 
         appendTurns(builder, playerItems, user -> decks.get(user).stream().map(it -> over ? it.toString() :
                 GameUtil.getEmote("unknown").orElse("card")).collect(Collectors.joining("")));
+        eventMessage = Optional.empty();
 
         return builder.toString();
     }

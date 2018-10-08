@@ -96,11 +96,17 @@ public class Constants {
     }
 
     public static String getLanguage(User user, Guild guild) {
+        // User Language
         UserProfile up = UserProfile.get(user);
         if (up.getLanguage() != null) return up.getLanguage();
 
+        // Guild Language
         GuildProfile gp = GuildProfile.get(guild);
         if (gp.getLanguage() != null) return gp.getLanguage();
+
+        // Guild Owner Language
+        UserProfile ownerLang = UserProfile.get(guild.getOwner().getUser());
+        if (ownerLang.getLanguage() != null) return ownerLang.getLanguage();
 
         return DEFAULT_LANGUAGE;
     }

@@ -1,12 +1,20 @@
-+ Leaderboard and profile commands have more width to be more visible and less glitchy.
-+ Added badges! They'll show in `g*profile`, and currently the only one you can get is Over Achiever by completing all the achievements.
-+ Added a "lacking permission" message when the bot doesn't have permission to do something.
++ Halloween event is beginning sunday at 12 AM!
++ Here's a couple of things I added for it:
 
-- Fixed reward for winning matches.
-- Fixed bug with win detection.
-- Fixed uno drawing cards for the wrong player.
-- Fixed quiz HTML encoding on answers.
-- Fixed errors with spamming commands.
-- Fixed minesweeper win detection (maybe).
-- Fixed some other small bugs.
++ Trick or treating!
+You run g*trickortreat and connect up to a random person who also ran it.
+You'll be given 10 seconds to choose if the person should get candy or get chosen to get candy or not.
+Candy will be converted to tokens in november.
+Learn more on the announcement about the Halloween event (#announcements).
+
++ Checking your candy with g*candy!
+
+Random stuff now
++ Added g*website that links to the website.
++ Added event messages to Uno.
++ Language now defaults to guild owner's language.
+
+- Fixed not really being able to play after the 9th card by turning the choice into letters.
+- Fixed commands erroring for no reason.
+- Fixed uno not updating messages some times.
 Developed by deprilula28#3609. Hope you enjoy the changes!
