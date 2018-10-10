@@ -30,6 +30,7 @@ genericMessages:
   blacklistedNoInfo: "⛔ You were blacklisted from using GamesROB.\nPlease contact %s."
   tooFast: "You're sending commands too quickly! Wait before the last one has finished loading."
   requirespermissions: "The bot needs these permissions in the server to use this command:\n`%s`"
+  partnerCheckItOut: "Check it out"
 
   upvote:
     header: "**Thank you for voting for GamesROB!**\nRewards:\n+ 🔸 %s tokens!"
@@ -132,7 +133,7 @@ game:
     shortDescription: "Try to get the same color or number on one of your cards, until they're over!"
     longDescription: "Everyone gets 7 cards, which are DM'd to you. On each round, you can use a card.\nIf you have a card with the same color or number as the last color used, you can use it.\nOtherwise, you'll have to draw two cards."
 
-    deckDm: "You can play on %s.\nOn your turn, send the number on top of the card you want to use.\nIf it's a wildcard (black color) you can pick the color we'll be playing next with `number color` (i.e. `3 blue`).\nYour deck:"
+    deckDm: "You can play on %s.\nOn your turn, send the number on top of the card you want to use.\nIf it's a wildcard (black color) you can pick the color we'll be playing next with `letter color` (i.e. `B blue`).\nYour deck:"
     drawCard: "You've drawn a card because you had run out."
 
     played: "%s has played %s%s."
@@ -144,7 +145,7 @@ game:
 
     chooseCard: "%s: Send the number of the card in your deck you want to use here!\nYour deck is in our DMs.\n"
     game: "Top Card\n%s\n\n"
-    noColor: "You need to choose a color to use a wildcard (e.g. `3 blue`)."
+    noColor: "You need to choose a color to use a wildcard (e.g. `B blue`)."
     invalidColor: "That's not a valid color."
     won: "You won the game!"
   roulette:
@@ -278,7 +279,7 @@ command:
   permissionLock: "⛔ You can't use this command!"
 
   candy:
-    own: "🍬 You have %s candy!"
+    own: "🍬 You have %s candy!\nGet more candy by trick or treating!"
     other: "🍬 %s has %s candy!"
     description: "Checks how much candy you or someone else has"
 
@@ -298,13 +299,15 @@ command:
     rateTime: "Tricks or treats?\nClick on the reactions below to choose:\n🍬 +%s candy for them\n⛔ %s of their candy"
     timeUp: "Looks like the time ran out! No tricks or treats after all..."
 
-    description: "Trick or treating? But it's on Discord!"
+    description: "Trick or treating, but it's on Discord!"
+
+  discordserversme:
+    message: "Do you want to find or share Discord servers?\nCheck out our partner, DiscordServers.me!"
+    description: "Learn more about our partner, DiscordServers.me!"
 
   idlerpg:
     message: "IdleRPG is a bot with shop system, characters, classes, dungeons, items, PvP, economy, gambling, marriage, music, guilds and much more!"
-    checkItOut: "Check it out"
-
-    description: "Learn more about our partnered bot IdleRPG!"
+    description: "Learn more about our partnered bot, IdleRPG!"
 
   slots:
     matchHeader: "Rolling for 🔸 %s tokens..."
@@ -429,6 +432,7 @@ command:
     setting: "`%s` (Values %s - %s / Default %s)"
     recentUpdate: "<:update:264184209617321984> The bot has recently received an update! `v%s`\nCheck out the changes with `%schangelog`."
     categories:
+      eventcommands: "Halloween Event"
       games: "Games"
       profilecommands: "Profile"
       servercommands: "Server"

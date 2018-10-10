@@ -67,5 +67,3 @@ CREATE TABLE IF NOT EXISTS translationsuggestions (
     rating INT,
     raters TEXT[]
 );
-
-ALTER TABLE userdata ADD COLUMN candy INT;

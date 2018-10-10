@@ -22,6 +22,7 @@ import net.dv8tion.jda.core.entities.*;
 import org.java_websocket.client.WebSocketClient;
 
 import java.util.*;
+import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.Collectors;
 
 public class GamesROB {
@@ -136,10 +137,16 @@ public class GamesROB {
         */
     }
 
+    private static final String[] HALLOWEEN_EVENT_MESSAGES = {
+            "Try trick or treating on Discord!",
+            "View your candy with the candy command!"
+    };
+
     public static void defaultPresence() {
         final String message = System.currentTimeMillis() < HalloweenEvent.EVENT_BEGIN_TIME.getTimeInMillis()
                 ? "halloween event in " + Utility.formatPeriod(HalloweenEvent.EVENT_BEGIN_TIME.getTimeInMillis()
-                - System.currentTimeMillis()) + "!" : "halloween event right now !!!";
+                - System.currentTimeMillis()) + "!" : "halloween event active! " +
+                HALLOWEEN_EVENT_MESSAGES[ThreadLocalRandom.current().nextInt(HALLOWEEN_EVENT_MESSAGES.length)];
         shards.forEach(cur -> {
             cur.getPresence().setStatus(OnlineStatus.ONLINE);
             cur.getPresence().setGame(Game.playing(message));
