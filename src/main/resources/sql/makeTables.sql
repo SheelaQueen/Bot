@@ -15,7 +15,9 @@ CREATE TABLE IF NOT EXISTS userdata (
     userid TEXT,
     profilebackgroundimgurl TEXT,
     websitesession TEXT,
-    badges INT
+    badges INT,
+    gameplaytime BIGINT,
+    gamesplayed INT
 );
 CREATE TABLE IF NOT EXISTS leaderboardentries (
     userid TEXT,
@@ -67,3 +69,6 @@ CREATE TABLE IF NOT EXISTS translationsuggestions (
     rating INT,
     raters TEXT[]
 );
+
+ALTER TABLE userdata ADD COLUMN gamesplayed INT;
+ALTER TABLE userdata ADD COLUMN gameplaytime BIGINT;

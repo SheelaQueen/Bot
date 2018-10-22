@@ -1,14 +1,13 @@
-package me.deprilula28.gamesrob.commands;
+package me.deprilula28.gamesrob.events;
 
 import lombok.AllArgsConstructor;
 import me.deprilula28.gamesrob.GamesROB;
 import me.deprilula28.gamesrob.Language;
+import me.deprilula28.gamesrob.data.Statistics;
 import me.deprilula28.gamesrob.data.UserProfile;
 import me.deprilula28.gamesrob.utility.Constants;
-import me.deprilula28.gamesrob.utility.Log;
 import me.deprilula28.gamesrob.utility.Utility;
 import me.deprilula28.jdacmdframework.CommandContext;
-import me.deprilula28.jdacmdframework.exceptions.CommandArgsException;
 import net.dv8tion.jda.core.Permission;
 import net.dv8tion.jda.core.entities.*;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
@@ -21,22 +20,20 @@ import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 public class HalloweenEvent {
+    public static final EventTimer TIMER = new EventTimer.YearlyTimedEvent(
+            1, 10, 31, 10,
+            "events.halloween"
+    );
+
     public static Map<TextChannel, TotConnection> connections = new HashMap<>();
     private static List<Guild> connectedGuilds = new ArrayList<>();
     private static Optional<TotConnection> looking = Optional.empty();
 
-    public static final Calendar EVENT_BEGIN_TIME = Calendar.getInstance();
-
+    private static final long MATCHFIND_TIME = TimeUnit.MINUTES.toMillis(5);
     private static final long RATE_TIME_MIN = TimeUnit.SECONDS.toMillis(10);
     private static final long MAX_TIME = TimeUnit.MINUTES.toMillis(1);
     private static final int CANDY_EARN = 10;
     private static final int CANDY_LOSE = -5;
-
-    static {
-        EVENT_BEGIN_TIME.set(Calendar.DAY_OF_MONTH, 12);
-        EVENT_BEGIN_TIME.set(Calendar.HOUR, 16);
-        EVENT_BEGIN_TIME.set(Calendar.MINUTE, 0);
-    }
 
     // Trick or treating Looking for connection
     @AllArgsConstructor
@@ -49,9 +46,16 @@ public class HalloweenEvent {
         private Message message;
         private List<User> interacted;
         private long time;
+        private boolean over;
 
         @Override
         public void run() {
+            try {
+                Thread.sleep(MATCHFIND_TIME);
+                hostChannel.sendMessage(Language.transl(proxyLanguage, "command.trickortreating.matchfindLimit")).queue();
+                end();
+            } catch (InterruptedException e) { }
+            if (over) return;
             try {
                 Thread.sleep(RATE_TIME_MIN);
                 hostChannel.sendMessage(Language.transl(proxyLanguage, "command.trickortreating.rateTime",
@@ -64,29 +68,24 @@ public class HalloweenEvent {
                 proxyChannel.sendMessage(Language.transl(proxyLanguage, "command.trickortreating.timeUp")).queue();
                 hostChannel.sendMessage(Language.transl(hostLanguage, "command.trickortreating.timeUp")).queue();
                 end();
-            } catch (InterruptedException e) {
-                Log.info("Interrupted TOT thread.");
-            }
+            } catch (InterruptedException e) { }
         }
 
         public void end() {
-            interrupt();
+            if (looking.filter(it -> it.equals(this)).isPresent()) looking = Optional.empty();
             connections.remove(hostChannel);
-            connections.remove(proxyChannel);
             connectedGuilds.remove(hostChannel.getGuild());
-            connectedGuilds.remove(proxyChannel.getGuild());
+            if (proxyChannel != null) {
+                connections.remove(proxyChannel);
+                connectedGuilds.remove(proxyChannel.getGuild());
+            }
+            over = true;
+            interrupt();
         }
     }
 
-    private static void checkEvent(CommandContext context) {
-        long halloweenEvent = EVENT_BEGIN_TIME.getTimeInMillis();
-        if (System.currentTimeMillis() < halloweenEvent)
-            throw new CommandArgsException(Language.transl(context, "genericMessages.eventhasntbegan",
-                    Utility.formatTime(halloweenEvent), Utility.formatTimeRegularFormat(halloweenEvent)));
-    }
-
     public static String candy(CommandContext context) {
-        checkEvent(context);
+        TIMER.checkEvent(context);
         User user = context.opt(context::nextUser).orElseGet(context::getAuthor);
         UserProfile profile = UserProfile.get(user);
 
@@ -96,7 +95,14 @@ public class HalloweenEvent {
     }
 
     public static String trickOrTreatingMinigame(CommandContext context) {
-        checkEvent(context);
+        TIMER.checkEvent(context);
+        if (connections.containsKey(context.getChannel())) {
+            TotConnection connection = connections.get(context.getChannel());
+            if (!looking.filter(it -> it.equals(connection)).isPresent()) return Language.transl(context,
+                    "command.trickortreating.cantQuitStarted");
+            connection.end();
+            return Language.transl(context, "command.trickortreating.quit");
+        }
         if (connectedGuilds.contains(context.getGuild())) return Language.transl(context, "command.trickortreating.alreadyConnected");
 
         boolean hasLooking = looking.isPresent();
@@ -122,14 +128,21 @@ public class HalloweenEvent {
             context.send(Language.transl(connection.proxyLanguage, "command.trickortreating.connected")
                     + Language.transl(connection.proxyLanguage, "command.trickortreating.connectedProxy",
                     Utility.formatPeriod(RATE_TIME_MIN)));
+            connection.interrupt();
 
-            connection.setName("Trick or treating thread");
-            connection.setDaemon(true);
-            connection.start();
+            Statistics.get().setTotConnections(Statistics.get().getTotConnections() + 1);
         } else {
+            TotConnection conn = new TotConnection(context.getChannel(), null,
+                    Constants.getLanguage(context), null, context.getAuthor(), null, new ArrayList<>(),
+                    -1, false);
+            conn.setName("Trick or treating thread");
+            conn.setDaemon(true);
+            conn.start();
             context.send(Language.transl(context, "command.trickortreating.findingChannel"))
-                .then(message -> looking = Optional.of(new TotConnection(context.getChannel(), null,
-                    Constants.getLanguage(context), null, context.getAuthor(), message, new ArrayList<>(), -1)));
+                .then(message -> {
+                    conn.message = message;
+                    looking = Optional.of(conn);
+                });
             connectedGuilds.add(context.getGuild());
         }
 
@@ -137,7 +150,7 @@ public class HalloweenEvent {
     }
 
     public static void reaction(CommandContext context, boolean candy) {
-        if (context.getAuthor().isBot()) return;
+        if (context.getAuthor().isBot() && !TIMER.isEventInTime()) return;
 
         TotConnection connection = connections.get(context.getChannel());
         if (context.getChannel().equals(connection.proxyChannel)) return;
@@ -165,14 +178,14 @@ public class HalloweenEvent {
     }
 
     public static void typingTunneling(UserTypingEvent event) {
-        if (event.getUser().isBot()) return;
+        if (event.getUser().isBot() && !TIMER.isEventInTime()) return;
 
         TotConnection connection = connections.get(event.getTextChannel());
         (connection.hostChannel.equals(event.getTextChannel()) ? connection.proxyChannel : connection.hostChannel).sendTyping().queue();
     }
 
     public static void messageTunneling(MessageReceivedEvent event) {
-        if (event.getAuthor().isBot()) return;
+        if (event.getAuthor().isBot() || !TIMER.isEventInTime()) return;
 
         TotConnection connection = connections.get(event.getTextChannel());
         TextChannel target = connection.hostChannel.equals(event.getTextChannel()) ? connection.proxyChannel : connection.hostChannel;
@@ -193,11 +206,12 @@ public class HalloweenEvent {
                 WebhookMessageBuilder builder = new WebhookMessageBuilder();
 
                 builder.setAvatarUrl(event.getAuthor().getEffectiveAvatarUrl());
-                builder.setUsername(event.getAuthor().getName());
+                builder.setUsername(event.getAuthor().getName() + "#" + event.getAuthor().getDiscriminator());
                 builder.setContent(message);
                 client.send(builder.build());
                 client.close();
         });
-        else target.sendMessage("**" + event.getAuthor().getName() + "**: " + message).queue();
+        else target.sendMessage("**" + event.getAuthor().getName() + "#" + event.getAuthor().getDiscriminator() +
+                "**: " + message).queue();
     }
 }

@@ -21,15 +21,11 @@ import net.dv8tion.jda.core.JDA;
 import net.dv8tion.jda.core.MessageBuilder;
 import net.dv8tion.jda.core.Permission;
 import net.dv8tion.jda.core.entities.*;
-import net.dv8tion.jda.core.events.Event;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.core.events.message.guild.react.GuildMessageReactionAddEvent;
-
-import java.awt.event.HierarchyBoundsAdapter;
 import java.util.*;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
-import java.util.function.Consumer;
 
 /*
 THIS CLASS IS A MESS HELP
@@ -56,6 +52,7 @@ public class Match extends Thread {
     private transient MatchHandler matchHandler;
     private transient RequestPromise<Message> matchMessage;
 
+    private long beginTime;
     private String language;
     private Map<String, String> options;
     public int matchesPlayed = 0;
@@ -65,7 +62,6 @@ public class Match extends Thread {
     public int iteration;
     private boolean allowRematch;
     private Map<String, Integer> settings = new HashMap<>();
-    public boolean playMore = false;
     private boolean reacted = false;
     private boolean reactedJoin = false;
     private boolean reactedAi = false;
@@ -73,6 +69,7 @@ public class Match extends Thread {
     // Rematch multiplayer
     public Match(GamesInstance game, User creator, TextChannel channel, List<Player> players,
                  Map<String, String> options, int matchesPlayed) {
+        beginTime = System.currentTimeMillis();
         multiplayer = players.size() > 1;
         String guildLang = GuildProfile.get(channel.getGuild()).getLanguage();
         language = guildLang == null ? Constants.DEFAULT_LANGUAGE : guildLang;
@@ -197,6 +194,7 @@ public class Match extends Thread {
                             true);
                 } else {
                     Thread.sleep(JOIN_TIMEOUT_PERIOD);
+                    Log.info(gameState);
                     gameStart();
                 }
             } catch (InterruptedException e) {}
@@ -400,6 +398,7 @@ public class Match extends Thread {
     private void startReaction(User user) {
         if (!gameState.equals(GameState.PRE_GAME) || !user.equals(creator)) return;
         if (game.getGameType().equals(GameType.HYBRID) && players.size() == 1) {
+            beginTime = System.currentTimeMillis();
             multiplayer = false;
             matchMessage.then(it -> it.delete().queue());
             Statistics.get().registerGame(game);
@@ -411,19 +410,21 @@ public class Match extends Thread {
                             .orElse("")
                 ));
                 matchHandler.updatedMessage(false, builder);
-                return matchMessage = RequestPromise.forAction(channelIn.sendMessage(builder.build())).then(no2 -> gameState = GameState.MATCH);
+                return RequestPromise.forAction(channelIn.sendMessage(builder.build())).then(no2 -> {
+                    gameState = GameState.MATCH;
+                    interrupt();
+                });
             });
             players.stream().filter(it -> it.getUser().isPresent()).forEach(it -> achievement(it.getUser().get(),
                     AchievementType.PLAY_GAMES, 1));
         } else {
             if (getPlayers().size() < game.getMinTargetPlayers() + 1) throw new InvalidCommandSyntaxException();
-
             gameStart();
         }
     }
 
     private void gameStart() {
-        interrupt();
+        beginTime = System.currentTimeMillis();
         matchMessage.then(it -> it.delete().queue());
         Statistics.get().registerGame(game);
 
@@ -434,7 +435,10 @@ public class Match extends Thread {
                             .orElse("")
             ));
             matchHandler.updatedMessage(false, builder);
-            return matchMessage = RequestPromise.forAction(channelIn.sendMessage(builder.build())).then(no2 -> gameState = GameState.MATCH);
+            return matchMessage = RequestPromise.forAction(channelIn.sendMessage(builder.build())).then(no2 -> {
+                gameState = GameState.MATCH;
+                interrupt();
+            });
         });
     }
 
@@ -458,11 +462,12 @@ public class Match extends Thread {
     }
 
     private void onEnd(Player winner, int tokens) {
+        long playTime = System.currentTimeMillis() - beginTime;
         players.forEach(cur ->
             cur.getUser().ifPresent(user -> {
                 UserProfile userProfile = UserProfile.get(user);
                 boolean victory = winner.equals(Player.user(user));
-                if (tokens != 0) userProfile.registerGameResult(channelIn.getGuild(), user, victory, !victory, game);
+                if (tokens != 0) userProfile.registerGameResult(channelIn.getGuild(), user, victory, !victory, game, playTime);
 
                 if (winner.equals(cur)) {
                     int won = betting.map(it -> it * players.size()).orElse(tokens);
@@ -479,12 +484,16 @@ public class Match extends Thread {
     }
 
     public void onEnd(String reason, boolean registerPoints) {
+        long playTime = System.currentTimeMillis() - beginTime;
+        Statistics.get().registerGameTime(playTime, game);
+
         players.forEach(cur ->
             cur.getUser().ifPresent(user -> {
                 if (registerPoints) {
-                    UserProfile.get(user).registerGameResult(channelIn.getGuild(), user, false, false, game);
+                    UserProfile profile = UserProfile.get(user);
+                    profile.registerGameResult(channelIn.getGuild(), user, false, false, game, playTime);
                     betting.ifPresent(amount -> {
-                        UserProfile.get(user).addTokens(amount, "transactions.winGamePrize");
+                        profile.addTokens(amount, "transactions.winGamePrize");
                         achievement(user, AchievementType.REACH_TOKENS, amount);
                     });
                 }

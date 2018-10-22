@@ -1,20 +1,7 @@
-+ Halloween event is beginning friday at 4 PM!
-+ Here's a couple of things I added for it:
++ Added g*statistics, which shows you a bunch of data about you and the bot.
++ Now monitoring playtime, cause why not.
++ Trick or treating now times out finding after 5 minutes and allows you to leave by running the command again.
++ Uno now has an image for the deck and current card.
 
-+ Trick or treating!
-You run g*trickortreat and connect up to a random person who also ran it.
-You'll be given 10 seconds to choose if the person should get candy or get chosen to get candy or not.
-Candy will be converted to tokens in november.
-Learn more on the announcement about the Halloween event (#announcements).
-
-+ Checking your candy with g*candy!
-
-Random stuff now
-+ Added g*website that links to the website.
-+ Added event messages to Uno.
-+ Language now defaults to guild owner's language.
-
-- Fixed not really being able to play after the 9th card by turning the choice into letters.
-- Fixed commands erroring for no reason.
-- Fixed uno not updating messages some times.
+- Fixed collective matches.
 Developed by deprilula28#3609. Hope you enjoy the changes!

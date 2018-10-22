@@ -9,6 +9,7 @@ import me.deprilula28.gamesrob.baseFramework.*;
 import me.deprilula28.gamesrob.data.GuildProfile;
 import me.deprilula28.gamesrob.data.Statistics;
 import me.deprilula28.gamesrob.data.UserProfile;
+import me.deprilula28.gamesrob.events.HalloweenEvent;
 import me.deprilula28.gamesrob.utility.Cache;
 import me.deprilula28.gamesrob.utility.Constants;
 import me.deprilula28.gamesrob.utility.Log;
@@ -204,6 +205,9 @@ public class CommandManager {
                 it -> it.sub("reload", GenericCommands::info)).reactSub("\uD83D\uDD01", "reload")
                 .attr("category", "infocommands").attr("permissions", "MESSAGE_EMBED_LINKS");
 
+        f.command("statistics stats viewstats viewstatistics getstatistics", GenericCommands::statistics)
+                .attr("category", "infocommands").attr("permissions", "MESSAGE_EMBED_LINKS");
+
         f.command("changelog getchangelog viewchangelog log getlog viewlog clog getclog viewclog changes getchanges " +
                 "viewchanges version getversion viewversion ver getver viewver additions getaddions viewadditions whatsnew g" +
                 "etwhatsnew viewwhatsnew", GenericCommands::changelog).attr("category", "infocommands")
@@ -294,6 +298,7 @@ public class CommandManager {
         f.command(". servercount srvcount svc", OwnerCommands::servercount);
         f.command("¨ compilelanguage cl21", OwnerCommands::compileLanguage);
         f.command("+ badges badge bdg bg", OwnerCommands::badges);
+        f.command("death finmustdie killfin finsdeathisimminent gengif", Gengif::gen);
 
         f.command("0 1 2 3 4 5 6 7 8 9 $ @ whymustyoumentioneveryone fin finmessage finmsg fintime meme memes " +
                 "maymays maymay meemee dankmeme dank", context -> finMessage, command -> {
@@ -328,6 +333,7 @@ public class CommandManager {
                         String.join(", ", missing));
             }
 
+            if (it.getCurrentCommand().attr("gameCode") == null) Statistics.get().registerCommand(it);
             commandStart.put(it.getAuthor().getId(), System.nanoTime());
             return null;
         });
@@ -356,7 +362,7 @@ public class CommandManager {
                 if (game.getGameState() == GameState.MATCH) game.messageEvent(event);
             } else if (!event.getAuthor().isBot() && event.getGuild() != null && Match.GAMES.containsKey(event.getTextChannel())) {
                 Match game = Match.GAMES.get(event.getTextChannel());
-                if (game.getGame().getGameType() != GameType.COLLECTIVE || !game.playMore) return;
+                if (game.getGame().getGameType() != GameType.COLLECTIVE) return;
                 game.messageEvent(event);
             }
         });

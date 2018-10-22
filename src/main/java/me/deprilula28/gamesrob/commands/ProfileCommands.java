@@ -1,6 +1,5 @@
 package me.deprilula28.gamesrob .commands;
 
-import com.github.kevinsawicki.http.HttpRequest;
 import com.vdurmont.emoji.EmojiManager;
 import javafx.util.Pair;
 import lombok.AllArgsConstructor;
@@ -9,7 +8,6 @@ import me.deprilula28.gamesrob.Language;
 import me.deprilula28.gamesrob.data.GuildProfile;
 import me.deprilula28.gamesrob.data.UserProfile;
 import me.deprilula28.gamesrob.utility.Constants;
-import me.deprilula28.gamesrob.utility.Log;
 import me.deprilula28.gamesrob.utility.Utility;
 import me.deprilula28.jdacmdframework.CommandContext;
 import net.dv8tion.jda.core.EmbedBuilder;
@@ -122,8 +120,7 @@ public class ProfileCommands {
                         (i / BADGES_PER_LINE) * BADGES_ICON_SIZE;
 
                 UserProfile.Badge badge = profile.getBadges().get(i);
-                g2d.drawImage(ImageCommands.getImage("badge_" + badge.getBadgeImageUrl(),
-                        HttpRequest.get(badge.getBadgeImageUrl()).stream()), x, y, BADGES_ICON_SIZE, BADGES_ICON_SIZE,
+                g2d.drawImage(ImageCommands.getImageFromWebsite(badge.getBadgeImagePath()), x, y, BADGES_ICON_SIZE, BADGES_ICON_SIZE,
                         null);
             }
 
@@ -158,9 +155,8 @@ public class ProfileCommands {
                 for (TokenGainMethod gainMethod : gainMethods) {
                     final int x = PROFILE_GAMES_BORDER + TOKENS_IMAGE_SIZE + TOKENS_SEPARATOR + TOKENS_CARD_BORDERS;
                     final int height = gainMethod.gainAmount.isPresent() ? TOKENS_CARD_TOKEN_AMOUNT_HEIGHT : TOKENS_CARD_HEIGHT;
-                    g2d.setColor(gainMethod.state.color);
-                    g2d.fillRect(PROFILE_GAMES_BORDER + TOKENS_IMAGE_SIZE + TOKENS_SEPARATOR, cury + itemsy - 10,
-                            thingWidth + TOKENS_SEPARATOR * 2, height);
+                    ImageCommands.drawQuad(g2d, gainMethod.state.color, PROFILE_GAMES_BORDER + TOKENS_IMAGE_SIZE + TOKENS_SEPARATOR,
+                            cury + itemsy - 10, thingWidth + TOKENS_SEPARATOR * 2, height);
                     g2d.setColor(Color.white);
 
                     final int rendery = cury + itemsy + TOKENS_CARD_HEIGHT - TOKENS_CARD_BORDERS - g2d.getFontMetrics().getHeight() / 4 + 7;

@@ -8,6 +8,7 @@ import me.deprilula28.gamesrob.utility.Cache;
 import me.deprilula28.gamesrob.utility.Constants;
 import me.deprilula28.gamesrob.utility.Log;
 import me.deprilula28.gamesrob.utility.Utility;
+import me.deprilula28.jdacmdframework.CommandContext;
 
 import java.io.Closeable;
 import java.io.File;
@@ -29,15 +30,30 @@ public class Statistics {
     private long commandCount;
     private long upvotes;
     private long monthUpvotes;
+    private long gameplayTime;
+    private long totConnections;
+    private Map<String, Long> perGameGameplayTime;
+    private Map<String, Integer> perCommandCount;
 
     public long getTotalUptime() {
         return totalTime + (System.currentTimeMillis() - GamesROB.UP_SINCE);
     }
 
+    public void registerCommand(CommandContext context) {
+        String name = context.getCurrentCommand().getName();
+        perCommandCount.put(name, perCommandCount.containsKey(name) ? perCommandCount.get(name) + 1 : 1);
+    }
+
+    public void registerGameTime(long time, GamesInstance instance) {
+        gameplayTime += time;
+        perGameGameplayTime.put(instance.getLanguageCode(), perGameGameplayTime.containsKey(instance.getLanguageCode())
+                ? perGameGameplayTime.get(instance.getLanguageCode()) + time : time);
+    }
+
     public void registerGame(GamesInstance instance) {
         gameCount ++;
-        perGameCount.put(instance.getLanguageCode(), perGameCount.containsKey(instance.getLanguageCode()) ?
-                perGameCount.get(instance.getLanguageCode()) + 1 : 1);
+        perGameCount.put(instance.getLanguageCode(), perGameCount.containsKey(instance.getLanguageCode())
+                ? perGameCount.get(instance.getLanguageCode()) + 1 : 1);
     }
 
     public void save() {
@@ -54,6 +70,7 @@ public class Statistics {
             FileWriter writer = new FileWriter(file);
             toClose = writer;
             writer.write(Constants.GSON.toJson(this));
+            Log.info("Saved statistics.");
         } catch (Exception e) {
             Log.exception("Saving statistics", e, this);
         } finally {
@@ -75,7 +92,12 @@ public class Statistics {
                     while (scann.hasNextLine()) str.append(scann.nextLine());
                     scann.close();
 
-                    return Constants.GSON.fromJson(str.toString(), Statistics.class);
+                    Statistics stats = Constants.GSON.fromJson(str.toString(), Statistics.class);
+                    if (stats.getPerGameCount() == null) stats.setPerGameCount(new HashMap<>());
+                    if (stats.getPerCommandCount() == null) stats.setPerCommandCount(new HashMap<>());
+                    if (stats.getPerGameGameplayTime() == null) stats.setPerGameGameplayTime(new HashMap<>());
+
+                    return stats;
                 } catch (Exception e) {
                     Log.exception("Loading statistics", e);
                 } finally {
@@ -84,7 +106,8 @@ public class Statistics {
                 return null;
             } else return new Statistics(
                     0L, 0L, System.currentTimeMillis(), null, 0,
-                    new HashMap<>(), 0, 0L, 0L
+                    new HashMap<>(), 0, 0L, 0L, 0L, 0L, new HashMap<>(),
+                    new HashMap<>()
             );
         }, object -> ((Statistics) object).save());
     }

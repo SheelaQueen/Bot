@@ -34,23 +34,23 @@ public class Log {
 
     private static void logMessage(String from, PrintStream stream, Object[] print) {
         StackTraceElement[] st = null;
-            if (GamesROB.debug) {
-                if (writer == null) try {
-                    File file = new File(Constants.LOGS_FOLDER, FILE_DATE_FORMAT.format(Calendar.getInstance().getTime()) + ".txt");
-                    if (file.exists()) writer = new FileWriter(file);
-                    else {
-                        if (!file.getParentFile().exists()) file.getParentFile().mkdirs();
-                        file.createNewFile();
-                        writer = new FileWriter(file);
-                    }
-                } catch (Exception e) {
-                    e.printStackTrace();
+        if (GamesROB.debug) {
+            if (writer == null) try {
+                File file = new File(Constants.LOGS_FOLDER, FILE_DATE_FORMAT.format(Calendar.getInstance().getTime()) + ".txt");
+                if (file.exists()) writer = new FileWriter(file);
+                else {
+                    if (!file.getParentFile().exists()) file.getParentFile().mkdirs();
+                    file.createNewFile();
+                    writer = new FileWriter(file);
                 }
-
-                st = Thread.currentThread().getStackTrace();
-                StackTraceElement ste = st[3];
-                from += String.format(" %s:%s (%s)", ste.getFileName(), ste.getLineNumber(), Thread.currentThread().getName());
+            } catch (Exception e) {
+                e.printStackTrace();
             }
+
+            st = Thread.currentThread().getStackTrace();
+            StackTraceElement ste = st[3];
+            from += String.format(" %s:%s (%s)", ste.getFileName(), ste.getLineNumber(), Thread.currentThread().getName());
+        }
 
         String log = Arrays.stream(print).map(Object::toString).collect(Collectors.joining(" "));
         stream.println(String.format(
@@ -95,8 +95,11 @@ public class Log {
 
         builder.append(exceptionName);
         appendThrowable(exception, builder, false);
+
+        /*
         builder.append("\n\n-== Extra Information ==-\n").append(Arrays.stream(objects).map(Object::toString)
                 .collect(Collectors.joining("\n")));
+                */
 
         Runtime runtime = Runtime.getRuntime();
         StringBuilder extraInfo = new StringBuilder().append("\n\n-== System Information ==-\n")

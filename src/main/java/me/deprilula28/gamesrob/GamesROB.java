@@ -1,13 +1,10 @@
 package me.deprilula28.gamesrob;
 
-import com.github.kevinsawicki.http.HttpRequest;
 import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import me.deprilula28.gamesrob.baseFramework.GamesInstance;
 import me.deprilula28.gamesrob.baseFramework.Match;
-import me.deprilula28.gamesrob.commands.HalloweenEvent;
 import me.deprilula28.gamesrob.data.PlottingStatistics;
 import me.deprilula28.gamesrob.data.RPCManager;
 import me.deprilula28.gamesrob.data.SQLDatabaseManager;
@@ -18,10 +15,16 @@ import me.deprilula28.gamesrob.utility.Utility;
 import me.deprilula28.jdacmdframework.CommandFramework;
 import net.dv8tion.jda.core.JDA;
 import net.dv8tion.jda.core.OnlineStatus;
-import net.dv8tion.jda.core.entities.*;
+import net.dv8tion.jda.core.entities.Game;
+import net.dv8tion.jda.core.entities.Guild;
+import net.dv8tion.jda.core.entities.TextChannel;
+import net.dv8tion.jda.core.entities.User;
 import org.java_websocket.client.WebSocketClient;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.Collectors;
 
@@ -33,8 +36,8 @@ public class GamesROB {
 
     public static final long UP_SINCE = System.currentTimeMillis();
     private static final int MAJOR = 1;
-    private static final int MINOR = 7;
-    private static final int PATCH = 10;
+    private static final int MINOR = 8;
+    private static final int PATCH = 0;
     public static final String VERSION = String.format("%s.%s.%s", MAJOR, MINOR, PATCH);
 
     public static List<JDA> shards = new ArrayList<>();
@@ -143,10 +146,7 @@ public class GamesROB {
     };
 
     public static void defaultPresence() {
-        final String message = System.currentTimeMillis() < HalloweenEvent.EVENT_BEGIN_TIME.getTimeInMillis()
-                ? "halloween event in " + Utility.formatPeriod(HalloweenEvent.EVENT_BEGIN_TIME.getTimeInMillis()
-                - System.currentTimeMillis()) + "!" : "halloween event active! " +
-                HALLOWEEN_EVENT_MESSAGES[ThreadLocalRandom.current().nextInt(HALLOWEEN_EVENT_MESSAGES.length)];
+        final String message = "halloween event active! " + HALLOWEEN_EVENT_MESSAGES[ThreadLocalRandom.current().nextInt(HALLOWEEN_EVENT_MESSAGES.length)];
         shards.forEach(cur -> {
             cur.getPresence().setStatus(OnlineStatus.ONLINE);
             cur.getPresence().setGame(Game.playing(message));

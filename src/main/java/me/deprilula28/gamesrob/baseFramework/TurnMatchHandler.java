@@ -24,7 +24,10 @@ public abstract class TurnMatchHandler implements MatchHandler {
     @Override
     public void begin(Match match, Provider<RequestPromise<Message>> initialMessage) {
         this.match = match;
-        match.setMatchMessage(initialMessage.invoke(null));
+        Log.info(initialMessage);
+        RequestPromise<Message> promise = initialMessage.invoke(null);
+        Log.info(promise);
+        match.setMatchMessage(promise);
     }
 
     public void handleAIPlay() {};

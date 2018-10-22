@@ -4,16 +4,24 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import me.deprilula28.gamesrob.Language;
 import me.deprilula28.gamesrob.baseFramework.*;
+import me.deprilula28.gamesrob.commands.ImageCommands;
+import me.deprilula28.gamesrob.utility.Constants;
+import me.deprilula28.gamesrob.utility.Log;
 import me.deprilula28.gamesrob.utility.Utility;
+import me.deprilula28.jdacmdframework.CommandContext;
 import me.deprilula28.jdacmdframework.RequestPromise;
-import net.dv8tion.jda.core.MessageBuilder;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.User;
 
+import javax.imageio.ImageIO;
+import javax.imageio.ImageReader;
 import javax.xml.ws.Provider;
+import java.awt.*;
+import java.awt.image.BufferedImage;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.util.*;
-import java.util.function.BiConsumer;
-import java.util.function.BiFunction;
+import java.util.List;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -39,6 +47,7 @@ public class Uno extends TurnMatchHandler {
     private UnoCard card;
     private UnoCard.UnoCardColor color;
     private static final int CARDS_LIMIT = 26;
+    private int roundsDrawing;
 
     @Data
     @AllArgsConstructor
@@ -73,9 +82,17 @@ public class Uno extends TurnMatchHandler {
                     (card.number == -1 ? card.action.equals(action) : card.number == number);
         }
 
+        private String getId() {
+            return color.toString().toLowerCase() + (action == null ? number : action.toString().toLowerCase());
+        }
+
         @Override
         public String toString() {
-            return GameUtil.getEmote(color.toString().toLowerCase() + (action == null ? number : action.toString().toLowerCase())).orElse("unknown");
+            return GameUtil.getEmote(getId()).orElse("unknown");
+        }
+
+        public String getPath() {
+            return "res/uno/" + getId() + ".png";
         }
     }
 
@@ -83,7 +100,6 @@ public class Uno extends TurnMatchHandler {
         List<UnoCard> cards = decks.get(player);
         for (int i = cards.size(); i < Math.min(cards.size() + amount, CARDS_LIMIT);  i++)
             cards.add(randomCard(true));
-        player.getUser().ifPresent(user -> dmMessages.get(user).then(it -> it.editMessage(getDmMessage(user)).queue()));
     }
 
     // Numbers according to the original deck
@@ -93,6 +109,10 @@ public class Uno extends TurnMatchHandler {
     private static final int NUMBER_CHANCE = 19;
     private static final int NON_WILD_ACTIONS = 3;
     private static final int STARTING_CARDS = 7;
+
+    private UnoCard getValidCard() {
+        return new UnoCard(color, random.nextInt(9), null);
+    }
 
     private UnoCard randomCard(boolean allowWild) {
         int possibleCards = CARDS_PER_DECK;
@@ -120,7 +140,7 @@ public class Uno extends TurnMatchHandler {
 
             it.getUser().ifPresent(user -> user.openPrivateChannel().queue(pm -> {
                 pm.sendMessage(Language.transl(match.getLanguage(), "game.uno.deckDm", match.getChannelIn().getAsMention())).queue();
-                dmMessages.put(user, RequestPromise.forAction(pm.sendMessage(getDmMessage(user))));
+                dmMessages.put(user, RequestPromise.forAction(pm.sendFile(getDmMessage(cards), "itsjustgettingstarted.png")));
             }));
         });
 
@@ -169,14 +189,21 @@ public class Uno extends TurnMatchHandler {
                     author.getAsMention(), card.toString(), card.action.eventTranslHandler.apply(this)));
         }
 
+        roundsDrawing = 0;
         match.getPlayers().forEach(player -> player.getUser().ifPresent(this::updateMessage));
         if (!detectVictory()) nextTurn();
     }
 
     private void updateMessage(User user) {
-        dmMessages.get(user).then(it -> {
-            String message = getDmMessage(user);
-            if (!it.getContentRaw().equals(message)) it.editMessage(message).queue();
+        dmMessages.get(user).morphAction(it -> {
+            List<UnoCard> deck = decks.get(Player.user(user));
+            it.delete().queue();
+
+            if (deck.isEmpty()) return it.getChannel().sendMessage(Language.transl(match.getLanguage(), "game.uno.won"));
+            else {
+                byte[] message = getDmMessage(deck);
+                return it.getChannel().sendFile(message, "hellyeahunodeckisanimagenow.png");
+            }
         });
     }
 
@@ -190,9 +217,10 @@ public class Uno extends TurnMatchHandler {
         if (!getTurn().getUser().isPresent()) handleAIPlay();
         else {
             User user = getTurn().getUser().get();
-            dmMessages.get(user).then(it -> it.editMessage(getDmMessage(user)).queue());
+            updateMessage(user);
             user.openPrivateChannel().queue(it -> it.sendMessage(Language.transl(match.getLanguage(), "game.uno.drawCard")).queue());
-            draw(getTurn(), 1);
+            if (roundsDrawing ++ > 3) decks.get(Player.user(user)).add(getValidCard());
+            else draw(getTurn(), 1);
             updateMessage(user);
         }
     }
@@ -206,17 +234,44 @@ public class Uno extends TurnMatchHandler {
         return winner.isPresent();
     }
 
-    private String getDmMessage(User user) {
-        List<UnoCard> deck = decks.get(Player.user(user));
-        if (deck.isEmpty()) return Language.transl(match.getLanguage(), "game.uno.won");
+    private static final int IMAGE_WIDTH = 800;
+    private static final int IMAGE_HEIGHT = 700;
 
-        StringBuilder options = new StringBuilder();
-        for (int i = 0; i < deck.size(); i ++) {
-            if (deck.get(i).canUse(card, color)) options.append(Utility.getLetterEmote(i)).append(" ");
-            else options.append("⬜").append(" ");
+    private static final double MAX_ANGLE = 135.0;
+    private static final double ANGLE_INC_PER_CARD = 22.5;
+
+    private static final int CENTER_POINT_X = IMAGE_WIDTH / 2;
+    private static final int CENTER_POINT_Y = IMAGE_HEIGHT - 80;
+    private static final int RENDER_CARD_HEIGHT = IMAGE_HEIGHT - 300;
+    private static final int RENDER_CARD_WIDTH = (int) (RENDER_CARD_HEIGHT / 1.5);
+
+    private static byte[] getDmMessage(List<UnoCard> deck) {
+        ByteArrayOutputStream baos = null;
+        try {
+            BufferedImage image = new BufferedImage(IMAGE_WIDTH, IMAGE_HEIGHT, BufferedImage.TYPE_INT_ARGB);
+            Graphics2D g2d = image.createGraphics();
+
+            double angle = Math.min(MAX_ANGLE, ANGLE_INC_PER_CARD * Math.ceil((deck.size() - 1) / 2.0));
+            double cardAngle = angle / Math.max(1, deck.size() - 1);
+
+            for (int i = 0; i < deck.size(); i++) {
+                double rotAngle = -angle / 2.0 + i * cardAngle;
+                g2d.rotate(Math.toRadians(rotAngle), CENTER_POINT_X, CENTER_POINT_Y);
+                UnoCard card = deck.get(i);
+
+                g2d.drawImage(ImageCommands.getImageFromWebsite(card.getPath()), CENTER_POINT_X - RENDER_CARD_WIDTH / 2,
+                        CENTER_POINT_Y - RENDER_CARD_HEIGHT, RENDER_CARD_WIDTH, RENDER_CARD_HEIGHT, null);
+                g2d.rotate(-Math.toRadians(rotAngle), CENTER_POINT_X, CENTER_POINT_Y);
+            }
+
+            baos = new ByteArrayOutputStream();
+            ImageIO.write(image, "png", baos);
+        } catch (IOException e) {
+            Utility.quietlyClose(baos);
+            throw new RuntimeException(e);
         }
 
-        return options.toString() + "\n" + deck.stream().map(Object::toString).collect(Collectors.joining(" "));
+        return baos.toByteArray();
     }
 
     @Override
@@ -226,7 +281,7 @@ public class Uno extends TurnMatchHandler {
         if (!over) builder.append(Language.transl(match.getLanguage(), "game.uno.chooseCard", getTurn().getUser()
                 .map(User::getAsMention).orElseThrow(() -> new RuntimeException("Asked update message on AI turn."))));
 
-        builder.append(Language.transl(match.getLanguage(), "game.uno.game", card.toString()));
+        builder.append(Language.transl(match.getLanguage(), "game.uno.game", Constants.GAMESROB_DOMAIN + "/" + card.getPath()));
 
         appendTurns(builder, playerItems, user -> decks.get(user).stream().map(it -> over ? it.toString() :
                 GameUtil.getEmote("unknown").orElse("card")).collect(Collectors.joining("")));
