@@ -13,10 +13,8 @@ import me.deprilula28.gamesrob.utility.*;
 import me.deprilula28.jdacmdframework.Command;
 import me.deprilula28.jdacmdframework.CommandContext;
 import me.deprilula28.jdacmdframework.CommandFramework;
-import me.deprilula28.jdacmdframework.exceptions.CommandArgsException;
 import me.deprilula28.jdacmdframework.exceptions.InvalidCommandSyntaxException;
 import net.dv8tion.jda.core.entities.User;
-import org.yaml.snakeyaml.Yaml;
 
 import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
@@ -285,7 +283,6 @@ public class OwnerCommands {
             response = scriptEngine.eval(String.join(" ", context.remaining()));
             success = true;
         } catch (Exception e) {
-            e.printStackTrace();
             response = e.getClass().getName() + ": " + e.getMessage();
             success = false;
         }
@@ -308,6 +305,8 @@ public class OwnerCommands {
                 "genericMessages.ownersOnly");
 
         String updateURL = context.opt(context::next).orElseGet(() -> context.getMessage().getAttachments().get(0).getUrl());
+        if (!updateURL.startsWith("https://www.dropbox.com") && !updateURL.startsWith("https://this.is-la.me"))
+            return context.getAuthor().getName() + " go die in a fire";
         context.send("<a:updating:403035325242540032> Beginning download...");
 
         try {

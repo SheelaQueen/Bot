@@ -11,7 +11,7 @@ languageProperties:
 baltopGuildTemp: "Temporarly disabled for this server."
 
 genericMessages:
-  eventhasntbegan: "This event hasn't started yet! It's starting %s (%s)."
+  globalStatistics: "📶 **%s** servers\n👥 **%s** users\n🗨 **%s** text channels\n🎮 **%s** games (**%s** active)\n❗  **%s** commands\n📈 **%s** votes (**%s** this month)\n🕙 **%s** played"
   imagegenTime: "Image took %s to generate."
   alreadyPlaying: "You are already playing another game on %s!\nType `%sstop` to stop that match."
   noGamesInChannel: "There are no games currently in this channel.\nYou can type `%shelp` to pick and start a game!"
@@ -30,6 +30,7 @@ genericMessages:
   blacklistedNoInfo: "⛔ You were blacklisted from using GamesROB.\nPlease contact %s."
   tooFast: "You're sending commands too quickly! Wait before the last one has finished loading."
   requirespermissions: "The bot needs these permissions in the server to use this command:\n`%s`"
+  partnerCheckItOut: "Check it out"
 
   upvote:
     header: "**Thank you for voting for GamesROB!**\nRewards:\n+ 🔸 %s tokens!"
@@ -132,7 +133,7 @@ game:
     shortDescription: "Try to get the same color or number on one of your cards, until they're over!"
     longDescription: "Everyone gets 7 cards, which are DM'd to you. On each round, you can use a card.\nIf you have a card with the same color or number as the last color used, you can use it.\nOtherwise, you'll have to draw two cards."
 
-    deckDm: "You can play on %s.\nOn your turn, send the number on top of the card you want to use.\nIf it's a wildcard (black color) you can pick the color we'll be playing next with `number color` (i.e. `3 blue`).\nYour deck:"
+    deckDm: "You can play on %s.\nOn your turn, send the number on top of the card you want to use.\nIf it's a wildcard (black color) you can pick the color we'll be playing next with `letter color` (i.e. `B blue`).\nYour deck:"
     drawCard: "You've drawn a card because you had run out."
 
     played: "%s has played %s%s."
@@ -144,7 +145,7 @@ game:
 
     chooseCard: "%s: Send the number of the card in your deck you want to use here!\nYour deck is in our DMs.\n"
     game: "Top Card\n%s\n\n"
-    noColor: "You need to choose a color to use a wildcard (e.g. `3 blue`)."
+    noColor: "You need to choose a color to use a wildcard (e.g. `B blue`)."
     invalidColor: "That's not a valid color."
     won: "You won the game!"
   roulette:
@@ -278,7 +279,7 @@ command:
   permissionLock: "⛔ You can't use this command!"
 
   candy:
-    own: "🍬 You have %s candy!"
+    own: "🍬 You have %s candy!\nGet more candy by trick or treating!"
     other: "🍬 %s has %s candy!"
     description: "Checks how much candy you or someone else has"
 
@@ -286,6 +287,10 @@ command:
     findingChannel: "Finding a channel to connect to..."
     alreadyConnected: "This server already has a connection happening."
     alreadyLooking: "You're already looking for a channel."
+    matchfindLimit: "The connection finder time has ended."
+
+    cantQuitStarted: "The connection has already started."
+    quit: "Quit connection finding."
 
     connected: "You've connected up to another server!\n"
     connectedHost: "In %s, you can choose to give them treats or trick them."
@@ -298,13 +303,15 @@ command:
     rateTime: "Tricks or treats?\nClick on the reactions below to choose:\n🍬 +%s candy for them\n⛔ %s of their candy"
     timeUp: "Looks like the time ran out! No tricks or treats after all..."
 
-    description: "Trick or treating? But it's on Discord!"
+    description: "Trick or treating, but it's on Discord!"
+
+  discordserversme:
+    message: "Do you want to find or share Discord servers?\nCheck out our partner, DiscordServers.me!"
+    description: "Learn more about our partner, DiscordServers.me!"
 
   idlerpg:
     message: "IdleRPG is a bot with shop system, characters, classes, dungeons, items, PvP, economy, gambling, marriage, music, guilds and much more!"
-    checkItOut: "Check it out"
-
-    description: "Learn more about our partnered bot IdleRPG!"
+    description: "Learn more about our partnered bot, IdleRPG!"
 
   slots:
     matchHeader: "Rolling for 🔸 %s tokens..."
@@ -429,6 +436,7 @@ command:
     setting: "`%s` (Values %s - %s / Default %s)"
     recentUpdate: "<:update:264184209617321984> The bot has recently received an update! `v%s`\nCheck out the changes with `%schangelog`."
     categories:
+      eventcommands: "Halloween Event"
       games: "Games"
       profilecommands: "Profile"
       servercommands: "Server"
@@ -448,10 +456,9 @@ command:
   info:
     embed2:
       description: "**The bot for playing fun chat games in your Discord!**"
-      statistics:
-        title: "📟 Statistics"
-        description: "📶 **%s** servers\n👥 **%s** users\n🗨 **%s** text channels\n🎮 **%s** games (**%s** active)\n❗ **%s** commands\n📈 **%s** votes"
-        month: " (**%s** this month)"
+      statistics2:
+        title: "📟 Global Statistics"
+        description: "\nView more with `%sstatistics`"
       versions:
         title: "📁 Versions"
         description: "GamesROB Version: **%s**\nJava Version: **%s**\n[JDA](%s) Version: **%s**\n[JDA Framework](%s) Version: **%s**\nCluster Uptime: **%s**"
@@ -462,9 +469,6 @@ command:
         title: "🔗 Useful Links"
         description: "🌐 [Our Website](%s)\n➕ [Add bot to server](%s)\n🗒 [View the source code](%s)\nℹ️ [Join our support server](%s)\n❤ [Credits](%s)\n⬆ [Upvote the bot in DBL](%s)"
     description: "View statistics and information"
-  raminfo:
-    message: ":computer: RAM Usage Info\nOverall: **%s**\nCommand Framework: **%s**\nShards: **%s**\nCache: **%s**\nGames: **%s**"
-    description: "🗄 *Debug* View a full RAM Usage report"
   ping:
     message: "🏓 Pong!\nBot -> Discord: %s\nYou -> Bot: %s\nWebsocket: %s\nAvarage Command Processing Time: %s"
     description: "🗄 *Debug* View the latency of the bot"
@@ -481,6 +485,21 @@ command:
     games: "Games"
     ram: "RAM Usage"
     description: "🗄 *Debug* View a shard information dump"
+  statistics:
+    title: "Your Statistics"
+    userStatistics: ":signal_strength: **%s** common servers\n:chart_with_upwards_trend: **%s** votes (last voted %s)\n:video_game: **%s** games played\n:clock10: **%s** spent playing\n*Note: This data may not be completely up to date.*"
+    globalStatistics: "Global Statistics"
+    aditionalGlobalStats: "\n🏓 **%s** ping\n📟 **%s** avg. command time"
+    overtimeStatistics: "📶 Guilds: %s\n👥 Users: %s\n🗨 Text Channels: %s\n🎮 Games: %s (Active: %s)\n❗ Commands: %s\n📈 Upvotes: %s\n🕙 Played: **%s**\n🏓 Ping: %s\n📟 Avg Command Time: %s\n💻 RAM Usage: %s"
+    commandStatistics:
+      title: "Command Statistics"
+      mostUsed: "**Most used commands:**\n"
+    gameStatistics:
+      title: "Game Statistics"
+      mostPlayed: "**Most played games:**\n"
+    footer: "Comparison Time"
+
+    description: "View more statistics about the bot and your usage of it"
   changelog:
     text: "**GamesROB v%s**\nFrom %s\n```diff\n%s\n```\n*Updates are usually scheduled for every friday, making the next update %s.*\n*You can suggest features and bug fixes in our server: %s*"
     description: "Shows all the changes on the latest update"
@@ -522,3 +541,7 @@ transactions:
   betting: "Used for gambling in matches"
   slots: "Used for gambling in the slots machine"
   changingEmote: "Changing your emoji tile"
+
+events:
+  hasntBegun: "This command can only be executed during %s!\nThat event is happening in %s."
+  halloween: "Halloween"

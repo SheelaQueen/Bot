@@ -1,5 +1,6 @@
 package me.deprilula28.gamesrob.utility;
 
+import me.deprilula28.gamesrob.GamesROB;
 import me.deprilula28.gamesrob.Language;
 import me.deprilula28.gamesrob.baseFramework.Player;
 import me.deprilula28.gamesrob.commands.ProfileCommands;
@@ -8,6 +9,7 @@ import me.deprilula28.gamesrob.data.UserProfile;
 import me.deprilula28.jdacmdframework.Command;
 import me.deprilula28.jdacmdframework.CommandContext;
 import me.deprilula28.jdacmdframework.exceptions.CommandArgsException;
+import me.deprilula28.jdacmdframework.exceptions.InvalidCommandSyntaxException;
 import net.dv8tion.jda.core.Permission;
 import net.dv8tion.jda.core.entities.*;
 import net.dv8tion.jda.core.requests.RestAction;
@@ -200,7 +202,17 @@ public class Utility {
             builder.append(new DecimalFormat(",###").format(Math.floor(number))).append(TIME_UNIT_NAMES[i]);
         }
 
-        return builder.toString();
+        return builder.length() > 0 ? builder.toString() : "0s";
+    }
+
+    public static List<Guild> getAllMutualGuilds(String id) {
+        List<Guild> mutualGuilds = new ArrayList<>();
+        GamesROB.shards.forEach(cur -> {
+            User su = cur.getUserById(id);
+            if (su != null) mutualGuilds.addAll(su.getMutualGuilds());
+        });
+
+        return mutualGuilds;
     }
 
     public static String formatPeriod(long timePeriod) {
@@ -211,9 +223,8 @@ public class Utility {
         if (text.matches("[0-9]+[dhms]")) {
             int n = Integer.valueOf(text.substring(0, text.length() - 1) + "");
             int period = Arrays.asList(TIME_UNIT_NAMES).indexOf(text.charAt(text.length() - 1) + "");
-            if (period < -1) throw new CommandArgsException("Time period isn't existant!");
             return (long) TIME_MEASURE_UNITS[period] * n;
-        } else throw new CommandArgsException("Couldn't extract period!");
+        } else throw new InvalidCommandSyntaxException();
     }
 
     public static void quietlyClose(Closeable closeable) {
@@ -367,6 +378,14 @@ public class Utility {
         return String.format("%s/%s",
                 formatBytes(allocated - free),
                 formatBytes(allocated));
+    }
+
+    public static long getRawRAM() {
+        Runtime rt = Runtime.getRuntime();
+        long free = rt.freeMemory();
+        long allocated = rt.totalMemory();
+
+        return allocated - free;
     }
 
     public static boolean hasPermission(Channel channel, Member member, Permission permission) {

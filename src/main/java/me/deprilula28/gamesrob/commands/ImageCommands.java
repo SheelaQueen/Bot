@@ -31,7 +31,7 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
-public class ImageCommands {
+    public class ImageCommands {
     public static final int USER_PROFILE_HEIGHT = 150;
     public static final int USER_PROFILE_WIDTH = 800;
     public static final int PFP_SIZE = 109;
@@ -141,10 +141,7 @@ public class ImageCommands {
     public static void drawLeaderboardEntry(Optional<Color> backgroundColor, String title, Graphics2D g2d,
                                              int x, int y, int width, Font starlight, String language, Supplier... suppliers) {
         g2d.setFont(starlight.deriveFont((float) LEADERBOARD_ENTRY_FONT_SIZE).deriveFont(Font.PLAIN));
-        backgroundColor.ifPresent(color -> {
-            g2d.setColor(color);
-            g2d.fillRect(x, y, width, LEADERBOARD_ENTRY_HEIGHT);
-        });
+        backgroundColor.ifPresent(color -> drawQuad(g2d, color, x, y, width, LEADERBOARD_ENTRY_HEIGHT));
 
         g2d.setColor(Color.white);
         int texty = y + LEADERBOARD_ENTRY_HEIGHT - LEADERBOARD_BORDERS - g2d.getFontMetrics().getHeight() / 4;
@@ -171,6 +168,11 @@ public class ImageCommands {
         });
     }
 
+    public static Image getImageFromWebsite(String path) {
+        return getImage(path, HttpRequest.get(Constants.GAMESROB_DOMAIN + "/" + path).userAgent(Constants.USER_AGENT)
+                .stream());
+    }
+
     public static void drawTileImage(Image image, Graphics2D g2d, int x, int y, int width, int height,
                                     int u, int v, int tileWidth, int tileHeight) {
         g2d.setClip(new Rectangle2D.Float((float) x, (float) y, (float) width, (float) height));
@@ -182,5 +184,10 @@ public class ImageCommands {
 
     public static void drawCenteredString(Graphics2D g2d, String text, int x, int y, int width) {
         g2d.drawString(text, x + (width / 2 - g2d.getFontMetrics().stringWidth(text) / 2), y);
+    }
+
+    public static void drawQuad(Graphics2D g2d, Color color, int x, int y, int width, int height) {
+        g2d.setColor(color);
+        g2d.fillRect(x, y, width, height);
     }
 }

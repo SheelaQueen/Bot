@@ -5,9 +5,11 @@ import me.deprilula28.gamesrob.GamesROB;
 import me.deprilula28.gamesrob.baseFramework.Match;
 import me.deprilula28.gamesrob.commands.CommandManager;
 import me.deprilula28.gamesrob.utility.Log;
+import me.deprilula28.gamesrob.utility.Utility;
 import net.dv8tion.jda.core.JDA;
 
 import java.io.DataOutputStream;
+import java.sql.ResultSet;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Supplier;
@@ -18,6 +20,15 @@ public class PlottingStatistics extends Thread {
     public PlottingStatistics() {
         setName("Statistics plotting thread");
         setDaemon(false);
+    }
+
+    public static ResultSet getSetClosestTime(long time) throws Exception {
+        return GamesROB.database.orElseThrow(() -> new RuntimeException("Requires DB"))
+                .sqlFileQuery("selectStatistics.sql", statement -> Log.wrapException("Getting closest time", () -> {
+            statement.setLong(1, time);
+            statement.setLong(2, time);
+            statement.setLong(3, time);
+        }));
     }
 
     @Override
@@ -62,13 +73,7 @@ public class PlottingStatistics extends Thread {
         map.put("users", () -> GamesROB.shards.stream().mapToLong(it -> it.getUsers().size()).sum());
         map.put("textchannels", () -> GamesROB.shards.stream().mapToLong(it -> it.getTextChannels().size()).sum());
 
-        map.put("ramusage", () -> {
-            Runtime rt = Runtime.getRuntime();
-            long free = rt.freeMemory();
-            long allocated = rt.totalMemory();
-
-            return allocated - free;
-        });
+        map.put("ramusage", Utility::getRawRAM);
         map.put("upvotes", () -> Statistics.get().getUpvotes());
 
         return map;

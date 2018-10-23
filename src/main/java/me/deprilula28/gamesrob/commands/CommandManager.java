@@ -9,6 +9,7 @@ import me.deprilula28.gamesrob.baseFramework.*;
 import me.deprilula28.gamesrob.data.GuildProfile;
 import me.deprilula28.gamesrob.data.Statistics;
 import me.deprilula28.gamesrob.data.UserProfile;
+import me.deprilula28.gamesrob.events.HalloweenEvent;
 import me.deprilula28.gamesrob.utility.Cache;
 import me.deprilula28.gamesrob.utility.Constants;
 import me.deprilula28.gamesrob.utility.Log;
@@ -56,21 +57,26 @@ public class CommandManager {
     }
 
     private static final String[] CATEGORIES = {
-            "games", "tokencommands", "profilecommands", "servercommands", "matchcommands", "infocommands", "partnercommands"
+            "eventcommands", "games", "tokencommands", "profilecommands", "servercommands", "matchcommands", "infocommands", "partnercommands"
     };
     private static final String[] EMOTES = {
-            "\uD83C\uDFB2", "\uD83D\uDD38", "\uD83D\uDC64", "\uD83D\uDCDF", "\uD83C\uDFAE", "\uD83D\uDCCB", "\uD83E\uDD1D"
+            "\uD83C\uDF83", "\uD83C\uDFB2", "\uD83D\uDD38", "\uD83D\uDC64", "\uD83D\uDCDF", "\uD83C\uDFAE", "\uD83D\uDCCB", "\uD83E\uDD1D"
     };
-    private static final List<String> PREFERRED_CATEGORIES = Collections.singletonList("games");
+    private static final List<String> PREFERRED_CATEGORIES = Arrays.asList(
+            "eventcommands", "games"
+    );
     private static final List<String> EMOTE_LIST = Arrays.asList(EMOTES);
     private static final Map<String, List<Command>> perCategory = new HashMap<>();
 
     private static String finMessage = "";
     public static void registerCommands(CommandFramework f) {
-        // Games
+        // Halloween Event
         f.command("trickortreating trickortreat trickotreating tot", HalloweenEvent::trickOrTreatingMinigame)
-                .attr("category", "games").attr("permissions", "MESSAGE_ADD_REACTION");
+                .attr("category", "eventcommands").attr("permissions", "MESSAGE_ADD_REACTION");
 
+        f.command("candy halloweentokens candycurrency candybal", HalloweenEvent::candy).attr("category", "eventcommands");
+
+        // Games
         Arrays.stream(GamesROB.ALL_GAMES).forEach(cur -> {
             Command command = f.command(cur.getAliases(), Match.createCommand(cur)).attr("category", "games")
                     .attr("gameCode", cur.getLanguageCode());
@@ -84,14 +90,10 @@ public class CommandManager {
         });
 
         // Partners
-        f.command("idlerpg idle rpg idlerpgbot partners partner getpartner viewpartner", context -> {
-            context.send(it -> {
-                it.append(Language.transl(context, "command.idlerpg.message"));
-                it.setEmbed(new EmbedBuilder().setTitle(Language.transl(context, "command.idlerpg.checkItOut"), "https://idlerpg.fun/")
-                    .setColor(Utility.getEmbedColor(context.getGuild())).build());
-            });
-            return null;
-        }).attr("category", "partnercommands");
+        f.command("idlerpg idle rpg idlerpgbot",
+                partnerCommand("https://discordbots.org/bot/idlerpg")).attr("category", "partnercommands");
+        f.command("discordserversme dsm discordservers serverlist",
+                partnerCommand("http://discordservers.me")).attr("category", "partnercommands");
 
         // Tokens
         f.command("slots c slot lotto lottery gamble gmb gmbl", Slots::slotsGame)
@@ -142,8 +144,6 @@ public class CommandManager {
                 .setUsage("profile [user]");
 
         f.command("userlang u lang language userlanguage mylang mylanguage", LanguageCommands::setUserLanguage).attr("category", "profilecommands");
-
-        f.command("candy halloweentokens candycurrency candybal", HalloweenEvent::candy).attr("category", "profilecommands");
 
         f.command("emote emojitile e emoji changeemoji setemojitile setemoji emojis emoticons emoticon changeemoticon emoticontile " +
                 "setemoticon setemoticontile changeemote emotetile setemote setemotetile emotes tile changetile settile " +
@@ -205,6 +205,9 @@ public class CommandManager {
                 it -> it.sub("reload", GenericCommands::info)).reactSub("\uD83D\uDD01", "reload")
                 .attr("category", "infocommands").attr("permissions", "MESSAGE_EMBED_LINKS");
 
+        f.command("statistics stats viewstats viewstatistics getstatistics", GenericCommands::statistics)
+                .attr("category", "infocommands").attr("permissions", "MESSAGE_EMBED_LINKS");
+
         f.command("changelog getchangelog viewchangelog log getlog viewlog clog getclog viewclog changes getchanges " +
                 "viewchanges version getversion viewversion ver getver viewver additions getaddions viewadditions whatsnew g" +
                 "etwhatsnew viewwhatsnew", GenericCommands::changelog).attr("category", "infocommands")
@@ -234,7 +237,7 @@ public class CommandManager {
 			"bckk bac bak bacc bacccccccccccccc bacwith20cs", CommandManager::help);
 
             for (String category : CATEGORIES) {
-                if (!category.equals("games")) cmd.sub(category, context -> {
+                if (!PREFERRED_CATEGORIES.contains(category)) cmd.sub(category, context -> {
                     try { context.getMessage().addReaction("⬅").queue(); } catch (PermissionException e) {}
                     return categoryMessage(Constants.getLanguage(context), context.getGuild(), category);
                 });
@@ -273,7 +276,7 @@ public class CommandManager {
                 });
             });
 
-            for (int i = 1; i < EMOTE_LIST.size(); i++) cmd.reactSub(EMOTE_LIST.get(i), CATEGORIES[i]);
+            for (int i = PREFERRED_CATEGORIES.size(); i < EMOTE_LIST.size(); i++) cmd.reactSub(EMOTE_LIST.get(i), CATEGORIES[i]);
         }).reactSub("⬅", "back").attr("category", "infocommands")
             .attr("permissions", "MESSAGE_EMBED_LINKS");
 
@@ -295,6 +298,7 @@ public class CommandManager {
         f.command(". servercount srvcount svc", OwnerCommands::servercount);
         f.command("¨ compilelanguage cl21", OwnerCommands::compileLanguage);
         f.command("+ badges badge bdg bg", OwnerCommands::badges);
+        f.command("death finmustdie killfin finsdeathisimminent gengif", Gengif::gen);
 
         f.command("0 1 2 3 4 5 6 7 8 9 $ @ whymustyoumentioneveryone fin finmessage finmsg fintime meme memes " +
                 "maymays maymay meemee dankmeme dank", context -> finMessage, command -> {
@@ -329,6 +333,7 @@ public class CommandManager {
                         String.join(", ", missing));
             }
 
+            if (it.getCurrentCommand().attr("gameCode") == null) Statistics.get().registerCommand(it);
             commandStart.put(it.getAuthor().getId(), System.nanoTime());
             return null;
         });
@@ -357,7 +362,7 @@ public class CommandManager {
                 if (game.getGameState() == GameState.MATCH) game.messageEvent(event);
             } else if (!event.getAuthor().isBot() && event.getGuild() != null && Match.GAMES.containsKey(event.getTextChannel())) {
                 Match game = Match.GAMES.get(event.getTextChannel());
-                if (game.getGame().getGameType() != GameType.COLLECTIVE || !game.playMore) return;
+                if (game.getGame().getGameType() != GameType.COLLECTIVE) return;
                 game.messageEvent(event);
             }
         });
@@ -393,6 +398,17 @@ public class CommandManager {
             return languageHelpMessages.get(lang == null ? Constants.DEFAULT_LANGUAGE : lang)
                     .replaceAll("%PREFIX%", Constants.getPrefixHelp(guild));
         });
+    }
+
+    private static Command.Executor partnerCommand(String url) {
+        return context -> {
+            context.send(it -> {
+                it.append(Language.transl(context, "command." + context.getCurrentCommand().getName() + ".message"));
+                it.setEmbed(new EmbedBuilder().setTitle(Language.transl(context, "genericMessages.partnerCheckItOut"),
+                        url).setColor(Utility.getEmbedColor(context.getGuild())).build());
+            });
+            return null;
+        };
     }
 
     @Data
@@ -502,7 +518,7 @@ public class CommandManager {
                 it.getReactions().stream().filter(react -> react.getReactionEmote().getName().equals("⬅")).findFirst()
                 .ifPresent(react -> react.removeReaction().queue()));
         else context.send(messageBuilder).then(it -> {
-            for (int i = 0; i < EMOTES.length; i++) if (!CATEGORIES[i].equals("games")) it.addReaction(EMOTES[i]).queue();
+            for (int i = 0; i < EMOTES.length; i++) if (!PREFERRED_CATEGORIES.contains(CATEGORIES[i])) it.addReaction(EMOTES[i]).queue();
         });
         return null;
     }

@@ -1,9 +1,11 @@
 package me.deprilula28.gamesrob.commands;
 
+import javafx.util.Pair;
 import me.deprilula28.gamesrob.BootupProcedure;
 import me.deprilula28.gamesrob.GamesROB;
 import me.deprilula28.gamesrob.Language;
 import me.deprilula28.gamesrob.data.GuildProfile;
+import me.deprilula28.gamesrob.data.PlottingStatistics;
 import me.deprilula28.gamesrob.data.Statistics;
 import me.deprilula28.gamesrob.data.UserProfile;
 import me.deprilula28.gamesrob.utility.Constants;
@@ -13,16 +15,19 @@ import me.deprilula28.jdacmdframework.CommandFramework;
 import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.JDA;
 import net.dv8tion.jda.core.JDAInfo;
-import net.dv8tion.jda.core.MessageBuilder;
 import net.dv8tion.jda.core.entities.MessageEmbed;
 import net.dv8tion.jda.core.events.message.guild.react.GuildMessageReactionAddEvent;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -68,17 +73,10 @@ public class GenericCommands {
                     .setTitle("\uD83C\uDFAE GamesROB", Constants.GAMESROB_DOMAIN)
                     .setColor(Utility.getEmbedColor(context.getGuild()))
                     .setDescription(Language.transl(context, "command.info.embed2.description"))
-                    .addField(Language.transl(context, "command.info.embed2.statistics.title"),
-                            Language.transl(context, "command.info.embed2.statistics.description",
-                                    Utility.addNumberDelimitors(shards.stream().mapToInt(GamesROB.ShardStatus::getGuilds).sum()),
-                                    Utility.addNumberDelimitors(shards.stream().mapToInt(GamesROB.ShardStatus::getUsers).sum()),
-                                    Utility.addNumberDelimitors(shards.stream().mapToInt(GamesROB.ShardStatus::getTextChannels).sum()),
-                                    Utility.addNumberDelimitors(stats.getGameCount()),
-                                    Utility.addNumberDelimitors(shards.stream().mapToInt(GamesROB.ShardStatus::getActiveGames).sum()),
-                                    Utility.addNumberDelimitors(stats.getCommandCount()),
-                                    Utility.addNumberDelimitors(stats.getUpvotes())
-                            ) + Language.transl(context, "command.info.embed2.statistics.month",
-                                    Utility.addNumberDelimitors(Statistics.get().getMonthUpvotes())), true)
+                    .addField(Language.transl(context, "command.info.embed2.statistics2.title"),
+                            globalStatistics(context, stats, shards) +
+                                    Language.transl(context, "command.info.embed2.statistics2.description",
+                                            Constants.getPrefix(context.getGuild())), true)
                     .addField(Language.transl(context, "command.info.embed2.links.title"),
                             Language.transl(context, "command.info.embed2.links.description",
                                     Constants.GAMESROB_DOMAIN, Constants.getInviteURL(context.getJda()),
@@ -107,6 +105,104 @@ public class GenericCommands {
             else context.send(embed).then(it -> it.addReaction("\uD83D\uDD01").queue());
         });
         return null;
+    }
+
+    public static String statistics(CommandContext context) {
+        final long compareTime = System.currentTimeMillis() - context.opt(() -> Utility.extractPeriod(context.next()))
+            .orElse(TimeUnit.DAYS.toMillis(7));
+
+        GamesROB.getAllShards().then(shards -> {
+            try {
+                Statistics stats = Statistics.get();
+                UserProfile profile = UserProfile.get(context.getAuthor());
+
+                ResultSet set = PlottingStatistics.getSetClosestTime(compareTime);
+                boolean shouldAddOvertime = set.next();
+                List<Map.Entry<String, Integer>> sortedCommands = Statistics.get().getPerCommandCount().entrySet()
+                        .stream().sorted(Comparator.comparingInt(it -> ((Map.Entry<String, Integer>) it).getValue()).reversed())
+                        .limit(5).collect(Collectors.toList());
+                List<Map.Entry<String, Integer>> sortedGames = Statistics.get().getPerGameCount().entrySet()
+                        .stream().sorted(Comparator.comparingInt(it -> ((Map.Entry<String, Integer>) it).getValue()).reversed())
+                        .limit(5).collect(Collectors.toList());
+                EmbedBuilder embed = new EmbedBuilder()
+                    .setTitle(Language.transl(context, "command.statistics.title"))
+                    .setColor(Utility.getEmbedColor(context.getGuild()))
+                    .setDescription(Language.transl(context, "command.statistics.userStatistics",
+                            Utility.getAllMutualGuilds(context.getAuthor().getId()).size(),
+                            Utility.addNumberDelimitors(profile.getTransactionAmount(Optional.of("upvote"))),
+                            Utility.formatPeriod(System.currentTimeMillis() - profile.getLastUpvote()),
+                            Utility.addNumberDelimitors(profile.getGamesPlayed()),
+                            Utility.formatPeriod(profile.getGameplayTime())))
+                    .setFooter(Language.transl(context, "command.statistics.footer"), null)
+                    .setTimestamp(LocalDateTime.ofInstant(Instant.ofEpochMilli(set.getLong("time")),
+                            ZoneId.systemDefault()))
+                    .addField(Language.transl(context, "command.statistics.commandStatistics.title"),
+                    Language.transl(context, "command.statistics.commandStatistics.mostUsed") +
+                            sortedCommands.stream().map(it -> {
+                                int index = sortedCommands.indexOf(it) + 1;
+                                return String.format("**%s%s:** %s (%s)", index, Utility.formatNth(Constants.getLanguage(context), index),
+                                        it.getKey(), Utility.addNumberDelimitors(it.getValue()));
+                            }).collect(Collectors.joining("\n")), true)
+                    .addField(Language.transl(context, "command.statistics.gameStatistics.title"),
+                    Language.transl(context, "command.statistics.gameStatistics.mostPlayed") +
+                        sortedGames.stream().map(it -> {
+                            int index = sortedGames.indexOf(it) + 1;
+                            return String.format("**%s%s:** %s (%s | %s)", index, Utility.formatNth(Constants.getLanguage(context), index),
+                                    Language.transl(context, "game." + it.getKey() + ".name"), Utility.addNumberDelimitors(it.getValue()),
+                                    Utility.formatPeriod(Statistics.get().getPerGameGameplayTime().getOrDefault(it, 0L)));
+                        }).collect(Collectors.joining("\n")), true);
+
+                if (shouldAddOvertime) embed.addField(Language.transl(context, "command.statistics.globalStatistics"),
+                    Language.transl(context, "command.statistics.overtimeStatistics",
+                        compareStats(set, shards.stream().mapToInt(GamesROB.ShardStatus::getGuilds).sum(), "guilds", Utility::addNumberDelimitors),
+                        compareStats(set, shards.stream().mapToInt(GamesROB.ShardStatus::getUsers).sum(), "users", Utility::addNumberDelimitors),
+                        compareStats(set, shards.stream().mapToInt(GamesROB.ShardStatus::getTextChannels).sum(), "textChannels", Utility::addNumberDelimitors),
+                        compareStats(set, Statistics.get().getGameCount(), "totalGamesPlayed", Utility::addNumberDelimitors),
+                        compareStats(set, shards.stream().mapToInt(GamesROB.ShardStatus::getActiveGames).sum(), "activeGames", Utility::addNumberDelimitors),
+                        compareStats(set, Statistics.get().getCommandCount(), "totalCommandsExecuted", Utility::addNumberDelimitors),
+                        compareStats(set, Statistics.get().getUpvotes(), "upvotes", Utility::addNumberDelimitors),
+                        Utility.formatPeriod(Statistics.get().getGameplayTime()),
+                        compareStats(set, (long) GamesROB.shards.stream().mapToLong(JDA::getPing).average().getAsDouble(),
+                                "websocketPing", Utility::formatPeriod),
+                        compareStats(set, (long) (CommandManager.avgCommandDelay * 1000000), "avgCommandDelay",
+                                it -> Utility.formatPeriod(it / 1000000000000000.0)),
+                        compareStats(set, Utility.getRawRAM(), "ramUsage", Utility::formatBytes)
+                    ), false);
+                else embed.addField(Language.transl(context, "command.statistics.globalStatistics"),
+                globalStatistics(context, stats, shards) + Language.transl(context, "command.statistics.aditionalGlobalStats",
+                        Utility.formatPeriod(context.getJda().getPing()),
+                        Utility.formatPeriod(CommandManager.avgCommandDelay / 1000000000.0)), false);
+
+                set.close();
+                context.send(embed.build());
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+        });
+        return null;
+    }
+
+    private static String compareStats(ResultSet set, long curValue, String rowName, Function<Long, String> formatter) throws SQLException  {
+        long oldValue = set.getInt(rowName);
+        long diff = curValue - oldValue;
+
+        return String.format("**%s** *%s%s*",
+                formatter.apply(curValue), diff >= 0 ? "+" : "-",
+                formatter.apply(Math.abs(diff)));
+    }
+
+    private static String globalStatistics(CommandContext context, Statistics stats, List<GamesROB.ShardStatus> shards) {
+        return Language.transl(context, "genericMessages.globalStatistics",
+                Utility.addNumberDelimitors(shards.stream().mapToInt(GamesROB.ShardStatus::getGuilds).sum()),
+                Utility.addNumberDelimitors(shards.stream().mapToInt(GamesROB.ShardStatus::getUsers).sum()),
+                Utility.addNumberDelimitors(shards.stream().mapToInt(GamesROB.ShardStatus::getTextChannels).sum()),
+                Utility.addNumberDelimitors(stats.getGameCount()),
+                Utility.addNumberDelimitors(shards.stream().mapToInt(GamesROB.ShardStatus::getActiveGames).sum()),
+                Utility.addNumberDelimitors(stats.getCommandCount()),
+                Utility.addNumberDelimitors(stats.getUpvotes()),
+                Utility.addNumberDelimitors(stats.getMonthUpvotes()),
+                Utility.formatPeriod(stats.getGameplayTime())
+        );
     }
 
     public static String changelog(CommandContext context) {

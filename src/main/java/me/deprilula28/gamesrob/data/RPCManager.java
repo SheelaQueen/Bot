@@ -244,12 +244,7 @@ public class RPCManager extends WebSocketClient {
     }
 
     private List<MutualServer> getMutualServers(JsonElement id) {
-        List<Guild> mutualGuilds = new ArrayList<>();
-        GamesROB.shards.forEach(cur -> {
-            User su = cur.getUserById(id.getAsString());
-            if (su != null) mutualGuilds.addAll(su.getMutualGuilds());
-        });
-        return mutualGuilds.stream().map(it -> new MutualServer(
+        return Utility.getAllMutualGuilds(id.getAsString()).stream().map(it -> new MutualServer(
                 "/serverLeaderboard/" + it.getId() + "/",
                 it.getIconUrl() == null
                         ? "https://discordapp.com/assets/dd4dbc0016779df1378e7812eabaa04d.png"
