@@ -1,7 +1,0 @@
-+ Added g*statistics, which shows you a bunch of data about you and the bot.
-+ Now monitoring playtime, cause why not.
-+ Trick or treating now times out finding after 5 minutes and allows you to leave by running the command again.
-+ Uno now has an image for the deck and current card.
-
-- Fixed collective matches.
-Developed by deprilula28#3609. Hope you enjoy the changes!

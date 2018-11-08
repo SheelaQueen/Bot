@@ -1,0 +1,5 @@
++ Changed a lot of the bot code structure, it will now be able to function without rebooting for a longer time.
+
+- Fixed Uno drawing the limit of cards instantly.
+- Fixed TownCountryRiver yes reaction.
+Developed by deprilula28#3609. Hope you enjoy the changes!
