@@ -40,6 +40,10 @@ public class SQLDatabaseManager {
         });
     }
 
+    public void close() {
+        Log.wrapException("Closing SQL", connection::close);
+    }
+
     private Utility.Promise<Void> sqlExecute(String sql, Consumer<PreparedStatement> cons) {
         Utility.Promise<Void> promise = new Utility.Promise<>();
         asyncExecutor.execute(() -> Log.wrapException("SQL Execute " + sql, () -> {
@@ -125,6 +129,10 @@ public class SQLDatabaseManager {
         ));
         if (set.next()) return set.getInt("count");
         else return 0;
+    }
+
+    public Utility.Promise<Void> delete(String table, String where) {
+        return this.sqlExecute(String.format("DELETE FROM %s WHERE %s", table, where), statement -> Log.wrapException("Update SQL table", statement::executeUpdate, new Object[0]));
     }
 
     public ResultSet select(String table, List<String> items, String where) throws Exception {

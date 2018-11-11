@@ -9,6 +9,7 @@ import me.deprilula28.gamesrobshardcluster.utilities.Constants;
 import me.deprilula28.gamesrobshardcluster.utilities.Log;
 import me.deprilula28.gamesrob.utility.Utility;
 import me.deprilula28.jdacmdframework.CommandContext;
+import net.dv8tion.jda.core.entities.Message;
 
 import java.io.Closeable;
 import java.io.File;
@@ -17,6 +18,7 @@ import java.io.FileWriter;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Scanner;
+import java.util.function.Consumer;
 
 @Data
 @AllArgsConstructor
@@ -34,9 +36,17 @@ public class Statistics {
     private long totConnections;
     private Map<String, Long> perGameGameplayTime;
     private Map<String, Integer> perCommandCount;
+    private double totalImageCommandGenTime;
+    private double totalImageCommandPostTime;
+    private long totalImageCommandBytes;
+    private long imageCommands;
 
-    public long getTotalUptime() {
-        return totalTime + (System.currentTimeMillis() - GamesROB.UP_SINCE);
+    public Consumer<Message> registerImageProcessor(long generateTimeNano, int byteAmount) {
+        imageCommands ++;
+        totalImageCommandBytes += byteAmount;
+        totalImageCommandGenTime += generateTimeNano / 1000000.0;
+        long postBegin = System.nanoTime();
+        return message -> totalImageCommandPostTime += (double) (System.nanoTime() - postBegin) / 1000000.0;
     }
 
     public void registerCommand(CommandContext context) {
@@ -107,7 +117,7 @@ public class Statistics {
             } else return new Statistics(
                     0L, 0L, System.currentTimeMillis(), null, 0,
                     new HashMap<>(), 0, 0L, 0L, 0L, 0L, new HashMap<>(),
-                    new HashMap<>()
+                    new HashMap<>(), 0.0, 0.0, 0, 0
             );
         }, object -> ((Statistics) object).save());
     }

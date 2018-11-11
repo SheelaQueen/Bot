@@ -1,7 +1,6 @@
 package me.deprilula28.gamesrob.events;
 
-import me.deprilula28.gamesrob.GamesROB;
-import me.deprilula28.gamesrob.Language;
+import me.deprilula28.gamesrob.utility.Language;
 import me.deprilula28.gamesrob.data.Statistics;
 import me.deprilula28.gamesrob.data.UserProfile;
 import lombok.AllArgsConstructor;

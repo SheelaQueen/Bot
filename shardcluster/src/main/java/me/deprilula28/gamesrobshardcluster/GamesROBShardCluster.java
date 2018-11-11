@@ -1,7 +1,9 @@
 package me.deprilula28.gamesrobshardcluster;
 
 import me.deprilula28.gamesrobshardcluster.utilities.CommandProcessorClassLoader;
+import me.deprilula28.gamesrobshardcluster.utilities.Constants;
 import me.deprilula28.gamesrobshardcluster.utilities.Log;
+import me.deprilula28.gamesrobshardcluster.utilities.ShardClusterUtilities;
 import me.deprilula28.jdacmdframework.CommandFramework;
 import net.dv8tion.jda.core.JDA;
 
@@ -16,6 +18,7 @@ public class GamesROBShardCluster {
     public static CommandProcessor commandProcessor;
     public static CommandFramework framework;
     public static boolean debug = false;
+    private static List<String> args;
 
     public static void main(String[] args) {
         Log.wrapException("Starting the bot", () -> {
@@ -32,19 +35,34 @@ public class GamesROBShardCluster {
         });
     }
 
-    public static void loadCommandProcessor(List<String> args) throws Exception {
-        if (commandProcessor != null) {
-            commandProcessor.close();
-            System.gc();
-        }
+    public static void reloadCommandProcessor() {
+        loadCommandProcessor(args);
+    }
 
-        File originFile = new File(commandProcessorFilePath);
-        if (!originFile.exists()) throw new RuntimeException("Command processor file not found.");
+    public static void loadCommandProcessor(List<String> args) {
+        Log.wrapException("Loading command processor", () -> {
+            if (commandProcessor != null) {
+                commandProcessor.close();
+                System.gc();
+            } else GamesROBShardCluster.args = args;
 
-        CommandProcessorClassLoader classLoader = new CommandProcessorClassLoader(originFile,
-                GamesROBShardCluster.class.getClassLoader());
-        Class<?> cpClass = Class.forName("me.deprilula28.gamesrob.GamesROB", true, classLoader);
-        commandProcessor = (CommandProcessor) cpClass.newInstance();
-        commandProcessor.registerCommands(args.toArray(new String[]{}), framework);
+            File originFile = new File(commandProcessorFilePath);
+            if (!originFile.exists()) throw new RuntimeException("Command processor file not found.");
+
+            File copiedFile = new File(Constants.DATA_FOLDER, "commandprocessor-clone.jar");
+            if (!copiedFile.getParentFile().exists()) copiedFile.getParentFile().mkdirs();
+            if (copiedFile.exists()) copiedFile.delete();
+            copiedFile.createNewFile();
+
+            Log.info("Cloning command processor file");
+            ShardClusterUtilities.copyFile(originFile, copiedFile);
+
+            Log.info("Loading command processor class");
+            CommandProcessorClassLoader classLoader = new CommandProcessorClassLoader(copiedFile,
+                    GamesROBShardCluster.class.getClassLoader());
+            Class<?> cpClass = Class.forName("me.deprilula28.gamesrob.GamesROB", true, classLoader);
+            commandProcessor = (CommandProcessor) cpClass.newInstance();
+            commandProcessor.registerCommands(args.toArray(new String[]{}), framework);
+        });
     }
 }

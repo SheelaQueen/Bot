@@ -1,4 +1,4 @@
-package me.deprilula28.gamesrob;
+package me.deprilula28.gamesrob.utility;
 
 import com.google.gson.reflect.TypeToken;
 import lombok.Getter;

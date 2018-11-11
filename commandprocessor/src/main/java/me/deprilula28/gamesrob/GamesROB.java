@@ -1,27 +1,26 @@
 package me.deprilula28.gamesrob;
 
-import me.deprilula28.gamesrob.commands.CommandManager;
-import me.deprilula28.gamesrob.games.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import me.deprilula28.gamesrob.baseFramework.GamesInstance;
 import me.deprilula28.gamesrob.baseFramework.Match;
+import me.deprilula28.gamesrob.commands.CommandManager;
 import me.deprilula28.gamesrob.data.PlottingStatistics;
 import me.deprilula28.gamesrob.data.RPCManager;
 import me.deprilula28.gamesrob.data.SQLDatabaseManager;
-import me.deprilula28.gamesrobshardcluster.CommandProcessor;
-import me.deprilula28.gamesrobshardcluster.utilities.Constants;
-import me.deprilula28.gamesrobshardcluster.GamesROBShardCluster;
-import me.deprilula28.gamesrobshardcluster.utilities.Log;
+import me.deprilula28.gamesrob.games.*;
+import me.deprilula28.gamesrob.utility.Cache;
+import me.deprilula28.gamesrob.utility.Language;
 import me.deprilula28.gamesrob.utility.Utility;
+import me.deprilula28.gamesrobshardcluster.CommandProcessor;
+import me.deprilula28.gamesrobshardcluster.GamesROBShardCluster;
+import me.deprilula28.gamesrobshardcluster.utilities.Constants;
+import me.deprilula28.gamesrobshardcluster.utilities.Log;
 import me.deprilula28.jdacmdframework.CommandFramework;
 import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.MessageBuilder;
 import net.dv8tion.jda.core.OnlineStatus;
-import net.dv8tion.jda.core.entities.Game;
-import net.dv8tion.jda.core.entities.Guild;
-import net.dv8tion.jda.core.entities.TextChannel;
-import net.dv8tion.jda.core.entities.User;
+import net.dv8tion.jda.core.entities.*;
 import net.dv8tion.jda.core.events.guild.GuildJoinEvent;
 import org.java_websocket.client.WebSocketClient;
 
@@ -77,6 +76,14 @@ public class GamesROB extends CommandProcessor {
 
                     return statuses;
                 })).orElse(Utility.Promise.result(getShardsInfo()));
+    }
+
+    public static Optional<Category> getCategoryById(long id) {
+        return GamesROBShardCluster.shards.stream().map(it -> it.getCategoryById(id)).filter(Objects::nonNull).findFirst();
+    }
+
+    public static Optional<Role> getRoleById(long id) {
+        return GamesROBShardCluster.shards.stream().map(it -> it.getRoleById(id)).filter(Objects::nonNull).findFirst();
     }
 
     public static Optional<TextChannel> getTextChannelById(long id) {
@@ -161,9 +168,7 @@ public class GamesROB extends CommandProcessor {
                                         .setColor(Utility.getEmbedColor(event.getGuild())).build())
                                 .build()).queue());
         });
-        f.listenEvents();
 
-        GamesROBShardCluster.shards.forEach(jda -> Match.ACTIVE_GAMES.put(jda, new ArrayList<>()));
         GamesROB.plots.start();
     }
 
@@ -171,5 +176,10 @@ public class GamesROB extends CommandProcessor {
     public void close() {
         Log.info("-= Closing Command Processor " + VERSION + " =-");
         GamesROBShardCluster.framework.clear();
+        rpc.ifPresent(WebSocketClient::close);
+        Cache.onClose();
+        GamesROB.plots.interrupt();
+        Log.closeStream();
+        database.ifPresent(SQLDatabaseManager::close);
     }
 }

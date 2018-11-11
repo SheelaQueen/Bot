@@ -28,7 +28,8 @@ genericMessages:
   ownersOnly: "This command is only accessible for owners."
   blacklisted: "⛔ You were blacklisted from using GamesROB by %s (%s).\nReason: %s"
   blacklistedNoInfo: "⛔ You were blacklisted from using GamesROB.\nPlease contact %s."
-  tooFast: "You're sending commands too quickly! Wait before the last one has finished loading."
+  tooFast: "⏰ You're sending commands too quickly! Wait before the last one has finished loading."
+  cooldown: "⏰ You're on cooldown on this command! Wait %s to use it again."
   requirespermissions: "The bot needs these permissions in the server to use this command:\n`%s`"
   partnerCheckItOut: "Check it out"
 
@@ -92,7 +93,7 @@ badges:
   staff: "Staff"
   translator: "Translator"
   patron: "Patron"
-  overAchiever: "Achiever"
+  achiever: "Achiever"
   developer: "Developer"
 
 game:
@@ -169,6 +170,7 @@ game:
     sendWordDM: "What sentence do you choose?"
     wordSet: "**You chose the sentence!**\nYou can go back to %s."
     wordPicked: "The sentence has been chosen!"
+    wordTooBig: "That word is too big! The maximum size is %s."
     invalidGuess: "%s guessed %s, and got it wrong!"
     validGuess: "%s got the letter %s on point!"
     outOfLimbs: "%s is out of limbs! Nice try!"
@@ -528,6 +530,7 @@ command:
     reset: "🔨 The %s permission was reset!"
     description: "Change a permission"
   setprefix:
+    tooLong: "That prefix is too long!"
     message: "Changed the bot's prefix for this guild!"
     description: "Set the command prefix for your guild!"
 

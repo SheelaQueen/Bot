@@ -3,7 +3,7 @@ package me.deprilula28.gamesrob.commands;
 import com.google.gson.JsonPrimitive;
 import me.deprilula28.gamesrob.BootupProcedure;
 import me.deprilula28.gamesrob.GamesROB;
-import me.deprilula28.gamesrob.Language;
+import me.deprilula28.gamesrob.utility.Language;
 import me.deprilula28.gamesrob.data.RPCManager;
 import me.deprilula28.gamesrob.data.UserProfile;
 import javafx.util.Pair;
@@ -309,8 +309,6 @@ public class OwnerCommands {
                 "genericMessages.ownersOnly");
 
         String updateURL = context.opt(context::next).orElseGet(() -> context.getMessage().getAttachments().get(0).getUrl());
-        if (!updateURL.startsWith("https://www.dropbox.com") && !updateURL.startsWith("https://this.is-la.me"))
-            return context.getAuthor().getName() + " go die in a fire";
         context.send("<a:updating:403035325242540032> Beginning download...");
 
         try {
@@ -359,16 +357,16 @@ public class OwnerCommands {
             messageUpdater.accept("Finished download, saving file...");
 
             try {
-                File gamesrobJar = new File("gamesrob.jar");
+                File gamesrobJar = new File("commandprocessor.jar");
                 if (gamesrobJar.exists()) gamesrobJar.delete();
                 gamesrobJar.createNewFile();
 
                 TransferUtility.download(new FileInputStream(output), new FileOutputStream(gamesrobJar),
                         output.length(), step -> {}, n -> {
                             output.delete();
-                            messageUpdater.accept("Restarting...");
+                            messageUpdater.accept("Reloading...");
                             Log.wrapException("Waiting on update", () -> Thread.sleep(500L));
-                            System.exit(-1);
+                            GamesROBShardCluster.reloadCommandProcessor();
                         }, error -> {
                             messageUpdater.accept("Failed to install update: " + error.getClass().getName() + ": " + error.getMessage());
                             Log.exception("Failed to install update from " + url, error);
@@ -444,6 +442,27 @@ public class OwnerCommands {
             .map(user -> user.getName() + "#" + user.getDiscriminator()).orElse("not found")).collect(Collectors.joining(", ")));
 
         context.getChannel().sendFile(Constants.GSON.toJson(allKeys).getBytes(), lang + ".json").queue();
+        return null;
+    }
+
+    public static String reload(CommandContext context) {
+        if (!GamesROB.owners.contains(context.getAuthor().getIdLong())) return Language.transl(context,
+                "genericMessages.ownersOnly");
+
+        context.send("<a:typing:393848431413559296> Reloading Command Processor").then(message -> {
+            GamesROBShardCluster.reloadCommandProcessor();
+            message.editMessage("→ <:check:314349398811475968> Reloaded Command Processor").queue();
+        });
+
+        return null;
+    }
+
+    public static String restart(CommandContext context) {
+        if (!GamesROB.owners.contains(context.getAuthor().getIdLong())) return Language.transl(context,
+                "genericMessages.ownersOnly");
+
+        context.send("Restarting the bot!").then(n -> System.exit(-1));
+
         return null;
     }
 }

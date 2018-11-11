@@ -1,6 +1,5 @@
 package me.deprilula28.gamesrob.utility;
 
-import me.deprilula28.gamesrob.Language;
 import me.deprilula28.gamesrob.baseFramework.Match;
 import me.deprilula28.gamesrob.data.GuildProfile;
 import me.deprilula28.gamesrob.data.Statistics;
@@ -349,24 +348,25 @@ public class Utility {
         return str;
     }
 
-    public static String getImageURL(Match match) {
-        return GAMESROB_DOMAIN + "/gameimage/" + match.getChannelIn().getId() + "/" + match.getIteration();
-    }
-
     public static Font getStarlightFont() {
         return Cache.get("stfont", n -> {
             try {
-                return Font.createFont(Font.TRUETYPE_FONT, Language.class.getResourceAsStream("/imggen/starlightfont.ttf"));
+                return Font.createFont(Font.TRUETYPE_FONT, Utility.class.getResourceAsStream("/imggen/starlightfont.ttf"));
             } catch (Exception e) {
                 throw new RuntimeException(e);
             }
         });
     }
 
+    public static String getImageURL(Match match) {
+        return GAMESROB_DOMAIN + "/gameimage/" + match.getChannelIn().getId() + "/" + match.getIteration();
+    }
+
     public static String getPrefix(Guild guild) {
         if (guild == null) return Constants.DEFAULT_PREFIX;
         String value = GuildProfile.get(guild).getGuildPrefix();
-        return value == null ? Constants.DEFAULT_PREFIX : value;
+        return value == null ? Constants.DEFAULT_PREFIX :
+                (value.length() > Constants.PREFIX_MAX_TRESHHOLD ? Constants.DEFAULT_PREFIX : value);
     }
 
     public static String getLanguage(CommandContext context) {
@@ -398,5 +398,10 @@ public class Utility {
     public static String getPrefixHelp(Guild guild) {
         return getPrefix(guild).replaceAll("\\$", "\uFF04")
                 .replaceAll("\\\\", "\\\\\\\\");
+    }
+
+    public static <T> int indexOf(T[] list, T entry) {
+        for (int i = 0; i < list.length; i++) if (list[i] == entry) return i;
+        return -1;
     }
 }

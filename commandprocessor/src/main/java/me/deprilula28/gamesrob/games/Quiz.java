@@ -2,7 +2,7 @@ package me.deprilula28.gamesrob.games;
 
 import com.github.kevinsawicki.http.HttpRequest;
 import com.google.gson.annotations.SerializedName;
-import me.deprilula28.gamesrob.Language;
+import me.deprilula28.gamesrob.utility.Language;
 import lombok.Data;
 import me.deprilula28.gamesrob.baseFramework.*;
 import me.deprilula28.gamesrobshardcluster.utilities.Constants;

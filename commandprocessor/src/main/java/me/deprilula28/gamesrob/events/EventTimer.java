@@ -1,6 +1,6 @@
 package me.deprilula28.gamesrob.events;
 
-import me.deprilula28.gamesrob.Language;
+import me.deprilula28.gamesrob.utility.Language;
 import lombok.Data;
 import me.deprilula28.gamesrobshardcluster.utilities.ShardClusterUtilities;
 import me.deprilula28.jdacmdframework.CommandContext;
@@ -16,7 +16,7 @@ public abstract class EventTimer {
 
     private String langCode;
 
-    abstract boolean isEventInTime();
+    public abstract boolean isEventInTime();
     abstract long getNextStartTime();
 
     public void checkEvent(CommandContext context) {
@@ -41,7 +41,7 @@ public abstract class EventTimer {
         }
 
         @Override
-        boolean isEventInTime() {
+        public boolean isEventInTime() {
             Calendar cur = Calendar.getInstance();
             int day = cur.get(Calendar.DAY_OF_MONTH);
             int month = cur.get(Calendar.MONTH);

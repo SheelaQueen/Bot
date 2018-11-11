@@ -89,6 +89,8 @@ public class BootupProcedure {
                 .genericExceptionFunction((message, exception) -> Log.exception(message, exception))
                 .caseIndependent(true)
                 .build());
+        f.listenEvents();
+
         GamesROBShardCluster.framework = f;
         // Commands
     };

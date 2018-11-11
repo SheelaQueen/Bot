@@ -1,15 +1,11 @@
 package me.deprilula28.gamesrob.data;
 
-import me.deprilula28.gamesrob.GamesROB;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import me.deprilula28.gamesrobshardcluster.utilities.Constants;
 import me.deprilula28.gamesrobshardcluster.utilities.Log;
 import me.deprilula28.gamesrob.utility.Utility;
-import me.deprilula28.jdacmdframework.CommandContext;
-import net.dv8tion.jda.core.Permission;
 import net.dv8tion.jda.core.entities.Guild;
-import net.dv8tion.jda.core.entities.Role;
 
 import java.io.*;
 import java.sql.PreparedStatement;
@@ -23,35 +19,12 @@ public class GuildProfile {
     private String guildId;
 
     private String guildPrefix;
-    private String permStartGame;
-    private String permStopGame;
     private String language;
     private String backgroundImageUrl;
     private boolean edited;
 
-    private boolean rolePermission(CommandContext context, String value, Supplier<Boolean> fallback) {
-        boolean out;
-        if (value == null) out = fallback.get();
-        else {
-            Role role = context.getGuild().getRoleById(value);
-            out = role == null ? fallback.get() : role.getPosition() <=
-                    context.getAuthorMember().getRoles().stream().mapToInt(Role::getPosition).max().orElse(0);
-        }
-
-        return out || context.getAuthorMember().isOwner() || context.getAuthorMember().hasPermission(Permission.ADMINISTRATOR)
-                || GamesROB.owners.contains(context.getAuthor().getIdLong());
-    }
-
     public LeaderboardHandler getLeaderboard() {
         return new LeaderboardHandler(guildId);
-    }
-
-    public boolean canStart(CommandContext context) {
-        return rolePermission(context, permStartGame, () -> true);
-    }
-
-    public boolean canStop(CommandContext context) {
-        return rolePermission(context, permStopGame, () -> context.getAuthorMember().hasPermission(Permission.MANAGE_SERVER));
     }
 
     public int getIndex(List<LeaderboardHandler.LeaderboardEntry> list, String id) {
@@ -74,7 +47,8 @@ public class GuildProfile {
     public static class GuildSaveManager extends DataManager<String, GuildProfile> {
         @Override
         public Optional<GuildProfile> getFromSQL(SQLDatabaseManager db, String from) throws Exception {
-            ResultSet select = db.select("guildData", Arrays.asList("prefix", "language", "leaderboardbackgroundimgurl"), "guildid = '" + from + "'");
+            ResultSet select = db.select("guildData", Arrays.asList("prefix", "language", "leaderboardbackgroundimgurl"),
+                    "guildid = '" + from + "'");
 
             if (select.next()) return fromResultSet(from, select);
             select.close();
@@ -85,7 +59,7 @@ public class GuildProfile {
         @Override
         public Utility.Promise<Void> saveToSQL(SQLDatabaseManager db, GuildProfile value) {
             return db.save("guildData", Arrays.asList(
-                    "prefix", "permstartgame", "permstopgame", "language", "leaderboardbackgroundimgurl", "guildid"
+                    "prefix", "language", "leaderboardbackgroundimgurl", "guildid"
             ), "guildid = '" + value.getGuildId() + "'",
                 set -> !value.isEdited(), true,
                 (set, it) -> Log.wrapException("Saving data on SQL", () -> writeGuildData(it, value)));
@@ -94,8 +68,7 @@ public class GuildProfile {
         private Optional<GuildProfile> fromResultSet(String from, ResultSet select) {
             try {
                 return Optional.of(new GuildProfile(from,
-                        select.getString("prefix"), select.getString("permStartgame"),
-                        select.getString("permstopgame"), select.getString("language"),
+                        select.getString("prefix"), select.getString("language"),
                         select.getString("leaderboardbackgroundimgurl"), false));
             } catch (Exception e) {
                 Log.exception("Saving GuildProfile in SQL", e);
@@ -105,11 +78,9 @@ public class GuildProfile {
 
         private void writeGuildData(PreparedStatement statement, GuildProfile profile) throws Exception {
             statement.setString(1, profile.getGuildPrefix());
-            statement.setString(2, profile.getPermStartGame());
-            statement.setString(3, profile.getPermStopGame());
-            statement.setString(4, profile.getLanguage());
-            statement.setString(5, profile.getBackgroundImageUrl());
-            statement.setString(6, profile.getGuildId());
+            statement.setString(2, profile.getLanguage());
+            statement.setString(3, profile.getBackgroundImageUrl());
+            statement.setString(4, profile.getGuildId());
         }
 
 
@@ -129,8 +100,7 @@ public class GuildProfile {
 
         @Override
         public GuildProfile createNew(String from) {
-            return new GuildProfile(from, "g*", null, null, Constants.DEFAULT_LANGUAGE,
-                    null,false);
+            return new GuildProfile(from, "g*", Constants.DEFAULT_LANGUAGE, null,false);
         }
 
         @Override

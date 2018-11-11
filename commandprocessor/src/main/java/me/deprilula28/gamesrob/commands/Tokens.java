@@ -1,7 +1,7 @@
 package me.deprilula28.gamesrob.commands;
 
 import me.deprilula28.gamesrob.GamesROB;
-import me.deprilula28.gamesrob.Language;
+import me.deprilula28.gamesrob.utility.Language;
 import me.deprilula28.gamesrob.data.SQLDatabaseManager;
 import me.deprilula28.gamesrob.data.UserProfile;
 import me.deprilula28.gamesrob.utility.Cache;

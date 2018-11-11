@@ -2,7 +2,7 @@ package me.deprilula28.gamesrob.commands;
 
 import me.deprilula28.gamesrob.BootupProcedure;
 import me.deprilula28.gamesrob.GamesROB;
-import me.deprilula28.gamesrob.Language;
+import me.deprilula28.gamesrob.utility.Language;
 import me.deprilula28.gamesrob.data.GuildProfile;
 import me.deprilula28.gamesrob.data.PlottingStatistics;
 import me.deprilula28.gamesrob.data.Statistics;
@@ -296,8 +296,11 @@ public class GenericCommands {
     }
 
     public static String setPrefix(CommandContext context) {
+        String prefix = String.join(" ", context.remaining());
+        if (prefix.length() > Constants.PREFIX_MAX_TRESHHOLD) return Language.transl(context, "command.setprefix.tooLong");
+
         GuildProfile profile = GuildProfile.get(context.getGuild());
-        profile.setGuildPrefix(context.next());
+        profile.setGuildPrefix(prefix);
         profile.setEdited(true);
 
         return Language.transl(context, "command.setprefix.message");

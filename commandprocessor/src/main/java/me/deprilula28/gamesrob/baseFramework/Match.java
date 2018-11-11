@@ -1,13 +1,14 @@
 package me.deprilula28.gamesrob.baseFramework;
 
 import me.deprilula28.gamesrob.GamesROB;
-import me.deprilula28.gamesrob.Language;
+import me.deprilula28.gamesrob.utility.Language;
 import me.deprilula28.gamesrob.achievements.AchievementType;
 import me.deprilula28.gamesrob.commands.CommandManager;
 import me.deprilula28.gamesrob.data.GuildProfile;
 import me.deprilula28.gamesrob.data.Statistics;
 import me.deprilula28.gamesrob.data.UserProfile;
 import me.deprilula28.gamesrob.utility.Cache;
+import me.deprilula28.gamesrob.utility.Permissions;
 import me.deprilula28.gamesrobshardcluster.GamesROBShardCluster;
 import me.deprilula28.gamesrobshardcluster.utilities.Constants;
 import me.deprilula28.gamesrobshardcluster.utilities.Log;
@@ -381,6 +382,9 @@ public class Match extends Thread {
     Reactions
      */
     public void joinReaction(CommandContext context) {
+        if (!Permissions.check(context, Permissions.PermissionType.GAME_JOIN, Optional.of(Utility.indexOf(GamesROB.ALL_GAMES, this.game)), true)) {
+            throw new InvalidCommandSyntaxException();
+        }
         if (Match.PLAYING.containsKey(context.getAuthor()) || getPlayers().contains(Player.user(context.getAuthor()))
                 || (betting.isPresent() &&
                 !UserProfile.get(context.getAuthor()).transaction(betting.get(), "transactions.betting"))
@@ -537,15 +541,16 @@ public class Match extends Thread {
     private static final int MAX_BET = 1500;
 
     public static Command.Executor createCommand(GamesInstance game) {
-        return CommandManager.permissionLock(context -> {
+        return context -> {
+            if (!Permissions.check(context, Permissions.PermissionType.GAME_START, Optional.empty(), true))
+                return Language.transl(context, "genericMessages.cmdPermDenied");
+
             String prefix = Utility.getPrefix(context.getGuild());
             if (GAMES.containsKey(context.getChannel())) {
                 Match match = GAMES.get(context.getChannel());
                 return Language.transl(context, "gameFramework.activeGame") + (match.getPlayers()
                             .contains(Optional.of(context.getAuthor()))
-                        ? GuildProfile.get(context.getGuild()).canStop(context)
-                            ? Language.transl(context, "gameFramework.viewPlayersStop", prefix, prefix)
-                            : Language.transl(context, "gameFramework.viewPlayers", prefix)
+                        ? Language.transl(context, "gameFramework.viewPlayersStop", prefix, prefix)
                         : Language.transl(context, "gameFramework.typeToJoin", prefix));
             }
             if (PLAYING.containsKey(context.getAuthor())) {
@@ -576,6 +581,6 @@ public class Match extends Thread {
 
             new Match(game, context.getAuthor(), context.getChannel(), settings, bet);
             return null;
-        }, ctx -> GuildProfile.get(ctx.getGuild()).canStart(ctx));
+        };
     }
 }

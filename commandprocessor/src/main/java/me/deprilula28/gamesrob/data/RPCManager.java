@@ -4,11 +4,12 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.annotations.SerializedName;
 import me.deprilula28.gamesrob.GamesROB;
-import me.deprilula28.gamesrob.Language;
+import me.deprilula28.gamesrob.utility.Language;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import me.deprilula28.gamesrob.achievements.AchievementType;
 import me.deprilula28.gamesrob.commands.OwnerCommands;
+import me.deprilula28.gamesrobshardcluster.GamesROBShardCluster;
 import me.deprilula28.gamesrobshardcluster.utilities.Constants;
 import me.deprilula28.gamesrobshardcluster.utilities.Log;
 import me.deprilula28.gamesrob.utility.Utility;
@@ -222,7 +223,7 @@ public class RPCManager extends WebSocketClient {
         });
         handlerMap.put(RequestType.BOT_RESTARTED, url -> {
             Log.info("Bot restarting as RPC server request.");
-            System.exit(-1);
+            GamesROBShardCluster.reloadCommandProcessor();
             return null;
         });
     }

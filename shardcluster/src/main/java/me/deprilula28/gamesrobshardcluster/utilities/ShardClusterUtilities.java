@@ -2,6 +2,10 @@ package me.deprilula28.gamesrobshardcluster.utilities;
 
 import me.deprilula28.jdacmdframework.exceptions.InvalidCommandSyntaxException;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.math.BigDecimal;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
@@ -130,5 +134,17 @@ public class ShardClusterUtilities {
         long allocated = rt.totalMemory();
 
         return allocated - free;
+    }
+
+    public static void copyFile(File inputFile, File outputFile) throws IOException {
+        FileInputStream input = new FileInputStream(inputFile);
+        FileOutputStream output = new FileOutputStream(outputFile);
+
+        int read;
+        byte[] buffer = new byte[512];
+        while ((read = input.read(buffer)) > 0) output.write(buffer, 0, read);
+
+        input.close();
+        output.close();
     }
 }

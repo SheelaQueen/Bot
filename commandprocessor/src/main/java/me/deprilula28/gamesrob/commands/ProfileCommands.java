@@ -1,7 +1,7 @@
 package me.deprilula28.gamesrob.commands;
 
 import com.vdurmont.emoji.EmojiManager;
-import me.deprilula28.gamesrob.Language;
+import me.deprilula28.gamesrob.utility.Language;
 import me.deprilula28.gamesrob.data.GuildProfile;
 import me.deprilula28.gamesrob.data.UserProfile;
 import me.deprilula28.gamesrobshardcluster.utilities.Constants;
@@ -149,14 +149,14 @@ public class ProfileCommands {
                             Constants.getDblVoteUrl(context.getJda(), "tokenscommand")));
 
                 g2d.setFont(rcontext.getStarlight().deriveFont((float) TOKENS_CARD_FONT_SIZE).deriveFont(Font.PLAIN));
-                int thingWidth = gainMethods.stream().mapToInt(it -> g2d.getFontMetrics()
+                int messageWidth = gainMethods.stream().mapToInt(it -> g2d.getFontMetrics()
                         .stringWidth(Language.transl(context, "command.profile." + it.getTranslationCode())
-                                .replaceAll("%PREFIX%", Utility.getPrefix(context.getGuild())))).max().orElse(0);
+                                .replaceAll("%PREFIX%", Utility.getPrefixHelp(context.getGuild())))).max().orElse(0);
                 for (TokenGainMethod gainMethod : gainMethods) {
                     final int x = PROFILE_GAMES_BORDER + TOKENS_IMAGE_SIZE + TOKENS_SEPARATOR + TOKENS_CARD_BORDERS;
                     final int height = gainMethod.gainAmount.isPresent() ? TOKENS_CARD_TOKEN_AMOUNT_HEIGHT : TOKENS_CARD_HEIGHT;
                     ImageCommands.drawQuad(g2d, gainMethod.state.color, PROFILE_GAMES_BORDER + TOKENS_IMAGE_SIZE + TOKENS_SEPARATOR,
-                            cury + itemsy - 10, thingWidth + TOKENS_SEPARATOR * 2, height);
+                            cury + itemsy - 10, messageWidth + TOKENS_SEPARATOR * 2, height);
                     g2d.setColor(Color.white);
 
                     final int rendery = cury + itemsy + TOKENS_CARD_HEIGHT - TOKENS_CARD_BORDERS - g2d.getFontMetrics().getHeight() / 4 + 7;

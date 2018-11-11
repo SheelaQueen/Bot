@@ -1,4 +1,4 @@
-package me.deprilula28.gamesrob.baseFramework;
+package me.deprilula28.gamesrob.utility;
 
 import lombok.Data;
 

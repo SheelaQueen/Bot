@@ -1,7 +1,7 @@
 package me.deprilula28.gamesrob.data;
 
 import me.deprilula28.gamesrob.GamesROB;
-import me.deprilula28.gamesrob.Language;
+import me.deprilula28.gamesrob.utility.Language;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import me.deprilula28.gamesrob.baseFramework.GamesInstance;
@@ -211,7 +211,7 @@ public class UserProfile {
                         select.getLong("lastupvote"), select.getInt("upvoteddays"),
                         select.getString("profilebackgroundimgurl"),
                         Utility.decodeBinary(select.getInt("badges"), Badge.class),
-                        select.getInt("candy"), select.getInt("gameplaytime"),
+                        select.getInt("candy"), select.getLong("gameplaytime"),
                         select.getInt("gamesplayed"), false));
             } catch (Exception e) {
                 Log.exception("Saving UserProfile in SQL", e);

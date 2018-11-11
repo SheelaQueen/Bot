@@ -1,7 +1,7 @@
 package me.deprilula28.gamesrob.commands;
 
 import me.deprilula28.gamesrob.GamesROB;
-import me.deprilula28.gamesrob.Language;
+import me.deprilula28.gamesrob.utility.Language;
 import me.deprilula28.gamesrob.data.GuildProfile;
 import me.deprilula28.gamesrob.data.LeaderboardHandler;
 import me.deprilula28.gamesrob.utility.Utility;

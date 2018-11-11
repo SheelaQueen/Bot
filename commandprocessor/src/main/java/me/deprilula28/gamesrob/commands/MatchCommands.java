@@ -1,7 +1,9 @@
 package me.deprilula28.gamesrob.commands;
 
-import me.deprilula28.gamesrob.Language;
+import me.deprilula28.gamesrob.GamesROB;
+import me.deprilula28.gamesrob.utility.Language;
 import me.deprilula28.gamesrob.data.UserProfile;
+import me.deprilula28.gamesrob.utility.Permissions;
 import me.deprilula28.gamesrob.utility.Utility;
 import me.deprilula28.gamesrob.baseFramework.GameState;
 import me.deprilula28.gamesrob.baseFramework.GameType;
@@ -9,6 +11,9 @@ import me.deprilula28.gamesrob.baseFramework.Match;
 import me.deprilula28.gamesrob.baseFramework.Player;
 import me.deprilula28.jdacmdframework.CommandContext;
 import me.deprilula28.jdacmdframework.exceptions.CommandArgsException;
+import me.deprilula28.jdacmdframework.exceptions.InvalidCommandSyntaxException;
+
+import java.util.Optional;
 
 public class MatchCommands {
     private static Match getGame(CommandContext context) {
@@ -28,6 +33,8 @@ public class MatchCommands {
             throw new CommandArgsException(Language.transl(context, "command.leave.notInMatch"));
         if (game.getGame().getGameType().equals(GameType.COLLECTIVE))
             throw new CommandArgsException(Language.transl(context, "command.leave.cantLeave"));
+        if (!Permissions.check(context, Permissions.PermissionType.GAME_LEAVE, Optional.of(Utility.indexOf(GamesROB.ALL_GAMES, game.getGame())), true))
+            throw new InvalidCommandSyntaxException();
 
         context.send(builder -> {
             builder.append(Language.transl(context, "command.leave.message", context.getAuthor().getAsMention()));
@@ -50,6 +57,8 @@ public class MatchCommands {
             return Language.transl(context, "command.join.alreadyOnMatch");
         if (game.getBetting().isPresent() && !UserProfile.get(context.getAuthor()).transaction(game.getBetting().get(), "transactions.betting"))
             return Utility.getNotEnoughTokensMessage(context, game.getBetting().get());
+        if (!Permissions.check(context, Permissions.PermissionType.GAME_JOIN, Optional.of(Utility.indexOf(GamesROB.ALL_GAMES, game.getGame())), true))
+            throw new InvalidCommandSyntaxException();
 
         game.joined(Player.user(context.getAuthor()));
         return null;
@@ -68,6 +77,10 @@ public class MatchCommands {
 
     public static String stop(CommandContext context) {
         Match game = getGame(context);
+        boolean ownGame = game.getCreator().equals(context.getAuthor());
+        if (!Permissions.check(context, ownGame ? Permissions.PermissionType.OWN_GAME_STOP :
+                Permissions.PermissionType.GAME_STOP, Optional.of(Utility.indexOf(GamesROB.ALL_GAMES, game.getGame())), ownGame))
+            throw new InvalidCommandSyntaxException();
         game.onEnd(Language.transl(context, "command.stop.matchStopped", context.getAuthor().getName()),
                 false);
 

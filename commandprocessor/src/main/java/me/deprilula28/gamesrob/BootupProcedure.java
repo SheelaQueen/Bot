@@ -4,6 +4,7 @@ import com.github.kevinsawicki.http.HttpRequest;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
+import me.deprilula28.gamesrob.baseFramework.Match;
 import me.deprilula28.gamesrob.data.DataManager;
 import me.deprilula28.gamesrob.data.RPCManager;
 import me.deprilula28.gamesrob.data.SQLDatabaseManager;
@@ -23,6 +24,7 @@ import redis.clients.jedis.Jedis;
 
 import java.util.*;
 import java.util.List;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 public class BootupProcedure {
@@ -93,6 +95,7 @@ public class BootupProcedure {
             GamesROB.plots.interrupt();
             Log.closeStream();
         }));
+        GamesROBShardCluster.shards.forEach(jda -> Match.ACTIVE_GAMES.put(jda, new ArrayList<>()));
     };
 
     private static final BootupTask dblLoad = args ->
@@ -104,6 +107,7 @@ public class BootupProcedure {
 
             owners = GamesROB.owners;
     });
+
     private static final String DBL_URL_ROOT = "https://discordbots.org/api/";
     private static final String DBOTS_URL_ROOT = "https://bots.discord.pw/api/";
     private static final String BFD_URL_ROOT = "https://botsfordiscord.com/api/v1/";

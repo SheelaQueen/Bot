@@ -1,6 +1,6 @@
 package me.deprilula28.gamesrob.achievements;
 
-import me.deprilula28.gamesrob.Language;
+import me.deprilula28.gamesrob.utility.Language;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 

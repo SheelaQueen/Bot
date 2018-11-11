@@ -1,6 +1,6 @@
 package me.deprilula28.gamesrob.games;
 
-import me.deprilula28.gamesrob.Language;
+import me.deprilula28.gamesrob.utility.Language;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import me.deprilula28.gamesrob.baseFramework.*;
@@ -19,6 +19,8 @@ public class Hangman implements MatchHandler {
             1, 5, GameType.MULTIPLAYER, false, false,
             Hangman::new, Hangman.class, Collections.emptyList()
     );
+
+    private static final int WORD_SIZE_LIMIT = 25;
 
     private static final String[] FACES = {
             "\uD83D\uDE15", "\uD83D\uDE26", "\uD83D\uDE27", "\uD83D\uDE23", "\uD83D\uDE35"
@@ -105,6 +107,12 @@ public class Hangman implements MatchHandler {
     @Override
     public void receivedDM(String contents, User from, Message reference) {
         if (!word.isPresent() && from.equals(match.getCreator())) {
+            if (contents.length() > WORD_SIZE_LIMIT) {
+                reference.getChannel().sendMessage(Language.transl(match.getLanguage(), "game.hangman.wordTooBig",
+                        WORD_SIZE_LIMIT)).queue();
+                return;
+            }
+
             word = Optional.of(contents.replaceAll("`", ""));
             reference.getChannel().sendMessage(Language.transl(match.getLanguage(), "game.hangman.wordSet",
                     match.getChannelIn().getAsMention())).queue();
