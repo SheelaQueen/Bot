@@ -18,14 +18,14 @@ import java.util.stream.Collectors;
 
 public class ShardClusterUtilities {
     private static final double[] TIME_MEASURE_UNITS = {
-            24 * 60 * 60 * 1000, 60 * 60 * 1000, 60 * 1000, 1000, 1, 1.0 / 1000000.0 // days, hours, minutes, seconds, milliseconds, microseconds
+            24 * 60 * 60 * 1000, 60 * 60 * 1000, 60 * 1000, 1000, 1, 1.0 / 1000.0, 1.0 / 1000000.0 // days, hours, minutes, seconds, milliseconds, microseconds
     };
     private static final String[] TIME_UNIT_NAMES = {
-            "d", "h", "m", "s", "ms", "μs"
+            "d", "h", "m", "s", "ms", "μs", "ns"
     };
 
     private static final int[] BYTE_MEASURE_UNITS = {
-            1000000000, 1000000, 1000, 1
+            1024 * 1024 * 1024, 1024 * 1024, 1024, 1
     };
     private static final String[] BYTE_UNIT_NAMES = {
             "GB", "MB", "KB", "B"

@@ -85,7 +85,7 @@ public class BootupProcedure {
         CommandFramework f = new CommandFramework(GamesROBShardCluster.shards, Settings.builder()
                 .loggerFunction(Log::info).removeCommandMessages(false).protectMentionEveryone(true)
                 .prefix("").async(true).threadPool(new ThreadPoolExecutor(10, 100, 5, TimeUnit.MINUTES,
-                        new LinkedBlockingQueue<>())).joinQuotedArgs(true)
+                        new LinkedBlockingQueue<>())).joinQuotedArgs(true).dmOnCantTalk(null)
                 .genericExceptionFunction((message, exception) -> Log.exception(message, exception))
                 .caseIndependent(true)
                 .build());

@@ -255,7 +255,7 @@ public class CommandManager {
         f.command(". servercount srvcount svc", OwnerCommands::servercount);
         f.command("\u00a8 compilelanguage cl21", OwnerCommands::compileLanguage);
         f.command("reload rl", OwnerCommands::reload);
-        f.command("restart shutdown kill deathisgood ripbot", OwnerCommands::restart);
+        f.command("restart shutdown kill die death deathisgood ripbot", OwnerCommands::restart);
         f.command("+ badges badge bdg bg", OwnerCommands::badges);
         f.command("0 1 2 3 4 5 6 7 8 9 $ @ whymustyoumentioneveryone fin finmessage finmsg fintime meme memes maymays maymay meemee dankmeme dank", context -> finMessage, command -> command.sub("set", context -> {
             if (!GamesROB.owners.contains(context.getAuthor().getIdLong()))
@@ -375,7 +375,7 @@ public class CommandManager {
         });
 
         f.getSettings().setMentionedMessageGetter(guild -> {
-            if (guild == null) return "Please use the bot in a guild.";
+            if (guild == null) return null;
             String lang = GuildProfile.get(guild).getLanguage();
             return languageHelpMessages.get(lang == null ? Constants.DEFAULT_LANGUAGE : lang)
                     .replaceAll("%PREFIX%", Utility.getPrefixHelp(guild));
