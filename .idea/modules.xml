@@ -2,8 +2,9 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
+      <module fileurl="file://$PROJECT_DIR$/commandprocessor/commandprocessor.iml" filepath="$PROJECT_DIR$/commandprocessor/commandprocessor.iml" />
       <module fileurl="file://$PROJECT_DIR$/gamesrob.iml" filepath="$PROJECT_DIR$/gamesrob.iml" />
-      <module fileurl="file://$PROJECT_DIR$/src/main/main.iml" filepath="$PROJECT_DIR$/src/main/main.iml" />
+      <module fileurl="file://$PROJECT_DIR$/shardcluster/shardcluster.iml" filepath="$PROJECT_DIR$/shardcluster/shardcluster.iml" />
     </modules>
   </component>
 </project>

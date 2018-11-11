@@ -1,0 +1,550 @@
+# To translators: Start on genericMessages
+languageProperties:
+  code: "en_US"
+  language: "English"
+  country: "USA"
+  flag: "🇺🇸"
+  languageName: "American English"
+  translators: "deprilula28#3609"
+  version: "1.6.3"
+
+baltopGuildTemp: "Temporarly disabled for this server."
+
+genericMessages:
+  globalStatistics: "📶 **%s** servers\n👥 **%s** users\n🗨 **%s** text channels\n🎮 **%s** games (**%s** active)\n❗  **%s** commands\n📈 **%s** votes (**%s** this month)\n🕙 **%s** played"
+  imagegenTime: "Image took %s to generate."
+  alreadyPlaying: "You are already playing another game on %s!\nType `%sstop` to stop that match."
+  noGamesInChannel: "There are no games currently in this channel.\nYou can type `%shelp` to pick and start a game!"
+  invalidLanguage: "Not a valid language."
+  notEnoughTokens: 
+    beggining: "You don't have enough tokens to do that (Need %s more)."
+    tokensCommand: "\nLearn how to get more tokens with `%stokens`."
+
+  nth1: "st"
+  nth2: "nd"
+  nth3: "rd"
+  nth4: "th"
+  upvoteMessage: "Thank you for upvoting GamesROB!\nYou've earnt:\n**%s**\nUpvote streak: **%s days**\nKeep upvoting daily for more rewards!"
+  ownersOnly: "This command is only accessible for owners."
+  blacklisted: "⛔ You were blacklisted from using GamesROB by %s (%s).\nReason: %s"
+  blacklistedNoInfo: "⛔ You were blacklisted from using GamesROB.\nPlease contact %s."
+  tooFast: "⏰ You're sending commands too quickly! Wait before the last one has finished loading."
+  cooldown: "⏰ You're on cooldown on this command! Wait %s to use it again."
+  requirespermissions: "The bot needs these permissions in the server to use this command:\n`%s`"
+  partnerCheckItOut: "Check it out"
+
+  upvote:
+    header: "**Thank you for voting for GamesROB!**\nRewards:\n+ 🔸 %s tokens!"
+    streak: " (%s days in a row)"
+    weekend: " **Weekend multiplier: 2x!**"
+    footer: "\n\nYou can upvote again in 12 hours.\nVoting more days in a row increases the amount of tokens gained."
+
+  languagecommand:
+    header: "%s The language is currently set to %s.\nPick the code (`has darker background`) of the language you want below and run `%s <code>`:\n\n"
+    entry: "%s (Translated by %s)"
+    bottom: "\n\nWant to help translating to your own language?\n%s"
+
+gameFramework:
+  singleplayerMatch: "**Single-player %s Match**\n%s\n\n"
+  multiplayerMatch: "**Multi-player %s Match**\n%s\n\n"
+  collectiveMatch2: "**%s Game**\n%s\n\n"
+  joinToPlay2: "🚪 Type `%sjoin` or click the door below to join!"
+  joinToPlayNoReaction2: "🚪 Type `%sjoin` to join!"
+  waiting: "⏰ Waiting\n"
+  playButton: "Click :arrow_forward: to start %s!"
+  addBot: "Click 🤖 to add an AI player!"
+  modePlayButtonHeader: "\n**Choose the %s mode:**"
+  modePlayButton: "\n%s to play %s"
+  defaultMode: "Normal %s"
+  betting: "💰 Betting %s 🔸 tokens!"
+  begin: "**It's on!**\n**%s**\n%s\n\n"
+  join: "%s has joined the match! %s/%s"
+  left: "%s has left the match!"
+  mode: "\n**%s Mode:** %s"
+
+  requireBetting: "This game requires betting!\nAdd `bet=amount` in the end of the command to choose how many tokens should be gambled."
+  settingOutOfRange: "The setting `%s` needs to be between %s and %s!"
+  activeGame: "There's another game going on this channel."
+  viewPlayers: "See the players with `%slistplayers`."
+  viewPlayersStop: "See the players with `%slistplayers` and stop with `%sstop`."
+  typeToJoin: "You can type `%sjoin` to join it."
+  playersOutOfRange: "You can only have between %s and %s players in this game!"
+
+  gameOver: "**Game Over!**\n%s\n\n"
+  winner: "%s has won!"
+  winnerTokens: "(+ 🔸 %s tokens, view your balance with `%sbal`)"
+  draw: "It's a draw!"
+  timeout: "The match has timed out after **%s**."
+  creatorQuit: "The %s match has been cancelled because its creator quit."
+  everyoneQuit: "The match has been cancelled because everyone quit."
+
+  now: " - **Now**"
+  next: " - **Next**"
+  turn: "%s's turn"
+
+  rematch: "Click in :arrows_counterclockwise: for a rematch!"
+
+badges:
+  earned: "\nYou have earned the **%s** badge!\nIt will now appear in your profile at `%sprofile`."
+  highestBaltop1st: "1st in baltop"
+  highestBaltop2nd: "2nd in baltop"
+  highestBaltop3rd: "3rd in baltop"
+  globalBaltopTop10: "Top 10 in global baltop"
+  staff: "Staff"
+  translator: "Translator"
+  patron: "Patron"
+  achiever: "Achiever"
+  developer: "Developer"
+
+game:
+  towncountryriver:
+    name: "Town, Country, River"
+    shortDescription: "Do you know words? You have 15 seconds to come up with words within a theme."
+    longDescription: "Think fast! You have 15 seconds to think of a word that starts with the given letter in the given theme.\nThe other players can vote whether or not your word is within the theme with `yes` or `no`!"
+
+    themeMessage2: "\n\nQuick, gimme a %s that starts with %s!\n⏰ You have %s\n"
+    rate: "\n\n%s that starts with %s:\n%s\nSay `yes` or `no` depending on if you think it's valid!\n"
+    reactionRate2: "\n\nVote in %s's message depending on if you think it's valid!\nTheme: **%s**\n"
+
+    themes:
+      name: "Name"
+      object: "Object"
+      animal: "Animal"
+      adjective: "Adjective"
+      cep: "Country/State/City"
+      tv: "Movie/TV Show"
+      celebrity: "Celebrity"
+      profession: "Profession"
+      bodyPart: "Body Part"
+      company: "Company"
+      trademark: "Trademark"
+      discordBots: "Discord Bot"
+      meme: "Meme"
+      anime: "Anime"
+      movie: "Movie"
+      youtuber: "YouTuber"
+      game: "Game"
+      videoGame: "Video Game"
+      boardGame: "Board Game"
+      apps: "Apps/Programs"
+      gender: "Gender"
+      fortniteSkin: "Fortnite Skin"
+  uno:
+    name: "Uno"
+    shortDescription: "Try to get the same color or number on one of your cards, until they're over!"
+    longDescription: "Everyone gets 7 cards, which are DM'd to you. On each round, you can use a card.\nIf you have a card with the same color or number as the last color used, you can use it.\nOtherwise, you'll have to draw two cards."
+
+    deckDm: "You can play on %s.\nOn your turn, send the number on top of the card you want to use.\nIf it's a wildcard (black color) you can pick the color we'll be playing next with `letter color` (i.e. `B blue`).\nYour deck:"
+    drawCard: "You've drawn a card because you had run out."
+
+    played: "%s has played %s%s."
+    wildcard: " and chose the color %s"
+    draw2: " and %s drew %s cards"
+    draw4: " and chose the color %s, %s drew %s cards"
+    block: ", blocking %s"
+    invert: ", inverting the game order"
+
+    chooseCard: "%s: Send the number of the card in your deck you want to use here!\nYour deck is in our DMs.\n"
+    game: "Top Card\n%s\n\n"
+    noColor: "You need to choose a color to use a wildcard (e.g. `B blue`)."
+    invalidColor: "That's not a valid color."
+    won: "You won the game!"
+  roulette:
+    name: "Russian Roulette"
+    shortDescription: "Flip the barrel, don't get hit!"
+    longDescription: "One bullet, 8 barrel holes.\nFlip the barrel at whichever strength you want, and hope for the best when you pull the trigger!"
+
+    chooseStrength: "🔫 How strongly will you flip the barrel?\nSend a number from %s to %s."
+    shot: "%s pulls the trigger and gets hit! How unlucky of them."
+    survive: "%s pulls the trigger, and is relieved by the lack of sound."
+  connectFour:
+    name: "ConnectFour"
+    shortDescription: "Drop tiles in order to connect 4 of your color!"
+    longDescription: "You have to connect 4 tiles of your color vertically, horizontally or diagonally!\nSend in the chat the number for the row you want to drop in (e.g.: 3)"
+  hangman:
+    name: "Hangman"
+    shortDescription: "Try to guess the word submitted by the match's creator!"
+    longDescription: "The match's creator sends a secret sentence to the bot in DMs.\nAfter that, the other players try to guess it, letter by letter or fully!"
+
+    sendWord: "Before anything, %s: Send the sentence you want in DMs!"
+    sendWordDM: "What sentence do you choose?"
+    wordSet: "**You chose the sentence!**\nYou can go back to %s."
+    wordPicked: "The sentence has been chosen!"
+    wordTooBig: "That word is too big! The maximum size is %s."
+    invalidGuess: "%s guessed %s, and got it wrong!"
+    validGuess: "%s got the letter %s on point!"
+    outOfLimbs: "%s is out of limbs! Nice try!"
+  minesweeper:
+    name: "Minesweeper"
+    shortDescription: "The OG minesweeper! Don't get blown up!"
+    longDescription: "Send the place you want to dig (e.g. c4), the number of nearby bombs will be shown.\nDon't dig into a bomb! You can flag by suffixing F (e.g. e1F)"
+
+    bomb: "You dug a bomb!"
+    left: "The player left"
+  tictactoe:
+    name: "TicTacToe"
+    shortDescription: "Arrange 3 of your tile in a line within the board!"
+    longDescription: "You know how TicTacToe works!\nJust send in the letter you want to put your tile in (e.g. a)."
+
+    tie: "It's a tie!"
+  detective:
+    name: "Detective"
+    shortDescription: "One of you is an assassin. Kick them out before it's too late."
+    longDescription: "The assassin will kill someone every night.\nCitizens will kick someone out every day.\nTry kicking the killer before it's too late."
+
+    invalidUser: "That user isn't playing or has already died/been kicked."
+    assassinKicked: "The assassin has been kicked! Finally, the city may sleep in peace."
+    murderReveal: "%s was the assassin!"
+
+    sleep: "🌇 The city goes to sleep."
+    sleepIndecisive: "🌇 The city goes to sleep, indecisively kicking no one. How will that turn out?"
+    sleepKicked: "🌇 The city goes to sleep, confidently kicking %s out of town for attempted murder.\nLittle do they know, that's not who they wanted to..."
+
+    chooseKick: "\nCollectively, the city must decide who's getting away with this awful deed, so we can kick them for good.\nSend the letter for who you think should be kicked:\n"
+    wakeFirst: "🌆 The city wakes up, surprised when they encounter that %s has been stabbed in their own house. Why would anyone do that?"
+    wakeSecond: "🌆 The city wakes up, this time missing %s, who has been stabbed, again, in their house. They say twice is just a coincidence though, right?"
+    wakeThird: "🌆 The city wakes up. We're definitely in \"pattern\" territory surrounding %s's stabbing."
+    wakeFourthPlus: "🌆 The city wakes up, with one less citizen on our realm, and that would be %s. When does this stop?"
+
+    dmCitizen: "🏙 You're a citizen."
+    dmAssassin2: "🗡 You're the killer!\nWho will be the unlucky first?\n%s"
+    dmAssassinRecursive2: "Who will it be tonight?\n%s"
+  quiz:
+    name: "Quiz"
+    shortDescription: "Do you know all the answers?"
+    longDescription: "Who can answer the questions first?\nSend in the letter you think is the correct answer in a message.\nWhoever has more points in the end will win!"
+
+    revealAnswer: "%s\nAnswer was: %s\n"
+    cantPlay: "%s: You've guessed too many times! Wait to play in the next round."
+    answer: "%s (+%s points) has answered it correctly!"
+    noOneAnswered: "No one could answer that! The answer was \"**%s**\"."
+
+  achievement:
+    got: "Achievement Get: **%s**!\n*%s*\n+🔸 %s tokens"
+    runAchievements: "Use `%sachievements` to view progress in achievements!"
+
+    # Types
+    playGames: "Play %s games"
+    winGames: "Win %s games"
+    gambleTokens: "Gamble %s tokens"
+    winTokensGambling: "Win %s tokens gambling"
+    loseTokensGambling: "Lose %s tokens gambling"
+    reachTokens: "Get %s tokens"
+    upvote: "Upvote GamesROB on DBL %s times"
+
+    # Achievements
+    realPlayer: "Real Player"
+    intensePlayer: "Intense Player"
+    proPlayer: "Pro Player"
+    tooManyGames: "Too Many Games"
+
+    crowned: "#Crowned"
+    master: "Master"
+    tooGood: "Too Good"
+    tryhard: "Tryhard"
+
+    gambler: "Gambler"
+    addicted: "Addicted"
+    highRoller: "High Roller"
+
+    onARoll: "On a Roll"
+    lucky: "Lucky"
+    rigged: "Rigged!!"
+
+    unfair: "This is unfair!"
+    overconfident: "Overconfident"
+    stubborn: "Stubborn"
+
+    mediumClass: "Medium Class"
+    upperClass: "Upper Class"
+    richBoi: "Rich boii"
+    billGates: "Literally Bill Gates"
+
+    supporter: "Supporter"
+    votingWeek: "Voting Week!"
+    votingMonth: "Voting Month..?"
+  mode:
+    reversec4:
+      name: "Inverted"
+      description: "It's reverse day! Don't connect four!"
+    reversettt:
+      name: "Inverted"
+      description: "It's reverse day! You were probably going to tie anyway, see if this helps."
+    knightpaths:
+      name: "Knight Paths"
+      description: "The number shown in the tiles you dig actually show what's from knight paths (Chess) from it!"
+    house:
+      name: "House"
+      description: "The number shown in the tiles you dig won't count the left, bottom and right tiles."
+
+command:
+  permissionLock: "⛔ You can't use this command!"
+
+  candy:
+    own: "🍬 You have %s candy!\nGet more candy by trick or treating!"
+    other: "🍬 %s has %s candy!"
+    description: "Checks how much candy you or someone else has"
+
+  trickortreating:
+    findingChannel: "Finding a channel to connect to..."
+    alreadyConnected: "This server already has a connection happening."
+    alreadyLooking: "You're already looking for a channel."
+    matchfindLimit: "The connection finder time has ended."
+
+    cantQuitStarted: "The connection has already started."
+    quit: "Quit connection finding."
+
+    connected: "You've connected up to another server!\n"
+    connectedHost: "In %s, you can choose to give them treats or trick them."
+    connectedProxy: "You have %s to convince them to give you candy!"
+
+    rateWait: "You still have to wait %s to rate!"
+    rateTreat: "🍬 Treats!\n+ %s candy were given to %s."
+    rateTrick: "⛔ Trick!\n- %s candy were removed from %s."
+    candyCommand: "\nCheck your candy with `%scandy`!"
+    rateTime: "Tricks or treats?\nClick on the reactions below to choose:\n🍬 +%s candy for them\n⛔ %s of their candy"
+    timeUp: "Looks like the time ran out! No tricks or treats after all..."
+
+    description: "Trick or treating, but it's on Discord!"
+
+  discordserversme:
+    message: "Do you want to find or share Discord servers?\nCheck out our partner, DiscordServers.me!"
+    description: "Learn more about our partner, DiscordServers.me!"
+
+  idlerpg:
+    message: "IdleRPG is a bot with shop system, characters, classes, dungeons, items, PvP, economy, gambling, marriage, music, guilds and much more!"
+    description: "Learn more about our partnered bot, IdleRPG!"
+
+  slots:
+    matchHeader: "Rolling for 🔸 %s tokens..."
+    matchEnd: "You %s 🔸 %s tokens!"
+    earnt: "earnt"
+    lost: "lost"
+
+    invalidTokens: "You can only gamble %s to %s tokens."
+    all: "all"
+    description: "Gamble your tokens in a slots game! Totally not rigged trust me"
+
+  achievements:
+    noAchievements: "No achievements are available for you right now! :wink:"
+    beginning: "Here are the achievements you can complete:\n\n"
+
+    description: "View your progress in achievements"
+    upvote: "Upvote the bot in DBL"
+
+  baltop:
+    server: "The users with most tokens in **%s**:\n"
+    global: "The users with most tokens on GamesROB globally:\n"
+    footer: "\nShowing %s entries per page | Page %s/%s\nView another page with `%sbaltop %s<page>`."
+    globalView: "\nTo view the global leaderboard, try `%sbaltop global`."
+    invalidPage: "Please choose a page from %s to %s."
+
+    description: "Shows the token leaderboard."
+
+  tokens:
+    other: "%s has 🔸 %s tokens"
+    own: "You have 🔸 %s tokens\nHere are some ways to get more:"
+    winningMatches: "**Winning matches**"
+    upvoteCan: "**Upvoting the bot** (%s days in a row = 🔸 %s tokens!)"
+    upvoteWeekend: "**Upvoting the bot** (%s days in a row + 2x weekend multiplier = 🔸 %s tokens!)"
+    upvoteLater: "~~Upvoting the bot~~ (You can do it again in %s)"
+    achievements2: "**Completing achievements**: View them with `%sachievements`!"
+    gamblingTokens: "**Gambling with** `g*slots`"
+    gamblingNoTokens: "~~Gambling~~ (Negative or zero balance)"
+    viewTransactions: "\nTo view your recent transactions, try `%stokens transactions`."
+    transactions:
+      title: "**Your recent transactions:**\n"
+      footer: "\n\nBalance = 🔶 %s tokens\nShowing %s entries per page | Page %s/%s\nView another page with `%stokens transactions <page>`."
+
+    guide: "Click here to learn more about tokens in our guide"
+    embedUpvote: "Or [Click here](%s) to upvote the bot"
+    give: "%s gave %s + 🔶 %s tokens!"
+    giveInvalidAmount: "You can only give %s to %s tokens."
+    giveInvalidUser: "You can't give this user tokens."
+
+    add: "Added %s tokens to %s's balance (Current balance: %s)."
+    remove: "Removed %s tokens from %s's balance (Current balance: %s)."
+    set: "Set %2$s's balance to %1$s (Current balance: %s)."
+
+    baltop: "\nRanked **%s** in this guild and **%s** globally! `%sbaltop`"
+  join:
+    alreadyOnMatch: "You're already on the match!"
+    full: "The match is full!"
+    gameStarted: "This game has already started!"
+    collectiveMatch: "This is a collective match, you can just go ahead and play!"
+
+    description: "Joins a match on the current channel"
+  leave:
+    creator: "You are the match creator, use `%sstop` to stop the match."
+    notInMatch: "You aren't in that match!"
+    cantLeave: "This match can't be left."
+    message: "%s has left the match.\n"
+
+    description: "Leaves your current match"
+  stop:
+    matchStopped: "⏹ Match stopped by %s"
+    response: "The match has been stopped."
+    description: "Forces a stop the current match"
+  listplayers:
+    header: "**%s Match**\n%s\n\n"
+    description: "Lists the players in the current match in the current channel"
+  
+  leaderboard:
+    unknownUser: "*unknown user*"
+    noWinner: "~no winner yet~"
+
+    websiteLink: "View everything in our site"
+    description: "View the leaderboard!"
+  profile:
+    title: "Profile (Scores from this server)"
+
+    overall: "Overall"
+    unranked: "Not ranked"
+    game: "Game"
+    position: "Position"
+    victories: "Victories"
+    losses: "Losses"
+    gamesPlayed: "Games"
+    winPercent: "Win %%"
+
+    tokenGuide: "Read our token guide by clicking here!"
+    upvote: "Upvoting the bot"
+    winMatches: "Winning Matches"
+    completeAchievements: "Completing some %%PREFIX%%achievements"
+    gambling: "Gambling with %%PREFIX%%slots"
+    upvoteEmbed: "Or [click here](%s) to upvote the bot!"
+
+    description: "View your profile, or someone else's!"
+  emote:
+    set: "Your emoji has been set! %s"
+    reset: "Your emoji has been reset!"
+    cannotUse: "I can't use that emote! Try putting it on this server."
+    invalid: "Sorry, but that's not a valid emote..."
+    description: "Change the emoji tile you'll be in matches!"
+
+  userlang:
+    set: "Your personal language was set to %s"
+    description: "Change your own language."
+  guildlang: 
+    set: "The default language for this guild was set to %s"
+    description: "Change the default language for the guild."
+
+  help:
+    beginning: "**<:GamesROBNew:456913958457049109> GamesROB v%s** *by deprilula28*\n"
+    subCategory2: "\nUse `%%PREFIX%%help command` to get information about a command (e.g. `%%PREFIX%%help slots`).\nReact with a category's emote to view all its commands.\nArguments `<in these>` are obligatory, while arguments `[in these]` are optional. You don't actually use them in the command (e.g. `%%PREFIX%%slots 10`)"
+    commandInfo: "`%s%s`: %s\nAliases: %s\nCategory: %s"
+    gameInfo2: "`%s%s`: %s\n\n**Long Description**\n%s\n\n**Settings:**\n%s\n\n%sAliases: %s\nMore information: %s"
+    modes: "**Modes:**\n%s\n\n"
+    setting: "`%s` (Values %s - %s / Default %s)"
+    recentUpdate: "<:update:264184209617321984> The bot has recently received an update! `v%s`\nCheck out the changes with `%schangelog`."
+    categories:
+      eventcommands: "Halloween Event"
+      games: "Games"
+      profilecommands: "Profile"
+      servercommands: "Server"
+      matchcommands: "Match"
+      infocommands: "Information"
+      partnercommands: "Partners"
+      tokencommands: "Tokens"
+    other: "%s others"
+
+    websiteTitle: "Check out our website!"
+    description: "Gets you some help!"
+  invite:
+    embed:
+      title: "Click to invite GamesROB!"
+      description: "You'll need the Manage Server permission in the server you want to add it on."
+    description: "Invite the bot!"
+  info:
+    embed2:
+      description: "**The bot for playing fun chat games in your Discord!**"
+      statistics2:
+        title: "📟 Global Statistics"
+        description: "\nView more with `%sstatistics`"
+      versions:
+        title: "📁 Versions"
+        description: "GamesROB Version: **%s**\nJava Version: **%s**\n[JDA](%s) Version: **%s**\n[JDA Framework](%s) Version: **%s**\nCluster Uptime: **%s**"
+      system:
+        title: "💻 System"
+        description2: "RAM: **%s**\nOS: **%s**\nShard: **%s/%s** (**%s**)\n%s RPC/JSON Connection"
+      links:
+        title: "🔗 Useful Links"
+        description: "🌐 [Our Website](%s)\n➕ [Add bot to server](%s)\n🗒 [View the source code](%s)\nℹ️ [Join our support server](%s)\n❤ [Credits](%s)\n⬆ [Upvote the bot in DBL](%s)"
+    description: "View statistics and information"
+  ping:
+    message: "🏓 Pong!\nBot -> Discord: %s\nYou -> Bot: %s\nWebsocket: %s\nAvarage Command Processing Time: %s"
+    description: "🗄 *Debug* View the latency of the bot"
+  shardinfo:
+    title: "**Shard Information:**\n```prolog\n%s\n```"
+    newTitle: "**Bot Statistics and Information:**\n"
+    singleShard: "%s **Shard %s**: %s guilds (%s%% load), %s channels, %s users, %s ping and %s games."
+    shard: "Shard"
+    guilds: "Guilds"
+    users: "Users"
+    channels: "Channels"
+    status: "Status"
+    ping: "Ping"
+    games: "Games"
+    ram: "RAM Usage"
+    description: "🗄 *Debug* View a shard information dump"
+  statistics:
+    title: "Your Statistics"
+    userStatistics: ":signal_strength: **%s** common servers\n:chart_with_upwards_trend: **%s** votes (last voted %s)\n:video_game: **%s** games played\n:clock10: **%s** spent playing\n*Note: This data may not be completely up to date.*"
+    globalStatistics: "Global Statistics"
+    aditionalGlobalStats: "\n🏓 **%s** ping\n📟 **%s** avg. command time"
+    overtimeStatistics: "📶 Guilds: %s\n👥 Users: %s\n🗨 Text Channels: %s\n🎮 Games: %s (Active: %s)\n❗ Commands: %s\n📈 Upvotes: %s\n🕙 Played: **%s**\n🏓 Ping: %s\n📟 Avg Command Time: %s\n💻 RAM Usage: %s"
+    commandStatistics:
+      title: "Command Statistics"
+      mostUsed: "**Most used commands:**\n"
+    gameStatistics:
+      title: "Game Statistics"
+      mostPlayed: "**Most played games:**\n"
+    footer: "Comparison Time"
+
+    description: "View more statistics about the bot and your usage of it"
+  changelog:
+    text: "**GamesROB v%s**\nFrom %s\n```diff\n%s\n```\n*Updates are usually scheduled for every friday, making the next update %s.*\n*You can suggest features and bug fixes in our server: %s*"
+    description: "Shows all the changes on the latest update"
+  support:
+    message: "If you're having trouble with the bot, want to suggest features, get notified when the bot updates or just want to talk to other people who use it, check out our support server:\nhttps://discord.gg/xajeDYR"
+    description: "Gives you a link to the bot's support server"
+  website:
+    message: "We have a website where you learn more about the bot!\nhttps://gamesrob.com"
+    description: "Gives you a link to the website"
+  upvote:
+    info: "Last upvoted: %s\nCurrent Streak: %s days (Lost %s)\nUpvoted %s times since %s (View your history with `%supvote history`)\n"
+    messageCanVote: "You can upvote the bot for 🔸 %s tokens!"
+    clickToVote: "Click to go to the upvote page"
+    setdays: "Set %2$s's upvoted days to %1$s."
+
+    history:
+      title: "**Your last upvotes:**\n"
+      footer: "\nShowing %s entries per page | Page %s/%s\nView another page with `%supvote history <page>`."
+
+    description: "Gives you information about your last upvotes"
+
+  perm:
+    invalidPerm: "Invalid permission!"
+    noRole: "I couldn't find a role by that name!"
+    set: "🔨 Set permission to %s games to memebers with the role (or roles higher than) `%s`"
+    reset: "🔨 The %s permission was reset!"
+    description: "Change a permission"
+  setprefix:
+    tooLong: "That prefix is too long!"
+    message: "Changed the bot's prefix for this guild!"
+    description: "Set the command prefix for your guild!"
+
+transactions:
+  upvote: "Voting for the bot on DBL"
+  completeAchievement: "Completing an achievement"
+  cheater: "Cheater"
+  give: "You gave tokens"
+  got: "You were given tokens"
+  winGamePrize: "Prize for winning a match"
+  betting: "Used for gambling in matches"
+  slots: "Used for gambling in the slots machine"
+  changingEmote: "Changing your emoji tile"
+
+events:
+  hasntBegun: "This command can only be executed during %s!\nThat event is happening in %s."
+  halloween: "Halloween"
