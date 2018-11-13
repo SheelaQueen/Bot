@@ -71,11 +71,11 @@ public class GamesROB extends CommandProcessor {
     public static Utility.Promise<List<ShardStatus>> getAllShards() {
         return rpc.filter(WebSocketClient::isOpen).map(it -> it.request(RPCManager.RequestType.GET_ALL_SHARDS_INFO, null)
                 .map(list -> {
-                    List<ShardStatus> statuses = new ArrayList<>();
-                    list.getAsJsonArray().forEach(el -> statuses.add(Constants.GSON.fromJson(el, ShardStatus.class)));
+            List<ShardStatus> statuses = new ArrayList<>();
+            list.getAsJsonArray().forEach(el -> statuses.add(Constants.GSON.fromJson(el, ShardStatus.class)));
 
-                    return statuses;
-                })).orElse(Utility.Promise.result(getShardsInfo()));
+            return statuses;
+        })).orElse(Utility.Promise.result(getShardsInfo()));
     }
 
     public static Optional<Category> getCategoryById(long id) {
@@ -147,7 +147,6 @@ public class GamesROB extends CommandProcessor {
     @Override
     public void registerCommands(String[] args, CommandFramework f) {
         Log.info("-= Starting Command Processor " + VERSION + " =-");
-        Log.info(VERSION);
 
         BootupProcedure.bootup(args);
         CommandManager.registerCommands(f);
@@ -168,18 +167,16 @@ public class GamesROB extends CommandProcessor {
                                         .setColor(Utility.getEmbedColor(event.getGuild())).build())
                                 .build()).queue());
         });
-
-        GamesROB.plots.start();
     }
 
     @Override
     public void close() {
         Log.info("-= Closing Command Processor " + VERSION + " =-");
         GamesROBShardCluster.framework.clear();
+        rpc.ifPresent(it -> it.setShouldAllowClose(true));
         rpc.ifPresent(WebSocketClient::close);
         Cache.onClose();
         GamesROB.plots.interrupt();
-        Log.closeStream();
         database.ifPresent(SQLDatabaseManager::close);
     }
 }

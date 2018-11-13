@@ -2,22 +2,21 @@ package me.deprilula28.gamesrobshardcluster.utilities;
 
 import me.deprilula28.gamesrobshardcluster.GamesROBShardCluster;
 
-import java.io.*;
+import java.io.PrintStream;
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 public class Log {
     private static final SimpleDateFormat FULL_DATE_FORMAT = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
-    private static final SimpleDateFormat FILE_DATE_FORMAT = new SimpleDateFormat("yyyy_MM_dd_HH_mm_ss");
     private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("HH:mm:ss");
-    private static FileWriter writer = null;
 
     public static void trace(Object... print) {
         String log = Arrays.stream(print).map(Object::toString).collect(Collectors.joining(" "));
-        if (GamesROBShardCluster.debug) {
-            logMessage("TRACE", System.out, new Object[] { log });
-        } else addLog(log);
+        if (GamesROBShardCluster.debug) logMessage("TRACE", System.out, new Object[] { log });
     }
 
     public static void warn(Object... print) {
@@ -33,39 +32,11 @@ public class Log {
     }
 
     private static void logMessage(String from, PrintStream stream, Object[] print) {
-        StackTraceElement[] st = null;
-        if (GamesROBShardCluster.debug) {
-            st = Thread.currentThread().getStackTrace();
-            StackTraceElement ste = st[3];
-            from += String.format(" %s:%s (%s)", ste.getFileName(), ste.getLineNumber(), Thread.currentThread().getName());
-        }
-
         String log = Arrays.stream(print).map(Object::toString).collect(Collectors.joining(" "));
         stream.println(String.format(
                 "%s [%s] %s",
                 DATE_FORMAT.format(Calendar.getInstance().getTime()), from, log
         ));
-        if (GamesROBShardCluster.debug) {
-            StackTraceElement[] stackTrace = st;
-            try {
-                writer.write(log + "\n");
-                for (StackTraceElement ste : stackTrace) {
-                    writer.write("  from " + ste.toString() + "\n");
-                }
-                writer.write("\n");
-            }catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
-        addLog(log);
-    }
-
-    public static void closeStream() {
-        if (GamesROBShardCluster.debug && writer != null) wrapException("Closing log output stream", () -> writer.close());
-    }
-
-    private static void addLog(String message) {
-
     }
 
     public static Optional<String> exception(String occurence, Exception exception, Object... objects) {

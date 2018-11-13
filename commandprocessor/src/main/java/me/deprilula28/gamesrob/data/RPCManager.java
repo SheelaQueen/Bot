@@ -3,6 +3,7 @@ package me.deprilula28.gamesrob.data;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.annotations.SerializedName;
+import lombok.Setter;
 import me.deprilula28.gamesrob.GamesROB;
 import me.deprilula28.gamesrob.utility.Language;
 import lombok.AllArgsConstructor;
@@ -30,7 +31,7 @@ import java.util.stream.Collectors;
 public class RPCManager extends WebSocketClient {
     private Map<RequestType, Function<JsonElement, Object>> handlerMap = new HashMap<>();
     private Map<UUID, Utility.Promise<JsonElement>> requests = new HashMap<>();
-    private boolean connected;
+    @Setter private boolean shouldAllowClose;
 
     @Data
     @AllArgsConstructor
@@ -91,7 +92,6 @@ public class RPCManager extends WebSocketClient {
 
     @Override
     public void onOpen(ServerHandshake serverHandshake) {
-        connected = true;
         Log.wrapException("Sending action", () -> sendAction(new JsonRPCMessage("2.0", "connect",
                 Constants.GSON.toJsonTree(info), -1, null)));
         registerHandlers();
@@ -148,12 +148,13 @@ public class RPCManager extends WebSocketClient {
     @Override
     public void onClose(int code, String reason, boolean remote) {
         Log.info("RPC socket disconnected. Reason: " + reason + " (" + code + ")");
-        connected = false;
 
-        Thread reconnect = new Thread(this::disconnectThread);
-        reconnect.setDaemon(true);
-        reconnect.setName("RPC/JSON Reconnect Task");
-        reconnect.start();
+        if (!shouldAllowClose) {
+            Thread reconnect = new Thread(this::disconnectThread);
+            reconnect.setDaemon(true);
+            reconnect.setName("RPC/JSON Reconnect Task");
+            reconnect.start();
+        }
     }
 
     @Override

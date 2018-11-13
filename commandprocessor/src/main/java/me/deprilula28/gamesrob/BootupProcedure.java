@@ -93,7 +93,6 @@ public class BootupProcedure {
             Log.info("Shutting down...");
             Cache.onClose();
             GamesROB.plots.interrupt();
-            Log.closeStream();
         }));
         GamesROBShardCluster.shards.forEach(jda -> Match.ACTIVE_GAMES.put(jda, new ArrayList<>()));
     };
@@ -106,7 +105,7 @@ public class BootupProcedure {
             GamesROBShardCluster.framework.handleEvent(GuildLeaveEvent.class, event -> postUpdatedShard(event.getJDA()));
 
             owners = GamesROB.owners;
-    });
+        });
 
     private static final String DBL_URL_ROOT = "https://discordbots.org/api/";
     private static final String DBOTS_URL_ROOT = "https://bots.discord.pw/api/";

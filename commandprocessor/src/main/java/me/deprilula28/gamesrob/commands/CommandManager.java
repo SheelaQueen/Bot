@@ -1,20 +1,20 @@
 package me.deprilula28.gamesrob.commands;
 
+import javafx.util.Pair;
+import lombok.AllArgsConstructor;
+import lombok.Data;
 import me.deprilula28.gamesrob.GamesROB;
-import me.deprilula28.gamesrob.utility.Language;
+import me.deprilula28.gamesrob.baseFramework.*;
 import me.deprilula28.gamesrob.data.GuildProfile;
 import me.deprilula28.gamesrob.data.Statistics;
 import me.deprilula28.gamesrob.data.UserProfile;
 import me.deprilula28.gamesrob.events.HalloweenEvent;
 import me.deprilula28.gamesrob.utility.Cache;
+import me.deprilula28.gamesrob.utility.Language;
 import me.deprilula28.gamesrob.utility.Permissions;
+import me.deprilula28.gamesrob.utility.Utility;
 import me.deprilula28.gamesrobshardcluster.utilities.Constants;
 import me.deprilula28.gamesrobshardcluster.utilities.Log;
-import me.deprilula28.gamesrob.utility.Utility;
-import javafx.util.Pair;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import me.deprilula28.gamesrob.baseFramework.*;
 import me.deprilula28.gamesrobshardcluster.utilities.ShardClusterUtilities;
 import me.deprilula28.jdacmdframework.Command;
 import me.deprilula28.jdacmdframework.CommandContext;
@@ -24,8 +24,10 @@ import net.dv8tion.jda.core.MessageBuilder;
 import net.dv8tion.jda.core.Permission;
 import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.Message;
+import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.entities.User;
 import net.dv8tion.jda.core.events.channel.text.TextChannelDeleteEvent;
+import net.dv8tion.jda.core.events.guild.GuildJoinEvent;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.core.events.message.guild.react.GuildMessageReactionAddEvent;
 import net.dv8tion.jda.core.events.user.UserTypingEvent;
@@ -280,7 +282,7 @@ public class CommandManager {
             // Bot Permissions
             String permissions = it.getCurrentCommand().attr("permissions");
             if (permissions != null && !it.getGuild().getMember(it.getJda().getSelfUser()).hasPermission(Permission.ADMINISTRATOR)) {
-                List missing = Arrays.stream(permissions.split(",")).map(Permission::valueOf)
+                List<String> missing = Arrays.stream(permissions.split(",")).map(Permission::valueOf)
                         .filter(perm -> !Utility.hasPermission(it.getChannel(), it.getGuild()
                             .getMember(it.getJda().getSelfUser()), perm)).map(Objects::toString)
                     .collect(Collectors.toList());
@@ -332,21 +334,41 @@ public class CommandManager {
             f.handleEvent(MessageReceivedEvent.class, event -> {
                 if (HalloweenEvent.connections.containsKey(event.getTextChannel()))
                     HalloweenEvent.messageTunneling(event);
-                if (Match.PLAYING.containsKey(event.getAuthor())) {
-                    Match game = Match.PLAYING.get(event.getAuthor());
-
-                    if (game.getGameState() == GameState.MATCH) game.messageEvent(event);
-                } else if (!event.getAuthor().isBot() && event.getGuild() != null && Match.GAMES.containsKey(event.getTextChannel())) {
-                    Match game = Match.GAMES.get(event.getTextChannel());
-                    if (game.getGame().getGameType() != GameType.COLLECTIVE) return;
-                    game.messageEvent(event);
-                }
             });
         }
 
         f.handleEvent(TextChannelDeleteEvent.class, event -> {
             if (Match.GAMES.containsKey(event.getChannel())) Match.GAMES.get(event.getChannel())
                     .onEnd("Channel Deleted", true);
+        });
+
+        f.handleEvent(GuildJoinEvent.class, event -> {
+            if (event.getGuild().getMembers().size() < Constants.SEND_WELCOME_MESSAGE_MAX_USERS)
+                event.getGuild().getTextChannels().stream().filter(TextChannel::canTalk).findFirst().ifPresent(channel ->
+                        channel.sendMessage(new MessageBuilder()
+                                .append(":wave: Hey there!\n" +
+                                        "I'm **GamesROB**, the <:botTag:230105988211015680> that lets you play chat games right from Discord!\n\n" +
+                                        "If you want to set a language for your guild, type `g*glang`!\n" +
+                                        "We currently support: " + Language.getLanguageList().stream().map(it ->
+                                        Language.transl(it, "languageProperties.languageName")).collect(Collectors.joining(", ")) + "!\n\n" +
+                                        "If you want to start playing games, type `g*help` and pick a game!")
+                                .setEmbed(new EmbedBuilder().setTitle("If you need help, you can:")
+                                        .setDescription("- [View our online command list](" + Constants.GAMESROB_DOMAIN + "/help)\n" +
+                                                "- [Join our support server](https://discord.gg/xajeDYR)")
+                                        .setColor(Utility.getEmbedColor(event.getGuild())).build())
+                                .build()).queue());
+        });
+
+        f.handleEvent(MessageReceivedEvent.class, event -> {
+            if (Match.PLAYING.containsKey(event.getAuthor())) {
+                Match game = Match.PLAYING.get(event.getAuthor());
+
+                if (game.getGameState() == GameState.MATCH) game.messageEvent(event);
+            } else if (!event.getAuthor().isBot() && event.getGuild() != null && Match.GAMES.containsKey(event.getTextChannel())) {
+                Match game = Match.GAMES.get(event.getTextChannel());
+                if (game.getGame().getGameType() != GameType.COLLECTIVE) return;
+                game.messageEvent(event);
+            }
         });
 
         // Reactions

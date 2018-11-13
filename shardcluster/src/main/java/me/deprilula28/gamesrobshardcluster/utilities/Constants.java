@@ -33,6 +33,7 @@ public class Constants {
     public static final long TCR_RESET_ROUND_TIME = TimeUnit.SECONDS.toMillis(15);
 
     public static final int PREFIX_MAX_TRESHHOLD = 12;
+    public static final int SEND_WELCOME_MESSAGE_MAX_USERS = 60;
 
     public static final Optional<String> VANITY_DBL_URL = Optional.of("https://discordbots.org/bot/GamesROB");
     public static final Optional<Long> changelogChannel = Optional.of(397851392016121877L);

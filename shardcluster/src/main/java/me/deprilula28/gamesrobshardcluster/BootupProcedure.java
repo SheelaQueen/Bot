@@ -48,23 +48,10 @@ public class BootupProcedure {
         GamesROBShardCluster.commandProcessorFilePath = pargs.get(16).orElse("commandprocessor.jar");
     };
 
-    private static final String[] ERROR_MESSAGES = {
-            "So um... This is awkard...", "Oof...", "Sorry :c", "This ~~happens~~ *doesn't happen* very often you know?",
-            "Roses are red,\nViolets are blue.\nDep is bad at coding,\nSo I bring this message for you!",
-            "uHhHh tHiS iS a StAbLe BoT oK?", "What did I do wrong?!", "A wild bug has appeared!"
-    };
     private static final Game[] LOADING_MESSAGES = {
             Game.watching("it all load.."), Game.watching("life pass me by..."),
             Game.listening("the cogs spinning"), Game.playing("something. Maybe that's why it's taking so long?"),
             Game.playing("01100001011011010010000001101100011011110110000101100100")
-    };
-    private static final String[] GIFS = {
-            "https://media2.giphy.com/media/dRgcwKJaGgWgo/giphy.gif",
-            "https://media1.giphy.com/media/ucqzuPUJSrTvW/giphy.gif",
-            "https://media2.giphy.com/media/3ztfAWk2M2msM/giphy.gif",
-            "https://media.giphy.com/media/sXICOpe3B2cc8/giphy.gif",
-            "https://media.giphy.com/media/11H1vD2IrZxg9G/giphy.gif",
-            "https://this.is-la.me/c82a77.png"
     };
 
     private static final BootupTask connectDiscord = args -> {
@@ -73,7 +60,7 @@ public class BootupProcedure {
         while (curShard < shardTo) {
             JDA jda = new JDABuilder(AccountType.BOT).setToken(token)
                     .useSharding(curShard, totalShards).setStatus(OnlineStatus.DO_NOT_DISTURB)
-                    .setGame(game).buildBlocking();
+                    .setGame(game).build();
             GamesROBShardCluster.shards.add(jda);
 
             curShard ++;

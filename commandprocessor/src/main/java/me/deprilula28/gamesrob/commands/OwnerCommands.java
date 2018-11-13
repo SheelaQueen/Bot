@@ -278,6 +278,7 @@ public class OwnerCommands {
         scriptEngine.put("me", context.getAuthor());
         scriptEngine.put("member", context.getAuthorMember());
         scriptEngine.put("shards", GamesROBShardCluster.shards);
+        scriptEngine.put("event", context.getEvent());
 
         context.send("<a:typing:393848431413559296> Evaluating...");
         Object response;
