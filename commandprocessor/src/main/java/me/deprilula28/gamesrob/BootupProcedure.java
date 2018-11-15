@@ -48,6 +48,7 @@ public class BootupProcedure {
     public static Optional<String> optDblToken;
     public static Optional<String> optDBotsToken;
     public static Optional<String> optBfdToken;
+    public static Thread presenceThread;
     private static int shardTo;
     public static int shardFrom;
     private static int totalShards;
@@ -91,8 +92,7 @@ public class BootupProcedure {
     private static final BootupTask loadData = args -> {
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
             Log.info("Shutting down...");
-            Cache.onClose();
-            GamesROB.plots.interrupt();
+            new GamesROB().close();
         }));
         GamesROBShardCluster.shards.forEach(jda -> Match.ACTIVE_GAMES.put(jda, new ArrayList<>()));
 
@@ -112,7 +112,7 @@ public class BootupProcedure {
 
     private static final String DBL_URL_ROOT = "https://discordbots.org/api/";
     private static final String DBOTS_URL_ROOT = "https://bots.discord.pw/api/";
-    private static final String BFD_URL_ROOT = "https://botsfordiscord.com/api/v1/";
+    private static final String BFD_URL_ROOT = "https://botsfordiscord.com/api/";
 
     @Getter private static String lastDblRequest;
     @Getter private static String lastDbotsRequest;
@@ -139,19 +139,17 @@ public class BootupProcedure {
         });
 
         dblJson.add("shards", dblShardsArray);
-        optDblToken.ifPresent(dblToken -> {
+        optDblToken.ifPresent(dblToken ->
             lastDblRequest = HttpRequest.post(DBL_URL_ROOT + "bots/" + id + "/stats")
                     .userAgent(Constants.USER_AGENT).authorization(dblToken).acceptJson().contentType("application/json")
-                    .send(Constants.GSON.toJson(dblJson)).body();
-        });
+                    .send(Constants.GSON.toJson(dblJson)).body());
 
         JsonObject bfdJson = new JsonObject();
-        bfdJson.add("count", new JsonPrimitive(shards.stream().mapToInt(GamesROB.ShardStatus::getGuilds).sum()));
-        optBfdToken.ifPresent(bfdToken -> {
-            lastBfdRequest = HttpRequest.post(BFD_URL_ROOT + "bots/" + id)
+        bfdJson.add("server_count", new JsonPrimitive(shards.stream().mapToInt(GamesROB.ShardStatus::getGuilds).sum()));
+        optBfdToken.ifPresent(bfdToken ->
+            lastBfdRequest = HttpRequest.post(BFD_URL_ROOT + "bot/" + id)
                     .userAgent(Constants.USER_AGENT).authorization(bfdToken).acceptJson().contentType("application/json")
-                    .send(Constants.GSON.toJson(bfdJson)).body();
-        });
+                    .send(Constants.GSON.toJson(bfdJson)).body());
     }
 
     private static void postUpdatedShard(JDA jda) {
@@ -185,14 +183,13 @@ public class BootupProcedure {
     }
 
     private static final BootupTask presenceTask = args -> {
-        Thread presenceThread = new Thread(() -> {
-            while (true) {
-                Log.wrapException("Updating presence", () -> {
-                    Thread.sleep(Constants.PRESENCE_UPDATE_PERIOD);
-                    GamesROB.setPresence();
-                });
-            }
-        });
+        presenceThread = new Thread(() ->
+            Log.wrapException("Updating presence", () -> {
+                while (true) {
+                        Thread.sleep(Constants.PRESENCE_UPDATE_PERIOD);
+                        GamesROB.setPresence();
+                }
+            }));
         presenceThread.setDaemon(true);
         presenceThread.setName("Presence updater thread");
         presenceThread.start();
@@ -230,10 +227,11 @@ public class BootupProcedure {
         if (!GamesROB.VERSION.equals(statistics.getLastUpdateLogSent()) && Constants.changelogChannel.isPresent()) {
             statistics.setLastUpdateLogSent(GamesROB.VERSION);
             statistics.setLastUpdateLogSentTime(System.currentTimeMillis());
-            GamesROB.getTextChannelById(Constants.changelogChannel.get()).ifPresent(channel -> channel.sendMessage(String.format(sendChangelogFormat,
-                "484522326906503172", "<:update:264184209617321984>", GamesROB.VERSION, changelog,
-                ShardClusterUtilities.formatTimeRegularFormat(Utility.predictNextUpdate()), "358451223612882944"
-            )).queue());
+            GamesROB.getTextChannelById(Constants.changelogChannel.get()).ifPresent(channel ->
+                channel.sendMessage(String.format(sendChangelogFormat,
+                    "484522326906503172", "<:update:264184209617321984>", GamesROB.VERSION, changelog,
+                    ShardClusterUtilities.formatTimeRegularFormat(Utility.predictNextUpdate()), "358451223612882944"
+                )).queue());
         }
     };
 

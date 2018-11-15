@@ -359,7 +359,7 @@ public class OwnerCommands {
             messageUpdater.accept("Finished download, saving file...");
 
             try {
-                File gamesrobJar = new File("commandprocessor.jar");
+                File gamesrobJar = new File(GamesROBShardCluster.commandProcessorFilePath);
                 if (gamesrobJar.exists()) gamesrobJar.delete();
                 gamesrobJar.createNewFile();
 
@@ -367,7 +367,6 @@ public class OwnerCommands {
                         output.length(), step -> {}, n -> {
                             output.delete();
                             messageUpdater.accept("Reloading...");
-                            Log.wrapException("Waiting on update", () -> Thread.sleep(500L));
                             GamesROBShardCluster.reloadCommandProcessor();
                             reloadedMessage.accept(null);
                         }, error -> {

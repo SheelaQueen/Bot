@@ -137,7 +137,8 @@ public class GamesROB extends CommandProcessor {
     };
 
     public static void defaultPresence() {
-        final String message = "halloween event active! " + HALLOWEEN_EVENT_MESSAGES[ThreadLocalRandom.current().nextInt(HALLOWEEN_EVENT_MESSAGES.length)];
+        User selfUser = GamesROBShardCluster.shards.get(0).getSelfUser();
+        final String message = "@" + selfUser.getName() + "#" + selfUser.getDiscriminator() + " | gamesrob.com";
         GamesROBShardCluster.shards.forEach(cur -> {
             cur.getPresence().setStatus(OnlineStatus.ONLINE);
             cur.getPresence().setGame(Game.playing(message));
@@ -177,6 +178,7 @@ public class GamesROB extends CommandProcessor {
         rpc.ifPresent(WebSocketClient::close);
         Cache.onClose();
         GamesROB.plots.interrupt();
+        BootupProcedure.presenceThread.interrupt();
         database.ifPresent(SQLDatabaseManager::close);
     }
 }
