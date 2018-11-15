@@ -219,7 +219,8 @@ public class RPCManager extends WebSocketClient {
         });
 
         handlerMap.put(RequestType.BOT_UPDATED, url -> {
-            Log.wrapException("Updating bot from RPC request", () -> OwnerCommands.update(url.getAsString(), Log::info));
+            Log.wrapException("Updating bot from RPC request", () -> OwnerCommands.update(url.getAsString(), Log::info,
+                    n -> Log.info("Updated successfully.")));
             return null;
         });
         handlerMap.put(RequestType.BOT_RESTARTED, url -> {

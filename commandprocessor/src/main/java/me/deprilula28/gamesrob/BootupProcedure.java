@@ -22,9 +22,9 @@ import net.dv8tion.jda.core.events.guild.GuildLeaveEvent;
 import org.trello4j.TrelloImpl;
 import redis.clients.jedis.Jedis;
 
+import java.awt.*;
 import java.util.*;
 import java.util.List;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
 public class BootupProcedure {
@@ -95,6 +95,9 @@ public class BootupProcedure {
             GamesROB.plots.interrupt();
         }));
         GamesROBShardCluster.shards.forEach(jda -> Match.ACTIVE_GAMES.put(jda, new ArrayList<>()));
+
+        Utility.setStarlightFont(Font.createFont(Font.TRUETYPE_FONT, Utility.class
+                .getResourceAsStream("/imggen/starlightfont.ttf")));
     };
 
     private static final BootupTask dblLoad = args ->

@@ -1,24 +1,34 @@
 package me.deprilula28.gamesrob.utility;
 
+import lombok.Getter;
+import lombok.Setter;
 import me.deprilula28.gamesrob.baseFramework.Match;
+import me.deprilula28.gamesrob.baseFramework.Player;
+import me.deprilula28.gamesrob.commands.ImageCommands;
+import me.deprilula28.gamesrob.commands.ProfileCommands;
 import me.deprilula28.gamesrob.data.GuildProfile;
 import me.deprilula28.gamesrob.data.Statistics;
 import me.deprilula28.gamesrob.data.UserProfile;
-import me.deprilula28.gamesrob.baseFramework.Player;
-import me.deprilula28.gamesrob.commands.ProfileCommands;
-import me.deprilula28.gamesrobshardcluster.utilities.Constants;
 import me.deprilula28.gamesrobshardcluster.GamesROBShardCluster;
+import me.deprilula28.gamesrobshardcluster.utilities.Constants;
 import me.deprilula28.gamesrobshardcluster.utilities.Log;
 import me.deprilula28.jdacmdframework.CommandContext;
 import net.dv8tion.jda.core.Permission;
-import net.dv8tion.jda.core.entities.*;
+import net.dv8tion.jda.core.entities.Channel;
+import net.dv8tion.jda.core.entities.Guild;
+import net.dv8tion.jda.core.entities.Member;
+import net.dv8tion.jda.core.entities.User;
 import net.dv8tion.jda.core.requests.RestAction;
 
 import java.awt.*;
 import java.io.Closeable;
 import java.io.IOException;
+import java.io.InputStream;
 import java.text.DecimalFormat;
-import java.time.*;
+import java.time.DayOfWeek;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.time.temporal.TemporalAdjusters;
 import java.util.*;
 import java.util.List;
@@ -30,6 +40,8 @@ import java.util.stream.Collectors;
 import static me.deprilula28.gamesrobshardcluster.utilities.Constants.GAMESROB_DOMAIN;
 
 public class Utility {
+    @Getter @Setter private static Font starlightFont;
+
     public static Color getEmbedColor(Guild guild) {
         Color color = guild.getMember(guild.getJDA().getSelfUser()).getColor();
         return color == null || color.equals(Color.white) ?
@@ -155,8 +167,8 @@ public class Utility {
     }
 
     public static String readResource(String path) {
-        return Cache.get("path_" + path, n -> {
-            Scanner scann = new Scanner(Language.class.getResourceAsStream(path));
+        return Cache.get("text_path_" + path, n -> {
+            Scanner scann = new Scanner(Utility.class.getResourceAsStream(path));
             StringBuilder builder = new StringBuilder();
 
             while (scann.hasNextLine()) {
@@ -346,16 +358,6 @@ public class Utility {
             else curi ++;
         }
         return str;
-    }
-
-    public static Font getStarlightFont() {
-        return Cache.get("stfont", n -> {
-            try {
-                return Font.createFont(Font.TRUETYPE_FONT, Utility.class.getResourceAsStream("/imggen/starlightfont.ttf"));
-            } catch (Exception e) {
-                throw new RuntimeException(e);
-            }
-        });
     }
 
     public static String getImageURL(Match match) {

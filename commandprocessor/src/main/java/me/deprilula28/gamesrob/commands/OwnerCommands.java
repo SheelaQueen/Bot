@@ -313,7 +313,8 @@ public class OwnerCommands {
         context.send("<a:updating:403035325242540032> Beginning download...");
 
         try {
-            update(updateURL, it -> context.edit("<a:updating:403035325242540032> " + it));
+            update(updateURL, it -> context.edit("<a:updating:403035325242540032> " + it),
+                    n -> context.edit("<:check:314349398811475968> Update complete!"));
         } catch (Exception e) {
             context.send("Couldn't begin download: " + e.getClass().getName() + ": " + e.getMessage());
             Log.exception("Failed to begin download from " + updateURL, e);
@@ -322,7 +323,7 @@ public class OwnerCommands {
         return null;
     }
 
-    public static void update(String url, Consumer<String> messageUpdater) throws Exception {
+    public static void update(String url, Consumer<String> messageUpdater, Consumer<Void> reloadedMessage) throws Exception {
         File output = new File(Constants.TEMP_FOLDER, "update_download");
 
         if (output.exists()) output.delete();
@@ -368,6 +369,7 @@ public class OwnerCommands {
                             messageUpdater.accept("Reloading...");
                             Log.wrapException("Waiting on update", () -> Thread.sleep(500L));
                             GamesROBShardCluster.reloadCommandProcessor();
+                            reloadedMessage.accept(null);
                         }, error -> {
                             messageUpdater.accept("Failed to install update: " + error.getClass().getName() + ": " + error.getMessage());
                             Log.exception("Failed to install update from " + url, error);

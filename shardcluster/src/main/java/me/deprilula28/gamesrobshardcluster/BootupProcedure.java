@@ -7,6 +7,7 @@ import me.deprilula28.jdacmdframework.Settings;
 import net.dv8tion.jda.core.*;
 import net.dv8tion.jda.core.entities.Game;
 
+import java.awt.*;
 import java.util.*;
 import java.util.List;
 import java.util.concurrent.LinkedBlockingQueue;

@@ -1,12 +1,12 @@
 package me.deprilula28.gamesrob.games;
 
-import me.deprilula28.gamesrob.utility.Language;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import me.deprilula28.gamesrob.baseFramework.*;
 import me.deprilula28.gamesrob.commands.ImageCommands;
-import me.deprilula28.gamesrobshardcluster.utilities.Constants;
+import me.deprilula28.gamesrob.utility.Language;
 import me.deprilula28.gamesrob.utility.Utility;
+import me.deprilula28.gamesrobshardcluster.utilities.Constants;
 import me.deprilula28.jdacmdframework.RequestPromise;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.User;
@@ -154,16 +154,14 @@ public class Uno extends TurnMatchHandler {
         Player cur = getTurn();
         if (!cur.getUser().filter(it -> it.equals(author)).isPresent()) return;
         String[] values = contents.split(" ");
-        if (values.length > 2) return;
-        if (values[0].length() != 1) return;
+        if (values.length > 2 || values[0].length() != 1) return;
 
-        int cardi = Utility.inputLetter(values[0]) - 1;
+        int cardi = Utility.inputLetter(values[0]);
         List<UnoCard> deck = decks.get(Player.user(author));
-        if (cardi < 1 || cardi > deck.size()) return;
-        UnoCard card = deck.get(cardi - 1);
+        if (cardi < 0 || cardi > deck.size()) return;
+        UnoCard card = deck.get(cardi);
         if (!card.canUse(this.card, color)) return;
 
-        UnoCard.UnoCardColor oldColor = color;
         if (card.color.equals(UnoCard.UnoCardColor.SPECIAL)) {
             boolean doreturn = true;
             if (values.length == 1) match.getChannelIn().sendMessage(Language.transl(match.getLanguage(), "game.uno.noColor")).queue();
@@ -238,15 +236,20 @@ public class Uno extends TurnMatchHandler {
     private static final double ANGLE_INC_PER_CARD = 22.5;
 
     private static final int CENTER_POINT_X = IMAGE_WIDTH / 2;
-    private static final int CENTER_POINT_Y = IMAGE_HEIGHT - 80;
+    private static final int CENTER_POINT_Y = IMAGE_HEIGHT - 60;
+    private static final int CENTER_POINT_Y_SEL = IMAGE_HEIGHT - 90;
     private static final int RENDER_CARD_HEIGHT = IMAGE_HEIGHT - 300;
     private static final int RENDER_CARD_WIDTH = (int) (RENDER_CARD_HEIGHT / 1.5);
 
-    private static byte[] getDmMessage(List<UnoCard> deck) {
+    private byte[] getDmMessage(List<UnoCard> deck) {
         ByteArrayOutputStream baos = null;
         try {
             BufferedImage image = new BufferedImage(IMAGE_WIDTH, IMAGE_HEIGHT, BufferedImage.TYPE_INT_ARGB);
             Graphics2D g2d = image.createGraphics();
+
+            g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+            g2d.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BICUBIC);
+            g2d.setFont(Utility.getStarlightFont().deriveFont(42.0f));
 
             double angle = Math.min(MAX_ANGLE, ANGLE_INC_PER_CARD * Math.ceil((deck.size() - 1) / 2.0));
             double cardAngle = angle / Math.max(1, deck.size() - 1);
@@ -255,9 +258,16 @@ public class Uno extends TurnMatchHandler {
                 double rotAngle = -angle / 2.0 + i * cardAngle;
                 g2d.rotate(Math.toRadians(rotAngle), CENTER_POINT_X, CENTER_POINT_Y);
                 UnoCard card = deck.get(i);
+                boolean canUse = card.canUse(this.card, this.color);
 
                 g2d.drawImage(ImageCommands.getImageFromWebsite(card.getPath()), CENTER_POINT_X - RENDER_CARD_WIDTH / 2,
-                        CENTER_POINT_Y - RENDER_CARD_HEIGHT, RENDER_CARD_WIDTH, RENDER_CARD_HEIGHT, null);
+                        canUse ? CENTER_POINT_Y_SEL - RENDER_CARD_HEIGHT : CENTER_POINT_Y - RENDER_CARD_HEIGHT,
+                        RENDER_CARD_WIDTH, RENDER_CARD_HEIGHT, null);
+
+                if (canUse) {
+                    g2d.drawString(String.valueOf((char) ((int) 'A' + i)), CENTER_POINT_X - RENDER_CARD_WIDTH / 2,
+                            CENTER_POINT_Y_SEL - RENDER_CARD_HEIGHT - g2d.getFontMetrics().getHeight());
+                }
                 g2d.rotate(-Math.toRadians(rotAngle), CENTER_POINT_X, CENTER_POINT_Y);
             }
 
