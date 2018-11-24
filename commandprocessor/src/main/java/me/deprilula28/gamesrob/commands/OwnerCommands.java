@@ -117,8 +117,11 @@ public class OwnerCommands {
         if (!GamesROB.owners.contains(context.getAuthor().getIdLong())) return Language.transl(context,
                 "genericMessages.ownersOnly");
 
-        String cache = Cache.getCachedMap().entrySet().stream().filter(it -> it.getKey() != null && it.getValue() != null
-                && it.getValue().getResult() != null).map(it -> {
+        Optional<Integer> page = context.opt(context::nextInt);
+
+        String cache = Cache.getCachedMap().entrySet().stream()
+                .sorted(Comparator.comparingLong(it -> ((Map.Entry<Object, Cache.CachedObjectData>) it).getValue().getAdded()).reversed())
+                .filter(it -> it.getKey() != null && it.getValue() != null && it.getValue().getResult() != null).map(it -> {
             String result = it.getValue().getResult().toString();
 
             return  "\"" + it.getKey().toString() + "\" = " + (result.length() > 100 ? result.substring(0, 100) + "..." : result)
@@ -126,8 +129,23 @@ public class OwnerCommands {
                     : " | has on remove)");
         }).collect(Collectors.joining("\n"));
 
-        return "**Cache**\n```java\n" + (cache.length() > 1800 ? cache.substring(0, 1800) + "..." : cache)
-                + "\n```";
+        return "**Cache**\n```java\n" + (cache.length() > 1800 ? cache.substring(0, 1800) + "..." : cache) + "\n```";
+    }
+
+    public static String clearCache(CommandContext context) {
+        if (!GamesROB.owners.contains(context.getAuthor().getIdLong())) return Language.transl(context,
+                "genericMessages.ownersOnly");
+
+        long ram = ShardClusterUtilities.getRawRAM();
+        context.send("<a:typing:393848431413559296> Clearing Cache...").then(it -> {
+            Cache.clearAll();
+            context.edit("<a:typing:393848431413559296> Executing Java GC...");
+            System.gc();
+            long newRam = ShardClusterUtilities.getRawRAM();
+            context.edit("<:check:314349398811475968> Done (Cleared " + ShardClusterUtilities.formatBytes(ram - newRam) + ").");
+        });
+
+        return null;
     }
 
     public static String blacklist(CommandContext context) {
@@ -181,9 +199,10 @@ public class OwnerCommands {
                             texts.get(i - 1).add(name);
                         }
 
+                    String table = Utility.generateTable(columns, count, texts);
+
                     context.edit("<:check:314349398811475968> Results:\n```prolog\n" +
-                            Utility.generateTable(columns, count, texts) +
-                            "\n```");
+                            (table.length() > 1000 ? table.substring(0, 1000) + "..." : table) + "\n```");
                     return;
                 }
 
@@ -204,9 +223,9 @@ public class OwnerCommands {
                 for (String table : tableNames) {
                     message.append(table).append(" - ").append(db.getSize(table)).append(" entries\n");
                 }
+                String msg = message.toString();
 
-                Log.info(message.toString());
-                context.edit(message.toString());
+                context.edit(msg.length() > 2000 ? msg.substring(0, 1980) + "..." : msg);
             } catch (Exception e) {
                 e.printStackTrace();
                 context.edit("<:xmark:314349398824058880> An error occured:\n```java\n" + e.getClass().getName() + ": " + e.getMessage() + "\n```");
@@ -229,8 +248,8 @@ public class OwnerCommands {
                 try {
                     if (!curMessage.toString().equals(lastCurMessage)) context.edit("<a:loading:393852367751086090> " +
                             "Executing...\n```\n" + (curMessage.length() > 1000
-                                    ? "...\n" + curMessage.toString().substring(curMessage.length() - 1000, curMessage.length())
-                                    : curMessage.toString()) + "\n```<a:cursor:404001393360502805>");
+                            ? "...\n" + curMessage.toString().substring(curMessage.length() - 1000, curMessage.length())
+                            : curMessage.toString()) + "\n```<a:cursor:404001393360502805>");
                     lastCurMessage = curMessage.toString();
                     Thread.sleep(1000L);
                 } catch (InterruptedException ex) {

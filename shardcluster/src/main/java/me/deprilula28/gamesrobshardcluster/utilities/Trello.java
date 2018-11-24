@@ -9,7 +9,7 @@ import java.util.Optional;
 
 public class Trello {
     public static Optional<TrelloImpl> optTrello = Optional.empty();
-    private static final String ERROR_DUMP_LIST_ID = "5a2f0e80678b04a926a0656b";
+    private static final String ERROR_DUMP_LIST_ID = "5b14965180d04f4d71fc2966";
 
     public static Optional<String> addErrorDump(String name, String stackTrace, String additionalData) {
         try {
@@ -21,7 +21,9 @@ public class Trello {
                 Map<String, String> map = new HashMap<>();
                 map.put("desc", stackTrace);
                 Card card = trello.createCard(ERROR_DUMP_LIST_ID, name, map);
-                return Optional.of(card.getUrl());
+
+                Log.info(card, card.getId(), card.getIdList(), card.getIdBoard(), card.getUrl());
+                return Optional.of(card.getId());
             } else return Optional.empty();
         } catch (Exception e) {
             Log.fatal("Failed to create Trello Error Dump:");

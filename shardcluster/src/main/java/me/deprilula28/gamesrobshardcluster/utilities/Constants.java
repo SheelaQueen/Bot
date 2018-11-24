@@ -12,6 +12,7 @@ import java.util.concurrent.TimeUnit;
 public class Constants {
     public static final String GAMESROB_DOMAIN = "https://gamesrob.com";
     public static final String TRELLO_API_KEY = "52734e54b9cdcdd16656a70e30d5b596";
+    public static final String PATREON_URL = "https://www.patreon.com/gamesrob";
 
     public static final File OLD_DATA_FOLDER = new File("gamesrobData");
 

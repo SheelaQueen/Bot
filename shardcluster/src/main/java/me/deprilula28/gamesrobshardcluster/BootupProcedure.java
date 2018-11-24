@@ -1,11 +1,14 @@
 package me.deprilula28.gamesrobshardcluster;
 
+import me.deprilula28.gamesrobshardcluster.utilities.Constants;
 import me.deprilula28.gamesrobshardcluster.utilities.Log;
 import me.deprilula28.gamesrobshardcluster.utilities.ShardClusterUtilities;
+import me.deprilula28.gamesrobshardcluster.utilities.Trello;
 import me.deprilula28.jdacmdframework.CommandFramework;
 import me.deprilula28.jdacmdframework.Settings;
 import net.dv8tion.jda.core.*;
 import net.dv8tion.jda.core.entities.Game;
+import org.trello4j.TrelloImpl;
 
 import java.awt.*;
 import java.util.*;
@@ -46,6 +49,7 @@ public class BootupProcedure {
         shardFrom = pargs.get(10).map(Integer::parseInt).orElse(0);
         totalShards = pargs.get(11).map(Integer::parseInt).orElse(shardTo);
         GamesROBShardCluster.debug = pargs.get(5).map(Boolean::parseBoolean).orElse(false);
+        Trello.optTrello = pargs.get(13).map(it -> new TrelloImpl(Constants.TRELLO_API_KEY, it));
         GamesROBShardCluster.commandProcessorFilePath = pargs.get(16).orElse("commandprocessor.jar");
     };
 

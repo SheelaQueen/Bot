@@ -17,7 +17,9 @@ CREATE TABLE IF NOT EXISTS userdata (
     websitesession TEXT,
     badges INT,
     gameplaytime BIGINT,
-    gamesplayed INT
+    gamesplayed INT,
+    patreonPerks SMALLINT,
+    firstuse BIGINT
 );
 CREATE TABLE IF NOT EXISTS leaderboardentries (
     userid TEXT,
@@ -69,3 +71,6 @@ CREATE TABLE IF NOT EXISTS translationsuggestions (
     rating INT,
     raters TEXT[]
 );
+
+ALTER TABLE userdata ADD COLUMN IF NOT EXISTS patreonPerks INT;
+ALTER TABLE userdata ADD COLUMN IF NOT EXISTS firstuse BIGINT;

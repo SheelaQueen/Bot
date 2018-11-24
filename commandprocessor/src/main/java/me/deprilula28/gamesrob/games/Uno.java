@@ -158,7 +158,7 @@ public class Uno extends TurnMatchHandler {
 
         int cardi = Utility.inputLetter(values[0]);
         List<UnoCard> deck = decks.get(Player.user(author));
-        if (cardi < 0 || cardi > deck.size()) return;
+        if (cardi < 0 || cardi > deck.size() - 1) return;
         UnoCard card = deck.get(cardi);
         if (!card.canUse(this.card, color)) return;
 

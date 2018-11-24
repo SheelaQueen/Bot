@@ -28,7 +28,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.Collectors;
 
 public class GamesROB extends CommandProcessor {
@@ -42,7 +41,6 @@ public class GamesROB extends CommandProcessor {
 
     public static List<Long> owners;
     public static Optional<SQLDatabaseManager> database = Optional.empty();
-    public static boolean debug = false;
     static Optional<String> twitchClientID = Optional.empty();
     static long twitchUserIDListen = -1L;
     private static boolean twitchPresence = false;
@@ -176,7 +174,7 @@ public class GamesROB extends CommandProcessor {
         GamesROBShardCluster.framework.clear();
         rpc.ifPresent(it -> it.setShouldAllowClose(true));
         rpc.ifPresent(WebSocketClient::close);
-        Cache.onClose();
+        Cache.clearAll();
         GamesROB.plots.interrupt();
         BootupProcedure.presenceThread.interrupt();
         database.ifPresent(SQLDatabaseManager::close);

@@ -20,7 +20,7 @@ public class Hangman implements MatchHandler {
             Hangman::new, Hangman.class, Collections.emptyList()
     );
 
-    private static final int WORD_SIZE_LIMIT = 25;
+    private static final int WORD_SIZE_LIMIT = 100;
 
     private static final String[] FACES = {
             "\uD83D\uDE15", "\uD83D\uDE26", "\uD83D\uDE27", "\uD83D\uDE23", "\uD83D\uDE35"

@@ -19,6 +19,7 @@ import me.deprilula28.gamesrobshardcluster.utilities.ShardClusterUtilities;
 import me.deprilula28.jdacmdframework.Command;
 import me.deprilula28.jdacmdframework.CommandContext;
 import me.deprilula28.jdacmdframework.CommandFramework;
+import me.deprilula28.jdacmdframework.annotations.CommandExecutor;
 import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.MessageBuilder;
 import net.dv8tion.jda.core.Permission;
@@ -87,6 +88,8 @@ public class CommandManager {
         });
 
         // Partners
+        f.command("cafe cafebot coffee clickerboat", CommandManager.partnerCommand("https://discordbots.org/bot/cafe"))
+                .attr("category", "partnercommands");
         f.command("idlerpg idle rpg idlerpgbot", CommandManager.partnerCommand("https://discordbots.org/bot/idlerpg"))
                 .attr("category", "partnercommands");
         f.command("discordserversme dsm discordservers serverlist", CommandManager.partnerCommand("http://discordservers.me"))
@@ -247,13 +250,17 @@ public class CommandManager {
         Log.info("Generated help messages for ", "" + languageHelpMessages.size() + " languages.");
 
         // Owner Commadns
+        f.command("bad", (Command.Executor) context -> {
+            throw new RuntimeException("Life is bad");
+        });
         f.command("^ update upd8 updep dabbinguncontrollably newupdate thiswasaddedin1.7.4", OwnerCommands::updateCommand);
         f.command("/ eval evaluate ebal ebaluate ejaculate", OwnerCommands::eval);
         f.command("> bash con console commandconsole cmd commandprompt terminal term", OwnerCommands::console);
         f.command("# sql postgres postgresql sqlexecute runsql", OwnerCommands::sql);
         f.command("! announce announcement br broadcast", OwnerCommands::announce);
         f.command("< blacklist bl l8r adios cya pce peace later bye rekt dab", OwnerCommands::blacklist);
-        f.command("| cache", OwnerCommands::cache);
+        f.command("| cache", OwnerCommands::cache, cmd ->
+                cmd.sub("clear removeall clearall gc", OwnerCommands::clearCache));
         f.command(". servercount srvcount svc", OwnerCommands::servercount);
         f.command("\u00a8 compilelanguage cl21", OwnerCommands::compileLanguage);
         f.command("reload rl", OwnerCommands::reload);
@@ -398,9 +405,15 @@ public class CommandManager {
 
         f.getSettings().setMentionedMessageGetter(guild -> {
             if (guild == null) return null;
-            String lang = GuildProfile.get(guild).getLanguage();
-            return languageHelpMessages.get(lang == null ? Constants.DEFAULT_LANGUAGE : lang)
-                    .replaceAll("%PREFIX%", Utility.getPrefixHelp(guild));
+            GuildProfile profile = GuildProfile.get(guild);
+            return Language.transl(profile.getLanguage(), "genericMessages.mentionedMessage",
+                    profile.getGuildPrefix(), profile.getGuildPrefix());
+        });
+
+        f.getSettings().setCommandExceptionFunction((context, exception) -> {
+            context.send(Language.transl(context, "genericMessages.error",
+                    Log.exception("Handling command " + context.getCurrentCommand().getName(), exception)
+                        .orElse("*No trello info was given*"), "https://discord.gg/xajeDYR"));
         });
     }
 

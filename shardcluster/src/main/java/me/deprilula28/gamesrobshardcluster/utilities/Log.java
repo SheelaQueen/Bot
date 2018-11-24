@@ -75,7 +75,7 @@ public class Log {
         System.err.println(ts);
         System.out.println("Saving error information...");
 
-        return GamesROBShardCluster.debug ? Optional.empty() : Trello.addErrorDump(exceptionName, finalBasics, additiveInfo);
+        return Trello.addErrorDump(exceptionName, finalBasics, additiveInfo);
     }
 
     private static void appendThrowable(Throwable error, StringBuilder builder, boolean githubLinks) {
@@ -90,8 +90,7 @@ public class Log {
                         : ste.getFileName() + ":" + ste.getLineNumber() + ")")
                         : (ste.getFileName() != null ?  "("+ ste.getFileName() +")" : "(Unknown Source)")));
                 builder.append(String.format("  at %s\n", githubLink));
-            }
-            builder.append(String.format("  at %s\n", ste.toString()));
+            } else builder.append(String.format("  at %s\n", ste.toString()));
         }
         if (error.getCause() != null) {
             Throwable cause = error.getCause();

@@ -1,12 +1,6 @@
-+ Separated the bot into a command processor and discord shard cluster, it's now able to update and reload without reconnecting shards.
-+ Added cool down to some commands, it should allow the bot to run faster now.
-+ Added a Hangman word size limit.
-+ Games now stop if the channel they're on get deleted.
++ Some changes in preparations for Patreon this sunday (hopefully).
++ Increased the Hangman word limit to 100.
++ General improvements to profile command.
 
-- Fixed Achiever badge's name.
-- Added a check for max prefix size, and reset all prefixes that have more than that to g*.
-- Fixed $ in prefix breaking tokens command.
-- Fixed Trello logging.
-- Fixed Uno drawing the limit of cards instantly.
-- Fixed TownCountryRiver yes reaction.
+- Fixed Uno card selection causing errors on overflow.
 Developed by deprilula28#3609. Hope you enjoy the changes!

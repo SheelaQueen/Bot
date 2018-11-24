@@ -1,6 +1,7 @@
 package me.deprilula28.gamesrob.data;
 
 import me.deprilula28.gamesrob.GamesROB;
+import me.deprilula28.gamesrob.integrations.Patreon;
 import me.deprilula28.gamesrob.utility.Language;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -36,10 +37,15 @@ public class UserProfile {
     private int candy;
     private long gameplayTime;
     private int gamesPlayed;
+    private List<PatreonPerk> patreonPerks;
     private boolean edited = false;
 
     public LeaderboardHandler.UserStatistics getStatsForGuild(Guild guild) {
         return GuildProfile.get(guild).getLeaderboard().getStatsForUser(userId);
+    }
+
+    public static enum PatreonPerk {
+        SUPPORTER, VIP, PREMIUM
     }
 
     @AllArgsConstructor
@@ -186,7 +192,7 @@ public class UserProfile {
         @Override
         public Optional<UserProfile> getFromSQL(SQLDatabaseManager db, String from) throws Exception {
             ResultSet select = db.select("userData", Arrays.asList("emote", "language", "tokens", "lastupvote",
-                    "upvoteddays", "profilebackgroundimgurl", "badges", "candy", "gameplaytime", "gamesplayed"),
+                    "upvoteddays", "profilebackgroundimgurl", "badges", "candy", "gameplaytime", "gamesplayed", "patreonPerks"),
                     "userid = '" + from + "'");
             if (select.next()) return fromResultSet(from, select);
             select.close();
@@ -198,7 +204,7 @@ public class UserProfile {
         public Utility.Promise<Void> saveToSQL(SQLDatabaseManager db, UserProfile value) {
             return db.save("userData", Arrays.asList(
                     "emote", "userId", "tokens", "lastupvote", "upvoteddays", "language", "profilebackgroundimgurl",
-                    "badges", "candy", "gameplaytime", "gamesplayed"
+                    "badges", "candy", "gameplaytime", "gamesplayed", "patreonPerks"
             ), "userid = '" + value.getUserId() + "'",
                 set -> !value.isEdited(), true,
                 (set, it) -> Log.wrapException("Saving data on SQL", () -> write(it, value)));
@@ -212,7 +218,8 @@ public class UserProfile {
                         select.getString("profilebackgroundimgurl"),
                         Utility.decodeBinary(select.getInt("badges"), Badge.class),
                         select.getInt("candy"), select.getLong("gameplaytime"),
-                        select.getInt("gamesplayed"), false));
+                        select.getInt("gamesplayed"),
+                        Utility.decodeBinary(select.getShort("patreonPerks"), PatreonPerk.class), false));
             } catch (Exception e) {
                 Log.exception("Saving UserProfile in SQL", e);
                 return Optional.empty();
@@ -231,6 +238,7 @@ public class UserProfile {
             statement.setInt(9, profile.getCandy());
             statement.setLong(10, profile.getGameplayTime());
             statement.setInt(11, profile.getGamesPlayed());
+            statement.setInt(12, Utility.encodeBinary(profile.getPatreonPerks(), PatreonPerk.class));
         }
 
         private void saveStatistics(DataOutputStream stream, GameStatistics stats) throws Exception {
@@ -242,7 +250,8 @@ public class UserProfile {
         @Override
         public UserProfile createNew(String from) {
             return new UserProfile(from, null, null, 0, 0, 0,
-                    null, new ArrayList<>(), 0,0L, 0, false);
+                    null, new ArrayList<>(), 0,0L, 0, new ArrayList<>(),
+                    false);
         }
 
         @Override

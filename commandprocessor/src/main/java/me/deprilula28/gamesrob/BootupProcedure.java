@@ -84,7 +84,6 @@ public class BootupProcedure {
         totalShards = pargs.get(11).map(Integer::parseInt).orElse(shardTo);
 
         DataManager.jedisOpt = pargs.get(12).flatMap(it -> (Boolean.valueOf(it) ? Optional.of(new Jedis("localhost")) : Optional.empty()));
-        Trello.optTrello = pargs.get(13).map(it -> new TrelloImpl(Constants.TRELLO_API_KEY, it));
         optDBotsToken = pargs.get(14);
         optBfdToken = pargs.get(15);
     };

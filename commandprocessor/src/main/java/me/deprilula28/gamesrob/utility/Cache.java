@@ -74,7 +74,7 @@ public class Cache {
         }
     }
 
-    public static void onClose() {
+    public static void clearAll() {
         cachedMap.forEach((key, value) -> {
             cachedMap.remove(key);
             if (value.onRemove != null) value.onRemove.accept(value.result);

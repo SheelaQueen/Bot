@@ -12,7 +12,6 @@ baltopGuildTemp: "Temporarly disabled for this server."
 
 genericMessages:
   globalStatistics: "📶 **%s** servers\n👥 **%s** users\n🗨 **%s** text channels\n🎮 **%s** games (**%s** active)\n❗  **%s** commands\n📈 **%s** votes (**%s** this month)\n🕙 **%s** played"
-  imagegenTime: "Image took %s to generate."
   alreadyPlaying: "You are already playing another game on %s!\nType `%sstop` to stop that match."
   noGamesInChannel: "There are no games currently in this channel.\nYou can type `%shelp` to pick and start a game!"
   invalidLanguage: "Not a valid language."
@@ -29,9 +28,10 @@ genericMessages:
   blacklisted: "⛔ You were blacklisted from using GamesROB by %s (%s).\nReason: %s"
   blacklistedNoInfo: "⛔ You were blacklisted from using GamesROB.\nPlease contact %s."
   tooFast: "⏰ You're sending commands too quickly! Wait before the last one has finished loading."
-  cooldown: "⏰ You're on cooldown on this command! Wait %s to use it again."
-  requirespermissions: "The bot needs these permissions in the server to use this command:\n`%s`"
+  cooldown: "⏰ Wait %s to use this command again."
+  requirespermissions: "The bot needs these permissions in the server for this command to work:\n`%s`"
   partnerCheckItOut: "Check it out"
+  mentionedMessage: "My prefix on this server is `%s`. Send `%shelp` to get started!"
 
   upvote:
     header: "**Thank you for voting for GamesROB!**\nRewards:\n+ 🔸 %s tokens!"
@@ -43,6 +43,8 @@ genericMessages:
     header: "%s The language is currently set to %s.\nPick the code (`has darker background`) of the language you want below and run `%s <code>`:\n\n"
     entry: "%s (Translated by %s)"
     bottom: "\n\nWant to help translating to your own language?\n%s"
+
+  error: "❌ An error occured when handling that command!\nPlease report it with this ID `%s` on our server (%s).\nSorry for the inconvinience."
 
 gameFramework:
   singleplayerMatch: "**Single-player %s Match**\n%s\n\n"
@@ -311,6 +313,10 @@ command:
     message: "Do you want to find or share Discord servers?\nCheck out our partner, DiscordServers.me!"
     description: "Learn more about our partner, DiscordServers.me!"
 
+  cafe:
+    message: "Cafe is a incremental/clicker style economy bot meant to liven up your server! It has over 30 unique items, tons of upgrades, leaderboards and more!"
+    description: "Learn more about our partnered bot, Cafe!"
+
   idlerpg:
     message: "IdleRPG is a bot with shop system, characters, classes, dungeons, items, PvP, economy, gambling, marriage, music, guilds and much more!"
     description: "Learn more about our partnered bot, IdleRPG!"
@@ -416,12 +422,14 @@ command:
 
     description: "View your profile, or someone else's!"
   emote:
-    set: "Your emoji has been set! %s"
+    set: "Your emoji has been set: %s"
+    useTokens: "\n- 🔸 %s tokens (VIPs can change their emojis free)"
     reset: "Your emoji has been reset!"
-    cannotUse: "I can't use that emote! Try putting it on this server."
-    invalid: "Sorry, but that's not a valid emote..."
-    description: "Change the emoji tile you'll be in matches!"
+    cannotUse: "I can't use that emote! It needs to be on a server I'm on."
+    animatedPatreon: "You need to be a patron to use animated emojis!\n%s"
+    invalid: "That isn't an emoji or Discord emote."
 
+    description: "Change the emoji tile you'll be in matches!"
   userlang:
     set: "Your personal language was set to %s"
     description: "Change your own language."

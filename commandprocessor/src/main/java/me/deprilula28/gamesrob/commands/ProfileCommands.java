@@ -46,9 +46,6 @@ public class ProfileCommands {
             0
     );
 
-    private static final int BADGES_PER_LINE = 8;
-    private static final int BADGES_ICON_SIZE = 80;
-
     private static final double TOKEN_COMMAND_RATIO = 0.2;
 
     @AllArgsConstructor
@@ -60,7 +57,7 @@ public class ProfileCommands {
 
         @AllArgsConstructor
         private static enum State {
-            TICK(new Color(0x00897B)), TICK_WEEKEND(new Color(0x76FF03)), X(new Color(0xF44336));
+            TICK(new Color(0x00897B)), TICK_WEEKEND(new Color(0x00C853)), X(new Color(0xF44336));
 
             private Color color;
         }
@@ -92,40 +89,22 @@ public class ProfileCommands {
         final int LB_ENTRIES_WIDTH_ADJUSTED = (int) (PROFILE_COMMAND_WIDTH * LEADERBOARD_ENTRIES_RATIO);
         final int TOKENS_WIDTH_ADJUSTED = (int) (PROFILE_COMMAND_WIDTH * TOKEN_COMMAND_RATIO);
         final int TOKENS_IMAGE_SIZE = TOKENS_WIDTH_ADJUSTED - PROFILE_GAMES_BORDER;
-        final int BADGES_WIDTH = PROFILE_COMMAND_WIDTH - PROFILE_GAMES_BORDER * 2;
-        final int BADGES_OFFSET = (BADGES_WIDTH - BADGES_PER_LINE * BADGES_ICON_SIZE) / BADGES_PER_LINE;
 
         Set<Map.Entry<String, UserProfile.GameStatistics>> rawMap = board.getLeaderboard()
                 .getStatsForUser(user.getId()).getRawMap().entrySet();
         List<TokenGainMethod> gainMethods = gainMethodFuncs.stream().map(it -> it.apply(profile)).collect(Collectors.toList());
 
-        int badgesYInc = profile.getBadges().isEmpty() ? 0 :
-                ((profile.getBadges().size() / BADGES_PER_LINE + 1) * BADGES_ICON_SIZE + PROFILE_GAMES_BORDER);
-
         rcontextPromise.then(rcontext -> {
             Graphics2D g2d = rcontext.getGraphics();
             String background = profile.getBackgroundImageUrl();
 
-            int userprofileX = ImageCommands.drawBackground(g2d, background, PROFILE_COMMAND_WIDTH, ImageCommands.USER_PROFILE_HEIGHT,
+            ImageCommands.drawBackground(g2d, background, PROFILE_COMMAND_WIDTH, ImageCommands.USER_PROFILE_HEIGHT,
                     rcontext.getHeight(), true);
-            ImageCommands.drawUserProfile(context.getGuild().getMember(user), g2d, userprofileX, 0, rcontext.getStarlight());
-
-            // Badges
-            int badgesAmount = profile.getBadges().size();
-            int filledLineWidth = BADGES_ICON_SIZE * badgesAmount + BADGES_OFFSET * (badgesAmount - 1);
-            int lineStartX = BADGES_WIDTH / 2 - filledLineWidth / 2;
-            for (int i = 0; i < badgesAmount; i++) {
-                int x = PROFILE_GAMES_BORDER + lineStartX + BADGES_ICON_SIZE * i + BADGES_OFFSET * i;
-                int y = ImageCommands.USER_PROFILE_HEIGHT + PROFILE_GAMES_BORDER / 2 +
-                        (i / BADGES_PER_LINE) * BADGES_ICON_SIZE;
-
-                UserProfile.Badge badge = profile.getBadges().get(i);
-                g2d.drawImage(ImageCommands.getImageFromWebsite(badge.getBadgeImagePath()), x, y, BADGES_ICON_SIZE, BADGES_ICON_SIZE,
-                        null);
-            }
+            ImageCommands.drawUserProfile(context.getGuild().getMember(user), g2d, rcontext.getWidth() / 2
+                    - ImageCommands.USER_PROFILE_WIDTH / 2, 0, rcontext.getStarlight());
 
             // Token Command
-            int cury = PROFILE_COMMAND_TITLE_HEIGHT + ImageCommands.USER_PROFILE_HEIGHT + PROFILE_GAMES_BORDER + badgesYInc;
+            int cury = PROFILE_COMMAND_TITLE_HEIGHT + ImageCommands.USER_PROFILE_HEIGHT + PROFILE_GAMES_BORDER;
             String imageName = TOKEN_IMAGES[TOKEN_IMAGE_MINIMUM.stream().filter(it -> profile.getTokens() >= it)
                     .mapToInt(TOKEN_IMAGE_MINIMUM::indexOf).min().orElse(0)];
             Image image = ImageCommands.getImage(imageName, ImageCommands.class.getResourceAsStream("/imggen/" + imageName + ".png"));
@@ -202,35 +181,39 @@ public class ProfileCommands {
             g2d.setColor(Color.white);
             g2d.setFont(rcontext.getStarlight().deriveFont((float) PROFILE_COMMAND_TITLE_FONT_SIZE).deriveFont(Font.BOLD));
             ImageCommands.drawCenteredString(g2d, Language.transl(context, "command.profile.title"), 0, ImageCommands.USER_PROFILE_HEIGHT
-                            + PROFILE_GAMES_BORDER + (PROFILE_COMMAND_TITLE_HEIGHT - PROFILE_COMMAND_TITLE_FONT_SIZE) / 2
-                            + badgesYInc, PROFILE_COMMAND_WIDTH);
+                            + PROFILE_GAMES_BORDER + (PROFILE_COMMAND_TITLE_HEIGHT - PROFILE_COMMAND_TITLE_FONT_SIZE) / 2, PROFILE_COMMAND_WIDTH);
         });
 
         return new Pair<>(PROFILE_COMMAND_WIDTH, ImageCommands.LEADERBOARD_ENTRY_HEIGHT * (rawMap.size() + 1) +
                 Math.max(TOKENS_IMAGE_SIZE + TOKENS_DESCRIPTION_HEIGHT, context.getAuthor().equals(user)
                         ? gainMethods.stream().mapToInt(it -> it.gainAmount.isPresent()
                         ? TOKENS_CARD_TOKEN_AMOUNT_HEIGHT : TOKENS_CARD_HEIGHT).sum() : 0) +
-                + ImageCommands.USER_PROFILE_HEIGHT + PROFILE_GAMES_BORDER * 2 + PROFILE_COMMAND_TITLE_HEIGHT
-                + badgesYInc);
+                + ImageCommands.USER_PROFILE_HEIGHT + PROFILE_GAMES_BORDER * 2 + PROFILE_COMMAND_TITLE_HEIGHT);
     }
 
     public static String emojiTile(CommandContext context) {
         Optional<String> emoteOpt = context.opt(context::next);
         UserProfile profile = UserProfile.get(context.getAuthor());
-        profile.setEdited(true);
+        boolean useTokens = !profile.getPatreonPerks().contains(UserProfile.PatreonPerk.VIP);
+
         if (emoteOpt.isPresent()) {
             String emote = emoteOpt.get();
-            if (!UserProfile.get(context.getAuthor()).transaction(150, "transactions.changingEmote"))
+            if (useTokens && !UserProfile.get(context.getAuthor()).transaction(150, "transactions.changingEmote"))
                 return Utility.getNotEnoughTokensMessage(context, 150);
 
             if (EmojiManager.isEmoji(emote)) {
+                profile.setEdited(true);
                 profile.setEmote(emote);
                 return Language.transl(context, "command.emote.set", emote);
             } else if (emotePattern.matcher(emote).matches()) {
                 if (!validateEmote(context.getJda(), emote)) return Language.transl(context, "command.emote.cannotUse");
+                if (emote.startsWith("<a") && !profile.getPatreonPerks().contains(UserProfile.PatreonPerk.SUPPORTER))
+                    return Language.transl(context, "command.emote.animatedPatreon", Constants.PATREON_URL);
 
+                profile.setEdited(true);
                 profile.setEmote(emote);
-                return Language.transl(context, "command.emote.set", emote);
+                return Language.transl(context, "command.emote.set", emote) +
+                        (useTokens ? Language.transl(context, "command.emote.useTokens") : "");
             } else return Language.transl(context, "command.emote.invalid");
         } else {
             UserProfile.get(context.getAuthor()).setEmote(null);

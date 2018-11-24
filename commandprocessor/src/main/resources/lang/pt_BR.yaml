@@ -25,6 +25,24 @@ genericMessages:
   ownersOnly: "Esse comando só é acessível por donos."
   blacklisted: "⛔ Você foi bloqueado de usar GamesROB por %s (%s).\nRazão: %s"
   blacklistedNoInfo: "⛔ Você foi bloqueado de usar o GamesROB."
+  tooFast: "⏰ Você está usando comandos muito rapidamente! Espere o último terminar de carregar."
+  cooldown: "⏰ Espere %s para usar esse comando novamente."
+  requirespermissions: "O bot precisa dessas permissões no servidor para esse comando funcionar:\n`%s`"
+  partnerCheckItOut: "Dê uma olhadinha"
+  mentionedMessage: "Meu prefixo nesse servidor é `%s`. Envie `%shelp` para começar!"
+
+  upvote:
+    header: "**Obrigado por votar pelo GamesROB!**\nRecompensas:\n+ 🔸 %s tokens!"
+    streak: " (%s dias seguidos)"
+    weekend: " **Multiplicante de fim de semana: 2x!**"
+    footer: "\n\nVocê pode votar de novo em 12 horas.\nVotar mais dias seguidos aumenta a quantidade de tokens ganhos."
+
+  languagecommand:
+    header: "%s A língua está configarada para %s.\nEscolha o código (`com fundo escuro`) da linguagem escolhida abaixo e envie `%s <código>`:\n\n"
+    entry: "%s (Traduzido por %s)"
+    bottom: "\n\nQuer ajudar traduzindo para a sua língua nativa?\n%s"
+
+  error: "❌ Ocorreu um erro executando esse comando!\nPor-favor, reporte-o junto com o ID `%s` no nosso servidor (%s).\nDesculpe-nos pela inconveniência."
 
 gameFramework:
   singleplayerMatch: "**Partida Solo de %s!**\n%s\n\n"

@@ -2,6 +2,7 @@ package me.deprilula28.gamesrob.data;
 
 import me.deprilula28.gamesrob.GamesROB;
 import me.deprilula28.gamesrob.utility.Cache;
+import me.deprilula28.gamesrobshardcluster.GamesROBShardCluster;
 import me.deprilula28.gamesrobshardcluster.utilities.Constants;
 import me.deprilula28.gamesrobshardcluster.utilities.Log;
 import me.deprilula28.gamesrob.utility.Utility;
@@ -25,7 +26,7 @@ public abstract class DataManager<A, R> {
     public R get(A from, Class<R> rClass) {
         Optional<SQLDatabaseManager> db = GamesROB.database;
         File file = getDataFile(from);
-        if (!GamesROB.debug) if (jedisOpt.isPresent()) {
+        if (!GamesROBShardCluster.debug) if (jedisOpt.isPresent()) {
             String jedisStored = jedisOpt.get().get(file.getAbsolutePath());
             if (jedisStored != null) {
                 R obj = Constants.GSON.fromJson(jedisStored, rClass);

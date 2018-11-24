@@ -5,6 +5,7 @@ import com.google.gson.JsonObject;
 import com.google.gson.annotations.SerializedName;
 import lombok.Setter;
 import me.deprilula28.gamesrob.GamesROB;
+import me.deprilula28.gamesrob.integrations.Patreon;
 import me.deprilula28.gamesrob.utility.Language;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -77,7 +78,8 @@ public class RPCManager extends WebSocketClient {
 
     public static enum RequestType {
         // Server -> Client
-        WEBHOOK_NOTIFICATION, GET_USER_BY_ID, GET_GUILD_BY_ID, GET_MUTUAL_SERVERS, GET_SHARDS_INFO, OWNER_LIST_UPDATED,
+        DBL_WEBHOOK_NOTIFICATION, TWITCH_WEBHOOK_NOTIFICATION, PATREON_WEBHOOK_NOTIFICATION,
+        GET_USER_BY_ID, GET_GUILD_BY_ID, GET_MUTUAL_SERVERS, GET_SHARDS_INFO, OWNER_LIST_UPDATED,
         BOT_UPDATED, BOT_RESTARTED, IS_OWNER,
 
         // Client -> Server
@@ -204,7 +206,8 @@ public class RPCManager extends WebSocketClient {
                 .map(it -> new WebsiteUser(it.getId(), it.getName(), it.getDiscriminator(),
                         it.getAvatarUrl())).orElse(null));
         handlerMap.put(RequestType.GET_GUILD_BY_ID, this::getGuildById);
-        handlerMap.put(RequestType.WEBHOOK_NOTIFICATION, this::webhookNotification);
+        handlerMap.put(RequestType.DBL_WEBHOOK_NOTIFICATION, this::dblWebhookNotification);
+        handlerMap.put(RequestType.PATREON_WEBHOOK_NOTIFICATION, Patreon::patreonWebhookNotification);
         handlerMap.put(RequestType.GET_MUTUAL_SERVERS, this::getMutualServers);
         handlerMap.put(RequestType.GET_SHARDS_INFO, n -> GamesROB.getShardsInfo());
         handlerMap.put(RequestType.IS_OWNER, id -> GamesROB.owners.contains(Long.parseLong(id.getAsString())));
@@ -252,10 +255,11 @@ public class RPCManager extends WebSocketClient {
                 it.getName())).collect(Collectors.toList());
     }
 
-    private Object webhookNotification(JsonElement upvoteInfo) {
+    private Object dblWebhookNotification(JsonElement upvoteInfo) {
         boolean weekend = Utility.isWeekendMultiplier();
         Statistics.get().setUpvotes(Statistics.get().getUpvotes() + (weekend ? 2 : 1));
         Statistics.get().setMonthUpvotes(Statistics.get().getMonthUpvotes() + (weekend ? 2 : 1));
+
         GamesROB.getUserById(upvoteInfo.getAsJsonObject().get("user").getAsLong()).ifPresent(user -> user.openPrivateChannel().queue(pm -> {
             UserProfile profile = UserProfile.get(user.getId());
             if (System.currentTimeMillis() - profile.getLastUpvote() < TimeUnit.DAYS.toMillis(2))
