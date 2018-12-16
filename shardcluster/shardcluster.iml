@@ -16,5 +16,10 @@
     <orderEntry type="library" name="Maven: org.slf4j:slf4j-simple:1.7.13" level="project" />
     <orderEntry type="library" name="Maven: org.slf4j:slf4j-api:1.7.13" level="project" />
     <orderEntry type="library" name="Maven: me.deprilula28:DepsJDAFramework:1.1.18" level="project" />
+    <orderEntry type="library" name="Maven: org.trello4j:trello4j:1.0-SNAPSHOT" level="project" />
+    <orderEntry type="library" name="Maven: com.google.code.gson:gson:2.1" level="project" />
+    <orderEntry type="library" name="Maven: org.slf4j:slf4j-simple:1.7.13" level="project" />
+    <orderEntry type="library" name="Maven: org.slf4j:slf4j-api:1.7.13" level="project" />
+    <orderEntry type="library" name="Maven: me.deprilula28:DepsJDAFramework:1.1.18" level="project" />
   </component>
 </module>

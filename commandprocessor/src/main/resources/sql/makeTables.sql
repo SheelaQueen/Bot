@@ -4,7 +4,11 @@ CREATE TABLE IF NOT EXISTS guilddata (
     prefix TEXT,
     guildid TEXT,
     leaderboardbackgroundimgurl TEXT,
-    language TEXT
+    language TEXT,
+    tournmentend BIGINT,
+    customeco BOOLEAN,
+    lbchid BIGINT,
+    lbmsgid BIGINT
 );
 CREATE TABLE IF NOT EXISTS userdata (
     emote TEXT,
@@ -18,8 +22,8 @@ CREATE TABLE IF NOT EXISTS userdata (
     badges INT,
     gameplaytime BIGINT,
     gamesplayed INT,
-    patreonPerks SMALLINT,
-    firstuse BIGINT
+    firstuse BIGINT,
+    lastranweekly BIGINT
 );
 CREATE TABLE IF NOT EXISTS leaderboardentries (
     userid TEXT,
@@ -58,8 +62,10 @@ CREATE TABLE IF NOT EXISTS blacklist (
 CREATE TABLE IF NOT EXISTS transactions (
     userid TEXT,
     amount INT,
+    earnt INT,
     time BIGINT,
-    message SMALLINT
+    message SMALLINT,
+    premiumguild TEXT
 );
 CREATE TABLE IF NOT EXISTS translationsuggestions (
     language TEXT,
@@ -72,5 +78,19 @@ CREATE TABLE IF NOT EXISTS translationsuggestions (
     raters TEXT[]
 );
 
-ALTER TABLE userdata ADD COLUMN IF NOT EXISTS patreonPerks INT;
+CREATE TABLE IF NOT EXISTS premiumguildmember (
+    userid TEXT,
+    guildid TEXT,
+    tournmentwins INT,
+    customecoamount INT
+);
+
 ALTER TABLE userdata ADD COLUMN IF NOT EXISTS firstuse BIGINT;
+ALTER TABLE userdata ADD COLUMN IF NOT EXISTS lastranweekly BIGINT;
+ALTER TABLE guilddata ADD COLUMN IF NOT EXISTS tournmentend BIGINT;
+ALTER TABLE guilddata ADD COLUMN IF NOT EXISTS customeco BOOLEAN;
+ALTER TABLE guilddata ADD COLUMN IF NOT EXISTS lbmsgid BIGINT;
+ALTER TABLE guilddata ADD COLUMN IF NOT EXISTS lbchid BIGINT;
+ALTER TABLE transactions ADD COLUMN IF NOT EXISTS earnt INT;
+ALTER TABLE transactions ADD COLUMN IF NOT EXISTS premiumguild TEXT;
+ALTER TABLE premiumguildmember ADD COLUMN IF NOT EXISTS tournmentwins INT;

@@ -2,14 +2,14 @@ package me.deprilula28.gamesrob.commands;
 
 import me.deprilula28.gamesrob.BootupProcedure;
 import me.deprilula28.gamesrob.GamesROB;
-import me.deprilula28.gamesrob.utility.Language;
 import me.deprilula28.gamesrob.data.GuildProfile;
 import me.deprilula28.gamesrob.data.PlottingStatistics;
 import me.deprilula28.gamesrob.data.Statistics;
 import me.deprilula28.gamesrob.data.UserProfile;
-import me.deprilula28.gamesrobshardcluster.utilities.Constants;
+import me.deprilula28.gamesrob.utility.Language;
 import me.deprilula28.gamesrob.utility.Utility;
 import me.deprilula28.gamesrobshardcluster.GamesROBShardCluster;
+import me.deprilula28.gamesrobshardcluster.utilities.Constants;
 import me.deprilula28.gamesrobshardcluster.utilities.ShardClusterUtilities;
 import me.deprilula28.jdacmdframework.CommandContext;
 import me.deprilula28.jdacmdframework.CommandFramework;
@@ -31,7 +31,7 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static me.deprilula28.gamesrob.commands.Tokens.ENTRIES_PAGE;
+import static me.deprilula28.gamesrob.commands.TokensCommand.ENTRIES_PAGE;
 
 public class GenericCommands {
     private static final String[] ICON_MAKERS = {
@@ -49,7 +49,7 @@ public class GenericCommands {
                         ShardClusterUtilities.formatPeriod(time),
                         ShardClusterUtilities.formatPeriod(youToBotPing),
                         ShardClusterUtilities.formatPeriod(context.getJda().getPing()) + " (Shard " + context.getJda().getShardInfo().getShardId() + ")",
-                        ShardClusterUtilities.formatPeriod(CommandManager.avgCommandDelay / 1000000000.0)
+                        ShardClusterUtilities.formatPeriod(CommandsManager.avgCommandDelay / 1000000000.0)
                 ));
             });
         });
@@ -80,7 +80,7 @@ public class GenericCommands {
                     .addField(Language.transl(context, "command.info.embed2.links.title"),
                             Language.transl(context, "command.info.embed2.links.description",
                                     Constants.GAMESROB_DOMAIN, Constants.getInviteURL(context.getJda()),
-                                    "https://github.com/GamesROB/Bot", "https://discord.gg/xajeDYR",
+                                    "https://github.com/GamesROB/Bot", "https://discord.gg/ayE5egH",
                                     Constants.GAMESROB_DOMAIN + "/help/credits", Constants.getDblVoteUrl(context.getJda(), "info")
                             ), true)
                     .addField(Language.transl(context, "command.info.embed2.versions.title"),
@@ -164,14 +164,14 @@ public class GenericCommands {
                         ShardClusterUtilities.formatPeriod(Statistics.get().getGameplayTime()),
                         compareStats(set, (long) GamesROBShardCluster.shards.stream().mapToLong(JDA::getPing).average().getAsDouble(),
                                 "websocketPing", ShardClusterUtilities::formatPeriod),
-                        compareStats(set, (long) (CommandManager.avgCommandDelay * 1000000), "avgCommandDelay",
+                        compareStats(set, (long) (CommandsManager.avgCommandDelay * 1000000), "avgCommandDelay",
                                 it -> ShardClusterUtilities.formatPeriod(it / 1000000000000000.0)),
                         compareStats(set, ShardClusterUtilities.getRawRAM(), "ramUsage", ShardClusterUtilities::formatBytes)
                     ), false);
                 else embed.addField(Language.transl(context, "command.statistics.globalStatistics"),
                 globalStatistics(context, stats, shards) + Language.transl(context, "command.statistics.aditionalGlobalStats",
                         ShardClusterUtilities.formatPeriod(context.getJda().getPing()),
-                        ShardClusterUtilities.formatPeriod(CommandManager.avgCommandDelay / 1000000000.0)), false);
+                        ShardClusterUtilities.formatPeriod(CommandsManager.avgCommandDelay / 1000000000.0)), false);
 
                 set.close();
                 context.send(embed.build());
@@ -208,29 +208,7 @@ public class GenericCommands {
     public static String changelog(CommandContext context) {
         return Language.transl(context, "command.changelog.text", GamesROB.VERSION,
                 ShardClusterUtilities.formatTime(Statistics.get().getLastUpdateLogSentTime()), BootupProcedure.changelog,
-                ShardClusterUtilities.formatTime(Utility.predictNextUpdate()), "discord.gg/xajeDYR");
-    }
-
-    private static String getEmoteForStatus(String status) {
-        switch (status) {
-            case "CONNECTED":
-                return "<:online:313956277808005120>";
-            case "SHUTDOWN":
-            case "FAILED_TO_LOGIN":
-            case "RECONNECT_QUEUED":
-            case "WAITING_TO_RECONNECT":
-            case "DISCONNECTED":
-                return "<:offline:313956277237710868>";
-            case "ATTEMPTING_TO_RECONNECT":
-            case "LOGGING_IN":
-            case "CONNECTING_TO_WEBSOCKET":
-            case "IDENTIFYING_SESSION":
-            case "AWAITING_LOGIN_CONFIRMATION":
-            case "LOADING_SUBSYSTEMS":
-                return "<:invisible:313956277107556352>";
-            default:
-                return "<:dnd:313956276893646850>";
-        }
+                ShardClusterUtilities.formatTime(Utility.predictNextUpdate()), "https://discord.gg/QWPVH5j");
     }
 
     public static String shardsInfo(CommandContext context) {
@@ -320,7 +298,8 @@ public class GenericCommands {
             }
             if (System.currentTimeMillis() - profile.getLastUpvote() > TimeUnit.HOURS.toMillis(12)) {
                 it.append(Language.transl(context, "command.upvote.messageCanVote",
-                        125 + profile.getUpvotedDays() * 50 * (Utility.isWeekendMultiplier() ? 2 : 1)));
+                        Utility.addNumberDelimitors(50 + profile.getUpvotedDays() * 25
+                                * (Utility.isWeekendMultiplier() ? 2 : 1))));
                 it.setEmbed(new EmbedBuilder().setTitle(Language.transl(context, "command.upvote.clickToVote"),
                         Constants.getDblVoteUrl(context.getJda(), "upvoteCommand"))
                         .setColor(Utility.getEmbedColor(context.getGuild())).build());

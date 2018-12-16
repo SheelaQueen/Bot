@@ -19,6 +19,8 @@ genericMessages:
     beggining: "You don't have enough tokens to do that (Need %s more)."
     tokensCommand: "\nLearn how to get more tokens with `%stokens`."
 
+  premiumBotLeave: "I've left the server **%s** as it seems you don't have Premium anymore."
+
   nth1: "st"
   nth2: "nd"
   nth3: "rd"
@@ -36,15 +38,23 @@ genericMessages:
   upvote:
     header: "**Thank you for voting for GamesROB!**\nRewards:\n+ 🔸 %s tokens!"
     streak: " (%s days in a row)"
-    weekend: " **Weekend multiplier: 2x!**"
-    footer: "\n\nYou can upvote again in 12 hours.\nVoting more days in a row increases the amount of tokens gained."
+    weekend: " x2 (Weekend Multiplier)"
+    supporter: " x2 (Supporter)"
+    vip: " x4 (VIP)"
+    footer: "\n\n⏰ You can upvote again in 12 hours.\n📆 Voting more days in a row increases the amount of tokens gained.\n✴ On weekends, you get double the tokens."
 
   languagecommand:
     header: "%s The language is currently set to %s.\nPick the code (`has darker background`) of the language you want below and run `%s <code>`:\n\n"
     entry: "%s (Translated by %s)"
     bottom: "\n\nWant to help translating to your own language?\n%s"
 
-  error: "❌ An error occured when handling that command!\nPlease report it with this ID `%s` on our server (%s).\nSorry for the inconvinience."
+  cooldown2:
+    title: "You are under cooldown for this command!"
+    timeLeft: "⏰ Time left: %s"
+    supporterTime: "[Supporter](%s) Time: %s"
+    vipTime: "[VIP](%s) Time: %s"
+
+  error: "❌ An error occured when handling that command!\nPlease report it along with the ID `%s` on our server (%s).\nSorry for the inconvinience."
 
 gameFramework:
   singleplayerMatch: "**Single-player %s Match**\n%s\n\n"
@@ -79,6 +89,10 @@ gameFramework:
   timeout: "The match has timed out after **%s**."
   creatorQuit: "The %s match has been cancelled because its creator quit."
   everyoneQuit: "The match has been cancelled because everyone quit."
+
+  patreon: "If you enjoy the bot, consider becoming a Patreon to support its existance!"
+  emote: "You can change the emote you show up as in games with %semote!"
+  findMatches: "You can play with people on the official GamesROB server!"
 
   now: " - **Now**"
   next: " - **Next**"
@@ -281,6 +295,64 @@ game:
 
 command:
   permissionLock: "⛔ You can't use this command!"
+
+  backgroundupload:
+    nonpatreon: "You need to be a VIP on our Patreon to customize your background image!\nSupport us on Patreon to get cool perks:\n%s"
+    invalidlink: "The URL needs to be an imgur image.\nRight click the image on Imgur and choose \"Copy Image URL\"."
+    setimg: "Background Image set!"
+
+    description: "Set a background image for your profile"
+
+  tournment:
+    notstarted: "A GamesROB tournment hasn't been created! Use `%stournment create <end time>` to start one."
+    alreadystart: "A tournment is already taking place! It ends %s.\nA server moderator can end it with `%stournment purge`."
+    notended: "The tournment hasn't ended yet. If you want to force it to end, use `%stournment purge`."
+    purge: "The tournment was purged."
+
+    leaderboard:
+      endheader: "**Finished the tournment!**\nLeaderboard:\n"
+      header: "The tournment ends %s.\nTop %s players:\n"
+      entry: "%s with **%s** wins\n"
+
+    askend: "This tournment has already ended. Ask a server moderator to send `%stournment end` to finish the tournment."
+    enddm: "The tournment has ended!\nYou can reward the top members by giving them tokens (`%stokens add <member> <amount>`)."
+
+    timelimit: "You can't start a tournment that takes more than %s."
+    timeset: "Tournment was created! It was set to end in %s.\n"
+
+    description: "Create a GamesROB tournment"
+
+  customeco:
+    disabled: "Custom economy is disabled on your server."
+    disableddesc: "\nType `%scustomeco toggle` to enable it."
+    enabled: "Your server uses a custom economy."
+    enableddesc: "\nManage it using `%stokens <add/remove/set> <user> <amount>`.\nTo disable the custom economy, use `%scustomeco toggle`. All of the data will be kept if you choose to enable it again.\nTo clear the data, type `%scustomeco purge`."
+
+    togglemessage: "Custom economy was set to `%s` on **%s**."
+
+    purgewarning: "⚠ **All** of the tournment wins and custom economy amounts that users have gathered and you've set will be **permanently deleted** in %s.\nRun `%scustomeco purge` again to cancel this action."
+    purgecancelled: "Cancelled purge task."
+    purgebegin: "🗑 Deleting custom economy data..."
+    purgefinish: "All custom economy data has been wiped. Type `%scustomeco toggle` to enable custom economy again."
+
+    description: "Customize the economy of your premium server"
+
+  weekly:
+    message: "You've earnt 🔸 %s tokens!"
+    timeout: "You can get your weekly tokens again in %s."
+    noVIP: "You need to be a VIP to use this command. Check out our Patreon:\n%s"
+
+    description: "Get your weekly token prize for being a kind donator!"
+
+  patreon:
+    text: "If you enjoy the bot, please consider donating to our Patreon:\n%s\nWe need money to pay the host and invest into improving the bot.\nAny amount helps, and you get some perks for your generosity!\n\nPatreon Status: %s"
+
+    none: "Not a Donor"
+    supporter: "Supporter"
+    vip: "VIP"
+    premium: "Premium"
+
+    description: "View more information about our Patreon campaign!"
 
   candy:
     own: "🍬 You have %s candy!\nGet more candy by trick or treating!"
@@ -514,7 +586,7 @@ command:
     text: "**GamesROB v%s**\nFrom %s\n```diff\n%s\n```\n*Updates are usually scheduled for every friday, making the next update %s.*\n*You can suggest features and bug fixes in our server: %s*"
     description: "Shows all the changes on the latest update"
   support:
-    message: "If you're having trouble with the bot, want to suggest features, get notified when the bot updates or just want to talk to other people who use it, check out our support server:\nhttps://discord.gg/xajeDYR"
+    message: "If you're having trouble with the bot, want to suggest features, get notified when the bot updates or just want to talk to other people who use it, check out our support server:\nhttps://discord.gg/rUpAqVa"
     description: "Gives you a link to the bot's support server"
   website:
     message: "We have a website where you learn more about the bot!\nhttps://gamesrob.com"
@@ -523,7 +595,10 @@ command:
     info: "Last upvoted: %s\nCurrent Streak: %s days (Lost %s)\nUpvoted %s times since %s (View your history with `%supvote history`)\n"
     messageCanVote: "You can upvote the bot for 🔸 %s tokens!"
     clickToVote: "Click to go to the upvote page"
-    setdays: "Set %2$s's upvoted days to %1$s."
+
+    setdays: "%s's upvoted days status was set to %s."
+    adddays: "%s's upvoted days status was added by %s."
+    removedays: "%s's upvoted days status was removed by %s."
 
     history:
       title: "**Your last upvotes:**\n"
@@ -552,6 +627,7 @@ transactions:
   betting: "Used for gambling in matches"
   slots: "Used for gambling in the slots machine"
   changingEmote: "Changing your emoji tile"
+  weekly: "Weekly Patreon Command"
 
 events:
   hasntBegun: "This command can only be executed during %s!\nThat event is happening in %s."

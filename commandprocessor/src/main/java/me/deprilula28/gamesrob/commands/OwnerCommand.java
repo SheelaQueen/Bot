@@ -3,6 +3,8 @@ package me.deprilula28.gamesrob.commands;
 import com.google.gson.JsonPrimitive;
 import me.deprilula28.gamesrob.BootupProcedure;
 import me.deprilula28.gamesrob.GamesROB;
+import me.deprilula28.gamesrob.data.GuildProfile;
+import me.deprilula28.gamesrob.data.PremiumGuildMember;
 import me.deprilula28.gamesrob.utility.Language;
 import me.deprilula28.gamesrob.data.RPCManager;
 import me.deprilula28.gamesrob.data.UserProfile;
@@ -31,10 +33,14 @@ import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.BiConsumer;
+import java.util.function.BiFunction;
 import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.stream.Collectors;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
 
-public class OwnerCommands {
+public class OwnerCommand {
     private static ScriptEngine scriptEngine = new ScriptEngineManager().getEngineByName("nashorn");
     private static Announcement announcement = null;
 
@@ -47,16 +53,17 @@ public class OwnerCommands {
         private User announcer;
     }
 
-    public static Command.Executor tokenCommand(BiConsumer<UserProfile, Integer> profileUser, String langCode) {
+    public static Command.Executor changeUpvotedDays(BiConsumer<UserProfile, Integer> args, String langCode) {
         return context -> {
             if (!GamesROB.owners.contains(context.getAuthor().getIdLong())) return Language.transl(context,
                     "genericMessages.ownersOnly");
-            User user = context.nextUser();
-            int amount = context.nextInt();
-            UserProfile profile = UserProfile.get(user);
-            profileUser.accept(profile, amount);
 
-            return Language.transl(context, langCode, amount, user.getName(), profile.getTokens());
+            int amount = context.nextInt();
+            UserProfile profile = UserProfile.get(context.getAuthor());
+            profile.setUpvotedDays(amount);
+            profile.setEdited(true);
+
+            return Language.transl(context, "command.upvote.setdays", context.getAuthor().getName(), amount);
         };
     }
 
@@ -435,34 +442,68 @@ public class OwnerCommands {
         });
     }
 
-    public static String compileLanguage(CommandContext context) {
+    public static String compileLanguages(CommandContext context) {
         if (!GamesROB.owners.contains(context.getAuthor().getIdLong())) return Language.transl(context,
                 "genericMessages.ownersOnly");
 
-        String lang = context.next();
-        Map<String, String> allKeys = new HashMap<>();
-        List<String> translators = new ArrayList<>();
-        Optional.ofNullable(Language.getLanguages().get(lang)).ifPresent(allKeys::putAll);
+        Map<String, Map<String, String>> languagesKeys = new HashMap<>();
+        Map<String, List<String>> languagesTranslators = new HashMap<>();
+        Map<String, Map<String, List<Pair<String, Integer>>>> languagesVotes = new HashMap<>();
+        Language.getLanguages().forEach((language, keys) -> languagesKeys.put(language, new HashMap<>(keys)));
 
         GamesROB.database.ifPresent(db -> Log.wrapException("Getting translation suggestions", () -> {
-            ResultSet set = db.select("translationsuggestions", "language = '" + lang + "'");
-            Map<String, List<Pair<String, Integer>>> votesForEntries = new HashMap<>();
+            ResultSet set = db.select("translationsuggestions");
 
             while (set.next()) {
+                String language = set.getString("language");
                 String key = set.getString("key");
 
-                if (!votesForEntries.containsKey(key)) votesForEntries.put(key, new ArrayList<>());
-                votesForEntries.get(key).add(new Pair<>(set.getString("translation"), set.getInt("rating")));
-                translators.add(set.getString("userid"));
+                if (!languagesVotes.containsKey(language)) languagesVotes.put(language, new HashMap<>());
+                Map<String, List<Pair<String, Integer>>> languageVotes = languagesVotes.get(language);
+
+                if (!languageVotes.containsKey(key)) languageVotes.put(key, new ArrayList<>());
+                languageVotes.get(key).add(new Pair<>(set.getString("translation"), set.getInt("rating")));
+
+                if (!set.getBoolean("anonymous")) {
+                    if (!languagesTranslators.containsKey(language)) languagesTranslators.put(language, new ArrayList<>());
+                    List<String> languageTranslators = languagesTranslators.get(language);
+                    if (!languageTranslators.contains(set.getString("userid")))
+                        languageTranslators.add(set.getString("userid"));
+                }
             }
 
-            votesForEntries.forEach((key, value) -> value.stream().min(Comparator.comparingInt(it ->
-                    ((Pair<String, Integer>) it).getValue()).reversed()).ifPresent(it -> allKeys.put(key, it.getKey())));
+            languagesVotes.forEach((language, voteMap) -> {
+                if (!languagesKeys.containsKey(language)) languagesKeys.put(language, new HashMap<>());
+                Map<String, String> languageKeys = languagesKeys.get(language);
+                voteMap.forEach((key, votes) -> votes.stream().min(Comparator.comparingInt(it ->
+                        ((Pair<String, Integer>) it).getValue()).reversed())
+                            .ifPresent(it -> languageKeys.put(key, it.getKey())));
+            });
         }));
-        allKeys.put("languageProperties.translators", translators.stream().map(it -> GamesROB.getUserById(it)
-            .map(user -> user.getName() + "#" + user.getDiscriminator()).orElse("not found")).collect(Collectors.joining(", ")));
 
-        context.getChannel().sendFile(Constants.GSON.toJson(allKeys).getBytes(), lang + ".json").queue();
+        languagesTranslators.forEach((language, translators) -> languagesKeys.get(language).put("languageProperties.translators",
+                translators.stream().map(it -> GamesROB.getUserById(it)
+                .map(user -> user.getName() + "#" + user.getDiscriminator()).orElse("*Not Found*"))
+                .collect(Collectors.joining(", "))));
+
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        ZipOutputStream zip = new ZipOutputStream(baos);
+
+        languagesKeys.forEach((language, keys) -> Log.wrapException("Zipping files", () -> {
+            zip.putNextEntry(new ZipEntry(language + ".json"));
+            zip.write(Constants.GSON.toJson(keys).getBytes());
+            zip.closeEntry();
+        }));
+
+        Log.wrapException("Finishing ZIP", () -> {
+            zip.putNextEntry(new ZipEntry("files.json"));
+            zip.write(Constants.GSON.toJson(languagesKeys.keySet()).getBytes());
+            zip.closeEntry();
+
+            zip.close();
+            context.getChannel().sendFile(new ByteArrayInputStream(baos.toByteArray()), "lang.zip").queue();
+        });
+
         return null;
     }
 

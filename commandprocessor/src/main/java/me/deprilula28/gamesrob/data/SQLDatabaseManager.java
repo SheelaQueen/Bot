@@ -81,6 +81,13 @@ public class SQLDatabaseManager {
         }
     }
 
+    public ResultSet select(String table) throws Exception {
+        return sqlQuery(String.format(
+                "SELECT * FROM %s",
+                table
+        ));
+    }
+
     public ResultSet select(String table, String where) throws Exception {
         return sqlQuery(String.format(
                 "SELECT * FROM %s WHERE %s",

@@ -43,7 +43,7 @@ public class BootupProcedure {
         List<Optional<String>> pargs = ShardClusterUtilities.matchValues(args, "token", "dblToken", "shards", "ownerID",
                 "sqlDatabase", "debug", "twitchUserID", "clientSecret", "twitchClientID", "rpcServerIP",
                 "shardId", "totalShards", "useRedis", "trelloToken", "dbotsToken", "botsfordiscordToken",
-                "commandProcessorFilePath");
+                "commandProcessorFilePath", "premium");
         token = pargs.get(0).orElseThrow(() -> new RuntimeException("You need to provide a token!"));
         shardTo = pargs.get(2).map(Integer::parseInt).orElse(1);
         shardFrom = pargs.get(10).map(Integer::parseInt).orElse(0);
@@ -51,6 +51,7 @@ public class BootupProcedure {
         GamesROBShardCluster.debug = pargs.get(5).map(Boolean::parseBoolean).orElse(false);
         Trello.optTrello = pargs.get(13).map(it -> new TrelloImpl(Constants.TRELLO_API_KEY, it));
         GamesROBShardCluster.commandProcessorFilePath = pargs.get(16).orElse("commandprocessor.jar");
+        GamesROBShardCluster.premiumBot = pargs.get(17).map(Boolean::parseBoolean).orElse(false);
     };
 
     private static final Game[] LOADING_MESSAGES = {

@@ -13,7 +13,7 @@ public class Player {
             "deprilula28", "Fin", "alex", "Bsc", "Ephysios", "diniboy", "ipu", "Late Trender", "judg3GH", "Niekold",
             "rafa", "Voropaulo", "Jazzy Spazzy", "Lord Mark", "Buffetpls",
             // may mays
-            "Juan", "Wumpus", "Clyde", "<@1>", "John Dick", "GamesROB"
+            "Juan", "Wumpus", "Clyde", "<@1>", "GamesROB"
     };
 
     private Optional<User> user;

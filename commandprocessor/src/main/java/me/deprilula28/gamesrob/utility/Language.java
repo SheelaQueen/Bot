@@ -49,7 +49,7 @@ public class Language {
         try {
             return String.format(keys.get(key), format);
         } catch (MissingFormatArgumentException e) {
-            return "This language seems to be glitched.\nPlease report this error here: https://discord.gg/gJKQPkN\n" +
+            return "This language seems to be glitched.\nPlease report this error here: https://discord.gg/rBAprga\n" +
                     "`" + language + ", Key " + key + ", formatted " + format.length + "`\n" +
                     "If this is an important function, you can always go back to english until it's fixed \uD83D\uDE09";
         }

@@ -5,18 +5,18 @@ import com.google.gson.JsonObject;
 import com.google.gson.annotations.SerializedName;
 import lombok.Setter;
 import me.deprilula28.gamesrob.GamesROB;
-import me.deprilula28.gamesrob.integrations.Patreon;
 import me.deprilula28.gamesrob.utility.Language;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import me.deprilula28.gamesrob.achievements.AchievementType;
-import me.deprilula28.gamesrob.commands.OwnerCommands;
+import me.deprilula28.gamesrob.commands.OwnerCommand;
 import me.deprilula28.gamesrobshardcluster.GamesROBShardCluster;
 import me.deprilula28.gamesrobshardcluster.utilities.Constants;
 import me.deprilula28.gamesrobshardcluster.utilities.Log;
 import me.deprilula28.gamesrob.utility.Utility;
 import net.dv8tion.jda.core.MessageBuilder;
 import net.dv8tion.jda.core.Permission;
+import net.dv8tion.jda.core.entities.Guild;
 import org.java_websocket.client.WebSocketClient;
 import org.java_websocket.drafts.Draft_6455;
 import org.java_websocket.handshake.ServerHandshake;
@@ -78,7 +78,7 @@ public class RPCManager extends WebSocketClient {
 
     public static enum RequestType {
         // Server -> Client
-        DBL_WEBHOOK_NOTIFICATION, TWITCH_WEBHOOK_NOTIFICATION, PATREON_WEBHOOK_NOTIFICATION,
+        DBL_WEBHOOK_NOTIFICATION, TWITCH_WEBHOOK_NOTIFICATION,
         GET_USER_BY_ID, GET_GUILD_BY_ID, GET_MUTUAL_SERVERS, GET_SHARDS_INFO, OWNER_LIST_UPDATED,
         BOT_UPDATED, BOT_RESTARTED, IS_OWNER,
 
@@ -207,7 +207,6 @@ public class RPCManager extends WebSocketClient {
                         it.getAvatarUrl())).orElse(null));
         handlerMap.put(RequestType.GET_GUILD_BY_ID, this::getGuildById);
         handlerMap.put(RequestType.DBL_WEBHOOK_NOTIFICATION, this::dblWebhookNotification);
-        handlerMap.put(RequestType.PATREON_WEBHOOK_NOTIFICATION, Patreon::patreonWebhookNotification);
         handlerMap.put(RequestType.GET_MUTUAL_SERVERS, this::getMutualServers);
         handlerMap.put(RequestType.GET_SHARDS_INFO, n -> GamesROB.getShardsInfo());
         handlerMap.put(RequestType.IS_OWNER, id -> GamesROB.owners.contains(Long.parseLong(id.getAsString())));
@@ -222,7 +221,7 @@ public class RPCManager extends WebSocketClient {
         });
 
         handlerMap.put(RequestType.BOT_UPDATED, url -> {
-            Log.wrapException("Updating bot from RPC request", () -> OwnerCommands.update(url.getAsString(), Log::info,
+            Log.wrapException("Updating bot from RPC request", () -> OwnerCommand.update(url.getAsString(), Log::info,
                     n -> Log.info("Updated successfully.")));
             return null;
         });
@@ -266,14 +265,24 @@ public class RPCManager extends WebSocketClient {
                 profile.setUpvotedDays(profile.getUpvotedDays() + 1);
             else profile.setUpvotedDays(0);
             int days = profile.getUpvotedDays();
-            int amount = 125 + days * 50;
-            if (weekend) amount *= 2;
+            int amount = 50 + days * 25;
+
+            int multiplier = 1;
+            if (weekend) multiplier += 1;
+            if (profile.getPatreonPerks().contains(UserProfile.PatreonPerk.SUPPORTER)) multiplier += 2;
+            if (profile.getPatreonPerks().contains(UserProfile.PatreonPerk.VIP)) multiplier += 2;
+            amount *= multiplier;
 
             MessageBuilder builder = new MessageBuilder();
             String lang = Optional.ofNullable(profile.getLanguage()).orElse("en_US");
 
             builder.append(Language.transl(lang, "genericMessages.upvote.header", amount));
             if (weekend) builder.append(Language.transl(lang, "genericMessages.upvote.weekend"));
+            if (profile.getPatreonPerks().contains(UserProfile.PatreonPerk.VIP))
+                builder.append(Language.transl(lang, "genericMessage.upvote.vip"));
+            else if (profile.getPatreonPerks().contains(UserProfile.PatreonPerk.SUPPORTER))
+                builder.append(Language.transl(lang, "genericMessage.upvote.supporter"));
+
             if (days > 0) builder.append(Language.transl(lang, "genericMessages.upvote.streak", days));
             builder.append(Language.transl(lang, "genericMessages.upvote.footer"));
 
@@ -281,7 +290,7 @@ public class RPCManager extends WebSocketClient {
             AchievementType.UPVOTE.addAmount(false, 1, builder, user, null, lang);
             pm.sendMessage(builder.build()).queue();
 
-            profile.addTokens(amount, "transactions.upvote");
+            profile.addTokens((Guild) null, amount, "transactions.upvote");
             profile.setLastUpvote(System.currentTimeMillis());
             profile.setEdited(true);
         }));

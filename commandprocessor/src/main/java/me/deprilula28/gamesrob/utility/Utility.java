@@ -4,7 +4,6 @@ import lombok.Getter;
 import lombok.Setter;
 import me.deprilula28.gamesrob.baseFramework.Match;
 import me.deprilula28.gamesrob.baseFramework.Player;
-import me.deprilula28.gamesrob.commands.ImageCommands;
 import me.deprilula28.gamesrob.commands.ProfileCommands;
 import me.deprilula28.gamesrob.data.GuildProfile;
 import me.deprilula28.gamesrob.data.Statistics;
@@ -23,7 +22,6 @@ import net.dv8tion.jda.core.requests.RestAction;
 import java.awt.*;
 import java.io.Closeable;
 import java.io.IOException;
-import java.io.InputStream;
 import java.text.DecimalFormat;
 import java.time.DayOfWeek;
 import java.time.Instant;
@@ -257,6 +255,28 @@ public class Utility {
         return builder.toString();
     }
 
+    public static String getEmoteForStatus(String status) {
+        switch (status) {
+            case "CONNECTED":
+                return "<:online:313956277808005120>";
+            case "SHUTDOWN":
+            case "FAILED_TO_LOGIN":
+            case "RECONNECT_QUEUED":
+            case "WAITING_TO_RECONNECT":
+            case "DISCONNECTED":
+                return "<:offline:313956277237710868>";
+            case "ATTEMPTING_TO_RECONNECT":
+            case "LOGGING_IN":
+            case "CONNECTING_TO_WEBSOCKET":
+            case "IDENTIFYING_SESSION":
+            case "AWAITING_LOGIN_CONFIRMATION":
+            case "LOADING_SUBSYSTEMS":
+                return "<:invisible:313956277107556352>";
+            default:
+                return "<:dnd:313956276893646850>";
+        }
+    }
+
     private static void appendTitle(String text, StringBuilder builder, int desired) {
         int addOffset = desired - text.length();
         int leftOffset = addOffset / 2;
@@ -364,11 +384,16 @@ public class Utility {
         return GAMESROB_DOMAIN + "/gameimage/" + match.getChannelIn().getId() + "/" + match.getIteration();
     }
 
+    public static String getDefaultPrefix() {
+        return GamesROBShardCluster.premiumBot ? Constants.DEFAULT_PREMIUM_PREFIX : Constants.DEFAULT_PREFIX;
+    }
+
     public static String getPrefix(Guild guild) {
-        if (guild == null) return Constants.DEFAULT_PREFIX;
+        String defaultPrefix = getDefaultPrefix();
+        if (guild == null) return defaultPrefix;
         String value = GuildProfile.get(guild).getGuildPrefix();
-        return value == null ? Constants.DEFAULT_PREFIX :
-                (value.length() > Constants.PREFIX_MAX_TRESHHOLD ? Constants.DEFAULT_PREFIX : value);
+        return value == null ? defaultPrefix :
+                (value.length() > Constants.PREFIX_MAX_TRESHHOLD ? defaultPrefix: value);
     }
 
     public static String getLanguage(CommandContext context) {
@@ -393,7 +418,8 @@ public class Utility {
 
     public static String getNotEnoughTokensMessage(CommandContext context, int amount) {
         UserProfile profile = UserProfile.get(context.getAuthor());
-        return Language.transl(context, "genericMessages.notEnoughTokens.beggining", Utility.addNumberDelimitors(amount - profile.getTokens()))
+        return Language.transl(context, "genericMessages.notEnoughTokens.beggining",
+                Utility.addNumberDelimitors(amount - profile.getTokens(context.getGuild())))
                 + Language.transl(context, "genericMessages.notEnoughTokens.tokensCommand", getPrefix(context.getGuild()));
     }
 

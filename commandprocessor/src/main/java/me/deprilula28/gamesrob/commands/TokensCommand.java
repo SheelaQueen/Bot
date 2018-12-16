@@ -1,10 +1,12 @@
 package me.deprilula28.gamesrob.commands;
 
 import me.deprilula28.gamesrob.GamesROB;
+import me.deprilula28.gamesrob.data.GuildProfile;
 import me.deprilula28.gamesrob.utility.Language;
 import me.deprilula28.gamesrob.data.SQLDatabaseManager;
 import me.deprilula28.gamesrob.data.UserProfile;
 import me.deprilula28.gamesrob.utility.Cache;
+import me.deprilula28.gamesrobshardcluster.GamesROBShardCluster;
 import me.deprilula28.gamesrobshardcluster.utilities.Constants;
 import me.deprilula28.gamesrobshardcluster.utilities.Log;
 import me.deprilula28.gamesrob.utility.Utility;
@@ -12,6 +14,7 @@ import me.deprilula28.gamesrob.achievements.Achievement;
 import me.deprilula28.gamesrob.achievements.AchievementType;
 import me.deprilula28.gamesrob.achievements.Achievements;
 import me.deprilula28.gamesrobshardcluster.utilities.ShardClusterUtilities;
+import me.deprilula28.jdacmdframework.Command;
 import me.deprilula28.jdacmdframework.CommandContext;
 import me.deprilula28.jdacmdframework.exceptions.InvalidCommandSyntaxException;
 import net.dv8tion.jda.core.EmbedBuilder;
@@ -19,11 +22,38 @@ import net.dv8tion.jda.core.entities.User;
 
 import java.sql.ResultSet;
 import java.util.*;
+import java.util.concurrent.TimeUnit;
+import java.util.function.BiFunction;
 import java.util.stream.Collectors;
 
-public class Tokens {
+public class TokensCommand {
     private static final int BAR_LENGTH = 20;
     private static final String BAR_CHAR = "=";
+
+    public static String weekly(CommandContext context) {
+        UserProfile profile = UserProfile.get(context.getAuthor());
+        if (!profile.getPatreonPerks().contains(UserProfile.PatreonPerk.VIP))
+            return Language.transl(context, "command.weekly.noVIP", Constants.PATREON_URL);
+        if (System.currentTimeMillis() - profile.getLastRanWeekly() < TimeUnit.DAYS.toMillis(7))
+            return Language.transl(context, "command.weekly.timeout", ShardClusterUtilities.formatPeriod(
+                    System.currentTimeMillis() - profile.getLastRanWeekly()));
+
+        int tokensGiven = profile.addTokens(context.getGuild(), 500 + (profile.getUpvotedDays() / 7) * 500, "transactions.weekly");
+        return Language.transl(context, "command.weekly.message", tokensGiven);
+    }
+
+    public static Command.Executor changeTokenAmount(BiFunction<Integer, Integer, Integer> addAmountGetter, String langCode) {
+        return context -> {
+            if (!GamesROBShardCluster.premiumBot && !GamesROB.owners.contains(context.getAuthor().getIdLong()))
+                return Language.transl(context, "genericMessages.ownersOnly");
+            User user = context.nextUser();
+            int amount = context.nextInt();
+            UserProfile profile = UserProfile.get(user);
+            profile.addTokens(context.getGuild(), addAmountGetter.apply(profile.getGlobalTokens(), amount), "transactions.cheater");
+
+            return Language.transl(context, langCode, amount, user.getName(), profile.getTokens(context.getGuild()));
+        };
+    }
 
     public static String achievements(CommandContext context) {
         // Achievements
@@ -226,7 +256,7 @@ public class Tokens {
                 if (position != -1 && position > page * ENTRIES_PAGE) {
                     fb.append("...\n");
                     append(fb, position, Utility.getLanguage(context), Optional.of(context.getAuthor()),
-                            UserProfile.get(context.getAuthor()).getTokens());
+                            UserProfile.get(context.getAuthor()).getGlobalTokens());
                 }
 
                 fb.append(Language.transl(context, "command.baltop.footer", ENTRIES_PAGE, page, pages,
@@ -249,13 +279,15 @@ public class Tokens {
         if (page <= 0 || page > pages) return Language.transl(context, "command.baltop.invalidPage", 1, pages);
 
         return Language.transl(context, "command.tokens.transactions.title") +
-                profile.getTransactions(ENTRIES_PAGE, (page - 1) * ENTRIES_PAGE, Optional.empty()).stream().map(it -> String.format(
+                profile.getTransactions(ENTRIES_PAGE, (page - 1) * ENTRIES_PAGE, Optional.empty(),
+                        GuildProfile.get(context.getGuild()).isCustomEconomy() ? Optional.of(context.getGuild().getId())
+                        : Optional.empty()).stream().map(it -> String.format(
                         "%s\uD83D\uDD36 %s tokens `%s` (%s)",
                         it.getAmount() >= 0 ? "+" : "-", Utility.addNumberDelimitors(Math.abs(it.getAmount())),
                         Language.transl(context, it.getMessage()), ShardClusterUtilities.formatTime(it.getTime())
                 )).collect(Collectors.joining("\n")) +
                 Language.transl(context, "command.tokens.transactions.footer",
-            Utility.addNumberDelimitors(profile.getTokens()), ENTRIES_PAGE,
+            Utility.addNumberDelimitors(profile.getTokens(context.getGuild())), ENTRIES_PAGE,
             page, pages, Utility.getPrefix(context.getGuild()));
     }
 

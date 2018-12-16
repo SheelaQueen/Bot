@@ -1,9 +1,10 @@
 package me.deprilula28.gamesrob.baseFramework;
 
 import me.deprilula28.gamesrob.GamesROB;
+import me.deprilula28.gamesrob.commands.CommandsManager;
+import me.deprilula28.gamesrob.data.PremiumGuildMember;
 import me.deprilula28.gamesrob.utility.Language;
 import me.deprilula28.gamesrob.achievements.AchievementType;
-import me.deprilula28.gamesrob.commands.CommandManager;
 import me.deprilula28.gamesrob.data.GuildProfile;
 import me.deprilula28.gamesrob.data.Statistics;
 import me.deprilula28.gamesrob.data.UserProfile;
@@ -20,6 +21,7 @@ import me.deprilula28.jdacmdframework.CommandContext;
 import me.deprilula28.jdacmdframework.RequestPromise;
 import me.deprilula28.jdacmdframework.exceptions.CommandArgsException;
 import me.deprilula28.jdacmdframework.exceptions.InvalidCommandSyntaxException;
+import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.JDA;
 import net.dv8tion.jda.core.MessageBuilder;
 import net.dv8tion.jda.core.Permission;
@@ -28,7 +30,9 @@ import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.core.events.message.guild.react.GuildMessageReactionAddEvent;
 import java.util.*;
 import java.util.List;
+import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Consumer;
 
 /*
 THIS CLASS IS A MESS HELP
@@ -217,7 +221,7 @@ public class Match extends Thread {
     }
 
     private void updateSettings(Map<String, String> options) {
-        CommandManager.matchHandlerSettings.get(game.getMatchHandlerClass()).forEach(cur -> {
+        CommandsManager.matchHandlerSettings.get(game.getMatchHandlerClass()).forEach(cur -> {
             String name = cur.getField().getName();
             Optional<Integer> intOpt = options.containsKey(name) ? GameUtil.safeParseInt(options.get(name)) : Optional.empty();
             intOpt.ifPresent(num -> {
@@ -322,9 +326,9 @@ public class Match extends Thread {
                 }
             }
         } catch (Exception e) {
-            Optional<String> trelloUrl = Log.exception("Game of " + getGame().getName(Constants.DEFAULT_LANGUAGE) + " had an error", e);
+            Optional<String> trelloId = Log.exception("Game of " + getGame().getName(Constants.DEFAULT_LANGUAGE) + " had an error", e);
             onEnd("⛔ Oops! Something spoopy happened and I had to stop this game.\n" +
-                    "You can send this: " + trelloUrl.orElse("*No trello info found*") + " to our support server at https://discord.gg/gJKQPkN !", false);
+                    "You can send this: " + trelloId.orElse("*No trello info found*") + " to our support server at https://discord.gg/YsZ9ZDQ !", false);
         }
     }
 
@@ -340,9 +344,9 @@ public class Match extends Thread {
                 else getMatchHandler().receivedMessage(event.getMessage().getContentRaw(),
                         event.getAuthor(), event.getMessage());
             } catch (Exception e) {
-                Optional<String> trelloUrl = Log.exception("Game of " + getGame().getName(Constants.DEFAULT_LANGUAGE) + " had an error", e);
+                Optional<String> trelloId = Log.exception("Game of " + getGame().getName(Constants.DEFAULT_LANGUAGE) + " had an error", e);
                 onEnd("⛔ Oops! Something spoopy happened and I had to stop this game.\n" +
-                        "You can send this: " + trelloUrl.orElse("*No trello info found*") + " to our support server at https://discord.gg/gJKQPkN !", false);
+                        "You can send this: " + trelloId.orElse("*No trello info found*") + " to our support server at https://discord.gg/YsZ9ZDQ !", false);
             }
         });
     }
@@ -387,7 +391,7 @@ public class Match extends Thread {
         }
         if (Match.PLAYING.containsKey(context.getAuthor()) || getPlayers().contains(Player.user(context.getAuthor()))
                 || (betting.isPresent() &&
-                !UserProfile.get(context.getAuthor()).transaction(betting.get(), "transactions.betting"))
+                !UserProfile.get(context.getAuthor()).transaction(channelIn.getGuild(), betting.get(), "transactions.betting"))
                 || gameState != GameState.PRE_GAME) {
             throw new InvalidCommandSyntaxException();
         }
@@ -469,6 +473,7 @@ public class Match extends Thread {
 
     private void onEnd(Player winner, int tokens) {
         long playTime = System.currentTimeMillis() - beginTime;
+
         players.forEach(cur ->
             cur.getUser().ifPresent(user -> {
                 UserProfile userProfile = UserProfile.get(user);
@@ -477,17 +482,31 @@ public class Match extends Thread {
 
                 if (winner.equals(cur)) {
                     int won = betting.map(it -> it * players.size()).orElse(tokens);
-                    userProfile.addTokens(won, "transactions.winGamePrize");
+                    won = userProfile.addTokens(channelIn.getGuild(), won, "transactions.winGamePrize");
                     achievement(user, AchievementType.REACH_TOKENS, won);
                 }
             })
         );
-        winner.getUser().ifPresent(user -> achievement(user, AchievementType.WIN_GAMES, 1));
+        winner.getUser().ifPresent(user -> {
+            achievement(user, AchievementType.WIN_GAMES, 1);
+            if (GamesROBShardCluster.premiumBot && GuildProfile.get(channelIn.getGuild()).getTournmentEnds() > 0L) {
+                PremiumGuildMember member = PremiumGuildMember.get(user, channelIn.getGuild());
+                member.setTournmentWins(member.getTournmentWins() + 1);
+                member.setEdited(true);
+                Log.info(member);
+            }
+        });
 
         onEnd(Language.transl(language, "gameFramework.winner", winner.toString())
                 + Language.transl(language, "gameFramework.winnerTokens", betting.map(it -> it * players.size())
                         .orElse(tokens), Utility.getPrefix(channelIn.getGuild())), false);
     }
+
+    private List<Consumer<EmbedBuilder>> annoyingAdsCauseWhyNot = Arrays.asList(
+            builder -> builder.setTitle(Language.transl(language, "gameFramework.patreon"), Constants.PATREON_URL),
+            builder -> builder.setTitle(Language.transl(language, "gameFramework.emote", Utility.getPrefix(channelIn.getGuild()))),
+            builder -> builder.setTitle(Language.transl(language, "gameFramework.findMatches"), "https://discord.gg/SjdVFdg")
+    );
 
     public void onEnd(String reason, boolean registerPoints) {
         long playTime = System.currentTimeMillis() - beginTime;
@@ -499,7 +518,7 @@ public class Match extends Thread {
                     UserProfile profile = UserProfile.get(user);
                     profile.registerGameResult(channelIn.getGuild(), user, false, false, game, playTime);
                     betting.ifPresent(amount -> {
-                        profile.addTokens(amount, "transactions.winGamePrize");
+                        profile.addTokens(channelIn.getGuild(), amount, "transactions.winGamePrize");
                         achievement(user, AchievementType.REACH_TOKENS, amount);
                     });
                 }
@@ -523,6 +542,10 @@ public class Match extends Thread {
             if (addAchievement.containsKey(user)) addAchievement.get(user).forEach((type, amount) ->
                 type.addAmount(true, amount, gameOver, user, channelIn.getGuild(), language));
         }));
+
+        EmbedBuilder embedBuilder = new EmbedBuilder();
+        annoyingAdsCauseWhyNot.get(ThreadLocalRandom.current().nextInt(annoyingAdsCauseWhyNot.size())).accept(embedBuilder);
+        gameOver.setEmbed(embedBuilder.build());
 
         ACTIVE_GAMES.get(channelIn.getJDA()).remove(this);
         GAMES.remove(channelIn);
@@ -575,7 +598,7 @@ public class Match extends Thread {
                 int amount = bet.get();
                 if (amount < MIN_BET || amount > MAX_BET) return Language.transl(context,
                         "command.slots.invalidTokens", MIN_BET, MAX_BET);
-                if (!UserProfile.get(context.getAuthor()).transaction(amount, "transactions.betting"))
+                if (!UserProfile.get(context.getAuthor()).transaction(context.getGuild(), amount, "transactions.betting"))
                     return Utility.getNotEnoughTokensMessage(context, amount);
             } else if (game.isRequireBetting()) return Language.transl(context, "gameFramework.requireBetting");
 

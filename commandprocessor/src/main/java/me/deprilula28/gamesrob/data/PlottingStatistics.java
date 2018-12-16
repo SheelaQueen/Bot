@@ -2,7 +2,7 @@ package me.deprilula28.gamesrob.data;
 
 import me.deprilula28.gamesrob.GamesROB;
 import me.deprilula28.gamesrob.baseFramework.Match;
-import me.deprilula28.gamesrob.commands.CommandManager;
+import me.deprilula28.gamesrob.commands.CommandsManager;
 import me.deprilula28.gamesrobshardcluster.GamesROBShardCluster;
 import me.deprilula28.gamesrobshardcluster.utilities.Log;
 import me.deprilula28.gamesrobshardcluster.utilities.ShardClusterUtilities;
@@ -58,8 +58,8 @@ public class PlottingStatistics extends Thread {
         Map<String, Supplier<Long>> map = new HashMap<>();
 
         map.put("avgcommanddelay", () -> {
-            double delay = CommandManager.avgCommandDelay;
-            CommandManager.avgCommandDelay = 0;
+            double delay = CommandsManager.avgCommandDelay;
+            CommandsManager.avgCommandDelay = 0;
             return (long) (delay * 1000000);
         });
         map.put("totalcommandsexecuted", () -> Statistics.get().getCommandCount());

@@ -55,7 +55,8 @@ public class MatchCommands {
         if (game.getGameState() != GameState.PRE_GAME) return Language.transl(context, "command.join.gameStarted");
         if (game.getPlayers().contains(Player.user(context.getAuthor())))
             return Language.transl(context, "command.join.alreadyOnMatch");
-        if (game.getBetting().isPresent() && !UserProfile.get(context.getAuthor()).transaction(game.getBetting().get(), "transactions.betting"))
+        if (game.getBetting().isPresent() && !UserProfile.get(context.getAuthor()).transaction(game.getChannelIn().getGuild(),
+                game.getBetting().get(), "transactions.betting"))
             return Utility.getNotEnoughTokensMessage(context, game.getBetting().get());
         if (!Permissions.check(context, Permissions.PermissionType.GAME_JOIN, Optional.of(Utility.indexOf(GamesROB.ALL_GAMES, game.getGame())), true))
             throw new InvalidCommandSyntaxException();

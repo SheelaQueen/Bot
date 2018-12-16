@@ -29,13 +29,6 @@ public enum AchievementType {
 
     @Getter private String languageCode;
 
-    public void addAmount(int amount, CommandContext context, Consumer<MessageBuilder> before) {
-        context.send(builder -> {
-            before.accept(builder);
-            addAmount(false, amount, builder, context.getAuthor(), context.getGuild(), Utility.getLanguage(context));
-        });
-    }
-
     public int getAmount(User user) {
         try {
             if (GamesROB.database.isPresent()) {
@@ -82,15 +75,16 @@ public enum AchievementType {
                         // Achievement got!
                         builder.append("\n");
                         if (tagName) builder.append(user.getAsMention()).append(": ");
+
+                        int tokens = profile.addTokens(guild, achievement.getTokens(), "transactions.completeAchievement");
                         builder.append(ACHIEVEMENT_GOT_EMOTES[ThreadLocalRandom.current().nextInt(ACHIEVEMENT_GOT_EMOTES.length)])
                                 .append(Language.transl(language, "game.achievement.got",
                                         achievement.getName(language), achievement.getDescription(language),
-                                        Utility.addNumberDelimitors(achievement.getTokens())))
+                                        Utility.addNumberDelimitors(tokens)))
                                 .append("\n").append(Language.transl(language, "game.achievement.runAchievements",
                                 Utility.getPrefix(guild)));
 
-                        profile.addTokens(achievement.getTokens(), "transactions.completeAchievement");
-                        REACH_TOKENS.addAmount(tagName, achievement.getTokens(), builder, user, guild, language);
+                        REACH_TOKENS.addAmount(tagName, tokens, builder, user, guild, language);
                     }
                 });
 

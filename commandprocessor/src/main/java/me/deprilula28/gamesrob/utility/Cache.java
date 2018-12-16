@@ -3,7 +3,7 @@ package me.deprilula28.gamesrob.utility;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.Getter;
-import me.deprilula28.gamesrob.commands.CommandManager;
+import me.deprilula28.gamesrob.commands.CommandsManager;
 import me.deprilula28.gamesrobshardcluster.utilities.Constants;
 import me.deprilula28.gamesrobshardcluster.utilities.Log;
 import me.deprilula28.gamesrobshardcluster.utilities.ShardClusterUtilities;
@@ -47,7 +47,7 @@ public class Cache {
                             if (object.onRemove != null) object.onRemove.accept(object.result);
                         }
                     }
-                    CommandManager.commandStart.clear();
+                    CommandsManager.commandStart.clear();
                     long after = getRAMUsage();
 
                     if (removed > 0) {

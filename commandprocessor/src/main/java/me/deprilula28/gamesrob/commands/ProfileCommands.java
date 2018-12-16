@@ -34,7 +34,7 @@ public class ProfileCommands {
     private static final int TOKENS_DESCRIPTION_HEIGHT = 50;
     private static final int TOKENS_DESCRIPTION_FONT_SIZE = 35;
     private static final int TOKENS_CARD_HEIGHT = 30;
-    private static final int TOKENS_CARD_FONT_SIZE = 20;
+    private static final int TOKENS_CARD_FONT_SIZE = 25;
     private static final int TOKENS_CARD_TOKEN_AMOUNT_HEIGHT = TOKENS_CARD_HEIGHT + 10;
     private static final int TOKENS_CARD_TOKEN_AMOUNT_FONT_SIZE = 15;
     private static final int TOKENS_CARD_BORDERS = ImageCommands.LEADERBOARD_BORDERS + 10;
@@ -76,11 +76,11 @@ public class ProfileCommands {
                 } else return new TokenGainMethod("upvote", TokenGainMethod.State.X, Optional.empty());
             }, profile -> new TokenGainMethod("winMatches", TokenGainMethod.State.TICK, Optional.of(Constants.MATCH_WIN_TOKENS)),
             profile -> new TokenGainMethod("completeAchievements", TokenGainMethod.State.TICK, Optional.empty()),
-            profile -> new TokenGainMethod("gambling", profile.getTokens() >= 50
+            profile -> new TokenGainMethod("gambling", profile.getGlobalTokens() >= 50
                     ? TokenGainMethod.State.TICK : TokenGainMethod.State.X, Optional.empty())
     );
 
-    public static Pair<Integer, Integer> profile(CommandContext context, Utility.Promise<CommandManager.RenderContext> rcontextPromise) {
+    public static Pair<Integer, Integer> profile(CommandContext context, Utility.Promise<CommandsManager.RenderContext> rcontextPromise) {
         GuildProfile board = GuildProfile.get(context.getGuild());
         User user = context.opt(context::nextUser).orElseGet(context::getAuthor);
         UserProfile profile = UserProfile.get(user);
@@ -105,14 +105,14 @@ public class ProfileCommands {
 
             // Token Command
             int cury = PROFILE_COMMAND_TITLE_HEIGHT + ImageCommands.USER_PROFILE_HEIGHT + PROFILE_GAMES_BORDER;
-            String imageName = TOKEN_IMAGES[TOKEN_IMAGE_MINIMUM.stream().filter(it -> profile.getTokens() >= it)
+            String imageName = TOKEN_IMAGES[TOKEN_IMAGE_MINIMUM.stream().filter(it -> profile.getTokens(context.getGuild()) >= it)
                     .mapToInt(TOKEN_IMAGE_MINIMUM::indexOf).min().orElse(0)];
             Image image = ImageCommands.getImage(imageName, ImageCommands.class.getResourceAsStream("/imggen/" + imageName + ".png"));
             g2d.drawImage(image, PROFILE_GAMES_BORDER, cury, TOKENS_IMAGE_SIZE, TOKENS_IMAGE_SIZE, null);
 
             g2d.setColor(Color.white);
             g2d.setFont(rcontext.getStarlight().deriveFont((float) TOKENS_DESCRIPTION_FONT_SIZE).deriveFont(Font.PLAIN));
-            ImageCommands.drawCenteredString(g2d, Utility.addNumberDelimitors(profile.getTokens()),
+            ImageCommands.drawCenteredString(g2d, Utility.addNumberDelimitors(profile.getTokens(context.getGuild())),
                     PROFILE_GAMES_BORDER, cury + TOKENS_IMAGE_SIZE + TOKENS_DESCRIPTION_HEIGHT / 2,
                     TOKENS_IMAGE_SIZE);
 
@@ -127,7 +127,6 @@ public class ProfileCommands {
                     embed.setDescription(Language.transl(context, "command.profile.upvoteEmbed",
                             Constants.getDblVoteUrl(context.getJda(), "tokenscommand")));
 
-                g2d.setFont(rcontext.getStarlight().deriveFont((float) TOKENS_CARD_FONT_SIZE).deriveFont(Font.PLAIN));
                 int messageWidth = gainMethods.stream().mapToInt(it -> g2d.getFontMetrics()
                         .stringWidth(Language.transl(context, "command.profile." + it.getTranslationCode())
                                 .replaceAll("%PREFIX%", Utility.getPrefixHelp(context.getGuild())))).max().orElse(0);
@@ -140,6 +139,7 @@ public class ProfileCommands {
 
                     final int rendery = cury + itemsy + TOKENS_CARD_HEIGHT - TOKENS_CARD_BORDERS - g2d.getFontMetrics().getHeight() / 4 + 7;
 
+                    g2d.setFont(rcontext.getStarlight().deriveFont((float) TOKENS_CARD_FONT_SIZE).deriveFont(Font.PLAIN));
                     g2d.drawString(Language.transl(context, "command.profile." + gainMethod.getTranslationCode())
                             .replaceAll("%PREFIX%", Utility.getPrefix(context.getGuild())), x, rendery);
 
@@ -198,7 +198,7 @@ public class ProfileCommands {
 
         if (emoteOpt.isPresent()) {
             String emote = emoteOpt.get();
-            if (useTokens && !UserProfile.get(context.getAuthor()).transaction(150, "transactions.changingEmote"))
+            if (useTokens && !UserProfile.get(context.getAuthor()).transaction(context.getGuild(), 150, "transactions.changingEmote"))
                 return Utility.getNotEnoughTokensMessage(context, 150);
 
             if (EmojiManager.isEmoji(emote)) {

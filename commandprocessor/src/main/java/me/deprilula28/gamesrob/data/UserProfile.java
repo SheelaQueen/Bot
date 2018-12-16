@@ -1,17 +1,18 @@
 package me.deprilula28.gamesrob.data;
 
 import me.deprilula28.gamesrob.GamesROB;
-import me.deprilula28.gamesrob.integrations.Patreon;
+import me.deprilula28.gamesrob.commands.CommandsManager;
 import me.deprilula28.gamesrob.utility.Language;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import me.deprilula28.gamesrob.baseFramework.GamesInstance;
-import me.deprilula28.gamesrob.commands.CommandManager;
 import me.deprilula28.gamesrob.utility.Cache;
+import me.deprilula28.gamesrobshardcluster.GamesROBShardCluster;
 import me.deprilula28.gamesrobshardcluster.utilities.Constants;
 import me.deprilula28.gamesrobshardcluster.utilities.Log;
 import me.deprilula28.gamesrob.utility.Utility;
 import net.dv8tion.jda.core.entities.Guild;
+import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.User;
 
 import java.io.DataOutputStream;
@@ -22,6 +23,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Data
 @AllArgsConstructor
@@ -29,7 +31,7 @@ public class UserProfile {
     private String userId;
     private String emote;
     private String language;
-    private int tokens;
+    private int globalTokens;
     private long lastUpvote;
     private int upvotedDays;
     private String backgroundImageUrl;
@@ -37,15 +39,55 @@ public class UserProfile {
     private int candy;
     private long gameplayTime;
     private int gamesPlayed;
-    private List<PatreonPerk> patreonPerks;
+    private long firstUse;
+    private long lastRanWeekly;
     private boolean edited = false;
+
+    public void setTokens(Guild guild, int amount) {
+        setTokens(guild == null ? null : guild.getId(), amount);
+    }
+
+    public void setTokens(String guild, int amount) {
+        if (GamesROBShardCluster.premiumBot && guild != null && GuildProfile.get(guild).isCustomEconomy()) {
+            PremiumGuildMember member = PremiumGuildMember.get(userId, guild);
+            member.setCustomEconomyAmount(amount);
+            member.setEdited(true);
+        } else {
+            globalTokens = amount;
+            edited = true;
+        }
+    }
+
+    public int getTokens(Guild guild) {
+        return getTokens(guild == null ? null : guild.getId());
+    }
+
+    public int getTokens(String guild) {
+        return GamesROBShardCluster.premiumBot && guild != null ? GuildProfile.get(guild).isCustomEconomy()
+                ? PremiumGuildMember.get(userId, guild).getCustomEconomyAmount()
+                : globalTokens : globalTokens;
+    }
 
     public LeaderboardHandler.UserStatistics getStatsForGuild(Guild guild) {
         return GuildProfile.get(guild).getLeaderboard().getStatsForUser(userId);
     }
 
+    public List<PatreonPerk> getPatreonPerks() {
+        Optional<Member> member = GamesROB.getGuildById(Constants.SERVER_ID).map(it -> it.getMemberById(userId));
+        return member.map(it -> Arrays.stream(PatreonPerk.values()).filter(perk -> it.getRoles()
+            .stream().anyMatch(role -> role.getIdLong() == perk.getRoleId())).collect(Collectors.toList()))
+                .orElse(new ArrayList<>());
+    }
+
+    @AllArgsConstructor
     public static enum PatreonPerk {
-        SUPPORTER, VIP, PREMIUM
+        SUPPORTER(484844603267219467L), VIP(507955848610316318L), PREMIUM(507747686020022274L), INSIDER(507956432449306644L);
+
+        private long roleId;
+
+        public long getRoleId() {
+            return roleId;
+        }
     }
 
     @AllArgsConstructor
@@ -88,7 +130,7 @@ public class UserProfile {
     }
 
     private static final List<String> TRANSACTION_MESSAGES = Arrays.asList(
-            "upvote", "completeAchievement", "cheater", "give", "got", "winGamePrize", "betting", "slots", "changingEmote"
+            "upvote", "completeAchievement", "cheater", "give", "got", "winGamePrize", "betting", "slots", "changingEmote", "weekly"
     );
 
     public void addBadge(Badge badge) {
@@ -96,19 +138,38 @@ public class UserProfile {
         edited = true;
     }
 
-    public void addTokens(int amount, String message) {
-        if (CommandManager.getBlacklist(userId).isPresent()) return;
+    public int addTokens(Guild guild, int amount, String message) {
+        return addTokens(guild == null ? null : guild.getId(), amount, message);
+    }
 
-        edited = true;
-        tokens += amount;
+    public int addTokens(String guild, int amount, String message) {
+        if (CommandsManager.getBlacklist(userId).isPresent()) return 0;
+
+        int earnt = getPatreonPerks().contains(PatreonPerk.VIP) ? (int) (amount * 1.25) :
+                getPatreonPerks().contains(PatreonPerk.SUPPORTER) ? (int) (amount * 1.5) :
+                amount;
+        boolean hasCustomEco = guild != null && GuildProfile.get(guild).isCustomEconomy();
+
+        if (hasCustomEco) {
+            PremiumGuildMember member = PremiumGuildMember.get(userId, guild);
+            member.setCustomEconomyAmount(member.getCustomEconomyAmount() + earnt);
+            member.setEdited(true);
+        } else {
+            edited = true;
+            globalTokens += earnt;
+        }
         GamesROB.database.ifPresent(it ->
-            it.insert("transactions", Arrays.asList("userid", "amount", "time", "message"),
+            it.insert("transactions", Arrays.asList("userid", "amount", "earnt", "time", "message", "premiumguild"),
                 sql -> Log.wrapException("Inserting SQL transaction log", () -> {
-             sql.setString(1, userId);
-             sql.setInt(2, amount);
-             sql.setLong(3, System.currentTimeMillis());
-             sql.setShort(4, (short) TRANSACTION_MESSAGES.indexOf(message.substring("transactions.".length())));
+            sql.setString(1, userId);
+            sql.setInt(2, amount);
+            sql.setInt(3, earnt);
+            sql.setLong(4, System.currentTimeMillis());
+            sql.setShort(5, (short) TRANSACTION_MESSAGES.indexOf(message.substring("transactions.".length())));
+            sql.setString(6, hasCustomEco ? guild : null);
         })));
+
+        return earnt;
     }
 
     public int getTransactionAmount(Optional<String> transactionMessage) {
@@ -125,12 +186,17 @@ public class UserProfile {
     }
 
     public List<Transaction> getTransactions(int limit, int offset, Optional<String> transactionMessage) {
+        return getTransactions(limit, offset, transactionMessage, Optional.empty());
+    }
+
+    public List<Transaction> getTransactions(int limit, int offset, Optional<String> transactionMessage, Optional<String> guild) {
         if (!GamesROB.database.isPresent()) return new ArrayList<>();
         return Cache.get("transactions_" + userId + "_" + limit + "_" + offset + "_" + transactionMessage.orElse("all"), it -> {
             try {
-                ResultSet set = GamesROB.database.get().select("transactions", Arrays.asList("amount", "time", "message"),
+                ResultSet set = GamesROB.database.get().select("transactions", Arrays.asList("amount", "time", "message", "premiumguild"),
                         "userid = '" + userId + "'" + transactionMessage.map(str -> " AND message = " +
-                                TRANSACTION_MESSAGES.indexOf(str)).orElse(""), "time", true, limit, offset);
+                                TRANSACTION_MESSAGES.indexOf(str)).orElse("") + " AND premiumguild = '" +
+                                guild.orElse("null") + "'", "time", true, limit, offset);
                 List<Transaction> transactions = new ArrayList<>();
 
                 while (set.next()) transactions.add(new Transaction(
@@ -157,9 +223,9 @@ public class UserProfile {
         });
     }
 
-    public boolean transaction(int amount, String message) {
-        if (tokens >= amount) {
-            addTokens(-amount, message);
+    public boolean transaction(Guild guild, int amount, String message) {
+        if (getTokens(guild) >= amount) {
+            addTokens(guild, -amount, message);
             return true;
         } else return false;
     }
@@ -192,7 +258,7 @@ public class UserProfile {
         @Override
         public Optional<UserProfile> getFromSQL(SQLDatabaseManager db, String from) throws Exception {
             ResultSet select = db.select("userData", Arrays.asList("emote", "language", "tokens", "lastupvote",
-                    "upvoteddays", "profilebackgroundimgurl", "badges", "candy", "gameplaytime", "gamesplayed", "patreonPerks"),
+                    "upvoteddays", "profilebackgroundimgurl", "badges", "candy", "gameplaytime", "gamesplayed", "firstuse", "lastranweekly"),
                     "userid = '" + from + "'");
             if (select.next()) return fromResultSet(from, select);
             select.close();
@@ -204,7 +270,7 @@ public class UserProfile {
         public Utility.Promise<Void> saveToSQL(SQLDatabaseManager db, UserProfile value) {
             return db.save("userData", Arrays.asList(
                     "emote", "userId", "tokens", "lastupvote", "upvoteddays", "language", "profilebackgroundimgurl",
-                    "badges", "candy", "gameplaytime", "gamesplayed", "patreonPerks"
+                    "badges", "candy", "gameplaytime", "gamesplayed", "firstuse", "lastranweekly"
             ), "userid = '" + value.getUserId() + "'",
                 set -> !value.isEdited(), true,
                 (set, it) -> Log.wrapException("Saving data on SQL", () -> write(it, value)));
@@ -218,8 +284,8 @@ public class UserProfile {
                         select.getString("profilebackgroundimgurl"),
                         Utility.decodeBinary(select.getInt("badges"), Badge.class),
                         select.getInt("candy"), select.getLong("gameplaytime"),
-                        select.getInt("gamesplayed"),
-                        Utility.decodeBinary(select.getShort("patreonPerks"), PatreonPerk.class), false));
+                        select.getInt("gamesplayed"), select.getLong("firstuse"),
+                        select.getLong("lastranweekly"),  false));
             } catch (Exception e) {
                 Log.exception("Saving UserProfile in SQL", e);
                 return Optional.empty();
@@ -229,7 +295,7 @@ public class UserProfile {
         private void write(PreparedStatement statement, UserProfile profile) throws Exception {
             statement.setString(1, profile.getEmote());
             statement.setString(2, profile.getUserId());
-            statement.setInt(3, profile.getTokens());
+            statement.setInt(3, profile.getGlobalTokens());
             statement.setLong(4, profile.getLastUpvote());
             statement.setInt(5, profile.getUpvotedDays());
             statement.setString(6, profile.getLanguage());
@@ -238,7 +304,8 @@ public class UserProfile {
             statement.setInt(9, profile.getCandy());
             statement.setLong(10, profile.getGameplayTime());
             statement.setInt(11, profile.getGamesPlayed());
-            statement.setInt(12, Utility.encodeBinary(profile.getPatreonPerks(), PatreonPerk.class));
+            statement.setLong(12, profile.getFirstUse());
+            statement.setLong(13, profile.getLastRanWeekly());
         }
 
         private void saveStatistics(DataOutputStream stream, GameStatistics stats) throws Exception {
@@ -250,8 +317,8 @@ public class UserProfile {
         @Override
         public UserProfile createNew(String from) {
             return new UserProfile(from, null, null, 0, 0, 0,
-                    null, new ArrayList<>(), 0,0L, 0, new ArrayList<>(),
-                    false);
+                    null, new ArrayList<>(), 0,0L, 0,
+                    System.currentTimeMillis(), 0L, false);
         }
 
         @Override

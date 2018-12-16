@@ -16,13 +16,12 @@ public class Trello {
             if (optTrello.isPresent()) {
                 TrelloImpl trello = optTrello.get();
                 for (Card card : trello.getCardsByList(ERROR_DUMP_LIST_ID))
-                    if (card.getDesc().equals(stackTrace)) return Optional.of(card.getUrl());
+                    if (card.getDesc().equals(stackTrace)) return Optional.of(card.getId());
 
                 Map<String, String> map = new HashMap<>();
                 map.put("desc", stackTrace);
                 Card card = trello.createCard(ERROR_DUMP_LIST_ID, name, map);
 
-                Log.info(card, card.getId(), card.getIdList(), card.getIdBoard(), card.getUrl());
                 return Optional.of(card.getId());
             } else return Optional.empty();
         } catch (Exception e) {

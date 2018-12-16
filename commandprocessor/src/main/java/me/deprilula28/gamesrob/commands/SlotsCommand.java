@@ -15,7 +15,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
-public class Slots {
+public class SlotsCommand {
     private static final String[] ITEMS = {
         "🍒", "🍇", "🍎", "🍉", "🔔", "🎲", "👑", "🍋", "🍀"
     };
@@ -26,13 +26,13 @@ public class Slots {
     public static String slotsGame(CommandContext context) {
         Random random = GameUtil.generateRandom();
         String next = context.next();
-        int betting = next.equalsIgnoreCase("all") ? UserProfile.get(context.getAuthor()).getTokens()
+        int betting = next.equalsIgnoreCase("all") ? UserProfile.get(context.getAuthor()).getTokens(context.getGuild())
             : me.deprilula28.jdacmdframework.Utility.rethrow(n -> new InvalidCommandSyntaxException(), n -> Integer.parseInt(next));
         if (betting < MIN_TOKENS) return Language.transl(context, "command.slots.invalidTokens",
                 MIN_TOKENS, Language.transl(context, "command.slots.all"));
 
         UserProfile profile = UserProfile.get(context.getAuthor());
-        if (!profile.transaction(betting, "transactions.slots"))
+        if (!profile.transaction(context.getGuild(), betting, "transactions.slots"))
             return Utility.getNotEnoughTokensMessage(context, betting);
 
         double percentBet = (double) (betting - MIN_TOKENS) / (double) (ALL_ITEMS - MIN_TOKENS);
@@ -70,7 +70,7 @@ public class Slots {
                         int earntAmount = (int) (multiplier * betting);
                         if (multiplier != 0) {
                             profile.setEdited(true);
-                            profile.setTokens(profile.getTokens() + earntAmount);
+                            profile.setTokens(context.getGuild(), profile.getTokens(context.getGuild()) + earntAmount);
                         }
 
                         context.edit(it -> {

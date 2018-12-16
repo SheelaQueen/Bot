@@ -12,17 +12,16 @@ import java.util.concurrent.TimeUnit;
 public class Constants {
     public static final String GAMESROB_DOMAIN = "https://gamesrob.com";
     public static final String TRELLO_API_KEY = "52734e54b9cdcdd16656a70e30d5b596";
-    public static final String PATREON_URL = "https://www.patreon.com/gamesrob";
+    public static final String PATREON_URL = "https://www.patreon.com/join/gamesrob";
 
     public static final File OLD_DATA_FOLDER = new File("gamesrobData");
 
     public static final String DEFAULT_PREFIX = "g*";
+    public static final String DEFAULT_PREMIUM_PREFIX = "p*";
     public static final String DEFAULT_LANGUAGE = "en_US";
 
-    public static final File WEBSITE_FOLDER = new File("website");
     public static final File DATA_FOLDER = new File("data");
     public static final File TEMP_FOLDER = new File(DATA_FOLDER, "temp");
-    public static final File LOGS_FOLDER = new File(DATA_FOLDER, "logs");
 
     public static final File USER_PROFILES_FOLDER = new File(DATA_FOLDER, "userProfiles");
     public static final File STATS_FILE = new File(DATA_FOLDER, "statistics.json");
@@ -32,9 +31,9 @@ public class Constants {
     public static final long OBJECT_STORE_TIME = TimeUnit.MINUTES.toMillis(2);
     public static final long CACHE_SLEEP_TIME = TimeUnit.SECONDS.toMillis(5);
     public static final long TCR_RESET_ROUND_TIME = TimeUnit.SECONDS.toMillis(15);
+    public static final long BOT_STATUS_CHANNEL_ID = 517348445447651334L;
 
     public static final int PREFIX_MAX_TRESHHOLD = 12;
-    public static final int SEND_WELCOME_MESSAGE_MAX_USERS = 60;
 
     public static final Optional<String> VANITY_DBL_URL = Optional.of("https://discordbots.org/bot/GamesROB");
     public static final Optional<Long> changelogChannel = Optional.of(397851392016121877L);

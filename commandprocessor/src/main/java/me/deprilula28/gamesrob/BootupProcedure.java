@@ -221,17 +221,28 @@ public class BootupProcedure {
                             */
 
     private static final BootupTask sendChangelog = args -> {
-        changelog = Utility.readResource("/changelog.txt");
-        Statistics statistics = Statistics.get();
-        if (!GamesROB.VERSION.equals(statistics.getLastUpdateLogSent()) && Constants.changelogChannel.isPresent()) {
-            statistics.setLastUpdateLogSent(GamesROB.VERSION);
-            statistics.setLastUpdateLogSentTime(System.currentTimeMillis());
-            GamesROB.getTextChannelById(Constants.changelogChannel.get()).ifPresent(channel ->
-                channel.sendMessage(String.format(sendChangelogFormat,
-                    "484522326906503172", "<:update:264184209617321984>", GamesROB.VERSION, changelog,
-                    ShardClusterUtilities.formatTimeRegularFormat(Utility.predictNextUpdate()), "358451223612882944"
-                )).queue());
+        Statistics stats = Statistics.get();
+
+        if (!GamesROBShardCluster.premiumBot) {
+            changelog = Utility.readResource("/changelog.txt");
+            if (!GamesROB.VERSION.equals(stats.getLastUpdateLogSent()) && Constants.changelogChannel.isPresent()) {
+                stats.setLastUpdateLogSent(GamesROB.VERSION);
+                stats.setLastUpdateLogSentTime(System.currentTimeMillis());
+                GamesROB.getTextChannelById(Constants.changelogChannel.get()).ifPresent(channel ->
+                        channel.sendMessage(String.format(sendChangelogFormat,
+                                "484522326906503172", "<:update:264184209617321984>", GamesROB.VERSION, changelog,
+                                ShardClusterUtilities.formatTimeRegularFormat(Utility.predictNextUpdate()), "358451223612882944"
+                        )).queue());
+            }
         }
+
+        if (stats.getBotStatusMessage() <= 0L) {
+            GamesROB.getTextChannelById(Constants.BOT_STATUS_CHANNEL_ID).ifPresent(channel ->
+                    GamesROB.getAllShards().then(shards -> channel.sendMessage(GamesROB.getBotStatusMessage(shards)).queue(it -> {
+                        it.pin().queue();
+                        stats.setBotStatusMessage(it.getIdLong());
+                    })));
+        } else GamesROB.updateBotStatusMessage();
     };
 
     private static void task(List<String> args, String name, BootupTask task) {

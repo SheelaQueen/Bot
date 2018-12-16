@@ -26,7 +26,6 @@ genericMessages:
   blacklisted: "⛔ Você foi bloqueado de usar GamesROB por %s (%s).\nRazão: %s"
   blacklistedNoInfo: "⛔ Você foi bloqueado de usar o GamesROB."
   tooFast: "⏰ Você está usando comandos muito rapidamente! Espere o último terminar de carregar."
-  cooldown: "⏰ Espere %s para usar esse comando novamente."
   requirespermissions: "O bot precisa dessas permissões no servidor para esse comando funcionar:\n`%s`"
   partnerCheckItOut: "Dê uma olhadinha"
   mentionedMessage: "Meu prefixo nesse servidor é `%s`. Envie `%shelp` para começar!"
@@ -34,13 +33,21 @@ genericMessages:
   upvote:
     header: "**Obrigado por votar pelo GamesROB!**\nRecompensas:\n+ 🔸 %s tokens!"
     streak: " (%s dias seguidos)"
-    weekend: " **Multiplicante de fim de semana: 2x!**"
-    footer: "\n\nVocê pode votar de novo em 12 horas.\nVotar mais dias seguidos aumenta a quantidade de tokens ganhos."
+    weekend: " x2 (Final de semana)"
+    supporter: " x2 (Suportador)"
+    vip: " x4 (VIP)"
+    footer: "\n\n⏰ Você pode votar de novo em 12 horas.\n📆 Votar mais dias seguidos aumenta a quantidade de tokens ganhos.\n✴ Em fins de semana, você ganha o dobro dos tokens."
 
   languagecommand:
     header: "%s A língua está configarada para %s.\nEscolha o código (`com fundo escuro`) da linguagem escolhida abaixo e envie `%s <código>`:\n\n"
     entry: "%s (Traduzido por %s)"
     bottom: "\n\nQuer ajudar traduzindo para a sua língua nativa?\n%s"
+
+  cooldown2:
+    title: "Você deve esperar para utilizar esse comando novamente!"
+    timeLeft: "⏰ Tempo restante: %s"
+    supporterTime: "Tempo para um [Suportador](%s): %s"
+    vipTime: "Tempo para um [VIP](%s): %s"
 
   error: "❌ Ocorreu um erro executando esse comando!\nPor-favor, reporte-o junto com o ID `%s` no nosso servidor (%s).\nDesculpe-nos pela inconveniência."
 
@@ -75,13 +82,12 @@ gameFramework:
   timeout: "A partida expirou após de **%s**."
   creatorQuit: "A partida de %s foi cancelada porque o(a) criador(a) saiu."
   everyoneQuit: "A partida foi cancelada porque todos sairam."
+  patreon: "Se está gostando do bot, considere tornar-se um Patrão para suportar a existência!"
+  emote: "Você pode alterar o emoji que você é em jogos com %semote!"
 
   now: " - **Agora**"
   next: " - **Próximo**"
   turn: "Vez de %s"
-
-  upvoteMessage: "\nSe está gostando do bot, considere dar um voto para ele(a?) e ganhe uns tokens!"
-  upvoteEmbedTitle: "Votar"
 
   rematch: "Clique no :arrows_counterclockwise: para jogar novamente!"
 
@@ -265,6 +271,67 @@ game:
 command:
   permissionLock: "⛔ Você não tem permissão para usar esse comando!"
 
+  backgroundupload:
+    nonpatreon: "Você precisa ser VIP no nosso Patreon para customizar o fundo do seu perfil!\nNos suporte no Patreon e receba recompensas:\n%s"
+    invalidlink: "O URL precisa ser uma imagem no Imgur.\nClique com o botão direito na imagem no Imgur e escolha \"Copiar endereço da imagem\"."
+    setimg: "Escolhido fundo do perfil!"
+
+    description: "Escolha a imagem no fundo do seu perfil"
+
+  tournment:
+    notstarted: "Não há um torneio do GamesROB acontecendo! Use `%stournment create <tempo para acabar>` para começar um."
+    alreadystart: "Já está ocorrendo um torneio! Ele acaba %s.\nUm moderador do servidor pode terminá-lo usando `%stournment purge`."
+    notended: "O torneio ainda não acabou. Se quer forçá-lo a acabar, use `%stournment purge`."
+    purge: "O torneio foi deletado."
+
+    leaderboard:
+      endheader: "**O torneio acabou!**\nPlacar de Liderança:\n"
+      header: "O torneio acaba %s.\nMelhores %s jogadores:\n"
+      entry: "%s com **%s** vitórias\n"
+
+    askend: "Esse torneio já acabou. Peça para um moderador do servidor utilizar `%stournment end` para terminar."
+    enddm: "O torneio for terminado!\nVocê pode dar como recompensa para os vençedores tokens usando (`%stokens add <member> <amount>`)."
+
+    timelimit: "Você não pode começar um torneio que dure mais que %s."
+    timeset: "Torneio começado. Ele acabará em %s.\n"
+
+    description: "Crie um torneio do GamesROB"
+
+  customeco:
+    disabled: "Economia customizada desativada nesse servidor.."
+    disableddesc: "\nEnvie `%scustomeco toggle` para ativar."
+    enabled: "Esse servidor utiliza uma economia customizada."
+    enableddesc: "\nGerencie-a utilizando `%stokens <add (adicionar)/remove (remover)/set (configurar)> <usuário> <quantidade>`.\nDesative a economia utilizando `%scustomeco toggle`. Todas as informações serão guardadas caso queira re-ativar a economia.\nPara limpar todos os dados, utilize `%scustomeco purge`."
+
+    togglemessage: "Alterado economia customizada para `%s` em **%s**."
+
+    purgewarning: "⚠ **Todas** as vitórias de torneio e quantidade de economia customizadas que usuários conseguiram ou receberam de você serão **permanentemente deletadas** em %s.\nUtilize `%scustomeco purge` novamente para cancelar."
+    purgecancelled: "Cancelada a deletação de dados."
+    purgebegin: "🗑 Deletando dados da economia..."
+    purgefinish: "Todos os dados da economia customizada foram deletadas. Utilize `%scustomeco toggle` para ativar a economia customizada novamente."
+
+    description: "Customize a economia do seu servidor premium"
+
+  weekly:
+    message: "Você recebeu 🔸 %s tokens!"
+    timeout: "Você pode receber seus tokens semanais novamente em %s."
+    noVIP: "Você precisa ser VIP para usar esse comando.\nNos suporte no Patreon:\n%s"
+
+    description: "Receba seus tokens semanais por ser um doador gentil!"
+
+  patreon:
+    text: "Se gosta do bot, considere doando para nosso Patreon e receba recompensas:\n%s\nPrecisamos de dinheiro para pagar a hospedagem e investir melhorando o bot.\nQualquer quantia ajuda!\n\nSeu estado atual: %s"
+
+    none: "Não é Doador"
+    supporter: "Suportador"
+    vip: "VIP"
+    premium: "Premium"
+
+    description: "Saiba mais sobre nossa campanha no Patreon!"
+
+  cafe:
+    description: "Saiba mais sobre nosso parceiro Cafe!"
+
   idlerpg:
     description: "Saiba mais sobre nosso parceiro IdleRPG!"
 
@@ -437,7 +504,7 @@ command:
     text: "**GamesROB v%s**\nDe %s\n\n%s\n\n*Normalmente atualizamos toda sexta-feita, fazendo a próxima %s.*\n*Você pode sugerir funcionalidades e reportar bugs no nosso servidor: %s*"
     description: "Mostra todas as novidades da última atualização."
   support:
-    message: "Se estiver tendo problemas com o bot, quer sugerir funcionalidades, ser notificado quando atualizamos o bot ou quer conversar com outras pessoas que o usam, entre no nosso servidor de suporte:\nhttps://discord.gg/xajeDYR"
+    message: "Se estiver tendo problemas com o bot, quer sugerir funcionalidades, ser notificado quando atualizamos o bot ou quer conversar com outras pessoas que o usam, entre no nosso servidor de suporte:\nhttps://discord.gg/rUpAqVa"
     description: "Te dá um link para o servidor de suporte do bot"
   upvote:
     info: "Votado pela Ùltima Vez: %s\nVotos em Seguida: %s dias (Perderá %s)\nVotou %s vezes desde %s (Veja seu histórico com `%supvote history`)\n"

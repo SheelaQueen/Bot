@@ -18,6 +18,7 @@ public class GamesROBShardCluster {
     public static CommandProcessor commandProcessor;
     public static CommandFramework framework;
     public static boolean debug = false;
+    public static boolean premiumBot = false;
     private static List<String> args;
 
     public static void main(String[] args) {

@@ -40,6 +40,7 @@ public class Statistics {
     private double totalImageCommandPostTime;
     private long totalImageCommandBytes;
     private long imageCommands;
+    private long botStatusMessage;
 
     public Consumer<Message> registerImageProcessor(long generateTimeNano, int byteAmount) {
         imageCommands ++;
@@ -117,7 +118,7 @@ public class Statistics {
             } else return new Statistics(
                     0L, 0L, System.currentTimeMillis(), null, 0,
                     new HashMap<>(), 0, 0L, 0L, 0L, 0L, new HashMap<>(),
-                    new HashMap<>(), 0.0, 0.0, 0, 0
+                    new HashMap<>(), 0.0, 0.0, 0, 0, 0
             );
         }, object -> ((Statistics) object).save());
     }

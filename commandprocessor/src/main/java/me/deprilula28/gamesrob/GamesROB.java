@@ -4,24 +4,22 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import me.deprilula28.gamesrob.baseFramework.GamesInstance;
 import me.deprilula28.gamesrob.baseFramework.Match;
-import me.deprilula28.gamesrob.commands.CommandManager;
+import me.deprilula28.gamesrob.commands.CommandsManager;
 import me.deprilula28.gamesrob.data.PlottingStatistics;
 import me.deprilula28.gamesrob.data.RPCManager;
 import me.deprilula28.gamesrob.data.SQLDatabaseManager;
+import me.deprilula28.gamesrob.data.Statistics;
 import me.deprilula28.gamesrob.games.*;
 import me.deprilula28.gamesrob.utility.Cache;
-import me.deprilula28.gamesrob.utility.Language;
 import me.deprilula28.gamesrob.utility.Utility;
 import me.deprilula28.gamesrobshardcluster.CommandProcessor;
 import me.deprilula28.gamesrobshardcluster.GamesROBShardCluster;
 import me.deprilula28.gamesrobshardcluster.utilities.Constants;
 import me.deprilula28.gamesrobshardcluster.utilities.Log;
+import me.deprilula28.gamesrobshardcluster.utilities.ShardClusterUtilities;
 import me.deprilula28.jdacmdframework.CommandFramework;
-import net.dv8tion.jda.core.EmbedBuilder;
-import net.dv8tion.jda.core.MessageBuilder;
 import net.dv8tion.jda.core.OnlineStatus;
 import net.dv8tion.jda.core.entities.*;
-import net.dv8tion.jda.core.events.guild.GuildJoinEvent;
 import org.java_websocket.client.WebSocketClient;
 
 import java.util.ArrayList;
@@ -35,7 +33,7 @@ public class GamesROB extends CommandProcessor {
             Connect4.GAME, TicTacToe.GAME, Minesweeper.GAME, Hangman.GAME, Detective.GAME, Roulette.GAME, Quiz.GAME, Uno.GAME,
             TownCountryRiver.GAME
     };
-    public static final String VERSION = "1.8.2";
+    public static final String VERSION = "1.8.3";
 
     public static final long UP_SINCE = System.currentTimeMillis();
 
@@ -129,18 +127,37 @@ public class GamesROB extends CommandProcessor {
         */
     }
 
-    private static final String[] HALLOWEEN_EVENT_MESSAGES = {
-            "Try trick or treating on Discord!",
-            "View your candy with the candy command!"
-    };
-
     public static void defaultPresence() {
         User selfUser = GamesROBShardCluster.shards.get(0).getSelfUser();
-        final String message = "@" + selfUser.getName() + "#" + selfUser.getDiscriminator() + " | gamesrob.com";
-        GamesROBShardCluster.shards.forEach(cur -> {
-            cur.getPresence().setStatus(OnlineStatus.ONLINE);
-            cur.getPresence().setGame(Game.playing(message));
-        });
+        if (selfUser != null) {
+            final String message = "@" + selfUser.getName() + "#" + selfUser.getDiscriminator() + " | gamesrob.com";
+            GamesROBShardCluster.shards.forEach(cur -> {
+                cur.getPresence().setStatus(OnlineStatus.ONLINE);
+                cur.getPresence().setGame(Game.playing(message));
+            });
+        }
+    }
+
+    public static void updateBotStatusMessage() {
+        GamesROB.getTextChannelById(Constants.BOT_STATUS_CHANNEL_ID).ifPresent(channel ->
+                channel.getMessageById(Statistics.get().getBotStatusMessage()).queue(msg -> {
+            if (msg != null) getAllShards().then(shards -> msg.editMessage(getBotStatusMessage(shards)).queue());
+        }));
+    }
+
+    public static String getBotStatusMessage(List<ShardStatus> shards) {
+        return String.format(
+            "**Realtime Bot Status Message**\n" +
+            "RPC Connection: %s\n\nShards:\n%s",
+            GamesROB.rpc.map(it -> it.isOpen() ? "<:online:313956277808005120> Open" :
+                    it.isConnecting() ? "<:invisible:313956277107556352> Connecting" :
+                            it.isClosing() ? "<:dnd:313956276893646850> Closing" : "<:offline:313956277237710868> Disconnected")
+                    .orElse("<:offline:313956277237710868> Disabled"),
+            shards.stream().map(it -> String.format(
+                    "%s Shard %s (%s)",
+                    Utility.getEmoteForStatus(it.getStatus()), it.getId(), ShardClusterUtilities.formatPeriod(it.getPing())
+            )).collect(Collectors.joining("\n"))
+        );
     }
 
     @Override
@@ -148,24 +165,8 @@ public class GamesROB extends CommandProcessor {
         Log.info("-= Starting Command Processor " + VERSION + " =-");
 
         BootupProcedure.bootup(args);
-        CommandManager.registerCommands(f);
+        CommandsManager.registerCommands(f);
         f.getSettings().setPrefixGetter(Utility::getPrefix);
-        f.handleEvent(GuildJoinEvent.class, event -> {
-            if (event.getGuild().getMembers().size() < 50)
-                event.getGuild().getTextChannels().stream().filter(TextChannel::canTalk).findFirst().ifPresent(channel ->
-                        channel.sendMessage(new MessageBuilder()
-                                .append(":wave: Hey there!\n" +
-                                        "I'm **GamesROB**, the <:botTag:230105988211015680> that lets you play chat games right from Discord!\n\n" +
-                                        "If you want to set a language for your guild, type `g*glang`!\n" +
-                                        "We currently support: " + Language.getLanguageList().stream().map(it ->
-                                        Language.transl(it, "languageProperties.languageName")).collect(Collectors.joining(", ")) + "!\n\n" +
-                                        "If you want to start playing games, type `g*help` and pick a game!")
-                                .setEmbed(new EmbedBuilder().setTitle("If you need help, you can:")
-                                        .setDescription("- [View our online command list](" + Constants.GAMESROB_DOMAIN + "/help)\n" +
-                                                "- [Join our support server](https://discord.gg/xajeDYR)")
-                                        .setColor(Utility.getEmbedColor(event.getGuild())).build())
-                                .build()).queue());
-        });
     }
 
     @Override

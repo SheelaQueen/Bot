@@ -1,6 +1,7 @@
-+ Some changes in preparations for Patreon this sunday (hopefully).
++ Added support for Patreon things.
 + Increased the Hangman word limit to 100.
 + General improvements to profile command.
++ Replaced links with working ones.
 
 - Fixed Uno card selection causing errors on overflow.
 Developed by deprilula28#3609. Hope you enjoy the changes!

@@ -40,11 +40,14 @@ public class ShardClusterUtilities {
     }
 
     public static long extractPeriod(String text) {
-        if (text.matches("[0-9]+[dhms]")) {
-            int n = Integer.valueOf(text.substring(0, text.length() - 1) + "");
+        if (text.matches("[0-9]+(\\.[0-9]+)?[dhms]")) {
+            double n = Double.valueOf(text.substring(0, text.length() - 1) + "");
             int period = Arrays.asList(TIME_UNIT_NAMES).indexOf(text.charAt(text.length() - 1) + "");
-            return (long) TIME_MEASURE_UNITS[period] * n;
-        } else throw new InvalidCommandSyntaxException();
+            return (long) (TIME_MEASURE_UNITS[period] * n);
+        } else {
+            Log.warn("Failed to extract period: ", text);
+            throw new InvalidCommandSyntaxException();
+        }
     }
 
     public static String formatTimeRegularFormat(long time) {

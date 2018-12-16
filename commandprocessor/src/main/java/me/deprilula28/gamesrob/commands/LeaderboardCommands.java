@@ -14,7 +14,7 @@ import java.awt.*;
 import java.util.*;
 import java.util.List;
 
-public class LeaderboardCommand {
+public class LeaderboardCommands {
     private static final int LEADERBOARD_COMMAND_WIDTH = ImageCommands.USER_PROFILE_WIDTH + 200;
     private static final int LEADERBOARD_ENTRIES_BORDER = 30;
     private static final int LEADERBOARD_GAME_TITLE_HEIGHT = 30;
@@ -23,7 +23,7 @@ public class LeaderboardCommand {
     private static final int OVERALL_ENTRY_LIMIT = 5;
     private static final int GAME_ENTRY_LIMIT = 1;
 
-    public static Pair<Integer, Integer> leaderboard(CommandContext context, Utility.Promise<CommandManager.RenderContext> rcontextPromise) {
+    public static Pair<Integer, Integer> leaderboard(CommandContext context, Utility.Promise<CommandsManager.RenderContext> rcontextPromise) {
         GuildProfile guildprofile = GuildProfile.get(context.getGuild());
         List<LeaderboardHandler.LeaderboardEntry> overall = guildprofile.getLeaderboard().getEntriesForGame(Optional.empty());
 

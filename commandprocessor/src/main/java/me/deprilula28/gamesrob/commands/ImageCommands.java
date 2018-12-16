@@ -1,12 +1,11 @@
 package me.deprilula28.gamesrob.commands;
 
 import com.github.kevinsawicki.http.HttpRequest;
-import me.deprilula28.gamesrob.utility.Language;
 import me.deprilula28.gamesrob.data.UserProfile;
 import me.deprilula28.gamesrob.utility.Cache;
-import me.deprilula28.gamesrobshardcluster.utilities.Constants;
+import me.deprilula28.gamesrob.utility.Language;
 import me.deprilula28.gamesrob.utility.Utility;
-import me.deprilula28.gamesrobshardcluster.utilities.Log;
+import me.deprilula28.gamesrobshardcluster.utilities.Constants;
 import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.User;
 
@@ -32,16 +31,9 @@ public class ImageCommands {
             g2d.fillRect(0, 0, width, height);
             return;
         }
-        Image image = getImage("userprofilebg_" + background, background == null
-                ? ImageCommands.class.getResourceAsStream("/imggen/backgrounds/default.png")
-                : background.startsWith("/")
-                    ? ImageCommands.class.getResourceAsStream("/img/backgrounds" + background)
-                    : HttpRequest.get(background).userAgent(Constants.USER_AGENT).stream());
-        Image blurryImage = getImage("userprofilebgblurry_" + background, background == null
-                ? ImageCommands.class.getResourceAsStream("/imggen/backgroundsblurry/default.png")
-                : background.startsWith("/")
-                    ? ImageCommands.class.getResourceAsStream("/img/backgroundsblurry" + background)
-                    : HttpRequest.get(background + "blurry").userAgent(Constants.USER_AGENT).stream());
+
+        Image image = getUserImage(false, background);
+        Image blurryImage = getUserImage(true, background);
 
         int imgWidth = image.getWidth(null);
         int imgHeight = image.getHeight(null);
@@ -71,6 +63,11 @@ public class ImageCommands {
     private static final int BADGES_OFFSET = 10;
     private static final int BADGES_END_X = 620;
 
+    private static final int PROFILE_IMAGE_X = 12;
+    private static final int PROFILE_IMAGE_Y = 8;
+    private static final int TEXT_BEGIN_X = 200;
+    private static final int TEXT_BEGIN_Y = 85;
+
     public static void drawUserProfile(Member member, Graphics2D g2d, int x, int y, Font starlight) {
         Optional<String> nick = Optional.ofNullable(member.getNickname());
         User user = member.getUser();
@@ -78,18 +75,28 @@ public class ImageCommands {
         Image template = getImage("uptemplate", ImageCommands.class.getResourceAsStream("/imggen/userprofiletemplate.png"));
         g2d.drawImage(template, x, y, USER_PROFILE_WIDTH, USER_PROFILE_HEIGHT, null);
 
-        g2d.setClip(new Ellipse2D.Float(x + 12, y + 8, (float) PFP_SIZE, (float) PFP_SIZE));
+        g2d.setClip(new Ellipse2D.Float(x + PROFILE_IMAGE_X, y + PROFILE_IMAGE_Y, (float) PFP_SIZE, (float) PFP_SIZE));
         g2d.drawImage(getImage("pfp_" + user.getId(), HttpRequest.get(user.getEffectiveAvatarUrl()).userAgent(Constants.USER_AGENT).stream()),
-                x + 12, y + 8, PFP_SIZE, PFP_SIZE, null);
+                x + PROFILE_IMAGE_X, y + PROFILE_IMAGE_Y, PFP_SIZE, PFP_SIZE, null);
         g2d.setClip(null);
 
+        // Badges
+        for (int i = 0; i < profile.getBadges().size(); i++) {
+            int badgeX = x + BADGES_END_X - i * (BADGES_ICON_SIZE + BADGES_OFFSET);
+            int badgeY = y + USER_PROFILE_START_Y + (USER_PROFILE_END_Y - USER_PROFILE_START_Y - BADGES_ICON_SIZE) / 2;
+            UserProfile.Badge badge = profile.getBadges().get(i);
+            g2d.drawImage(ImageCommands.getImageFromWebsite(badge.getBadgeImagePath()), badgeX, badgeY,
+                    BADGES_ICON_SIZE, BADGES_ICON_SIZE, null);
+        }
+
         // [nick]/name
-        int maxNameWidth = 350;
+        int maxNameWidth = BADGES_END_X - TEXT_BEGIN_X - (profile.getBadges().size() * (BADGES_ICON_SIZE + BADGES_OFFSET));
         g2d.setColor(Color.WHITE);
         g2d.setFont(starlight.deriveFont((float) USER_PROFILE_FONT_SIZE).deriveFont(Font.PLAIN));
         g2d.drawString(Utility.truncateLength(nick.orElseGet(user::getName), maxNameWidth, g2d.getFontMetrics()),
-                x + 200, y + 85);
+                x + TEXT_BEGIN_X, y + TEXT_BEGIN_Y);
 
+        /*
         int fullWidth = Math.min(maxNameWidth + g2d.getFontMetrics().stringWidth("..."),
                 g2d.getFontMetrics().stringWidth(nick.orElseGet(user::getName)));
 
@@ -98,15 +105,7 @@ public class ImageCommands {
         g2d.setFont(starlight.deriveFont(20F));
         g2d.drawString(nick.map(it -> user.getName()).orElse("") + "#" + user.getDiscriminator(),
                 x + 210 + fullWidth, y + 110 - g2d.getFontMetrics().getHeight());
-
-        // Badges
-        for (int i = 0; i < profile.getBadges().size(); i++) {
-            int badgeX = BADGES_END_X - i * (BADGES_ICON_SIZE + BADGES_OFFSET);
-            int badgeY = USER_PROFILE_START_Y + (USER_PROFILE_END_Y - USER_PROFILE_START_Y - BADGES_ICON_SIZE) / 2;
-            UserProfile.Badge badge = profile.getBadges().get(i);
-            g2d.drawImage(ImageCommands.getImageFromWebsite(badge.getBadgeImagePath()), badgeX, badgeY,
-                    BADGES_ICON_SIZE, BADGES_ICON_SIZE, null);
-        }
+                */
     }
 
     private static final Color[] POSITION_COLORS = {
@@ -117,13 +116,19 @@ public class ImageCommands {
     private static final double TITLE_SPACE = 0.25;
     private static final double ITEMS_SPACE = 1.0 - TITLE_SPACE;
 
+    public static Image getUserImage(boolean blurry, String background) {
+        return getImage("userprofile_" + blurry + "_" + background,
+                background == null ? ImageCommands.class
+                    .getResourceAsStream(blurry ? "/imggen/backgroundsblurry/default.png" : "/imggen/backgrounds/default.png")
+                    : HttpRequest.get(background + (blurry ? "blurry" : "")).userAgent(Constants.USER_AGENT)
+                    .stream());
+    }
+
     public static void drawLeaderboardEntry(Optional<Member> member, String title, UserProfile.GameStatistics stats, int position,
                                             Graphics2D g2d, int x, int y, int width, Font starlight, String language) {
         member.ifPresent(it -> {
-            String background = UserProfile.get(it.getUser()).getBackgroundImageUrl();
-            Image image = getImage("userprofilebgblurry_" + background, background == null
-                    ? ImageCommands.class.getResourceAsStream("/imggen/shapesbackgroundblurry.png")
-                    : HttpRequest.get(background + "blurry").userAgent(Constants.USER_AGENT).stream());
+            Image image = getUserImage(true, UserProfile.get(it.getUser()).getBackgroundImageUrl());
+
             int relHeight = (int) (image.getHeight(null) / ((double) image.getWidth(null) / width));
             drawTileImage(image, g2d, x, y, width, LEADERBOARD_ENTRY_HEIGHT, 0, -relHeight / 2, width, relHeight);
             g2d.setClip(null);
@@ -181,9 +186,6 @@ public class ImageCommands {
                                     int u, int v, int tileWidth, int tileHeight) {
         g2d.setClip(new Rectangle2D.Float((float) x, (float) y, (float) width, (float) height));
         g2d.drawImage(image, x + u, y + v, tileWidth, tileHeight, null);
-
-        int bottom = y + v + tileHeight;
-        if (bottom < y + height) g2d.drawImage(image, x + u, y + v + tileHeight, tileWidth, tileHeight, null);
     }
 
     public static void drawCenteredString(Graphics2D g2d, String text, int x, int y, int width) {
