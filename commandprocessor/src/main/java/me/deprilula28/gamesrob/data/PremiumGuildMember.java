@@ -49,7 +49,7 @@ public class PremiumGuildMember {
 
         @Override
         public Utility.Promise<Void> saveToSQL(SQLDatabaseManager db, PremiumGuildMember value) {
-            return db.save("premiumguildmember", Arrays.asList("tournmentwins", "customecoamount"),
+            return db.save("premiumguildmember", Arrays.asList("tournmentwins", "customecoamount", "userid", "guildid"),
                     "userid = '" + value.getUserId() + "' AND guildid = '" + value.getGuildId() + "'",
                     set -> !value.isEdited(), true,
                     (set, it) -> Log.wrapException("Saving data on SQL", () -> write(it, value)));
@@ -69,6 +69,8 @@ public class PremiumGuildMember {
         private void write(PreparedStatement statement, PremiumGuildMember member) throws Exception {
             statement.setInt(1, member.getTournmentWins());
             statement.setInt(2, member.getCustomEconomyAmount());
+            statement.setString(3, member.getUserId());
+            statement.setString(4, member.getGuildId());
         }
 
         @Override

@@ -81,15 +81,20 @@ public class Log {
     private static void appendThrowable(Throwable error, StringBuilder builder, boolean githubLinks) {
         for (StackTraceElement ste : error.getStackTrace()) {
             if (githubLinks) {
-                String githubLink = ste.getClassName() + "." + ste.getMethodName() + (ste.isNativeMethod()
-                        ? "(Native Method)" : (ste.getFileName() != null && ste.getLineNumber() >= 0
-                        ? "(" + (ste.getClassName().startsWith("me.deprilula28.gamesrob.")
-                        ? "[" + ste.getFileName() + ":" + ste.getLineNumber() + "](" +
-                        "https://github.com/GamesROB/Bot/blob/master/src/main/java/"
-                        + ste.getClassName().replaceAll("\\.", "/") + ".java#L" + ste.getLineNumber() + "))"
-                        : ste.getFileName() + ":" + ste.getLineNumber() + ")")
-                        : (ste.getFileName() != null ?  "("+ ste.getFileName() +")" : "(Unknown Source)")));
-                builder.append(String.format("  at %s\n", githubLink));
+                builder.append("  at ").append(ste.getClassName()).append(".").append(ste.getMethodName());
+
+                if (ste.isNativeMethod()) {
+                    builder.append("(Native Method)");
+                } else if (ste.getFileName() != null && ste.getLineNumber() >= 0) {
+                    if (ste.getClassName().startsWith("me.deprilula28.")) {
+                        builder.append("([").append(ste.getFileName()).append(":").append(ste.getLineNumber())
+                                .append("](https://github.com/GamesROB/Bot/blob/master/")
+                                .append(ste.getClassName().startsWith("me.deprilula28.gamesrobshardcluster")
+                                        ? "shardcluster" : "commandprocessor").append("/src/main/java/")
+                                .append(ste.getClassName().replaceAll("\\.", "/")).append(".java#L")
+                                .append(ste.getLineNumber()).append("))");
+                    } else builder.append(ste.getFileName()).append(":").append(ste.getLineNumber()).append(")");
+                }
             } else builder.append(String.format("  at %s\n", ste.toString()));
         }
         if (error.getCause() != null) {

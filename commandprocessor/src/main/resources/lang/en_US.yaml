@@ -351,6 +351,7 @@ command:
     supporter: "Supporter"
     vip: "VIP"
     premium: "Premium"
+    insiders: "Insiders"
 
     description: "View more information about our Patreon campaign!"
 

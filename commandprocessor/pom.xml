@@ -6,7 +6,7 @@
 
     <artifactId>commandprocessor</artifactId>
     <groupId>me.deprilula28</groupId>
-    <version>1.8.3</version>
+    <version>1.8.4</version>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>

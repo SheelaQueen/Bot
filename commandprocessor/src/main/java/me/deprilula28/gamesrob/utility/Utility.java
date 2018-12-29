@@ -2,6 +2,7 @@ package me.deprilula28.gamesrob.utility;
 
 import lombok.Getter;
 import lombok.Setter;
+import me.deprilula28.gamesrob.GamesROB;
 import me.deprilula28.gamesrob.baseFramework.Match;
 import me.deprilula28.gamesrob.baseFramework.Player;
 import me.deprilula28.gamesrob.commands.ProfileCommands;
@@ -22,6 +23,7 @@ import net.dv8tion.jda.core.requests.RestAction;
 import java.awt.*;
 import java.io.Closeable;
 import java.io.IOException;
+import java.security.SecureRandom;
 import java.text.DecimalFormat;
 import java.time.DayOfWeek;
 import java.time.Instant;
@@ -391,7 +393,10 @@ public class Utility {
     public static String getPrefix(Guild guild) {
         String defaultPrefix = getDefaultPrefix();
         if (guild == null) return defaultPrefix;
-        String value = GuildProfile.get(guild).getGuildPrefix();
+
+        GuildProfile profile = GuildProfile.get(guild);
+        String value = GamesROBShardCluster.premiumBot ? profile.getPremiumGuildPrefix() : profile.getGuildPrefix();
+
         return value == null ? defaultPrefix :
                 (value.length() > Constants.PREFIX_MAX_TRESHHOLD ? defaultPrefix: value);
     }

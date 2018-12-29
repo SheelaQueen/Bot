@@ -202,7 +202,7 @@ public class CommandsManager {
             cmd.sub("history his lastvotes", GenericCommands::upvoteHistory).setUsage("upvote history <page>");
         }).attr("category", "servercommands");
 
-        f.command("setprefix * prefix changeprefix", GenericCommands::setPrefix)
+        f.command("setprefix * prefix changeprefix", GenericCommands::prefix)
                 .attr("adminlockdefault", "true").attr("category", "servercommands")
                 .setUsage("setprefix <Prefix>");
 

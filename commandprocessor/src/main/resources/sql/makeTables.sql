@@ -2,6 +2,7 @@ CREATE TABLE IF NOT EXISTS guilddata (
     permstartgame TEXT, 
     permstopgame TEXT, 
     prefix TEXT,
+    premiumprefix TEXT,
     guildid TEXT,
     leaderboardbackgroundimgurl TEXT,
     language TEXT,
@@ -85,12 +86,14 @@ CREATE TABLE IF NOT EXISTS premiumguildmember (
     customecoamount INT
 );
 
-ALTER TABLE userdata ADD COLUMN IF NOT EXISTS firstuse BIGINT;
-ALTER TABLE userdata ADD COLUMN IF NOT EXISTS lastranweekly BIGINT;
-ALTER TABLE guilddata ADD COLUMN IF NOT EXISTS tournmentend BIGINT;
-ALTER TABLE guilddata ADD COLUMN IF NOT EXISTS customeco BOOLEAN;
-ALTER TABLE guilddata ADD COLUMN IF NOT EXISTS lbmsgid BIGINT;
-ALTER TABLE guilddata ADD COLUMN IF NOT EXISTS lbchid BIGINT;
-ALTER TABLE transactions ADD COLUMN IF NOT EXISTS earnt INT;
-ALTER TABLE transactions ADD COLUMN IF NOT EXISTS premiumguild TEXT;
-ALTER TABLE premiumguildmember ADD COLUMN IF NOT EXISTS tournmentwins INT;
+CREATE TABLE IF NOT EXISTS matches (
+    guildid TEXT,
+    players TEXT[],
+    starttime BIGINT,
+    duration INT,
+    game SMALLINT,
+    gamemode SMALLINT,
+    recording BYTEA
+);
+
+ALTER TABLE guilddata ADD COLUMN premiumprefix TEXT;

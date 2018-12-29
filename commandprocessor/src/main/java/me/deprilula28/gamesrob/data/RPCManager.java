@@ -3,17 +3,17 @@ package me.deprilula28.gamesrob.data;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.annotations.SerializedName;
-import lombok.Setter;
-import me.deprilula28.gamesrob.GamesROB;
-import me.deprilula28.gamesrob.utility.Language;
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.Setter;
+import me.deprilula28.gamesrob.GamesROB;
 import me.deprilula28.gamesrob.achievements.AchievementType;
 import me.deprilula28.gamesrob.commands.OwnerCommand;
+import me.deprilula28.gamesrob.utility.Language;
+import me.deprilula28.gamesrob.utility.Utility;
 import me.deprilula28.gamesrobshardcluster.GamesROBShardCluster;
 import me.deprilula28.gamesrobshardcluster.utilities.Constants;
 import me.deprilula28.gamesrobshardcluster.utilities.Log;
-import me.deprilula28.gamesrob.utility.Utility;
 import net.dv8tion.jda.core.MessageBuilder;
 import net.dv8tion.jda.core.Permission;
 import net.dv8tion.jda.core.entities.Guild;
@@ -33,6 +33,7 @@ public class RPCManager extends WebSocketClient {
     private Map<RequestType, Function<JsonElement, Object>> handlerMap = new HashMap<>();
     private Map<UUID, Utility.Promise<JsonElement>> requests = new HashMap<>();
     @Setter private boolean shouldAllowClose;
+    private boolean isReconnecting = false;
 
     @Data
     @AllArgsConstructor
@@ -78,7 +79,7 @@ public class RPCManager extends WebSocketClient {
 
     public static enum RequestType {
         // Server -> Client
-        DBL_WEBHOOK_NOTIFICATION, TWITCH_WEBHOOK_NOTIFICATION,
+        DBL_WEBHOOK_NOTIFICATION, TWITCH_STREAM_UPDATE,
         GET_USER_BY_ID, GET_GUILD_BY_ID, GET_MUTUAL_SERVERS, GET_SHARDS_INFO, OWNER_LIST_UPDATED,
         BOT_UPDATED, BOT_RESTARTED, IS_OWNER,
 
@@ -134,29 +135,24 @@ public class RPCManager extends WebSocketClient {
         }
     }
 
-    public void disconnectThread() {
-        ScheduledExecutorService service = Executors.newSingleThreadScheduledExecutor();
-        disconnectExec(service);
-    }
+    public void rpcReconnect() {
+        if (!isReconnecting) {
+            Log.info("Reconnecting to RPC/JSON in 3 seconds.");
 
-    private void disconnectExec(ScheduledExecutorService service) {
-        Log.wrapException("Failed to connect to RPC/JSON", () -> {
-            Log.info("Attempting reconnect to RPC/JSON...");
-            if (reconnectBlocking()) Log.info("Connected sucessfully.");
-            else service.schedule(() -> disconnectExec(service), 3, TimeUnit.SECONDS);
-        });
+            ScheduledExecutorService service = Executors.newSingleThreadScheduledExecutor();
+            service.schedule(() -> Log.wrapException("Failed to reconnect RPC/JSON", () -> {
+                isReconnecting = false;
+                Log.info("Reconnecting to RPC/JSON...");
+                if (reconnectBlocking()) Log.info("RPC/JSON has reconnected.");
+            }), 3, TimeUnit.SECONDS);
+            isReconnecting = true;
+        }
     }
 
     @Override
     public void onClose(int code, String reason, boolean remote) {
         Log.info("RPC socket disconnected. Reason: " + reason + " (" + code + ")");
-
-        if (!shouldAllowClose) {
-            Thread reconnect = new Thread(this::disconnectThread);
-            reconnect.setDaemon(true);
-            reconnect.setName("RPC/JSON Reconnect Task");
-            reconnect.start();
-        }
+        if (!shouldAllowClose) rpcReconnect();
     }
 
     @Override
@@ -206,6 +202,7 @@ public class RPCManager extends WebSocketClient {
                 .map(it -> new WebsiteUser(it.getId(), it.getName(), it.getDiscriminator(),
                         it.getAvatarUrl())).orElse(null));
         handlerMap.put(RequestType.GET_GUILD_BY_ID, this::getGuildById);
+        handlerMap.put(RequestType.TWITCH_STREAM_UPDATE, GamesROB::twitchStreamUpdate);
         handlerMap.put(RequestType.DBL_WEBHOOK_NOTIFICATION, this::dblWebhookNotification);
         handlerMap.put(RequestType.GET_MUTUAL_SERVERS, this::getMutualServers);
         handlerMap.put(RequestType.GET_SHARDS_INFO, n -> GamesROB.getShardsInfo());

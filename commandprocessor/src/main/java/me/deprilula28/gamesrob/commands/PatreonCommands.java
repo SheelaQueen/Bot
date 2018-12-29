@@ -218,6 +218,7 @@ public class PatreonCommands {
     public static String patreon(CommandContext context) {
         List<UserProfile.PatreonPerk> perks = UserProfile.get(context.getAuthor()).getPatreonPerks();
         return Language.transl(context, "command.patreon.text", Constants.PATREON_URL, Language.transl(context, "command.patreon." + (
+                perks.contains(UserProfile.PatreonPerk.INSIDER) ? "insiders" :
                 perks.contains(UserProfile.PatreonPerk.PREMIUM) ? "premium" :
                 perks.contains(UserProfile.PatreonPerk.VIP) ? "vip" :
                 perks.contains(UserProfile.PatreonPerk.SUPPORTER) ? "supporter" :

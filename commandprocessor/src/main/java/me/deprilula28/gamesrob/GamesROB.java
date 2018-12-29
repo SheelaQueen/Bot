@@ -1,5 +1,7 @@
 package me.deprilula28.gamesrob;
 
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import me.deprilula28.gamesrob.baseFramework.GamesInstance;
@@ -22,6 +24,7 @@ import net.dv8tion.jda.core.OnlineStatus;
 import net.dv8tion.jda.core.entities.*;
 import org.java_websocket.client.WebSocketClient;
 
+import javax.imageio.ImageIO;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -33,17 +36,15 @@ public class GamesROB extends CommandProcessor {
             Connect4.GAME, TicTacToe.GAME, Minesweeper.GAME, Hangman.GAME, Detective.GAME, Roulette.GAME, Quiz.GAME, Uno.GAME,
             TownCountryRiver.GAME
     };
-    public static final String VERSION = "1.8.3";
+    public static final String VERSION = "1.8.4";
 
     public static final long UP_SINCE = System.currentTimeMillis();
 
     public static List<Long> owners;
     public static Optional<SQLDatabaseManager> database = Optional.empty();
-    static Optional<String> twitchClientID = Optional.empty();
-    static long twitchUserIDListen = -1L;
-    private static boolean twitchPresence = false;
     public static Optional<RPCManager> rpc = Optional.empty();
     public static PlottingStatistics plots = new PlottingStatistics();
+    private static Optional<Game> twitchPresence = Optional.empty();
 
     @Data
     @AllArgsConstructor
@@ -104,27 +105,6 @@ public class GamesROB extends CommandProcessor {
 
     public static void setPresence() {
         defaultPresence();
-        /*
-        if (twitchClientID.isPresent() && twitchUserIDListen != -1) {
-            StreamData data = Constants.GSON.fromJson(HttpRequest
-                    .get("https://api.twitch.tv/kraken/streams/" + GamesROB.twitchUserIDListen)
-                    .header("Accept", "application/vnd.twitchtv.v5+json")
-                    .header("Client-ID", GamesROB.twitchClientID.get())
-                    .body(), StreamData.class);
-            if (data.getStream().isJsonNull() && twitchPresence) defaultPresence();
-            else if (!data.getStream().isJsonNull()) {
-                JsonObject obj = data.getStream().getAsJsonObject();
-                String title = obj.get("title").getAsString() + " to " + obj.get("viewers").getAsInt() + " viewers";
-                String url = obj.get("channel").getAsJsonObject().get("url").getAsString();
-
-                shards.forEach(cur -> {
-                    cur.getPresence().setStatus(OnlineStatus.ONLINE);
-                    cur.getPresence().setGame(Game.streaming(title, url));
-                });
-                twitchPresence = true;
-            }
-        }
-        */
     }
 
     public static void defaultPresence() {
@@ -163,7 +143,6 @@ public class GamesROB extends CommandProcessor {
     @Override
     public void registerCommands(String[] args, CommandFramework f) {
         Log.info("-= Starting Command Processor " + VERSION + " =-");
-
         BootupProcedure.bootup(args);
         CommandsManager.registerCommands(f);
         f.getSettings().setPrefixGetter(Utility::getPrefix);
@@ -179,5 +158,30 @@ public class GamesROB extends CommandProcessor {
         GamesROB.plots.interrupt();
         BootupProcedure.presenceThread.interrupt();
         database.ifPresent(SQLDatabaseManager::close);
+    }
+
+    public static Object twitchStreamUpdate(JsonElement element) {
+        if (element.isJsonNull()) {
+            twitchPresence = Optional.empty();
+            twitchPresence.ifPresent(n -> {
+                if (GamesROBShardCluster.premiumBot) setAvatar("premium.png");
+                else if (GamesROBShardCluster.debug) setAvatar("dev.png");
+                else setAvatar("default.png");
+            });
+        } else {
+            if (!twitchPresence.isPresent()) setAvatar("stream.png");
+
+            JsonObject object = element.getAsJsonObject();
+            twitchPresence = Optional.of(Game.streaming(object.get("title").getAsString() + " to " +
+                    object.get("viewer_count").getAsInt() + " viewers",
+                    "https://twitch.tv/" + object.get("user_name").getAsString()));
+        }
+
+        return null;
+    }
+
+    private static void setAvatar(String path) {
+        Log.wrapException("Setting avatar", () -> GamesROBShardCluster.shards.get(0).getSelfUser().getManager()
+                .setAvatar(Icon.from(GamesROB.class.getResourceAsStream("/avatar/" + path))).queue());
     }
 }

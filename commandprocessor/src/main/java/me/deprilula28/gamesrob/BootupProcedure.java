@@ -15,11 +15,9 @@ import me.deprilula28.gamesrobshardcluster.*;
 import me.deprilula28.gamesrobshardcluster.utilities.Constants;
 import me.deprilula28.gamesrobshardcluster.utilities.Log;
 import me.deprilula28.gamesrobshardcluster.utilities.ShardClusterUtilities;
-import me.deprilula28.gamesrobshardcluster.utilities.Trello;
 import net.dv8tion.jda.core.*;
 import net.dv8tion.jda.core.events.guild.GuildJoinEvent;
 import net.dv8tion.jda.core.events.guild.GuildLeaveEvent;
-import org.trello4j.TrelloImpl;
 import redis.clients.jedis.Jedis;
 
 import java.awt.*;
@@ -54,7 +52,6 @@ public class BootupProcedure {
     private static int totalShards;
     public static String secret;
     public static String changelog;
-    public static boolean useRedis;
     @Getter private static List<Long> owners;
 
     private static final BootupTask loadArguments = args -> {
@@ -67,9 +64,7 @@ public class BootupProcedure {
                 .orElse(Arrays.asList(197448151064379393L, 386945522608373785L)));
         owners = GamesROB.owners;
         GamesROB.database = pargs.get(4).map(SQLDatabaseManager::new);
-        GamesROB.twitchUserIDListen = pargs.get(6).map(Long::parseLong).orElse(-1L);
         secret = pargs.get(7).orElse("");
-        GamesROB.twitchClientID = pargs.get(8);
 
         GamesROB.rpc = pargs.get(9).map(it -> {
             try {
@@ -196,11 +191,11 @@ public class BootupProcedure {
 
         // Twitch integration
         /*
-        if (GamesROB.twitchUserIDListen != -1 && GamesROB.twitchClientID.isPresent()) {
+        if (GamesROB.listenUserId != -1 && GamesROB.twitchClientID.isPresent()) {
             HttpRequest request = HttpRequest.post(String.format("https://api.twitch.tv/helix/webhooks/hub" +
                 "?hub.callback=%s&hub.mode=%s&hub.topic=%s&hub.lease_seconds=%s",
                     "http%3A%2F%2F%2Ftwitchwebhook", "subscribe",
-                    "https%3A%2F%2Fapi.twitch.tv%2Fhelix%2Fstreams%3Fuser_id%3D" + GamesROB.twitchUserIDListen,
+                    "https%3A%2F%2Fapi.twitch.tv%2Fhelix%2Fstreams%3Fuser_id%3D" + GamesROB.listenUserId,
                     864000))
                     .header("Accept", "application/vnd.twitchtv.v5+json")
                     .header("Client-ID", GamesROB.twitchClientID.get());

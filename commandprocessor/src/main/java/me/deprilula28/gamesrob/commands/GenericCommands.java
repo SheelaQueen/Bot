@@ -273,12 +273,13 @@ public class GenericCommands {
         return null;
     }
 
-    public static String setPrefix(CommandContext context) {
+    public static String prefix(CommandContext context) {
         String prefix = String.join(" ", context.remaining());
         if (prefix.length() > Constants.PREFIX_MAX_TRESHHOLD) return Language.transl(context, "command.setprefix.tooLong");
 
         GuildProfile profile = GuildProfile.get(context.getGuild());
-        profile.setGuildPrefix(prefix);
+        if (GamesROBShardCluster.premiumBot) profile.setPremiumGuildPrefix(prefix);
+        else profile.setGuildPrefix(prefix);
         profile.setEdited(true);
 
         return Language.transl(context, "command.setprefix.message");

@@ -23,6 +23,7 @@ public class GuildProfile {
     private String guildId;
 
     private String guildPrefix;
+    private String premiumGuildPrefix;
     private String language;
     private String backgroundImageUrl;
     private long tournmentEnds;
@@ -63,7 +64,8 @@ public class GuildProfile {
     public static class GuildSaveManager extends DataManager<String, GuildProfile> {
         @Override
         public Optional<GuildProfile> getFromSQL(SQLDatabaseManager db, String from) throws Exception {
-            ResultSet select = db.select("guilddata", Arrays.asList("prefix", "language", "leaderboardbackgroundimgurl",
+            ResultSet select = db.select("guilddata", Arrays.asList(
+                    "prefix", "premiumprefix", "language", "leaderboardbackgroundimgurl",
                     "tournmentend", "customeco", "lbchid", "lbmsgid"),
                     "guildid = '" + from + "'");
 
@@ -76,7 +78,7 @@ public class GuildProfile {
         @Override
         public Utility.Promise<Void> saveToSQL(SQLDatabaseManager db, GuildProfile value) {
             return db.save("guilddata", Arrays.asList(
-                    "prefix", "language", "leaderboardbackgroundimgurl", "tournmentend", "customeco", "lbchid", "lbmsgid", "guildid"
+                    "prefix", "premiumprefix", "language", "leaderboardbackgroundimgurl", "tournmentend", "customeco", "lbchid", "lbmsgid", "guildid"
             ), "guildid = '" + value.getGuildId() + "'",
                 set -> !value.isEdited(), true,
                 (set, it) -> Log.wrapException("Saving data on SQL", () -> writeGuildData(it, value)));
@@ -85,8 +87,8 @@ public class GuildProfile {
         private Optional<GuildProfile> fromResultSet(String from, ResultSet select) {
             try {
                 return Optional.of(new GuildProfile(from,
-                        select.getString("prefix"), select.getString("language"),
-                        select.getString("leaderboardbackgroundimgurl"),
+                        select.getString("prefix"), select.getString("premiumprefix"),
+                        select.getString("language"), select.getString("leaderboardbackgroundimgurl"),
                         select.getLong("tournmentend"), select.getBoolean("customeco"),
                         select.getLong("lbchid"), select.getLong("lbmsgid"), false));
             } catch (Exception e) {
@@ -97,18 +99,19 @@ public class GuildProfile {
 
         private void writeGuildData(PreparedStatement statement, GuildProfile profile) throws Exception {
             statement.setString(1, profile.getGuildPrefix());
-            statement.setString(2, profile.getLanguage());
-            statement.setString(3, profile.getBackgroundImageUrl());
-            statement.setLong(4, profile.getTournmentEnds());
-            statement.setBoolean(5, profile.isCustomEconomy());
-            statement.setLong(6, profile.getLeaderboardChannelId());
-            statement.setLong(7, profile.getLeaderboardMessageId());
-            statement.setString(8, profile.getGuildId());
+            statement.setString(2, profile.getPremiumGuildPrefix());
+            statement.setString(3, profile.getLanguage());
+            statement.setString(4, profile.getBackgroundImageUrl());
+            statement.setLong(5, profile.getTournmentEnds());
+            statement.setBoolean(6, profile.isCustomEconomy());
+            statement.setLong(7, profile.getLeaderboardChannelId());
+            statement.setLong(8, profile.getLeaderboardMessageId());
+            statement.setString(9, profile.getGuildId());
         }
 
         @Override
         public GuildProfile createNew(String from) {
-            return new GuildProfile(from, GamesROBShardCluster.premiumBot ? Constants.DEFAULT_PREMIUM_PREFIX : Constants.DEFAULT_PREFIX,
+            return new GuildProfile(from, Constants.DEFAULT_PREFIX, Constants.DEFAULT_PREMIUM_PREFIX,
                     Constants.DEFAULT_LANGUAGE, null, -1L, false, -1L, -1L,false);
         }
 

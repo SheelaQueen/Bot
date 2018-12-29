@@ -1,7 +1,7 @@
-+ Added support for Patreon things.
-+ Increased the Hangman word limit to 100.
-+ General improvements to profile command.
-+ Replaced links with working ones.
++ Premium bot now has a separate prefix from main bot
 
-- Fixed Uno card selection causing errors on overflow.
+- Fixed victories not storing
+- Fixed Trello links
+- Fixed guild member storage in the premium bot
+- Fixed message reaction permission not including message history
 Developed by deprilula28#3609. Hope you enjoy the changes!

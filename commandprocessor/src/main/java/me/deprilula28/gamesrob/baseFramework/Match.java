@@ -35,7 +35,8 @@ import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 
 /*
-THIS CLASS IS A MESS HELP
+THIS CLASS IS A NESS HELP
+https://cdn.discordapp.com/attachments/400042143579635745/524344799999033344/ss_movie1_en.png
  */
 
 @Data
@@ -477,7 +478,7 @@ public class Match extends Thread {
         players.forEach(cur ->
             cur.getUser().ifPresent(user -> {
                 UserProfile userProfile = UserProfile.get(user);
-                boolean victory = winner.equals(Player.user(user));
+                boolean victory = winner.getUser().map(it -> it.equals(user)).orElse(false);
                 if (tokens != 0) userProfile.registerGameResult(channelIn.getGuild(), user, victory, !victory, game, playTime);
 
                 if (winner.equals(cur)) {
@@ -493,7 +494,6 @@ public class Match extends Thread {
                 PremiumGuildMember member = PremiumGuildMember.get(user, channelIn.getGuild());
                 member.setTournmentWins(member.getTournmentWins() + 1);
                 member.setEdited(true);
-                Log.info(member);
             }
         });
 
@@ -535,7 +535,8 @@ public class Match extends Thread {
         });
 
         if (Utility.hasPermission(channelIn, channelIn.getGuild().getMember(channelIn.getJDA().getSelfUser()),
-                Permission.MESSAGE_ADD_REACTION) && allowRematch)
+                Permission.MESSAGE_ADD_REACTION) && Utility.hasPermission(channelIn, channelIn.getGuild()
+                .getMember(channelIn.getJDA().getSelfUser()), Permission.MESSAGE_HISTORY) && allowRematch)
             gameOver.append("\n").append(Language.transl(language, "gameFramework.rematch"));
 
         players.forEach(cur -> cur.getUser().ifPresent(user -> {
@@ -572,7 +573,7 @@ public class Match extends Thread {
             if (GAMES.containsKey(context.getChannel())) {
                 Match match = GAMES.get(context.getChannel());
                 return Language.transl(context, "gameFramework.activeGame") + (match.getPlayers()
-                            .contains(Optional.of(context.getAuthor()))
+                            .contains(Player.user(context.getAuthor()))
                         ? Language.transl(context, "gameFramework.viewPlayersStop", prefix, prefix)
                         : Language.transl(context, "gameFramework.typeToJoin", prefix));
             }
